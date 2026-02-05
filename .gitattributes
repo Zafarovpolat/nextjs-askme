@@ -1,0 +1,18 @@
+# Handle line endings automatically for files detected as text
+# and perform LF normalization (convert CRLF to LF on commit).
+* text=auto
+
+# Explicitly declare files that should always have LF line endings on checkout.
+# This ensures consistency between your Windows machine and the deployment server.
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.svg text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf

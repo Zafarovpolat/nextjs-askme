@@ -1,0 +1,46 @@
+/* Стили для иконок в хедере */
+
+/* Иконки в обычных кнопках меняют цвет на белый при ховере */
+.m_btn:hover img {
+  filter: brightness(0) invert(1);
+}
+
+/* Иконки в фиолетовых кнопках уже белые, не меняем */
+.m_btn.category_btn img {
+  filter: brightness(0) invert(1);
+}
+
+.m_btn.category_btn:hover img {
+  filter: brightness(0) invert(1);
+}
+
+/* Иконка переключателя темы */
+.mode_toggler:hover img {
+  filter: brightness(0) invert(1);
+}
+
+/* Фикс для карточек категорий - не сжимаются, всегда 268px */
+.subject_item {
+  flex-shrink: 0;
+  min-width: 268px;
+  width: 268px;
+}
+
+/* Стили ТОЛЬКО для кнопок в списке вопросов */
+.questions_list .question_list_item_right_actions .s_btn:not(.s_btn_icon) {
+  padding: 0 24px !important;
+  min-width: auto;
+}
+
+/* Кнопки лайка и поделиться в вопросах - квадратные */
+.questions_list .question_list_item_right_actions .s_btn_icon {
+  width: 40px;
+  min-width: 40px;
+  padding: 0 !important;
+}
+
+.questions_list .question_item_top_data_right .s_btn_icon {
+  width: 40px;
+  min-width: 40px;
+  padding: 0 !important;
+}

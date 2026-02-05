@@ -1,0 +1,24 @@
+/* AskMe Q&A Platform - Global Styles */
+/* Импортируем все CSS файлы из WordPress темы */
+
+@import url('../styles/grid.css');
+@import url('../styles/header-icons.css');
+@import url('../styles/style.css');
+@import url('../styles/main.css');
+@import url('../styles/modal.css');
+@import url('../styles/categories.css');
+@import url('../styles/questions.css');
+@import url('../styles/profile.css');
+@import url('../styles/leaders.css');
+@import url('../styles/ask.css');
+@import url('../styles/login-auth.css');
+@import url('../styles/404.css');
+
+/* Дополнительные стили для Next.js */
+:root {
+  --max-width: 1100px;
+  --border-radius: 12px;
+  --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
+    'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
+    'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+}
