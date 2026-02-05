@@ -13,7 +13,7 @@ export default function Home() {
   const popularQuestions = mockQuestions.slice(0, 4)
 
   // Моковые подкатегории для каждой категории
-  const subcategories = {
+  const subcategories: Record<string, string[]> = {
     'programming': ['JavaScript', 'Python', 'React', 'Node.js'],
     'javascript': ['ES6+', 'TypeScript', 'Async/Await', 'Promises'],
     'react': ['Hooks', 'Context API', 'Redux', 'Next.js'],
