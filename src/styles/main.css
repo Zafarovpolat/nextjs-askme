@@ -305,8 +305,16 @@ a:has(.light_logo) {
 	margin-bottom: 16px;
 }
 
+.popular-section {
+	margin-bottom: 0;
+}
+
+.popular-section + .line {
+	margin-top: 0;
+}
+
 .subjects_list_wrapper {
-	overflow-x: scroll;
+	overflow-x: auto;
 }
 
 .subjects_list_wrapper::-webkit-scrollbar {
@@ -330,7 +338,7 @@ a:has(.light_logo) {
 }
 
 .subjects_list {
-	padding-bottom: 20px;
+	padding-bottom: 25px;
 	padding-top: 20px;
 	display: flex;
 	align-items: center;
@@ -349,7 +357,7 @@ a:has(.light_logo) {
 	position: relative;
 	background: url(/images/subject-bg.svg);
 	background-repeat: no-repeat;
-	padding: 22px;
+	padding: 22px 22px 25px;
 }
 
 .dark_mode .subject_item {
@@ -431,7 +439,7 @@ a:has(.light_logo) {
 	align-items: center;
 	padding-left: 12px;
 	justify-content: space-between;
-	margin-top: 12px;
+	margin-top: 6px;
 }
 
 .subject_item_more p {
@@ -573,7 +581,7 @@ a:has(.light_logo) {
 }
 
 .questions_block_search input::placeholder {
-	color: "#899AB5"
+	color: #899AB5;
 }
 
 .btn-like:hover {
@@ -1761,7 +1769,7 @@ footer .line {
 	height: 55px;
 	border-radius: 12px;
 	border: 1px solid #E5E7EB;
-	padding-left: 55px;
+	padding-left: 50px;
 	padding-right: 170px;
 	font-size: 16px;
 }
@@ -1815,6 +1823,7 @@ footer .line {
 		text-align: center;
 		padding: 16px;
 		margin-top: 10px;
+		height: 45px;
 	}
 	
 	.questions_block_search textarea {

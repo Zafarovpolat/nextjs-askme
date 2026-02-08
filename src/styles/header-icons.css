@@ -44,3 +44,61 @@
   min-width: 40px;
   padding: 0 !important;
 }
+
+/* Стрелка "Посмотреть все" в карточке категории — приподнять и увеличить */
+.subject_item_more_arrow {
+  width: 8px !important;
+  height: 14px !important;
+  position: relative;
+  top: -1px;
+}
+
+/* Больше отступа справа для текста вопросов в карточках */
+.question_list_item_left .main_text {
+  padding-right: 12px;
+}
+
+/* Ховеры для ссылок в футере */
+.footer_wrapper a {
+  color: rgb(139, 148, 161);
+  transition: all 0.2s ease;
+}
+
+.footer_wrapper a:hover {
+  color: rgb(96, 105, 255);
+  text-decoration: underline;
+}
+
+.dark_mode .footer_wrapper a {
+  color: rgb(204, 221, 248);
+}
+
+.dark_mode .footer_wrapper a:hover {
+  color: rgb(130, 138, 255);
+}
+
+/* Иконки категорий (верхний блок) */
+.category_icon {
+  color: rgb(96, 105, 255);
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.dark_mode .category_icon {
+  color: #fff;
+}
+
+/* Иконки в "Популярные темы" (нижний блок) */
+.topic_icon {
+  color: rgb(96, 105, 255);
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.tops_block .question_list_item:hover .topic_icon {
+  color: #fff;
+}
+
+.dark_mode .topic_icon {
+  color: #fff;
+}

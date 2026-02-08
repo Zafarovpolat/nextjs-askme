@@ -130,7 +130,7 @@ export default function Header() {
 
           <form method="POST" action="/" className="search_input search_input_mob">
             <img src="/images/icons/mob-search.svg" alt="" width="18" height="18" style={{ fill: '#fff' }} />
-            <input type="text" placeholder="Поиск по сайту" />
+            <input type="text" placeholder="Найти категорию" />
           </form>
 
           <Link href="/ask" className="mob_sec_item">
