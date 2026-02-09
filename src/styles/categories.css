@@ -55,6 +55,10 @@
   margin-bottom: 20px;
 }
 
+.blocks_title {
+  align-items: center;
+}
+
 .category_page_block .blocks_title h2 {
   margin-right: 25px;
   margin-left: 7px;
@@ -147,6 +151,12 @@
   .categories_list {
     grid-template-columns: repeat(2, 1fr);
     gap: 25px;
+  }
+
+    .blocks_title {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px 5px;
   }
 }
 

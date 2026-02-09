@@ -290,11 +290,23 @@ a:has(.light_logo) {
 
 .blocks_title .questions_filter {
 	margin-left: 25px;
+	padding-bottom: 0;
+}
+
+.questions_filter {
+	margin-left: 0;
+	overflow-x: scroll;
+}
+
+.questions_filter::-webkit-scrollbar {
+	opacity: 0;
+	display: none;
 }
 
 .questions_filter .s_btn {
 	font-weight: 700;
 	color: #4C5B72;
+	white-space: nowrap;
 }
 
 .questions_filter .s_btn_active {
@@ -1224,6 +1236,7 @@ footer .line {
 	.blocks_title .questions_filter {
 		margin-left: 0;
 	}
+
 }
 
 @media only screen and (max-width: 500px) {
