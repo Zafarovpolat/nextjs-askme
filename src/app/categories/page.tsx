@@ -1,89 +1,304 @@
-'use client'
-
-import { useRef, useCallback } from 'react'
-import { mockCategories } from "@/data/mock-categories"
+import Header from "@/components/layout/Header"
+import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 
-// Подкатегории для каждой категории
-const subcategories: Record<string, string[]> = {
-  "auto-moto": ["Автоспорт", "Автострахование", "Выбор автомобиля, мотоцикла", "ГИБДД, Обучение, Права"],
-  entertainment: ["Игры без компьютера", "Клубы, Дискотеки", "Концерты, Выставки, Спектакли", "Охота и Рыбалка"],
-  plants: ["Дикая природа", "Домашние", "Комнатные растения", "Сад-Огород"],
-  "beauty-health": ["Коронавирус", "Баня, Массаж, Фитнес", "Болезни, Лекарства", "Детское здоровье"],
-  "family-home": ["Беременность, Роды", "Воспитание детей", "Домашняя бухгалтерия", "Домоводство"],
-}
+// Все категории со скриншота с полными списками подкатегорий
+const allCategories = [
+  {
+    name: "Авто, Мото",
+    slug: "auto-moto",
+    svgIcon: "steering-wheel",
+    subcategories: [
+      "Автоспорт",
+      "Автострахование",
+      "Выбор автомобиля, мотоцикла",
+      "ГИБДД, Обучение, Права",
+      "ПДД, Вождение",
+      "Оформление авто-мото сделок",
+      "Сервис, Обслуживание, Тюнинг",
+      "Прочие Авто-темы",
+    ],
+  },
+  {
+    name: "Развлечения",
+    slug: "entertainment",
+    svgIcon: "gaming",
+    subcategories: [
+      "Игры без компьютера",
+      "Клубы, Дискотеки",
+      "Концерты, Выставки, Спектакли",
+      "Охота и Рыбалка",
+      "Рестораны, Кафе, Бары",
+      "Советы, Идеи",
+      "Восьмое марта",
+      "Новый Год",
+    ],
+  },
+  {
+    name: "Растения",
+    slug: "plants",
+    svgIcon: "gear",
+    subcategories: [
+      "Дикая природа",
+      "Домашние",
+      "Комнатные растения",
+      "Сад-Огород",
+      "Прочее",
+    ],
+  },
+  {
+    name: "Красота и Здоровье",
+    slug: "beauty-health",
+    svgIcon: "heart",
+    subcategories: [
+      "Коронавирус",
+      "Баня, Массаж, Фитнес",
+      "Болезни, Лекарства",
+      "Врачи, Клиники, Страхование",
+      "Здоровый образ жизни",
+      "Коррекция веса",
+      "Уход за волосами",
+      "Прочее о здоровье и красоте",
+    ],
+  },
+  {
+    name: "Семья, Дом",
+    slug: "family-home",
+    svgIcon: "family",
+    subcategories: [
+      "Беременность, Роды",
+      "Воспитание детей",
+      "Домашняя бухгалтерия",
+      "Домоводство",
+      "Загородная жизнь",
+      "Мебель, Интерьер",
+      "Организация быта",
+      "Прочие дела домашние",
+    ],
+  },
+  {
+    name: "Бизнес, Финансы",
+    slug: "business-finance",
+    svgIcon: "business",
+    subcategories: [
+      "Банки и Кредиты",
+      "Долги, Коллекторы",
+      "Бухгалтерия, Аудит, Налоги",
+      "Макроэкономика",
+      "Недвижимость, Ипотека",
+      "Производственные предприятия",
+      "Собственный бизнес",
+      "Остальные сферы бизнеса",
+    ],
+  },
+  {
+    name: "Еда, Кулинария",
+    slug: "food-cooking",
+    svgIcon: "food",
+    subcategories: [
+      "Вторые блюда",
+      "Готовим в ...",
+      "Готовим детям",
+      "Десерты, Сладости, Выпечка",
+      "Закуски и Салаты",
+      "Консервирование",
+      "На скорую руку",
+      "Прочее кулинарное",
+    ],
+  },
+  {
+    name: "Спорт",
+    slug: "sport",
+    svgIcon: "sport",
+    subcategories: [
+      "Теннис",
+      "Футбол",
+      "Хоккей",
+      "Зимние виды спорта",
+      "Экстрим",
+      "Другие виды спорта",
+      "Занятия спортом",
+      "События, результаты",
+    ],
+  },
+  {
+    name: "Домашние задания",
+    slug: "homework",
+    svgIcon: "homework",
+    subcategories: [
+      "Математика",
+      "Алгебра",
+      "Геометрия",
+      "Иностранные языки",
+      "Химия",
+      "Физика",
+      "Биология",
+      "Другие предметы",
+    ],
+  },
+  {
+    name: "Культура",
+    slug: "culture",
+    svgIcon: "culture",
+    subcategories: [
+      "Архитектура, Скульптура",
+      "Живопись, Графика",
+      "Кино, Театр",
+      "Литература",
+      "Музыка",
+      "Прочие искусства",
+    ],
+  },
+  {
+    name: "Программирование",
+    slug: "programming",
+    svgIcon: "it",
+    subcategories: [
+      "Android",
+      "C/C++",
+      "C#",
+      "iOS",
+      "Python",
+      "Веб-дизайн",
+      "Верстка, CSS, HTML, SVG",
+      "Другие языки и технологии",
+    ],
+  },
+  {
+    name: "Общество, Политика",
+    slug: "society-politics",
+    svgIcon: "society",
+    subcategories: [
+      "Общество",
+      "Политика",
+      "Средства массовой информации",
+      "Прочие социальные темы",
+    ],
+  },
+  {
+    name: "Дети",
+    slug: "children",
+    svgIcon: "children",
+    subcategories: [
+      "Беременность, Роды",
+      "Воспитание детей",
+      "Домоводство",
+      "Загородная жизнь",
+      "Организация быта",
+      "Свадьба, Венчание, Брак",
+      "Строительство и Ремонт",
+      "Прочие дела домашние",
+    ],
+  },
+  {
+    name: "Наука, Техника",
+    slug: "science-tech",
+    svgIcon: "science",
+    subcategories: [
+      "Гуманитарные науки",
+      "Естественные науки",
+      "Лингвистика",
+      "Техника",
+      "Прочие",
+    ],
+  },
+  {
+    name: "Фотография",
+    slug: "photography",
+    svgIcon: "camera",
+    subcategories: [
+      "Выбор, покупка аппаратуры",
+      "Обработка видеозаписей",
+      "Обработка и печать фото",
+      "Уход за аппаратурой",
+      "Техника, темы, жанры съемки",
+      "Прочее фото-видео",
+    ],
+  },
+  {
+    name: "Видео игры",
+    slug: "video-games",
+    svgIcon: "gaming",
+    subcategories: [
+      "Браузерные",
+      "Клиентские",
+      "Консольные",
+      "Мобильные",
+      "Прочие",
+    ],
+  },
+  {
+    name: "Компьютеры, Связь",
+    slug: "computers",
+    svgIcon: "computer",
+    subcategories: [
+      "Железо",
+      "Интернет",
+      "Мобильная связь",
+      "Мобильные устройства",
+      "Офисная техника",
+      "Программное обеспечение",
+      "Прочее компьютерное",
+    ],
+  },
+  {
+    name: "Знакомства",
+    slug: "dating",
+    svgIcon: "relationships",
+    subcategories: [
+      "Дружба",
+      "Знакомства",
+      "Любовь",
+      "Отношения",
+      "Расставания",
+      "Прочие взаимоотношения",
+    ],
+  },
+  {
+    name: "Работа, Карьера",
+    slug: "career",
+    svgIcon: "career",
+    subcategories: [
+      "Кадровые агентства",
+      "Написание резюме",
+      "Обстановка на работе",
+      "Отдел кадров, HR",
+      "Подработка, временная работа",
+      "Профессиональный рост",
+      "Смена и поиск места работы",
+      "Прочие карьерные вопросы",
+    ],
+  },
+  {
+    name: "Гороскопы, Гадания",
+    slug: "horoscopes",
+    svgIcon: "horoscope",
+    subcategories: [
+      "Гадания",
+      "Гороскопы",
+      "Магия",
+      "Сны",
+      "Прочие предсказания",
+    ],
+  },
+];
 
 export default function CategoriesPage() {
-
-  // Drag-to-scroll для списка категорий
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const isDragging = useRef(false)
-  const startX = useRef(0)
-  const scrollLeft = useRef(0)
-  const hasDragged = useRef(false)
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    const el = scrollRef.current
-    if (!el) return
-    isDragging.current = true
-    hasDragged.current = false
-    startX.current = e.pageX - el.offsetLeft
-    scrollLeft.current = el.scrollLeft
-    el.style.cursor = 'grabbing'
-    el.style.userSelect = 'none'
-  }, [])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging.current) return
-    const el = scrollRef.current
-    if (!el) return
-    e.preventDefault()
-    const x = e.pageX - el.offsetLeft
-    const walk = (x - startX.current) * 1.5
-    if (Math.abs(walk) > 5) hasDragged.current = true
-    el.scrollLeft = scrollLeft.current - walk
-  }, [])
-
-  const handleMouseUp = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) return
-    isDragging.current = false
-    el.style.cursor = 'grab'
-    el.style.removeProperty('user-select')
-  }, [])
-
-  const handleClickCapture = useCallback((e: React.MouseEvent) => {
-    if (hasDragged.current) {
-      e.preventDefault()
-      e.stopPropagation()
-      hasDragged.current = false
-    }
-  }, [])
-
   return (
-    <div className="container">
-      {/* Блок "Популярные категории" */}
-      <div className="section popular-section">
-        <div className="blocks_title">
-          <h2>Категории</h2>
-        </div>
+    <>
+      <Header />
+      <div className="container">
+        <div className="section">
+          <div className="blocks_title">
+            <h2>Категории</h2>
+          </div>
 
-        <div
-          className="subjects_list_wrapper"
-          ref={scrollRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onClickCapture={handleClickCapture}
-          style={{ cursor: 'grab' }}
-        >
-          <div className="subjects_list">
-            {mockCategories.slice(0, 5).map((category) => (
-              <div className="subject_item" key={category.id}>
+          <div className="categories_list">
+            {allCategories.map((category) => (
+              <div className="subject_item" key={category.slug}>
                 <div className="subject_item_icon">
                   <svg width="24" height="24" className="category_icon">
-                    <use xlinkHref={`#${category.svgIcon || "gaming"}`}></use>
+                    <use xlinkHref={`#${category.svgIcon}`}></use>
                   </svg>
                 </div>
 
@@ -91,34 +306,30 @@ export default function CategoriesPage() {
                   <h3>{category.name}</h3>
                 </Link>
 
-                {/* Список подкатегорий */}
                 <div className="subject_item_list">
-                  {subcategories[category.slug]
-                    ?.slice(0, 4)
-                    .map((subcat, index) => (
-                      <Link
-                        href={`/categories/${category.slug}/${encodeURIComponent(subcat.toLowerCase())}`}
-                        key={index}
-                      >
-                        <div className="subject_item_list_item">
-                          <img
-                            src="/images/icons/category-list-item.svg"
-                            alt=""
-                          />
-                          <p>{subcat}</p>
-                        </div>
-                      </Link>
-                    ))}
+                  {category.subcategories.map((subcat, index) => (
+                    <Link
+                      href={`/categories/${category.slug}/${encodeURIComponent(subcat.toLowerCase())}`}
+                      key={index}
+                    >
+                      <div className="subject_item_list_item">
+                        <img
+                          src="/images/icons/category-list-item.svg"
+                          alt=""
+                        />
+                        <p>{subcat}</p>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-
               </div>
             ))}
           </div>
         </div>
+
+        <div className="line"></div>
       </div>
-
-      <div className="line"></div>
-
-    </div>
+      <Footer />
+    </>
   )
 }

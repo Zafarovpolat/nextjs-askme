@@ -5,8 +5,11 @@
 }
 
 .categories_list .subject_item {
-  height: 279px;
+  height: auto;
+  width: auto;
   background: url(/images/category-bg.svg);
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .dark_mode .categories_list .subject_item {
@@ -137,7 +140,7 @@
   }
 }
 
-@media only screen and (max-width: 570px) {
+@media only screen and (max-width: 630px) {
   .categories_list {
     display: flex;
     flex-direction: column;
@@ -147,8 +150,23 @@
 
   .categories_list .subject_item {
     width: 100%;
+    border-radius: 12px;
     background-repeat: no-repeat;
     background-size: cover;
   }
 
+  .categories_list .subject_item_icon {
+    top: 0px;
+  }
+}
+
+@media only screen and (max-width: 440px) {
+  .categories_list .subject_item_icon {
+    top: -6px;
+    right: 6px;
+  }
+
+  .categories_list {
+    gap: 16px;
+  }
 }
