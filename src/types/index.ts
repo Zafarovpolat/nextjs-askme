@@ -13,6 +13,7 @@ export interface User {
   questionsCount: number;
   answersCount: number;
   createdAt: string;
+  role: string;
 }
 
 export interface Category {

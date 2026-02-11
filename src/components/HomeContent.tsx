@@ -306,7 +306,9 @@ export default function HomeContent() {
         {/* Показать больше */}
         <div className="show_more_btn_wrapper">
           <button className="show_more_btn">
-            <img src="/images/icons/Sync.svg" alt="" />
+            <svg width="22" height="22">
+              <use xlinkHref="#sync"></use>
+            </svg>
             Показать еще
           </button>
         </div>

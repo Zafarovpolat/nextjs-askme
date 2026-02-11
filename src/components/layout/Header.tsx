@@ -123,7 +123,9 @@ export default function Header() {
         <div className="nav_mob_wrapper_list">
           <Link href="/categories">
             <button className="m_btn mob_category_btn">
-              <img src="/images/icons/mob-category.svg" alt="" width="18" height="18" />
+              <svg width="18" height="18">
+                <use xlinkHref="#all-categories"></use>
+              </svg>
               Все категории
             </button>
           </Link>
@@ -135,14 +137,18 @@ export default function Header() {
 
           <Link href="/ask" className="mob_sec_item">
             <button className="m_btn">
-              <img src="/images/icons/ask.svg" alt="" width="20" height="20" />
+              <svg width="20" height="20">
+                <use xlinkHref="#ask"></use>
+              </svg>
               Спросить
             </button>
           </Link>
 
           <Link href="/leaders" className="mob_sec_item">
             <button className="m_btn">
-              <img src="/images/icons/leaders.svg" alt="" width="20" height="20" />
+              <svg width="20" height="20">
+                <use xlinkHref="#leaders"></use>
+              </svg>
               Лидеры
             </button>
           </Link>

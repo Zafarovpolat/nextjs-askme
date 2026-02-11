@@ -1,108 +1,44 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { useParams } from 'next/navigation'
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { mockQuestions } from "@/data/mock-questions"
 import { mockUsers } from "@/data/mock-users"
-import { mockCategories } from "@/data/mock-categories"
 import LoginModal from "@/components/LoginModal"
 import QuestionModal from "@/components/QuestionModal"
 import SharePopup from "@/components/SharePopup"
 
-// Данные категорий (slug -> name, icon)
-const categoryMap: Record<string, { name: string; svgIcon: string }> = {
-  "auto-moto": { name: "Авто, Мото", svgIcon: "steering-wheel" },
-  "entertainment": { name: "Развлечения", svgIcon: "gaming" },
-  "plants": { name: "Растения", svgIcon: "gear" },
-  "beauty-health": { name: "Красота и Здоровье", svgIcon: "heart" },
-  "family-home": { name: "Семья, Дом", svgIcon: "family" },
-  "business-finance": { name: "Бизнес, Финансы", svgIcon: "business" },
-  "food-cooking": { name: "Еда, Кулинария", svgIcon: "food" },
-  "sport": { name: "Спорт", svgIcon: "sport" },
-  "homework": { name: "Домашние задания", svgIcon: "homework" },
-  "culture": { name: "Культура", svgIcon: "culture" },
-  "programming": { name: "Программирование", svgIcon: "it" },
-  "society-politics": { name: "Общество, Политика", svgIcon: "society" },
-  "children": { name: "Дети", svgIcon: "children" },
-  "science-tech": { name: "Наука, Техника", svgIcon: "science" },
-  "photography": { name: "Фотография", svgIcon: "camera" },
-  "video-games": { name: "Видео игры", svgIcon: "gaming" },
-  "computers": { name: "Компьютеры, Связь", svgIcon: "computer" },
-  "dating": { name: "Знакомства", svgIcon: "relationships" },
-  "career": { name: "Работа, Карьера", svgIcon: "career" },
-  "horoscopes": { name: "Гороскопы, Гадания", svgIcon: "horoscope" },
-}
-
-// Подкатегории для драггабл-блока
-const subcategories: Record<string, string[]> = {
-  "auto-moto": ["Автоспорт", "Автострахование", "Выбор автомобиля, мотоцикла", "ГИБДД, Обучение, Права"],
-  entertainment: ["Игры без компьютера", "Клубы, Дискотеки", "Концерты, Выставки, Спектакли", "Охота и Рыбалка"],
-  plants: ["Дикая природа", "Домашние", "Комнатные растения", "Сад-Огород"],
-  "beauty-health": ["Коронавирус", "Баня, Массаж, Фитнес", "Болезни, Лекарства", "Детское здоровье"],
-  "family-home": ["Беременность, Роды", "Воспитание детей", "Домашняя бухгалтерия", "Домоводство"],
-}
+// Категории для селектов
+const categories = [
+  { slug: "auto-moto", name: "Авто, Мото", subcategories: ["Автоспорт", "Автострахование", "Выбор автомобиля, мотоцикла", "ГИБДД, Обучение, Права", "ПДД, Вождение", "Сервис, Обслуживание, Тюнинг"] },
+  { slug: "entertainment", name: "Развлечения", subcategories: ["Игры без компьютера", "Клубы, Дискотеки", "Концерты, Выставки, Спектакли", "Охота и Рыбалка"] },
+  { slug: "plants", name: "Растения", subcategories: ["Дикая природа", "Домашние", "Комнатные растения", "Сад-Огород"] },
+  { slug: "beauty-health", name: "Красота и Здоровье", subcategories: ["Баня, Массаж, Фитнес", "Болезни, Лекарства", "Врачи, Клиники, Страхование", "Здоровый образ жизни"] },
+  { slug: "family-home", name: "Семья, Дом", subcategories: ["Беременность, Роды", "Воспитание детей", "Домашняя бухгалтерия", "Домоводство"] },
+  { slug: "business-finance", name: "Бизнес, Финансы", subcategories: ["Банки и Кредиты", "Бухгалтерия, Аудит, Налоги", "Недвижимость, Ипотека", "Собственный бизнес"] },
+  { slug: "food-cooking", name: "Еда, Кулинария", subcategories: ["Вторые блюда", "Десерты, Сладости, Выпечка", "Закуски и Салаты", "Консервирование"] },
+  { slug: "sport", name: "Спорт", subcategories: ["Теннис", "Футбол", "Хоккей", "Зимние виды спорта"] },
+  { slug: "homework", name: "Домашние задания", subcategories: ["Математика", "Алгебра", "Геометрия", "Иностранные языки"] },
+  { slug: "programming", name: "Программирование", subcategories: ["Android", "C/C++", "Python", "Веб-дизайн"] },
+]
 
 const tabs = ["Открытые", "На голосовании", "Лучшие", "Решения"]
 
-export default function CategoryPage() {
-  const params = useParams()
-  const slug = params.slug as string
-  const category = categoryMap[slug] ?? { name: slug, svgIcon: "gear" }
-
+export default function AskPage() {
   const [activeTab, setActiveTab] = useState(0)
+  const [selectedCategory, setSelectedCategory] = useState("")
+  const [selectedSubcategory, setSelectedSubcategory] = useState("")
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
   const [shareData, setShareData] = useState({ title: '', url: '' })
   const shareButtonRef = useRef<HTMLButtonElement | null>(null)
 
-  // Drag-to-scroll для блока категорий
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const isDragging = useRef(false)
-  const startX = useRef(0)
-  const scrollLeft = useRef(0)
-  const hasDragged = useRef(false)
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    const el = scrollRef.current
-    if (!el) return
-    isDragging.current = true
-    hasDragged.current = false
-    startX.current = e.pageX - el.offsetLeft
-    scrollLeft.current = el.scrollLeft
-    el.style.cursor = 'grabbing'
-    el.style.userSelect = 'none'
-  }, [])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging.current) return
-    const el = scrollRef.current
-    if (!el) return
-    e.preventDefault()
-    const x = e.pageX - el.offsetLeft
-    const walk = (x - startX.current) * 1.5
-    if (Math.abs(walk) > 5) hasDragged.current = true
-    el.scrollLeft = scrollLeft.current - walk
-  }, [])
-
-  const handleMouseUp = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) return
-    isDragging.current = false
-    el.style.cursor = 'grab'
-    el.style.removeProperty('user-select')
-  }, [])
-
-  const handleClickCapture = useCallback((e: React.MouseEvent) => {
-    if (hasDragged.current) {
-      e.preventDefault()
-      e.stopPropagation()
-      hasDragged.current = false
-    }
-  }, [])
+  // Подкатегории для выбранной категории
+  const currentCategory = categories.find(c => c.slug === selectedCategory)
+  const subcategoryOptions = currentCategory?.subcategories ?? []
 
   const handleShareClick = useCallback((e: React.MouseEvent<HTMLButtonElement>, title: string, questionSlug: string) => {
     const btn = e.currentTarget
@@ -111,12 +47,12 @@ export default function CategoryPage() {
     setIsShareOpen(true)
   }, [])
 
-  // Больше вопросов для страницы категории
-  const categoryQuestions = [...mockQuestions, ...mockQuestions].map((q, i) => ({
-    ...q,
-    id: i + 1,
-  }))
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value)
+    setSelectedSubcategory("")
+  }
 
+  const similarQuestions = mockQuestions.slice(0, 6)
   const topUsers = mockUsers.slice(0, 4)
   const popularQuestions = mockQuestions.slice(0, 4)
 
@@ -139,13 +75,113 @@ export default function CategoryPage() {
           <span className="breadcrumbs__current">Категории вопросов</span>
         </div>
 
-        {/* Блок вопросов категории */}
+        {/* Блок формы задать вопрос */}
+        <div className="section ask_form_wrapper">
+          <div className="blocks_title">
+            <h2>Напишите свой вопрос здесь</h2>
+          </div>
+
+          <form className="ask_form form" onSubmit={(e) => e.preventDefault()}>
+            {/* Тема вопроса */}
+            <div className="ask_form_item">
+              <input name="title" type="text" placeholder="Тема вопроса" required />
+            </div>
+
+            {/* Textarea с действиями */}
+            <div className="ask_form_item ask_form_item_block_actions">
+              <textarea name="message" placeholder="Как можно подробнее опишите свой вопрос" required></textarea>
+              <div className="ask_form_item_actions">
+                <div>
+                  <svg width="15.67" height="13.71">
+                    <use xlinkHref="#add-file"></use>
+                  </svg>
+                  <p><span>Добавить файл</span><span>Файл</span></p>
+                </div>
+                <div>
+                  <svg width="13.71" height="12.73">
+                    <use xlinkHref="#add-video"></use>
+                  </svg>
+                  <p><span>Добавить видео</span><span>Видео</span></p>
+                </div>
+                <div>
+                  <svg width="12.73" height="12.73">
+                    <use xlinkHref="#add-link"></use>
+                  </svg>
+                  <p><span>Добавить ссылку</span><span>Ссылка</span></p>
+                </div>
+              </div>
+            </div>
+
+            {/* Селекты категорий */}
+            <div className="select_category_filters">
+              <div className="select_category_item">
+                <div className="select_category_item_inner">
+                  <svg width="18" height="18" className="select_category_icon">
+                    <use xlinkHref="#grid-icon"></use>
+                  </svg>
+                  <select
+                    className="super-select"
+                    value={selectedCategory}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
+                  >
+                    <option value="">Выберите категорию вопроса</option>
+                    {categories.map((cat) => (
+                      <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="select_category_item">
+                <div className="select_category_item_inner">
+                  <svg width="18" height="18" className="select_category_icon">
+                    <use xlinkHref="#list-icon"></use>
+                  </svg>
+                  <select
+                    className="super-select"
+                    value={selectedSubcategory}
+                    onChange={(e) => setSelectedSubcategory(e.target.value)}
+                    disabled={!selectedCategory}
+                  >
+                    <option value="">Выберите подкатегорию вопроса</option>
+                    {subcategoryOptions.map((subcat) => (
+                      <option key={subcat} value={subcat}>{subcat}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Действия формы */}
+            <div className="asf_form_actions">
+              <div className="ask_from_send_btn">
+                <button type="submit" className="m_btn category_btn">
+                  Опубликовать вопрос
+                </button>
+                <p>
+                  Нажимая на кнопку, вы принимаете условия{' '}
+                  <a href="/user-agreement/" target="_blank">пользовательского соглашения</a>
+                </p>
+              </div>
+              <div className="ask_form_checkboxes">
+                <label className="chechbox_item">
+                  <input type="checkbox" defaultChecked />
+                  <span>Получать уведомления (ответы, голоса, комментарии)</span>
+                </label>
+                <label className="chechbox_item">
+                  <input type="checkbox" defaultChecked />
+                  <span>Разрешить комментарии к ответам</span>
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div className="line"></div>
+
+        {/* Похожие вопросы участников */}
         <div className="section populars_block">
           <div className="blocks_title">
-            <svg width="24" height="24" className="category_page_icon">
-              <use xlinkHref={`#${category.svgIcon}`}></use>
-            </svg>
-            <h2>{category.name}</h2>
+            <h2>Похожие вопросы участников</h2>
 
             <div className="questions_filter">
               {tabs.map((tab, index) => (
@@ -160,30 +196,9 @@ export default function CategoryPage() {
             </div>
           </div>
 
-          {/* Поле "Задать свой вопрос" */}
-          <div className="questions_block_search">
-            <img src="/images/icons/ask.svg" alt="" />
-            <input
-              name="message"
-              type="text"
-              placeholder="Задайте свой вопрос здесь"
-            />
-            <textarea
-              name="message-full"
-              placeholder="Задайте свой вопрос здесь"
-            ></textarea>
-            <button
-              type="button"
-              className="s_btn s_btn_active"
-              onClick={() => setIsQuestionModalOpen(true)}
-            >
-              Задать вопрос
-            </button>
-          </div>
-
           {/* Список вопросов */}
           <div className="questions_list">
-            {categoryQuestions.map((question) => (
+            {similarQuestions.map((question) => (
               <div key={question.id} className="question_list_item">
                 {/* Верхняя панель (мобильная) */}
                 <div className="question_item_top_data">
@@ -286,68 +301,6 @@ export default function CategoryPage() {
               </svg>
               Показать еще
             </button>
-          </div>
-        </div>
-
-        <div className="line"></div>
-
-        {/* Блок "Популярные категории" с драгом */}
-        <div className="section popular-section">
-          <div className="blocks_title">
-            <h2>Популярные</h2>
-          </div>
-
-          <div
-            className="subjects_list_wrapper"
-            ref={scrollRef}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onClickCapture={handleClickCapture}
-            style={{ cursor: 'grab' }}
-          >
-            <div className="subjects_list">
-              {mockCategories.slice(0, 5).map((cat) => (
-                <div className="subject_item" key={cat.id}>
-                  <div className="subject_item_icon">
-                    <svg width="24" height="24" className="category_icon">
-                      <use xlinkHref={`#${cat.svgIcon || "gaming"}`}></use>
-                    </svg>
-                  </div>
-
-                  <Link href={`/categories/${cat.slug}`}>
-                    <h3>{cat.name}</h3>
-                  </Link>
-
-                  <div className="subject_item_list">
-                    {subcategories[cat.slug]
-                      ?.slice(0, 4)
-                      .map((subcat, index) => (
-                        <Link
-                          href={`/categories/${cat.slug}/${encodeURIComponent(subcat.toLowerCase())}`}
-                          key={index}
-                        >
-                          <div className="subject_item_list_item">
-                            <img
-                              src="/images/icons/category-list-item.svg"
-                              alt=""
-                            />
-                            <p>{subcat}</p>
-                          </div>
-                        </Link>
-                      ))}
-                  </div>
-
-                  <Link href="/categories">
-                    <div className="subject_item_more">
-                      <p>Посмотреть все</p>
-                      <img src="/images/icons/more-s-icon.svg" alt="" className="subject_item_more_arrow" />
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
