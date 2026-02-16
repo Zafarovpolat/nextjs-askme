@@ -114,6 +114,7 @@
 
 .dark_mode .select_category_item_inner .super-select {
   background-size: 9px;
+  background-color: transparent;
 }
 
 .dark_mode .select_category_item_inner .super-select {
@@ -173,6 +174,7 @@
   padding-left: 45px;
   height: 55px;
   color: #899AB5;
+  background-color: #fff;
 }
 
 .super-select {
@@ -235,10 +237,6 @@
 
 .dark_mode .chechbox_item span {
   color: rgb(204, 221, 248);
-}
-
-.ask_from_send_btn p a {
-  text-decoration: none;
 }
 
 .ask_from_send_btn p {

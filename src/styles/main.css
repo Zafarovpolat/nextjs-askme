@@ -349,6 +349,10 @@ a:has(.light_logo) {
 	background: rgb(96, 105, 255);
 }
 
+.popular-section .blocks_title {
+	margin-bottom: 0;
+}
+
 .subjects_list {
 	padding-bottom: 25px;
 	padding-top: 20px;
@@ -461,7 +465,6 @@ a:has(.light_logo) {
 	font-weight: 400;
 	letter-spacing: 0%;
 	text-align: left;
-	text-decoration-line: underline;
 }
 
 .line {
@@ -1147,6 +1150,12 @@ footer .line {
 
 }
 
+@media only screen and (max-width: 1366px) {
+	nav {
+		padding-top: 16px;
+	}
+}
+
 @media only screen and (max-width: 1000px) {
 
 	a:has(.dark_logo),
@@ -1244,6 +1253,7 @@ footer .line {
 	.blocks_title .questions_filter {
 		margin-left: 0;
 	}
+	
 
 }
 

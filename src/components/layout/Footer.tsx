@@ -10,9 +10,9 @@ export default function Footer() {
           <img className="dark_logo" src="/images/logo_dark.svg" alt="AskMe" />
         </Link>
         
-        <Link href="/cookies">Файлы Cookie</Link>
-        <Link href="/support">Служба поддержки</Link>
         <Link href="/user-agreement">Пользовательские соглашения</Link>
+        <Link href="/support">Служба поддержки</Link>
+        <Link href="/cookies">Файлы Cookie</Link>
         
         <p>Все права защищены © AskMe.ru 2026</p>
       </div>

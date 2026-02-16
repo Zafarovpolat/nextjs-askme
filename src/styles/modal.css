@@ -185,6 +185,7 @@ body:has(.modal--active) {
 	background-repeat: no-repeat;
 	background-position: right 15px center;
 	padding-right: 35px;
+	border: 2px solid rgb(239, 239, 246);
 }
 
 .complaint-textarea {

@@ -235,6 +235,10 @@
   background-size: 7px;
 }
 
+.top_leaders_list_wrapper .top_leaders_filter .top_leaders_filter_item .super-select[disabled] {
+  color: #B9BBC5;
+}
+
 .leader_number {
   color: #1F2A3B;
   font-family: Nunito;
