@@ -72,7 +72,7 @@ export default function Header() {
               </svg>
             </button>
 
-            <Link href="/profile">
+            <Link href="/login">
               <button className="m_btn m_btn_icon category_btn" title="Личный кабинет">
                 <img src="/images/icons/user.svg" alt="" width="16" height="20" />
               </button>
@@ -104,7 +104,7 @@ export default function Header() {
             <button className="m_btn m_btn_icon mode_toggler" onClick={toggleDarkMode}>
               <img src="/images/icons/light-mode.svg" alt="" width="16" height="18" />
             </button>
-            <Link href="/profile">
+            <Link href="/login">
               <button className="m_btn">
                 <img src="/images/icons/user.svg" alt="" />
               </button>

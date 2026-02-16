@@ -84,6 +84,7 @@ body {
     line-height: 1.6;
     color: var(--base-color-1);
     transition: color 0.2s ease, background 0.2s ease;
+    min-height: 100vh;
 }
 
 .container {
