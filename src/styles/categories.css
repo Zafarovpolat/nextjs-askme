@@ -12,6 +12,10 @@
   background-repeat: no-repeat;
 }
 
+.questions_filter {
+  padding-left: 30px;
+}
+
 .dark_mode .categories_list .subject_item {
   background: url(/images/category-bg-d.svg);
   background-size: cover;
@@ -176,6 +180,14 @@
     flex-direction: row;
     flex-wrap: wrap;
     gap: 10px 5px;
+  }
+
+  .questions_filter {
+    padding-left: 0;
+  }
+
+  .blocks_title svg + h2 {
+    padding-right: 20px;
   }
 }
 

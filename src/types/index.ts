@@ -10,6 +10,8 @@ export interface User {
   rating: number;
   balance: number;
   vipStatus: boolean;
+  followersCount: number,
+  followingsCount: number,
   questionsCount: number;
   answersCount: number;
   createdAt: string;

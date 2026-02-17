@@ -68,4 +68,30 @@ export const mockQuestions: Question[] = [
     createdAt: '2026-01-24T12:10:00Z',
     updatedAt: '2026-01-24T16:30:00Z',
   },
+  {
+    id: 6,
+    title: 'Как настроить Tailwind CSS в Next.js 14?',
+    content: 'Перехожу на Next.js 14 с App Router. Как правильно настроить Tailwind CSS, чтобы всё работало с серверными компонентами?',
+    slug: 'kak-nastroit-tailwind-css-v-nextjs-14',
+    author: mockUsers[0],
+    category: mockCategories[2], // React
+    rating: 12,
+    status: 'opened',
+    commentsCount: 6,
+    createdAt: '2026-01-23T11:00:00Z',
+    updatedAt: '2026-01-23T14:20:00Z',
+  },
+  {
+    id: 7,
+    title: 'Лучшие практики авторизации в веб-приложениях?',
+    content: 'Какие подходы к авторизации сейчас считаются лучшими? JWT, сессии, OAuth? Интересует безопасность и удобство.',
+    slug: 'luchshie-praktiki-avtorizatsii-v-veb-prilozheniyakh',
+    author: mockUsers[0],
+    category: mockCategories[1], // JavaScript
+    rating: 27,
+    status: 'opened',
+    commentsCount: 11,
+    createdAt: '2026-01-20T08:45:00Z',
+    updatedAt: '2026-01-21T17:10:00Z',
+  },
 ];

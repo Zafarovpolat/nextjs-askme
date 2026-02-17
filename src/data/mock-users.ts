@@ -12,6 +12,8 @@ export const mockUsers: User[] = [
     balance: 0,
     vipStatus: true,
     questionsCount: 45,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 320,
     createdAt: '2024-01-15T10:00:00Z',
     role: 'Высший разум'
@@ -27,6 +29,8 @@ export const mockUsers: User[] = [
     balance: 100,
     vipStatus: false,
     questionsCount: 23,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 145,
     createdAt: '2024-02-10T12:30:00Z',
     role: 'Исскуственный интелект'
@@ -42,6 +46,8 @@ export const mockUsers: User[] = [
     balance: 50,
     vipStatus: false,
     questionsCount: 12,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 98,
     createdAt: '2024-03-05T14:20:00Z',
     role: 'Просто умный'
@@ -57,6 +63,8 @@ export const mockUsers: User[] = [
     balance: 30,
     vipStatus: false,
     questionsCount: 18,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 87,
     createdAt: '2024-03-10T09:00:00Z',
     role: 'Высший разум'
@@ -72,6 +80,8 @@ export const mockUsers: User[] = [
     balance: 75,
     vipStatus: false,
     questionsCount: 31,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 76,
     createdAt: '2024-04-01T11:15:00Z',
     role: 'Высший разум'
@@ -87,6 +97,8 @@ export const mockUsers: User[] = [
     balance: 20,
     vipStatus: false,
     questionsCount: 8,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 112,
     createdAt: '2024-04-15T16:30:00Z',
     role: 'Высший разум'
@@ -102,6 +114,8 @@ export const mockUsers: User[] = [
     balance: 45,
     vipStatus: false,
     questionsCount: 5,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 95,
     createdAt: '2024-05-01T08:00:00Z',
     role: 'Высший разум'
@@ -117,6 +131,8 @@ export const mockUsers: User[] = [
     balance: 10,
     vipStatus: false,
     questionsCount: 14,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 68,
     createdAt: '2024-05-10T13:45:00Z',
     role: 'Высший разум'
@@ -132,6 +148,8 @@ export const mockUsers: User[] = [
     balance: 60,
     vipStatus: false,
     questionsCount: 20,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 54,
     createdAt: '2024-06-01T07:30:00Z',
     role: 'Высший разум'
@@ -147,6 +165,8 @@ export const mockUsers: User[] = [
     balance: 35,
     vipStatus: false,
     questionsCount: 9,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 61,
     createdAt: '2024-06-15T10:20:00Z',
     role: 'Высший разум'
@@ -162,6 +182,8 @@ export const mockUsers: User[] = [
     balance: 25,
     vipStatus: false,
     questionsCount: 7,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 89,
     createdAt: '2024-07-01T14:00:00Z',
     role: 'Высший разум'
@@ -177,6 +199,8 @@ export const mockUsers: User[] = [
     balance: 15,
     vipStatus: false,
     questionsCount: 16,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 42,
     createdAt: '2024-07-10T12:00:00Z',
     role: 'Высший разум'
@@ -192,6 +216,8 @@ export const mockUsers: User[] = [
     balance: 40,
     vipStatus: false,
     questionsCount: 11,
+    followersCount: 34,
+    followingsCount: 22,
     answersCount: 37,
     createdAt: '2024-08-01T09:30:00Z',
     role: 'Высший разум'
