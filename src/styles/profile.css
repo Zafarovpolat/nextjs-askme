@@ -114,8 +114,6 @@
   background: rgb(96, 105, 255);
 }
 
-
-
 .profile_page_content {
   width: 63%;
 }
@@ -263,9 +261,11 @@
 .user_grade_line_value {
   border-radius: 12px;
   height: 5px;
-  background: linear-gradient(158.51deg,
-      rgb(100, 107, 255) 49.568%,
-      rgb(87, 100, 255) 100.097%);
+  background: linear-gradient(
+    158.51deg,
+    rgb(100, 107, 255) 49.568%,
+    rgb(87, 100, 255) 100.097%
+  );
 }
 
 .user_grades {
@@ -310,7 +310,8 @@
   background: rgb(255, 255, 255);
 }
 
-.profile-edit-tab .profile_input input[type="text"], .profile-edit-tab .profile_input textarea{
+.profile-edit-tab .profile_input input[type="text"],
+.profile-edit-tab .profile_input textarea {
   margin-top: 7px;
 }
 
@@ -320,7 +321,8 @@
   line-height: 14px;
 }
 
-.profile-edit-tab .category_btn.m_btn,.profile-edit-tab .cancel_btn {
+.profile-edit-tab .category_btn.m_btn,
+.profile-edit-tab .cancel_btn {
   text-transform: none;
   font-size: 13px;
   font-weight: 700;
@@ -510,7 +512,7 @@
   min-width: 20px;
   background: rgb(255, 255, 255);
   cursor: pointer;
-  border: 2px solid #EFEFF6;
+  border: 2px solid #efeff6;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -523,6 +525,21 @@
   border: 2px solid rgb(96, 105, 255);
 }
 
+/* Чекбоксы в тёмной теме при выборе — белый фон с синей галочкой */
+.dark_mode .user_seting_item .chechbox_item input:checked {
+  background: white;
+  border-color: white;
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9.58572 14.3088C9.48352 14.4219 9.30675 14.4306 9.19291 14.328L4.88952 10.4494C4.77568 10.3468 4.77073 10.1742 4.8784 10.0658L6.24948 8.68621C6.35721 8.57781 6.53848 8.57309 6.65232 8.67562L9.00309 10.7942C9.11693 10.8968 9.2937 10.8881 9.39591 10.775L13.9885 5.69364C14.0907 5.58052 14.2716 5.56761 14.3903 5.66499L15.902 6.90401C16.0208 7.00134 16.0344 7.17358 15.9321 7.2867L9.58572 14.3088Z' fill='%23474AB3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px;
+}
+
+/* Иконка info в vip_status_card — белая в тёмной теме */
+.dark_mode .vip_status_card svg path {
+  fill: white;
+}
+
 .user_seting_item .chechbox_item input:checked {
   background: rgb(98, 106, 255);
   border-color: rgb(98, 106, 255);
@@ -533,7 +550,7 @@
 
 .user_seting_item .chechbox_item input[type="radio"] {
   border-radius: 6px;
-  background-color: #E8E8F5;
+  background-color: #e8e8f5;
 }
 
 .user_seting_item .chechbox_item input[type="radio"]:checked {
@@ -585,6 +602,12 @@
   cursor: pointer;
 }
 
+.vip_status_card h3 {
+  margin-bottom: 0;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
 .dark_mode .vip_status_card {
   background: #4647b3;
 }
@@ -610,6 +633,10 @@
   letter-spacing: 0%;
   text-align: left;
   margin: 0;
+}
+
+.vip_status_card .secondary_text {
+  padding-right: 20px;
 }
 
 .dark_mode .vip_status_card div p {
@@ -675,11 +702,116 @@
   gap: 12px;
 }
 
-.payment_method input {
-  border-radius: 6px;
+/* Обёртка label для способа оплаты */
+.payment_method_label {
+  display: block;
+  cursor: pointer;
+}
+
+/* Скрываем нативный радио, стилизуем через checked на label */
+.payment_radio {
+  display: none;
+}
+
+/* Выбранный способ оплаты */
+.payment_method_label:has(.payment_radio:checked) .payment_method {
+  background: #e8e8f5;
+}
+
+.dark_mode .payment_method_label:has(.payment_radio:checked) .payment_method {
+  background: #4647b3;
+}
+
+/* Кастомный чекбокс в payment_method */
+.payment_custom_check {
   width: 20px;
   height: 20px;
+  min-width: 20px;
+  border-radius: 6px;
+  border: 2px solid #efeff6;
+  background: #e8e8f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dark_mode .payment_custom_check {
+  background: #3b3980;
+  border-color: transparent;
+}
+
+.payment_method_label:has(.payment_radio:checked) .payment_custom_check {
+  background: rgb(98, 106, 255);
+  border-color: rgb(98, 106, 255);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='9' viewBox='0 0 14 11'%3E%3Cpath d='M1 5L5 9L13 1' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.dark_mode
+  .payment_method_label:has(.payment_radio:checked)
+  .payment_custom_check {
+  background: white;
+  border-color: white;
+  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9.58572 14.3088C9.48352 14.4219 9.30675 14.4306 9.19291 14.328L4.88952 10.4494C4.77568 10.3468 4.77073 10.1742 4.8784 10.0658L6.24948 8.68621C6.35721 8.57781 6.53848 8.57309 6.65232 8.67562L9.00309 10.7942C9.11693 10.8968 9.2937 10.8881 9.39591 10.775L13.9885 5.69364C14.0907 5.58052 14.2716 5.56761 14.3903 5.66499L15.902 6.90401C16.0208 7.00134 16.0344 7.17358 15.9321 7.2867L9.58572 14.3088Z' fill='%23474AB3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px;
+}
+
+/* AskPay: отдельный блок с инпутом ФИО и кнопкой выйти */
+.payment_askpay_block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.payment_fio_input {
+  height: 100%;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+  color: #1f2a3b;
+  border: none;
+  outline: none;
+  width: 100%;
+}
+
+.dark_mode .payment_fio_input {
+  background: #2c2b67;
+  border-color: #4647b3;
+  color: #ccddf8;
+}
+
+.payment_logout_btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
   cursor: pointer;
+  color: #5d67ff;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 0;
+}
+
+.payment_logout_btn span {
+  font-size: 14px;
+  color: #8b94a1;
+  font-weight: 400;
+}
+
+.dark_mode .payment_logout_btn span {
+  color: #ccddf8;
+}
+
+.payment_logout_btn:hover {
+  opacity: 0.75;
 }
 
 .profile_menu_list_mob {
@@ -711,7 +843,7 @@
 }
 
 .user_profile__vip-badge {
-  background: #F4CA16;
+  background: #f4ca16;
   border: #ccc 1px solid;
   font-weight: 600;
   position: absolute;
@@ -732,7 +864,7 @@
 }
 
 .dark_mode .mini-title {
-  color: #fff
+  color: #fff;
 }
 
 .user_profile__balance {
@@ -758,13 +890,13 @@
 
 .user_seting_item input[type="checkbox"] {
   margin-left: 12px;
-  background-color: #E8E8F5;
+  background-color: #e8e8f5;
 }
 
 .profile_settings_top_titles .secondary_text {
   font-weight: 700;
   font-size: 14px;
-  color: #1F2A3B;
+  color: #1f2a3b;
 }
 
 .dark_mode .profile_settings_top_titles .secondary_text {
@@ -772,12 +904,37 @@
 }
 
 .user_seting_item .chechbox_item span {
-  color: #8B94A1;
+  color: #8b94a1;
 }
 
 .select_themes .chechbox_item {
   gap: 8px;
   align-items: end;
+}
+
+.profile-vip .user_profile_page_content_wrapper {
+  padding: 22px 25px 27px;
+}
+
+.profile-vip .secondary_text {
+  line-height: 14px;
+}
+
+.vip_form {
+  margin-top: 20px;
+}
+
+.payment_askpay_block {
+  width: 100%;
+  justify-content: space-between;
+  height: 50px;
+  border: 2px solid #efeff6;
+  border-radius: 12px;
+  padding-right: 17px;
+}
+
+.dark_mode .payment_askpay_block {
+  border: 2px solid #6069ff;
 }
 
 @media only screen and (max-width: 1300px) {
@@ -834,19 +991,19 @@
     right: 9%;
     z-index: -2;
     top: 15%;
-}
+  }
 
-.user_profile_block {
-  padding-top: 0;
-}
+  .user_profile_block {
+    padding-top: 0;
+  }
 
-.user_profile_block_content {
-  padding-top: 20px;
-}
+  .user_profile_block_content {
+    padding-top: 20px;
+  }
 
-.breadcrumbs {
-  margin-bottom: 5px;
-}
+  .breadcrumbs {
+    margin-bottom: 5px;
+  }
 
   .profile_menu_list_mob {
     display: flex;
@@ -871,7 +1028,8 @@
     background: rgb(35, 38, 91);
   }
 
-  .user_profile_block_bg, .user_profile_block_bg_dark {
+  .user_profile_block_bg,
+  .user_profile_block_bg_dark {
     height: auto;
   }
 
@@ -898,45 +1056,45 @@
     padding-bottom: 0;
   }
 
-    .profile_page .line {
-      display: flex;
-      margin-top: 10px;
-    }
+  .profile_page .line {
+    display: flex;
+    margin-top: 10px;
+  }
 }
 
-@media only screen and (max-width: 1000px) { 
+@media only screen and (max-width: 1000px) {
   .user_profile_block_rect {
-        right: 60px;
-        z-index: -2;
-        top: 15px;
-    }
+    right: 60px;
+    z-index: -2;
+    top: 15px;
+  }
 }
 
 @media only screen and (max-width: 940px) {
-.user_profile_block_content {
-  padding: 20px 24px 10px;
-}
+  .user_profile_block_content {
+    padding: 20px 24px 10px;
+  }
 
-.dark_mode .user_profile_block::after {
-  background-color: rgb(51, 46, 113);
-}
+  .dark_mode .user_profile_block::after {
+    background-color: rgb(51, 46, 113);
+  }
 
-.user_profile_block::after {
-  content: " ";
-  background-color: white;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 40%;
-  z-index: -1;
-}
+  .user_profile_block::after {
+    content: " ";
+    background-color: white;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 40%;
+    z-index: -1;
+  }
 
   .user_profile_block_rect {
-        right: 40px;
-        z-index: -2;
-        top: 13px;
-    }
+    right: 40px;
+    z-index: -2;
+    top: 13px;
+  }
 }
 
 @media only screen and (max-width: 768px) {
@@ -958,7 +1116,8 @@
     gap: 8px;
   }
 
-  .user_profile_image,.user_profile_img {
+  .user_profile_image,
+  .user_profile_img {
     width: 65px;
     height: 65px;
   }
@@ -967,30 +1126,61 @@
     padding-left: calc(65px + 8px);
   }
 
-.user_profile_page_content {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  .user_profile_page_content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .line + .user_seting_item .chechbox_item {
+    grid-column: 2 / 4;
+  }
+
+  .user_seting_item.user_seting_item_sec {
+    flex-direction: column;
+    display: flex;
+    align-items: start;
+    gap: 14px;
+  }
+
+  .select_themes .chechbox_item,
+  .user_seting_item .chechbox_item:nth-of-type(1) {
+    justify-content: start;
+  }
+
+  .profile_settings_top_titles p:nth-child(2) {
+    justify-content: start;
+  }
+
+  .profile_settings_top_titles,
+  .user_seting_item {
+    display: grid;
+    grid-template-columns: 400px 1fr 1fr;
+  }
+
+  .user_seting_item.user_seting_item_sound {
+    display: flex;
+  }
+
+  .profile_page .line {
+    margin-top: 20px;
+  }
+
+  .user_seting_item input[type="checkbox"] {
+    margin-left: 9px;
+  }
+
+  .profile-vip .user_profile_page_content_wrapper {
+    padding: 22px 20px;
+  }
 }
 
-.profile_settings_title {
-}
-
-.user_seting_item.user_seting_item_sec {
-  flex-direction: column;
-  display: flex;
-  align-items: start; 
-  gap: 14px;
-}
-
-.select_themes .chechbox_item,.user_seting_item .chechbox_item:nth-of-type(1) {
-  justify-content: start;
-}
-
-.profile_settings_top_titles p:nth-child(2) {
-  justify-content: start;
-}
-
+@media only screen and (max-width: 700px) {
+  .profile_settings_top_titles,
+  .user_seting_item {
+    display: grid;
+    grid-template-columns: 300px 1fr 1fr;
+  }
 }
 
 @media only screen and (max-width: 620px) {
@@ -998,7 +1188,21 @@
     right: 30px;
   }
 
+  .profile_settings_top_titles,
+  .user_seting_item {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px;
+  }
 
+  .profile_settings_top_titles p:nth-child(3) {
+    margin-left: 0 !important;
+  }
+
+  .profile_settings_top_titles p:nth-child(3),
+  .user_seting_item .chechbox_item:nth-of-type(2) {
+    padding-left: 0;
+    margin-left: 0;
+  }
 }
 
 @media only screen and (max-width: 550px) {
@@ -1006,9 +1210,9 @@
     display: none;
   }
 
-.user_profile_block::after {
-  display: none;
-}
+  .user_profile_block::after {
+    display: none;
+  }
 
   .user_profile_page_content .question_list_item_right_actions .s_btn_icon {
     display: flex;
@@ -1060,10 +1264,6 @@
     font-size: 12px;
   }
 
-  .profile_settings_top_titles p:last-child {
-    padding-left: 13px;
-  }
-
   .profile_settings_top_titles p:first-child,
   .user_seting_item p:first-child {
     width: 73%;
@@ -1079,7 +1279,6 @@
     gap: 14px;
   }
 
-
   .payment_method_type .secondary_text {
     max-width: 180px;
   }
@@ -1091,50 +1290,112 @@
   }
 
   .user_profile_block {
-    background-image: url('/images/profile-m.svg');
+    background-image: url("/images/profile-m.svg");
     background-size: cover;
     background-repeat: no-repeat;
     background-position: top;
   }
 
   .dark_mode .user_profile_block {
-    background-image: url('/images/profile-m-d.svg');
+    background-image: url("/images/profile-m-d.svg");
   }
 
   .user_profile_block_rect {
     right: 4%;
   }
 
-      .profile_page_content  .show_more_btn {
-      margin-top: 10px;
-    }
+  .profile_page_content .show_more_btn {
+    margin-top: 10px;
+  }
 
-    .question_item_top_data .question_item_top_data_right{
-      display: none;
-    }
+  .question_item_top_data .question_item_top_data_right {
+    display: none;
+  }
+
+  .user_seting_item {
+    margin-bottom: 12px;
+  }
+
+  .profile_page .line {
+    margin-bottom: 20px;
+  }
+
+  .profile_settings_top_titles p:first-child,
+  .user_seting_item p:first-child {
+    width: 100%;
+  }
+
+  .profile_settings_top_titles p:nth-child(2),
+  .user_seting_item .chechbox_item:nth-of-type(1) {
+    width: 40px;
+  }
+
+  .profile_settings_top_titles p:nth-child(3),
+  .user_seting_item .chechbox_item:nth-of-type(2) {
+    width: 40px;
+  }
+
+  .profile_settings_top_titles,
+  .user_seting_item {
+    grid-template-columns: 1fr 50px 50px;
+  }
+
+  .profile_settings_title {
+    font-size: 13px;
+  }
+
+  .profile_settings_top_titles .secondary_text {
+    font-size: 12px;
+  }
+
+  .secondary_text {
+    font-size: 12px;
+  }
+
+  .user_seting_item input[type="checkbox"] {
+    margin-left: 4px;
+  }
+
+  .user_seting_item .chechbox_item:nth-child(3) input[type="checkbox"] {
+    margin-left: 12px;
+  }
+
+  .select_themes {
+    width: 100%;
+  }
+
+  .select_themes .chechbox_item:nth-child(1),
+  .select_themes .chechbox_item:nth-child(2),
+  .select_themes .chechbox_item:nth-child(3) {
+    width: fit-content;
+  }
 }
 
 @media only screen and (max-width: 430px) {
   .user_profile_block_rect {
-        right: 2%;
-    }
+    right: 2%;
+  }
 
-    .user_kpd {
-      gap: 8px;
-    }
+  .user_kpd {
+    gap: 8px;
+  }
 
-    .user_grades p {
-      display: flex;
-      flex-direction: column;
-    }
+  .user_grades p {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .select_themes {
+    gap: 22px;
+  }
 }
 
 @media only screen and (max-width: 400px) {
-    .user_profile_block {
-      background-size: auto;
-    }
+  .user_profile_block {
+    background-size: 100%;
+  }
 
-    .user_profile_block_rect {
-      right: 3%;
-    }
+  .user_profile_block_rect {
+    right: 3%;
+  }
 }
