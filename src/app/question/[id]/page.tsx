@@ -364,7 +364,7 @@ export default function QuestionPage() {
             <div className="main_question_bg_wrapper">
               <div className="main_question_block_top_bg">
               <img src="/images/top-leader-bg.svg" className="top_bg_light" alt="" />
-              <img src="/images/top-leader-bg-d.svg" className="top_bg_dark" alt="" />
+              <img src="/images/top-leader-bg-d-2.svg" className="top_bg_dark" alt="" />
               <img src="/images/blues-rect.svg" className="top_bg_rect top_bg_rect_light" alt="" />
               <img src="/images/blues-rect-dark.svg" className="top_bg_rect top_bg_rect_dark" alt="" />
             </div>
@@ -397,7 +397,7 @@ export default function QuestionPage() {
               </div>
             </div>
             <div className="main_question_block_title">
-              <h2>{question.title}</h2>
+              <h1>{question.title}</h1>
             </div>
             <div className="leader_quest question_leader_badge">
               <svg width="12" height="12">

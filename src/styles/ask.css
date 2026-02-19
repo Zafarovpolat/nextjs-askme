@@ -31,7 +31,7 @@
 
 .dark_mode .ask_form_item input::placeholder,
 .dark_mode .ask_form_item textarea::placeholder {
-  color: #fff;
+  color: rgba(255, 255, 255, 1);
 }
 
 .ask_form_item {

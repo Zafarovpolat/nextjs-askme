@@ -13,10 +13,12 @@ export default function ProfilePage() {
   const [isShareOpen, setIsShareOpen] = useState(false)
   const [shareData, setShareData] = useState({ title: '', url: '' })
   const shareButtonRef = useRef<HTMLButtonElement | null>(null)
+  const BIO_MAX_LENGTH = 250
 
   // Мок-данные текущего пользователя
   const user = mockUsers[0]
   const isMyProfile = true
+  const [bioText, setBioText] = useState(user.bio ?? '')
 
   // Вопросы пользователя
   const userQuestions = mockQuestions.filter(q => q.author.id === user.id)
@@ -326,11 +328,18 @@ export default function ProfilePage() {
                       </div>
                       <div className="profile_input">
                         <p className="main_text">В чем вы лучше всего разбираетесь?</p>
-                        <textarea
-                          placeholder="Опишите как можно подробнее"
-                          name="description"
-                          defaultValue={user.bio}
-                        />
+                        <div className="textarea_wrapper">
+                          <textarea
+                            placeholder="Опишите как можно подробнее"
+                            name="description"
+                            value={bioText}
+                            maxLength={BIO_MAX_LENGTH}
+                            onChange={(e) => setBioText(e.target.value)}
+                          />
+                          <span className="textarea_char_counter">
+                            {BIO_MAX_LENGTH - bioText.length}
+                          </span>
+                        </div>
                       </div>
                       <p className="secondary_text">
                         Например, &quot;Люблю фотографировать и могу порекомендовать, какую технику выбрать&quot;

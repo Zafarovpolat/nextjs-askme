@@ -78,7 +78,7 @@ export default function AskPage() {
         {/* Блок формы задать вопрос */}
         <div className="section ask_form_wrapper">
           <div className="blocks_title">
-            <h2>Напишите свой вопрос здесь</h2>
+            <h1>Напишите свой вопрос здесь</h1>
           </div>
 
           <form className="ask_form form" onSubmit={(e) => e.preventDefault()}>
