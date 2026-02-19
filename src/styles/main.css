@@ -276,7 +276,7 @@ a:has(.light_logo) {
 .blocks_title h2 {
   color: rgb(31, 42, 59);
   font-family: Nunito;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   line-height: 35px;
   letter-spacing: 0%;
@@ -382,13 +382,22 @@ a:has(.light_logo) {
 .subject_item h3 {
   color: rgb(31, 42, 59);
   font-family: Nunito;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 22px;
   letter-spacing: 0%;
   text-align: left;
   margin-bottom: 8px;
   cursor: pointer;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subject_item_list {
+  max-height: 103px;
+  overflow: hidden;
 }
 
 .dark_mode .subject_item h3 {
@@ -403,9 +412,6 @@ a:has(.light_logo) {
   display: flex;
   align-items: start;
   gap: 8px;
-  max-height: 103px;
-  overflow: hidden;
-  display: flex;
 }
 
 .subject_item_list_item img {
@@ -467,7 +473,7 @@ a:has(.light_logo) {
 .subject_item_more p {
   color: rgb(139, 148, 161);
   font-family: Nunito;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
   letter-spacing: 0%;
   text-align: left;

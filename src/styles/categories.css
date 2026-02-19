@@ -8,8 +8,14 @@
   height: auto;
   width: auto;
   background: url(/images/category-bg.svg);
-  background-size: cover;
   background-repeat: no-repeat;
+  background-position: top;
+  background-size: 100% 100%;
+  position: relative;
+}
+
+.categories_list .subject_item_list {
+  max-height: max-content;
 }
 
 .questions_filter {
@@ -18,7 +24,9 @@
 
 .dark_mode .categories_list .subject_item {
   background: url(/images/category-bg-d.svg);
-  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top;
+  background-size: 100% 100%;
 }
 
 /* Хлебные крошки */
@@ -79,7 +87,6 @@
   line-height: 25px;
   letter-spacing: 0%;
   text-align: left;
-
 }
 
 .subcatogory_title {
@@ -152,10 +159,18 @@
   align-items: center;
   justify-content: center;
   color: rgb(255, 255, 255);
-  background: #646BFF;
+  background: #646bff;
   font-family: Nunito;
   font-weight: 700;
   font-size: 15px;
+}
+
+.section.populars_block .question_list_item_left .main_text {
+  font-size: 16px;
+}
+
+.tops_block .question_list_item_left .main_text {
+  font-size: 16px;
 }
 
 @media only screen and (max-width: 1470px) {
@@ -176,7 +191,7 @@
     gap: 25px;
   }
 
-    .blocks_title {
+  .blocks_title {
     flex-direction: row;
     flex-wrap: wrap;
     gap: 10px 5px;

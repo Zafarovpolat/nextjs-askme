@@ -270,7 +270,7 @@ export default function CategoryPage() {
                       href={`/question/${question.slug}#answer`}
                       className="s_btn s_btn_active"
                     >
-                      Комментировать
+                      Ответить
                     </Link>
                   </div>
                 </div>

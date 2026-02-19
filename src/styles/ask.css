@@ -9,9 +9,9 @@
   background: rgb(255, 255, 255);
   border: none;
   text-indent: 18px;
-  color: #899AB5;
+  color: #899ab5;
   font-family: Nunito;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
   line-height: 22px;
   letter-spacing: 0%;
@@ -20,7 +20,7 @@
 
 .ask_form_item input::placeholder,
 .ask_form_item textarea::placeholder {
-  color: #899AB5;
+  color: #899ab5;
 }
 
 .dark_mode .ask_form_item input {
@@ -44,7 +44,7 @@
   height: 56px;
   background: rgb(255, 255, 255);
   border: none;
-  color: #899AB5;
+  color: #899ab5;
   font-family: Nunito;
   font-size: 16px;
   font-weight: 500;
@@ -99,7 +99,7 @@
 }
 
 .ask_form_item_actions p {
-  color: #899AB5;
+  color: #899ab5;
   font-family: Nunito;
   font-size: 12px;
   font-weight: 400;
@@ -109,7 +109,7 @@
 }
 
 .dark_mode .ask_form_item_actions p {
-  color: #CCDDF8;
+  color: #ccddf8;
 }
 
 .dark_mode .select_category_item_inner .super-select {
@@ -121,8 +121,9 @@
   color: white;
 }
 
-.dark_mode .ask_from_send_btn p,.dark_mode .ask_from_send_btn a {
-  color: #CCDDF8;
+.dark_mode .ask_from_send_btn p,
+.dark_mode .ask_from_send_btn a {
+  color: #ccddf8;
 }
 
 .ask_form_item_actions p span:nth-child(2) {
@@ -173,7 +174,7 @@
 .select_category_item_inner .super-select {
   padding-left: 45px;
   height: 55px;
-  color: #899AB5;
+  color: #899ab5;
   background-color: #fff;
 }
 
@@ -184,8 +185,6 @@
 .ask_form_item_block_actions textarea {
   border-radius: 12px 12px 0 0;
 }
-
-
 
 .ask_form_checkboxes {
   display: flex;
@@ -207,7 +206,7 @@
   min-width: 25px;
   background: rgb(255, 255, 255);
   cursor: pointer;
-  border: 2px solid #EFEFF6;
+  border: 2px solid #efeff6;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -228,7 +227,7 @@
 }
 
 .chechbox_item span {
-  color: #1F2A3B;
+  color: #1f2a3b;
   font-family: Nunito;
   font-size: 16px;
   font-weight: 500;
@@ -246,13 +245,13 @@
 .ask_from_send_btn button {
   max-width: 231px;
   width: 100%;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   text-transform: none;
 }
 
 .dark_mode .ask_from_send_btn .m_btn {
-  background-color: #626AFF;
+  background-color: #626aff;
   color: white;
 }
 
@@ -297,7 +296,6 @@
 }
 
 @media only screen and (max-width: 500px) {
-
   .ask_form_item input,
   .ask_form_item textarea,
   .select_category_item_inner .super-select {

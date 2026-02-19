@@ -63,7 +63,7 @@ export default function HomeContent() {
     hasDragged.current = false
     startX.current = e.pageX - el.offsetLeft
     scrollLeft.current = el.scrollLeft
-    el.style.cursor = 'grabbing'
+    el.style.cursor = 'default'
     el.style.userSelect = 'none'
   }, [])
 
@@ -82,7 +82,7 @@ export default function HomeContent() {
     const el = scrollRef.current
     if (!el) return
     isDragging.current = false
-    el.style.cursor = 'grab'
+    el.style.cursor = 'default'
     el.style.removeProperty('user-select')
   }, [])
 
@@ -116,7 +116,7 @@ export default function HomeContent() {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
           onClickCapture={handleClickCapture}
-          style={{ cursor: 'grab' }}
+          style={{ cursor: 'default' }}
         >
           <div className="subjects_list">
             {mockCategories.slice(0, 5).map((category) => (
@@ -295,7 +295,7 @@ export default function HomeContent() {
                     href={`/question/${question.slug}#answer`}
                     className="s_btn s_btn_active"
                   >
-                    Комментировать
+                    Ответить
                   </Link>
                 </div>
               </div>

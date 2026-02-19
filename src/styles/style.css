@@ -1840,7 +1840,7 @@ body.no-transition * {
   border: none;
   color: #4c5b72;
   font-family: Nunito;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
   text-align: left;
   outline: 0px;
@@ -1872,4 +1872,8 @@ body.no-transition * {
 .super-select option {
   padding: 10px 15px;
   padding: 15px;
+}
+
+.subject_item_list_item p {
+  font-size: 16px !important;
 }

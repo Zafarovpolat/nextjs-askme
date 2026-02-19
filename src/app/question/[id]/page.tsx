@@ -627,7 +627,7 @@ export default function QuestionPage() {
                   </svg>
                 </button>
                 <Link className="s_btn" href={`/question/${q.id}`}>Посмотреть</Link>
-                <Link className="s_btn s_btn_active" href={`/question/${q.id}#answer`}>Комментировать</Link>
+                <Link className="s_btn s_btn_active" href={`/question/${q.id}#answer`}>Ответить</Link>
               </div>
             </div>
           </div>
