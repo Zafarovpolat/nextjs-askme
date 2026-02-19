@@ -390,7 +390,7 @@
 
 .profile_input input::placeholder,
 .profile_input textarea::placeholder {
-  color: rgb(139, 148, 161);
+  color: rgba(204, 221, 248, 1);
 }
 
 .profile_input p {
@@ -976,6 +976,10 @@
 
 .dark_mode .payment_askpay_block {
   border: 2px solid #6069ff;
+}
+
+.profile_page_content .show_more_btn {
+  margin-top: 20px;
 }
 
 @media only screen and (max-width: 1300px) {

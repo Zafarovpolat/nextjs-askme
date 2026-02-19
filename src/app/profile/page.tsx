@@ -316,6 +316,7 @@ export default function ProfilePage() {
                         <p className="main_text">Ваше имя</p>
                         <input
                           type="text"
+                          placeholder="Ваше имя"
                           defaultValue={user.displayName}
                           name="name"
                         />
