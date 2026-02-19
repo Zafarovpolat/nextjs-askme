@@ -14,7 +14,7 @@ export default function Footer() {
         <Link href="/support">Служба поддержки</Link>
         <Link href="/cookies">Файлы Cookie</Link>
         
-        <p>Все права защищены © AskMe.ru 2026</p>
+        <p>Все права защищены © otvetai 2026</p>
       </div>
     </footer>
   )

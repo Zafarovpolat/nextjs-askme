@@ -45,7 +45,7 @@ export default function Header() {
 
             <form method="POST" action="/" className="search_input">
               <img src="/images/icons/search.svg" alt="" width="18" height="18" />
-              <input type="text" name="s" placeholder="Найти категорию" />
+              <input type="text" name="s" placeholder="Найти вопрос" />
             </form>
 
             <a href="/ask">

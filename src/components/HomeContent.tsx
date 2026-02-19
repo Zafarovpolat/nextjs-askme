@@ -95,10 +95,10 @@ export default function HomeContent() {
   }, [])
 
   // Топ 4 пользователя для блока "Лидеры"
-  const topUsers = mockUsers.slice(0, 4)
+  const topUsers = mockUsers.slice(0, 5)
 
   // Популярные вопросы (для блока "Самые обсуждаемые")
-  const popularQuestions = mockQuestions.slice(0, 4)
+  const popularQuestions = mockQuestions.slice(0, 5)
 
   return (
     <div className="container">

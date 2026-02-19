@@ -186,7 +186,7 @@ export default function QuestionPage() {
 
       {isBest && (
         <div className="main_question_block_title mobile_only_title">
-          <h2>{question.title}</h2>
+          <h1>{question.title}</h1>
         </div>
       )}
 
@@ -226,7 +226,7 @@ export default function QuestionPage() {
       <div className="main_question_block_actions">
         <div className="main_question_block_actions_left">
           <button className="s_btn s_btn_active s_btn--answer">
-            Комментировать
+            Ответить
           </button>
           <button className="s_btn s_btn_icon btn_thumb_up" title="Мне нравится">
             <svg width="15" height="13">
@@ -234,7 +234,7 @@ export default function QuestionPage() {
             </svg>
           </button>
           <p>
-            <span className="likes_count">{answer.rating}</span> нравится
+            <span className="likes_count">{answer.rating}</span><span className="likes_word"> нравится</span>
           </p>
         </div>
         <div className="main_question_block_actions_right">
@@ -412,7 +412,7 @@ export default function QuestionPage() {
             <div className="main_question_block_actions">
               <div className="main_question_block_actions_left">
                 <button className="s_btn s_btn_active answer_to_main_btn">
-                  Ответить
+                  Дать ответ
                 </button>
                 <button className="s_btn s_btn_icon btn_thumb_up" title="Мне нравится">
                   <svg width="15" height="15">
@@ -420,7 +420,7 @@ export default function QuestionPage() {
                   </svg>
                 </button>
                 <p>
-                  <span className="likes_count">{question.rating}</span> нравится
+                  <span className="likes_count">{question.rating}</span><span className="likes_word"> нравится</span>
                 </p>
               </div>
               <div className="main_question_block_actions_right">
