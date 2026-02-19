@@ -405,11 +405,11 @@
 }
 
 .secondary_question_block {
-  background: rgb(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .dark_mode .secondary_question_block {
-  background: rgb(64, 53, 134, 0.5);
+  background: rgba(64, 53, 134, 0.5);
 }
 
 .dark_mode .secondary_question_block .quest_user_title {
@@ -429,11 +429,11 @@
 }
 
 .answer_question_block {
-  background: rgb(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .dark_mode .answer_question_block {
-  background: rgb(64, 53, 134, 0.25);
+  background: rgba(64, 53, 134, 0.25);
 }
 
 .leader_quest_link {

@@ -3,7 +3,9 @@
   top: 0;
   left: 0;
   width: 100vw;
+  width: 100dvw; /* iOS Safari */
   height: 100vh;
+  height: 100dvh; /* iOS Safari: учитывает браузерный chrome */
   background: #eaebf6;
   z-index: 100;
   opacity: 0.95;
@@ -74,7 +76,9 @@ body:has(.modal--active):after {
   content: "";
   position: fixed;
   height: 100vh;
+  height: 100dvh; /* iOS Safari */
   width: 100vw;
+  width: 100dvw; /* iOS Safari */
   background: rgba(0, 0, 0, 0.5);
   z-index: 99;
   top: 0px;
@@ -238,6 +242,7 @@ body:has(.modal--active) {
     width: 100%;
     max-width: 100%;
     max-height: 100vh;
+    max-height: 100dvh; /* iOS Safari */
   }
 
   .modal__content {

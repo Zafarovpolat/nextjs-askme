@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh; /* iOS Safari */
 }
 
 .auth_page_layout > nav,
@@ -476,6 +477,10 @@
   border-top: 1px solid rgb(238, 238, 246);
 }
 
+.dark_mode .login_content_actions_bottom {
+  color: white;
+}
+
 .dark_mode
   .login_content_actions_bottom:not(.modal .login_content_actions_bottom) {
   color: #fff;
@@ -519,6 +524,10 @@
   font-weight: 700;
   margin-bottom: 16px;
   color: #1f2a3b;
+}
+
+.dark_mode .login-form__title {
+  color: white;
 }
 
 label.checkbox {

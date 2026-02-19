@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh; /* iOS Safari */
 }
 
 .profile_page_layout > nav,
@@ -1368,6 +1369,7 @@
   .select_themes .chechbox_item:nth-child(1),
   .select_themes .chechbox_item:nth-child(2),
   .select_themes .chechbox_item:nth-child(3) {
+    width: -moz-fit-content; /* Firefox < 94 */
     width: fit-content;
   }
 }

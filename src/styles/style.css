@@ -87,6 +87,7 @@ body {
     color 0.2s ease,
     background 0.2s ease;
   min-height: 100vh;
+  min-height: 100dvh; /* iOS Safari */
 }
 
 .container {
@@ -196,6 +197,9 @@ body {
   padding: 0 15px;
   margin-left: -25px;
   background: transparent;
+  -webkit-appearance: none; /* Safari/iOS: убираем нативный стиль */
+  -moz-appearance: none;    /* Firefox */
+  appearance: none;
 }
 
 .header__search-form__dropdown__select option {
@@ -659,6 +663,9 @@ body {
   padding: 0 50px;
   outline: 0;
   border: 0;
+  -webkit-appearance: none; /* Safari/iOS: убираем нативный стиль */
+  -moz-appearance: none;    /* Firefox */
+  appearance: none;
 }
 
 .section__title__dropdown__select option {
