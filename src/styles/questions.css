@@ -32,7 +32,7 @@
   font-size: 16px;
   font-weight: 400;
   line-height: 22px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
   transition: all 0.2s ease;
 }
@@ -47,7 +47,7 @@
   font-size: 16px;
   font-weight: 400;
   line-height: 22px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
 }
 
@@ -95,7 +95,7 @@
   font-size: 24px;
   font-weight: 700;
   line-height: 26px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
 }
 
@@ -108,7 +108,7 @@
   font-size: 17px;
   font-weight: 700;
   line-height: 26px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   background: rgb(255, 255, 255);
   border: none;
   text-align: center;
@@ -146,7 +146,7 @@
   font-size: 16px;
   font-weight: 700;
   line-height: 28px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
 }
 
@@ -220,7 +220,7 @@
   font-family: Nunito;
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
 }
 
@@ -231,7 +231,7 @@
   font-weight: 700;
   padding-right: 50px;
   line-height: 30px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
   margin-bottom: 4px;
 }
@@ -302,7 +302,7 @@
   font-size: 13px;
   font-weight: 400;
 
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
 }
 
@@ -312,7 +312,7 @@
   font-size: 18px;
   font-weight: 400;
   line-height: 1.6;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
 }
 
@@ -329,7 +329,7 @@
   font-size: 17px;
   font-weight: 700;
   line-height: 26px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
   text-transform: none;
 }
@@ -357,7 +357,7 @@
   font-size: 15px;
   font-weight: 400;
   line-height: 28px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
 }
 

@@ -118,7 +118,7 @@
   font-size: 24px;
   font-weight: 700;
   line-height: 30px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
   margin-bottom: 17px;
 }
@@ -152,7 +152,7 @@
   font-size: 16px;
   font-weight: 400;
   line-height: 18px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
   margin-bottom: 10px;
 }
@@ -189,7 +189,7 @@
   font-size: 16px;
   font-weight: 700;
   line-height: 18px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
   margin: 0px;
 }
@@ -331,7 +331,7 @@
   font-size: 13px;
   font-weight: 700;
   line-height: 18px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
   margin: 0px;
 }
@@ -365,7 +365,7 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 16px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   text-align: left;
 }
 
@@ -658,7 +658,7 @@ label.checkbox {
     font-size: 12px;
     font-weight: 500;
     line-height: 14px;
-    letter-spacing: 0%;
+    letter-spacing: 0;
     text-align: center;
   }
 

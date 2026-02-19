@@ -22,3 +22,41 @@
     'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
     'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
 }
+
+/* Кроссбраузерные фиксы для мобильных устройств */
+
+/* Отключение синей подсветки тапа на мобильных (iOS/Android) */
+a,
+button,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Предотвращение масштабирования на iOS при фокусе на инпутах с font-size < 16px */
+/* Повышаем font-size до 16px для небольших инпутов на мобильных */
+@media only screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+/* Улучшение рендеринга шрифтов */
+html {
+  -webkit-text-size-adjust: 100%; /* Предотвращение авто-масштаба текста на iOS */
+  text-size-adjust: 100%;
+}
+
+/* Prefers-reduced-motion: отключение анимаций для пользователей с таким предпочтением */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
