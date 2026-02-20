@@ -175,7 +175,7 @@ export default function CategoryPage() {
             <button
               type="button"
               className="s_btn s_btn_active"
-              onClick={() => setIsQuestionModalOpen(true)}
+              onClick={() => setIsLoginModalOpen(true)}
             >
               Задать вопрос
             </button>

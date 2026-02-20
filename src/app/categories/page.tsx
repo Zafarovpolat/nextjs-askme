@@ -327,7 +327,6 @@ export default function CategoriesPage() {
           </div>
         </div>
 
-        <div className="line"></div>
       </div>
       <Footer />
     </>

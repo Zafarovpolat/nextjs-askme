@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
@@ -134,6 +134,13 @@ export default function QuestionPage() {
   const [similarFilter, setSimilarFilter] = useState<'opened' | 'voting' | 'best'>('opened')
   const [openCategories, setOpenCategories] = useState<string[]>([question.category.slug])
 
+  const answerRef = useRef<HTMLTextAreaElement>(null)
+
+  const scrollToAnswer = useCallback(() => {
+    answerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    setTimeout(() => answerRef.current?.focus(), 400)
+  }, [])
+
   const sortedAnswers = [...regularAnswers].sort((a, b) => {
     if (sortBy === 'rating') return b.rating - a.rating
     return 0
@@ -225,7 +232,7 @@ export default function QuestionPage() {
 
       <div className="main_question_block_actions">
         <div className="main_question_block_actions_left">
-          <button className="s_btn s_btn_active s_btn--answer">
+          <button className="s_btn s_btn_active s_btn--answer" onClick={scrollToAnswer}>
             Ответить
           </button>
           <button className="s_btn s_btn_icon btn_thumb_up" title="Мне нравится">
@@ -411,7 +418,7 @@ export default function QuestionPage() {
 
             <div className="main_question_block_actions">
               <div className="main_question_block_actions_left">
-                <button className="s_btn s_btn_active answer_to_main_btn">
+                <button className="s_btn s_btn_active answer_to_main_btn" onClick={scrollToAnswer}>
                   Дать ответ
                 </button>
                 <button className="s_btn s_btn_icon btn_thumb_up" title="Мне нравится">
@@ -490,7 +497,7 @@ export default function QuestionPage() {
 
           <form className="ask_question_form form" onSubmit={(e) => e.preventDefault()}>
             <div className="ask_form_item ask_form_item_block_actions">
-              <textarea name="message" placeholder="Введите текст ответа" required></textarea>
+              <textarea ref={answerRef} name="message" placeholder="Введите текст ответа" required></textarea>
               <div className="ask_form_item_actions">
                 <div>
                   <svg width="15.67" height="13.71">

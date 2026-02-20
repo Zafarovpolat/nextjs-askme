@@ -121,7 +121,7 @@ export default function Header() {
         </div>
 
         <div className="nav_mob_wrapper_list">
-          <Link href="/categories">
+          <Link href="/categories" onClick={() => setIsMenuOpen(false)}>
             <button className="m_btn mob_category_btn">
               <svg width="18" height="18">
                 <use xlinkHref="#all-categories"></use>
@@ -132,7 +132,7 @@ export default function Header() {
 
           <form method="POST" action="/" className="search_input search_input_mob">
             <img src="/images/icons/mob-search.svg" alt="" width="18" height="18" style={{ fill: '#fff' }} />
-            <input type="text" placeholder="Найти категорию" />
+            <input type="text" placeholder="Найти вопрос" />
           </form>
 
           <Link href="/ask" className="mob_sec_item">

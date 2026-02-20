@@ -352,3 +352,179 @@
     width: 100%;
   }
 }
+
+/* ============ Кастомный селект ============ */
+
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select__icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.custom-select__icon svg {
+  fill: rgb(96, 105, 255);
+}
+
+.custom-select__trigger {
+  width: 100%;
+  height: 55px;
+  border-radius: 12px;
+  background: rgb(255, 255, 255);
+  border: 2px solid #efeff6;
+  padding: 0 16px 0 45px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: Nunito;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: left;
+  transition: border-color 0.2s ease, border-radius 0.2s ease;
+}
+
+.custom-select--open .custom-select__trigger {
+  border-color: rgb(98, 106, 255);
+  border-radius: 12px 12px 0 0;
+  border-bottom-color: transparent;
+}
+
+.custom-select--disabled .custom-select__trigger {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.custom-select__value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #4c5b72;
+}
+
+.custom-select__value--placeholder {
+  color: #899ab5;
+}
+
+.custom-select__arrow {
+  flex-shrink: 0;
+  color: #899ab5;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.custom-select--open .custom-select__arrow {
+  transform: rotate(180deg);
+  color: rgb(98, 106, 255);
+}
+
+.custom-select__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgb(255, 255, 255);
+  border: 2px solid rgb(98, 106, 255);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  z-index: 100;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(98, 106, 255) #f0f0ff;
+}
+
+.custom-select__dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-select__dropdown::-webkit-scrollbar-thumb {
+  background: rgb(98, 106, 255);
+  border-radius: 3px;
+}
+
+.custom-select__option {
+  width: 100%;
+  padding: 10px 16px 10px 45px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: #4c5b72;
+  font-family: Nunito;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  display: block;
+}
+
+.custom-select__option:hover {
+  background: rgb(98, 106, 255);
+  color: #fff;
+}
+
+.custom-select__option--selected {
+  background: rgba(98, 106, 255, 0.08);
+  color: rgb(98, 106, 255);
+  font-weight: 700;
+}
+
+.custom-select__option--selected:hover {
+  background: rgb(98, 106, 255);
+  color: #fff;
+}
+
+/* Темная тема */
+.dark_mode .custom-select__trigger {
+  background: transparent;
+  border-color: rgb(96, 105, 255);
+  color: #fff;
+}
+
+.dark_mode .custom-select--open .custom-select__trigger {
+  border-bottom-color: transparent;
+}
+
+.dark_mode .custom-select__value {
+  color: #fff;
+}
+
+.dark_mode .custom-select__value--placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dark_mode .custom-select__arrow {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dark_mode .custom-select--open .custom-select__arrow {
+  color: #fff;
+}
+
+.dark_mode .custom-select__dropdown {
+  background: rgb(35, 38, 91);
+  border-color: rgb(96, 105, 255);
+}
+
+.dark_mode .custom-select__option {
+  color: rgb(204, 221, 248);
+}
+
+.dark_mode .custom-select__option:hover {
+  background: rgb(98, 106, 255);
+  color: #fff;
+}
+
+.dark_mode .custom-select__option--selected {
+  background: rgba(98, 106, 255, 0.2);
+  color: #fff;
+}

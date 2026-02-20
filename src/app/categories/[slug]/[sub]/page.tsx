@@ -188,7 +188,7 @@ export default function SubcategoryPage() {
             <button
               type="button"
               className="s_btn s_btn_active"
-              onClick={() => setIsQuestionModalOpen(true)}
+              onClick={() => setIsLoginModalOpen(true)}
             >
               Задать вопрос
             </button>
@@ -283,7 +283,7 @@ export default function SubcategoryPage() {
                       href={`/question/${question.slug}#answer`}
                       className="s_btn s_btn_active"
                     >
-                      Комментировать
+                      Ответить
                     </Link>
                   </div>
                 </div>

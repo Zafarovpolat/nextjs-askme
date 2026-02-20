@@ -223,7 +223,6 @@
 
 .top_leaders_list_wrapper .top_leaders_filter .top_leaders_filter_item {
   width: 25%;
-  height: 40px;
 }
 
 .question_list_item-left {
@@ -354,6 +353,16 @@
   .top_leaders_list_wrapper .top_leaders_filter .top_leaders_filter_item {
     width: 48%;
   }
+
+  .project_leaders_list .question_list_item {
+    padding: 12px 25px 12px 15px;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .top_leaders_list_wrapper .super-select {
+    font-size: 16px !important;
+  }
 }
 
 @media only screen and (max-width: 700px) {
@@ -387,5 +396,15 @@
 
   .top_leaders_list {
     gap: 10px;
+  }
+
+  .project_leaders_list .question_list_item {
+    padding: 12px 25px 12px 10px;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .question_list_item-left {
+    gap: 5px;
   }
 }

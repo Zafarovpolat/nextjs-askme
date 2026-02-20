@@ -1820,6 +1820,10 @@ body:not(.dark-mode) .header__dark-mode-toggler__icon--dark {
   .section__title__link .btn {
     justify-content: flex-start !important;
   }
+
+  .breadcrumbs {
+    margin-bottom: 20px;
+  }
 }
 
 @media screen and (max-width: 500px) {

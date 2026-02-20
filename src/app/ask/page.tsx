@@ -9,6 +9,7 @@ import { mockUsers } from "@/data/mock-users"
 import LoginModal from "@/components/LoginModal"
 import QuestionModal from "@/components/QuestionModal"
 import SharePopup from "@/components/SharePopup"
+import CustomSelect from "@/components/CustomSelect"
 
 // Категории для селектов
 const categories = [
@@ -112,49 +113,45 @@ export default function AskPage() {
               </div>
             </div>
 
-            {/* Селекты категорий */}
+            {/* Кастомные селекты категорий */}
             <div className="select_category_filters">
               <div className="select_category_item">
-                <div className="select_category_item_inner">
-                  <svg width="18" height="18" className="select_category_icon">
-                    <use xlinkHref="#grid-icon"></use>
-                  </svg>
-                  <select
-                    className="super-select"
-                    value={selectedCategory}
-                    onChange={(e) => handleCategoryChange(e.target.value)}
-                  >
-                    <option value="">Выберите категорию вопроса</option>
-                    {categories.map((cat) => (
-                      <option key={cat.slug} value={cat.slug}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
+                <CustomSelect
+                  value={selectedCategory}
+                  onChange={handleCategoryChange}
+                  placeholder="Выберите категорию вопроса"
+                  options={categories.map((cat) => ({ value: cat.slug, label: cat.name }))}
+                  icon={
+                    <svg width="18" height="18">
+                      <use xlinkHref="#grid-icon"></use>
+                    </svg>
+                  }
+                />
               </div>
               <div className="select_category_item">
-                <div className="select_category_item_inner">
-                  <svg width="18" height="18" className="select_category_icon">
-                    <use xlinkHref="#list-icon"></use>
-                  </svg>
-                  <select
-                    className="super-select"
-                    value={selectedSubcategory}
-                    onChange={(e) => setSelectedSubcategory(e.target.value)}
-                    disabled={!selectedCategory}
-                  >
-                    <option value="">Выберите подкатегорию вопроса</option>
-                    {subcategoryOptions.map((subcat) => (
-                      <option key={subcat} value={subcat}>{subcat}</option>
-                    ))}
-                  </select>
-                </div>
+                <CustomSelect
+                  value={selectedSubcategory}
+                  onChange={setSelectedSubcategory}
+                  placeholder="Выберите подкатегорию вопроса"
+                  options={subcategoryOptions.map((s) => ({ value: s, label: s }))}
+                  disabled={!selectedCategory}
+                  icon={
+                    <svg width="18" height="18">
+                      <use xlinkHref="#list-icon"></use>
+                    </svg>
+                  }
+                />
               </div>
             </div>
 
             {/* Действия формы */}
             <div className="asf_form_actions">
               <div className="ask_from_send_btn">
-                <button type="submit" className="m_btn category_btn">
+                <button
+                  type="button"
+                  className="m_btn category_btn"
+                  onClick={() => setIsLoginModalOpen(true)}
+                >
                   Опубликовать вопрос
                 </button>
                 <p>

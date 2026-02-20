@@ -1046,10 +1046,6 @@
     padding-top: 20px;
   }
 
-  .breadcrumbs {
-    margin-bottom: 5px;
-  }
-
   .profile_menu_list_mob {
     display: flex;
     align-items: center;
@@ -1358,7 +1354,7 @@
     margin-top: 5px;
   }
 
-  .question_item_top_data .question_item_top_data_right {
+  .profile_page_layout .question_item_top_data .question_item_top_data_right {
     display: none;
   }
 
