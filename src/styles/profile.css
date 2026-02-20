@@ -349,14 +349,14 @@
 
 .profile-edit-tab .secondary_text {
   max-width: 370px;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 14px;
 }
 
 .profile-edit-tab .category_btn.m_btn,
 .profile-edit-tab .cancel_btn {
   text-transform: none;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   height: 40px;
 }
@@ -373,12 +373,20 @@
   text-indent: 19px;
   color: #000;
   font-family: Nunito;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 28px;
   letter-spacing: 0;
   text-align: left;
   width: 100%;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.profile_input input:focus {
+  border-color: rgb(98, 106, 255);
+  box-shadow: 0 0 0 3px rgba(98, 106, 255, 0.12);
 }
 
 .dark_mode .profile_input input,
@@ -414,8 +422,16 @@
   border-radius: 12px;
   height: 98px;
   width: 100%;
-
   padding: 15px 18px;
+  font-size: 16px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.profile_input textarea:focus {
+  border-color: rgb(98, 106, 255);
+  box-shadow: 0 0 0 3px rgba(98, 106, 255, 0.12);
 }
 
 .profile_action_btns {
@@ -494,6 +510,10 @@
 
 .play_sound_btn svg {
   width: 8px;
+}
+
+.play_sound_btn {
+  transition: opacity 0.2s ease;
 }
 
 .play_sound_btn:hover {
@@ -627,6 +647,9 @@
   align-items: center;
   justify-content: space-between;
   border-radius: 12px;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   height: 51px;
   padding: 0 24px 0 18px;
   background: rgb(232, 232, 245);
@@ -647,6 +670,11 @@
 
 .dark_mode .vip_status_card {
   background: #4647b3;
+}
+
+.vip_status_card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
 
 .vip_status_card div {
@@ -851,6 +879,10 @@
   color: #ccddf8;
 }
 
+.payment_logout_btn {
+  transition: opacity 0.2s ease;
+}
+
 .payment_logout_btn:hover {
   opacity: 0.75;
 }
@@ -980,6 +1012,14 @@
 
 .profile_page_content .show_more_btn {
   margin-top: 20px;
+}
+
+.profile_page .main_text {
+  font-size: 16px;
+}
+
+.profile_page .question_list_item_left .main_text {
+  font-size: 17px;
 }
 
 @media only screen and (max-width: 1300px) {
@@ -1445,5 +1485,14 @@
 
   .user_profile_block_rect {
     right: 3%;
+  }
+
+  .profile_action_btns {
+    flex-direction: column;
+  }
+
+  .profile-edit-tab .category_btn.m_btn,
+  .profile-edit-tab .cancel_btn {
+    width: 100%;
   }
 }

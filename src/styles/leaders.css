@@ -51,6 +51,11 @@
   height: 279px;
   width: 33%;
   position: relative;
+  transition: transform 0.2s ease;
+}
+
+.top_leader_card:hover {
+  transform: translateY(-5px);
 }
 
 .top_leader_card_bg,
@@ -201,16 +206,33 @@
   padding: 11px 14px 11px 22px;
 }
 
+.top_leaders_filter_item.active .top_leaders_filter_menu {
+  animation: filterMenuIn 0.15s ease;
+}
+
+@keyframes filterMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .top_leaders_filter_menu p {
   color: rgb(31, 42, 59);
   font-family: Nunito;
   font-size: 12px;
   font-weight: 700;
   line-height: 19px;
+  transition: color 0.15s ease;
 }
 
 .top_leaders_filter_menu p:hover {
   text-decoration: underline;
+  color: rgb(98, 106, 255);
 }
 
 .top_leaders_list_wrapper .blocks_title {

@@ -1,10 +1,26 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isNavHidden, setIsNavHidden] = useState(false)
+  const lastScrollY = useRef(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY
+      if (currentY > lastScrollY.current && currentY > 80) {
+        setIsNavHidden(true)
+      } else if (currentY < lastScrollY.current) {
+        setIsNavHidden(false)
+      }
+      lastScrollY.current = currentY
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -16,7 +32,7 @@ export default function Header() {
 
   return (
     <>
-      <nav>
+      <nav className={isNavHidden ? 'nav--hidden' : ''}>
         <div className="nav_wrapper container">
           <Link href="/" className="header__logo">
             <img

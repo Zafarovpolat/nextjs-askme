@@ -40,7 +40,20 @@ textarea {
 }
 
 nav {
-  padding: 36px 0 18px;
+  padding: 18px 0 18px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: #e7e9f6;
+  transition: transform 0.3s ease, background 0.2s ease;
+}
+
+.dark_mode nav {
+  background: #23265b;
+}
+
+nav.nav--hidden {
+  transform: translateY(-110%);
 }
 
 .secondary_text {
