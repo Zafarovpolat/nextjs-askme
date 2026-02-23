@@ -312,15 +312,15 @@
   .ask_form_item textarea,
   .select_category_item_inner .super-select {
     display: block;
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .chechbox_item span {
-    font-size: 13px;
+    /* font-size: 13px; */
   }
 
   .ask_form_item_actions p span:nth-child(2) {
-    font-size: 12px;
+    /* font-size: 12px; */
     display: block;
   }
 

@@ -1,38 +1,38 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useState, useEffect, useRef } from 'react'
+import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isNavHidden, setIsNavHidden] = useState(false)
-  const lastScrollY = useRef(0)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isNavHidden, setIsNavHidden] = useState(false);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentY = window.scrollY
+      const currentY = window.scrollY;
       if (currentY > lastScrollY.current && currentY > 80) {
-        setIsNavHidden(true)
+        setIsNavHidden(true);
       } else if (currentY < lastScrollY.current) {
-        setIsNavHidden(false)
+        setIsNavHidden(false);
       }
-      lastScrollY.current = currentY
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+      lastScrollY.current = currentY;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const toggleDarkMode = () => {
-    document.body.classList.toggle('dark_mode')
-  }
+    document.body.classList.toggle("dark_mode");
+  };
 
   return (
     <>
-      <nav className={isNavHidden ? 'nav--hidden' : ''}>
+      <nav className={isNavHidden || isMenuOpen ? "nav--hidden" : ""}>
         <div className="nav_wrapper container">
           <Link href="/" className="header__logo">
             <img
@@ -54,13 +54,23 @@ export default function Header() {
           <div className="nav_list">
             <Link href="/categories">
               <button className="m_btn category_btn">
-                <img src="/images/icons/category-icon.svg" alt="" width="18" height="18" />
+                <img
+                  src="/images/icons/category-icon.svg"
+                  alt=""
+                  width="18"
+                  height="18"
+                />
                 <span>Категории</span>
               </button>
             </Link>
 
             <form method="POST" action="/" className="search_input">
-              <img src="/images/icons/search.svg" alt="" width="18" height="18" />
+              <img
+                src="/images/icons/search.svg"
+                alt=""
+                width="18"
+                height="18"
+              />
               <input type="text" name="s" placeholder="Найти вопрос" />
             </form>
 
@@ -82,21 +92,38 @@ export default function Header() {
               </button>
             </a>
 
-            <button className="m_btn m_btn_icon mode_toggler" onClick={toggleDarkMode} title="Темная/светлая тема">
+            <button
+              className="m_btn m_btn_icon mode_toggler"
+              onClick={toggleDarkMode}
+              title="Темная/светлая тема"
+            >
               <svg width="16" height="18">
                 <use xlinkHref="#light-mode"></use>
               </svg>
             </button>
 
             <Link href="/login">
-              <button className="m_btn m_btn_icon category_btn" title="Личный кабинет">
-                <img src="/images/icons/user.svg" alt="" width="16" height="20" />
+              <button
+                className="m_btn m_btn_icon category_btn"
+                title="Личный кабинет"
+              >
+                <img
+                  src="/images/icons/user.svg"
+                  alt=""
+                  width="16"
+                  height="20"
+                />
               </button>
             </Link>
 
             <Link href="/logout" className="logout-btn logged_in_show">
               <button className="m_btn m_btn_icon category_btn" title="Выход">
-                <img src="/images/icons/logout.svg" alt="" width="16" height="20" />
+                <img
+                  src="/images/icons/logout.svg"
+                  alt=""
+                  width="16"
+                  height="20"
+                />
               </button>
             </Link>
 
@@ -111,14 +138,24 @@ export default function Header() {
       </nav>
 
       {/* Мобильное меню */}
-      <div className={`nav_mob_wrapper ${isMenuOpen ? 'nav_mob_wrapper_visible' : ''}`}>
+      <div
+        className={`nav_mob_wrapper ${isMenuOpen ? "nav_mob_wrapper_visible" : ""}`}
+      >
         <div className="nav_mob_wrapper_nav">
           <Link href="/">
             <img src="/images/icons/mob-nav-logo.svg" alt="" />
           </Link>
           <div>
-            <button className="m_btn m_btn_icon mode_toggler" onClick={toggleDarkMode}>
-              <img src="/images/icons/light-mode.svg" alt="" width="16" height="18" />
+            <button
+              className="m_btn m_btn_icon mode_toggler"
+              onClick={toggleDarkMode}
+            >
+              <img
+                src="/images/icons/light-mode.svg"
+                alt=""
+                width="16"
+                height="18"
+              />
             </button>
             <Link href="/login">
               <button className="m_btn">
@@ -127,7 +164,12 @@ export default function Header() {
             </Link>
             <Link href="/logout" className="logout-btn logged_in_show">
               <button className="m_btn m_btn_icon category_btn" title="Выход">
-                <img src="/images/icons/logout.svg" alt="" width="16" height="20" />
+                <img
+                  src="/images/icons/logout.svg"
+                  alt=""
+                  width="16"
+                  height="20"
+                />
               </button>
             </Link>
             <button className="m_btn" onClick={toggleMenu}>
@@ -146,8 +188,18 @@ export default function Header() {
             </button>
           </Link>
 
-          <form method="POST" action="/" className="search_input search_input_mob">
-            <img src="/images/icons/mob-search.svg" alt="" width="18" height="18" style={{ fill: '#fff' }} />
+          <form
+            method="POST"
+            action="/"
+            className="search_input search_input_mob"
+          >
+            <img
+              src="/images/icons/mob-search.svg"
+              alt=""
+              width="18"
+              height="18"
+              style={{ fill: "#fff" }}
+            />
             <input type="text" placeholder="Найти вопрос" />
           </form>
 
@@ -171,5 +223,5 @@ export default function Header() {
         </div>
       </div>
     </>
-  )
+  );
 }
