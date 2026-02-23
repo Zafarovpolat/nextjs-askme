@@ -1257,7 +1257,6 @@
 
   .profile-edit-tab .profile_input input[type="text"],
   .profile-edit-tab .profile_input textarea {
-    font-size: 14px !important;
   }
 }
 
@@ -1342,12 +1341,10 @@
   }
 
   .profile_action_btns button {
-    font-size: 13px;
     height: 40px;
   }
 
   .profile_warning p {
-    font-size: 12px;
   }
 
   .profile_settings_top_titles p:first-child,
@@ -1428,15 +1425,12 @@
   }
 
   .profile_settings_title {
-    font-size: 13px;
   }
 
   .profile_settings_top_titles .secondary_text {
-    font-size: 12px;
   }
 
   .secondary_text {
-    font-size: 12px;
   }
 
   .user_seting_item input[type="checkbox"] {
