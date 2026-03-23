@@ -424,7 +424,10 @@ function SearchPageContent() {
           </div>
         </div>
 
-        <div className="question_wrapper container">
+        <div
+          className="question_wrapper container"
+          style={{ paddingBottom: "25px" }}
+        >
           {/* Левый сайдбар */}
           <div className="question_left_list">
             <div className="quest_catogories_list">
@@ -835,7 +838,6 @@ function SearchPageContent() {
                 style={{
                   display: "flex",
                   justifyContent: "center",
-                  marginBottom: "20px",
                 }}
               >
                 <button

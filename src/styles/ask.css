@@ -383,6 +383,15 @@
   }
 }
 
+@media only screen and (max-width: 1300px) {
+  .search-page-wrapper .question_right_list {
+    display: none !important;
+  }
+  .search-page-wrapper .questions_page_list {
+    width: 100% !important;
+  }
+}
+
 @media only screen and (max-width: 500px) {
   .ask_form_item input,
   .ask_form_item textarea,
@@ -652,7 +661,6 @@
 }
 
 .search-page-wrapper .question_wrapper.container {
-  padding-bottom: 14px;
   border-bottom: 1px solid #E0E2EF;
 }
 

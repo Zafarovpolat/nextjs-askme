@@ -225,7 +225,7 @@ export const mockUsers: User[] = [
   {
     id: 14,
     username: 'banned_user',
-    displayName: 'Виктор Banned',
+    displayName: 'Виктор',
     email: 'banned@example.com',
     avatar: '/images/icons/avatar.svg',
     bio: '',

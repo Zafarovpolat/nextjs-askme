@@ -54,6 +54,8 @@ export interface Comment {
   content: string;
   rating: number;
   isBestAnswer: boolean;
+  likesCount?: number;
+  dislikesCount?: number;
   createdAt: string;
   updatedAt: string;
 }
