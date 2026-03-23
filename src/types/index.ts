@@ -16,6 +16,7 @@ export interface User {
   answersCount: number;
   createdAt: string;
   role: string;
+  isBanned?: boolean;
 }
 
 export interface Category {
@@ -40,7 +41,7 @@ export interface Question {
   author: User;
   category: Category;
   rating: number;
-  status: 'opened' | 'closed';
+  status: 'opened' | 'closed' | 'voting';
   commentsCount: number;
   createdAt: string;
   updatedAt: string;

@@ -1273,6 +1273,11 @@ footer .line {
     padding: 0;
   }
 
+  .nav_list .mode_toggler svg {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
   .nav_list a:nth-child(6) button {
     width: 45px;
     height: 45px;

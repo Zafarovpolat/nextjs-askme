@@ -1,0 +1,291 @@
+/* Profile Public Header Styles */
+
+.main_question_block.main_question_block_item.profile_question_block{
+    padding: 0 28px 24px;
+}
+
+.user_profile_block_content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 30px !important;
+  width: 100%;
+}
+
+.user_profile_block_content_profile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user_profile_image {
+  width: 83px;
+  height: 83px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+}
+
+.user_profile_img {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.user_profile_img img{
+  position: relative;
+  width: 97px;
+  height: 97px;
+}
+
+.user_profile_block_content_profile_desc h4 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1F2A3B;
+  margin: 0 0 4px 0;
+}
+
+.dark_mode .user_profile_block_content_profile_desc h4 {
+  color: #fff;
+}
+
+/* Role Badge */
+.user_role_badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: #EFEFF6;
+  border-radius: 20px;
+  color: #5D67FF;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dark_mode .user_role_badge {
+  background: #fff;
+  color: #5D67FF;
+}
+
+/* Stats Section */
+.user_public_stats {
+  display: flex;
+  padding-top: 20px;
+  margin-right: 40px;
+  align-items: center;
+  gap: 30px;
+}
+
+.stats_divider {
+  width: 1px;
+  height: 48px;
+  background: #E5E7EB;
+}
+
+.stat_item {
+  display: flex;
+  align-items: center;
+}
+
+.stat_info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat_value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1F2A3B;
+  line-height: 1.1;
+}
+
+.dark_mode .stat_value {
+  color: #fff;
+}
+
+.stat_label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #5C6676;
+}
+
+.dark_mode .stat_label {
+  color: #CCDDF8;
+}
+
+.dark_mode .stat_item svg path {
+  fill: #fff !important;
+}
+
+.kpd_tooltip_icon {
+  background: #D1D5DB;
+  color: #fff;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: help;
+}
+
+.dark_mode .kpd_tooltip_icon {
+  background: #C8CADC;
+  color: #fff;
+}
+
+@media (max-width: 1300px) {
+  .breadcrumbs {
+    margin-bottom: 44px !important;
+  }
+  
+  .user_profile_block_content {
+    padding: 0 !important;
+    padding-top: 0px !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  
+  .user_public_stats {
+    justify-content: space-between;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  .user_profile_block_content {
+    flex-direction: column !important;
+    align-items: start !important; 
+    gap: 15px !important;
+  }
+  
+  .user_profile_img img {
+    width: 70px !important;
+    height: 70px !important;
+  }
+  
+  .user_profile_block_content_profile_desc h4 {
+    font-size: 18px !important;
+  }
+  
+  .user_public_stats {
+    padding-top: 10px !important;
+    gap: 20px !important;
+    margin-right: 0 !important;
+  }
+  
+  .stat_value {
+    font-size: 18px !important;
+  }
+  
+  .stat_label {
+    font-size: 14px !important;
+  }
+
+  .stats_divider {
+    height: 36px !important;
+  }
+  
+  .stat_item svg {
+    width: 20px !important;
+    height: auto !important;
+  }
+
+  .user_profile_block_content_profile_desc {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .search-result-meta {
+    flex-wrap: wrap;
+  }
+
+  .main_question_block.main_question_block_item.profile_question_block {
+    margin-bottom: 14px;
+  }
+
+
+
+  .search-result-meta {
+    gap: 4px 12px !important;
+  }
+}
+
+
+@media (max-width: 600px) {
+    .user_profile_block_content {
+        padding-top: 10px !important;
+    }
+
+    .user_profile_block_content {
+        gap: 5px !important;
+    }
+
+    .main_question_block.main_question_block_item.profile_question_block {
+        padding: 0 20px 24px;
+    }
+
+    .user_public_stats {
+        width: 100%;
+    }
+
+      .breadcrumbs {
+    margin-bottom: 20px !important;
+  }
+
+}
+
+@media (max-width: 540px) {
+.search-result-avatar {
+    display: none !important;
+}
+
+.search-result-top {
+    gap: 0px !important;
+}
+}
+
+/* Banned User Styles */
+.banned_banner {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background-color: #5D67FF;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 30px;
+  color: #fff;
+  z-index: 10;
+}
+
+.banned_banner_content {
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: #fff;
+}
+
+.banned_banner_content a {
+  color: #fff !important;
+  text-decoration: underline !important;
+}
+
+.banned_relative {
+  position: relative;
+}
+
+.banned_opacity {
+  opacity: 0.5;
+  pointer-events: none;
+}

@@ -7,81 +7,7 @@ import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { mockQuestions } from "@/data/mock-questions";
 import { mockUsers } from "@/data/mock-users";
-
-// Категории для сайдбара
-const sidebarCategories = [
-  {
-    name: "Авто, Мото",
-    slug: "auto-moto",
-    svgIcon: "steering-wheel",
-    subcategories: [
-      "Автоспорт",
-      "Автострахование",
-      "Выбор автомобиля, мотоцикла",
-      "ГИБДД, Обучение, Права",
-      "ПДД, Вождение",
-      "Оформление авто-мото сделок",
-      "Сервис, Обслуживание, Тюнинг",
-      "Прочие Авто-темы",
-    ],
-  },
-  {
-    name: "Развлечения",
-    slug: "entertainment",
-    svgIcon: "gaming",
-    subcategories: [
-      "Игры без компьютера",
-      "Клубы, Дискотеки",
-      "Концерты, Выставки, Спектакли",
-      "Охота и Рыбалка",
-    ],
-  },
-  {
-    name: "Растения",
-    slug: "plants",
-    svgIcon: "gear",
-    subcategories: [
-      "Дикая природа",
-      "Домашние",
-      "Комнатные растения",
-      "Сад-Огород",
-    ],
-  },
-  {
-    name: "Красота и Здоровье",
-    slug: "beauty-health",
-    svgIcon: "heart",
-    subcategories: [
-      "Коронавирус",
-      "Баня, Массаж, Фитнес",
-      "Болезни, Лекарства",
-      "Детское здоровье",
-    ],
-  },
-  {
-    name: "Семья, Дом",
-    slug: "family-home",
-    svgIcon: "family",
-    subcategories: [
-      "Беременность, Роды",
-      "Воспитание детей",
-      "Домашняя бухгалтерия",
-      "Домоводство",
-    ],
-  },
-  {
-    name: "Бизнес, Финансы",
-    slug: "business-finance",
-    svgIcon: "business",
-    subcategories: ["Банки и Кредиты", "Недвижимость, Ипотека"],
-  },
-  {
-    name: "Еда, Кулинария",
-    slug: "food-cooking",
-    svgIcon: "food",
-    subcategories: ["Вторые блюда", "Десерты, Сладости, Выпечка"],
-  },
-];
+import SearchResultCard from "@/components/SearchResultCard";
 
 // Склонение
 const numWord = (value: number, words: [string, string, string]): string => {
@@ -205,21 +131,28 @@ const mockAnswers: MockAnswer[] = [
 
 const rightSidebarQuestions = mockQuestions.slice(0, 5);
 
-export default function QuestionPage() {
+export default function ProfilePage() {
   const params = useParams();
-  const id = Number(params.id);
+  const username = params.username as string;
 
-  const question = mockQuestions.find((q) => q.id === id) ?? mockQuestions[0];
+  const user = mockUsers.find((u) => u.username === username) ?? mockUsers[0];
+  const question = mockQuestions[0];
   const bestAnswer = mockAnswers.find((a) => a.isBestAnswer);
   const regularAnswers = mockAnswers.filter((a) => !a.isBestAnswer);
 
-  const [sortBy, setSortBy] = useState<"rating" | "date">("rating");
+  const userQuestions = mockQuestions.filter((q) => q.author.id === user.id);
+
+  const [profileFilter, setProfileFilter] = useState<
+    "all" | "opened" | "voting" | "closed"
+  >("all");
   const [similarFilter, setSimilarFilter] = useState<
     "opened" | "voting" | "best"
   >("opened");
-  const [openCategories, setOpenCategories] = useState<string[]>([
-    question.category.slug,
-  ]);
+
+  const filteredQuestions =
+    profileFilter === "all"
+      ? userQuestions
+      : userQuestions.filter((q) => q.status === profileFilter);
 
   const answerRef = useRef<HTMLTextAreaElement>(null);
 
@@ -227,21 +160,6 @@ export default function QuestionPage() {
     answerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     setTimeout(() => answerRef.current?.focus(), 400);
   }, []);
-
-  const sortedAnswers = [...regularAnswers].sort((a, b) => {
-    if (sortBy === "rating") return b.rating - a.rating;
-    return 0;
-  });
-
-  // Разделяем: основные и вложенные
-  const topLevelAnswers = sortedAnswers.filter((a) => !a.parentId);
-  const nestedAnswers = sortedAnswers.filter((a) => a.parentId);
-
-  const toggleCategory = (slug: string) => {
-    setOpenCategories((prev) =>
-      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
-    );
-  };
 
   // Рендер блока ответа
   const renderAnswer = (
@@ -450,57 +368,69 @@ export default function QuestionPage() {
         </div>
       </div>
 
-      <div className="question_wrapper container">
+      <div
+        className="question_wrapper container"
+        style={{
+          paddingBottom: "14px",
+          borderBottom: "1px solid #E0E2EF",
+        }}
+      >
         {/* Левый сайдбар */}
         <div className="question_left_list">
-          <div className="quest_catogories_list">
-            <div className="blocks_title">
-              <h2>Категории</h2>
-            </div>
-            {sidebarCategories.map((cat) => (
-              <div
-                className={`quest_catogory ${openCategories.includes(cat.slug) ? "active_quest_catogory" : ""}`}
-                key={cat.slug}
-              >
-                <div
-                  className="quest_catogory_title"
-                  onClick={() => toggleCategory(cat.slug)}
-                >
-                  <div>
-                    <svg width="18" height="18">
-                      <use xlinkHref={`#${cat.svgIcon}`}></use>
-                    </svg>
-                    <p>{cat.name}</p>
-                  </div>
-                  <svg
-                    className="quest_catogory_arrow"
-                    width="9"
-                    height="6"
-                    style={{ fill: "rgb(91, 103, 255)" }}
-                  >
-                    <use xlinkHref="#arrow-down"></use>
-                  </svg>
-                </div>
-                <div className="quest_catogory_content">
-                  <div className="subject_item_list">
-                    {cat.subcategories.map((subcat, idx) => (
-                      <Link
-                        href={`/categories/${cat.slug}/${encodeURIComponent(subcat.toLowerCase())}`}
-                        key={idx}
-                      >
-                        <div className="subject_item_list_item">
-                          <img
-                            src="/images/icons/category-list-item.svg"
-                            alt=""
-                          />
-                          <p>{subcat}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+          <div
+            className="profile_stats"
+            style={{ width: "100%", marginBottom: "14px" }}
+          >
+            <div
+              className={`profile_stats_list ${user.isBanned ? "banned_opacity" : ""}`}
+            >
+              <div className="profile_stats_item active">
+                <p className="main_text">Вопросы</p>
+                <div className="stats_badge">
+                  <p className="main_text">45</p>
                 </div>
               </div>
-            ))}
+              <div className="profile_stats_item">
+                <p className="main_text">Ответы</p>
+                <div className="stats_badge">
+                  <p className="main_text">320</p>
+                </div>
+              </div>
+              <div className="profile_stats_item profile_stats_action">
+                <div className="profile_stats_action_inner">
+                  <svg
+                    width="17"
+                    height="15"
+                    viewBox="0 0 17 15"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15.223 1.27533C13.4346 -0.425109 10.537 -0.425109 8.74859 1.27533L8.5 1.51167L8.25141 1.27533C6.46301 -0.425109 3.56541 -0.425109 1.77701 1.27533C-0.126569 3.08502 -0.126569 6.01498 1.77701 7.82467L8.5 14.2147L15.223 7.82467C17.1266 6.01498 17.1266 3.08502 15.223 1.27533Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <p className="main_text">Подписаться</p>
+                </div>
+              </div>
+              <div className="profile_stats_item profile_stats_action">
+                <div className="profile_stats_action_inner">
+                  <svg
+                    width="17"
+                    height="17"
+                    viewBox="0 0 17 17"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.42 5.7115L12.5718 1.86329C12.2543 1.54577 11.9322 1.38477 11.6146 1.38477C11.1785 1.38477 10.6693 1.71646 10.6693 2.65133V3.96143C7.87342 4.08328 5.2625 5.22989 3.27111 7.22118C1.16191 9.33024 0.000199219 12.1344 0 15.1172C0 15.3315 0.137062 15.5218 0.340332 15.5896C0.392229 15.6069 0.445354 15.6153 0.49798 15.6153C0.651611 15.6153 0.800328 15.544 0.896219 15.4163C3.24763 12.2864 6.78775 10.4367 10.6693 10.2907V11.5806C10.6693 12.5154 11.1785 12.8472 11.6146 12.8472H11.6147C11.9323 12.8472 12.2543 12.6862 12.5718 12.3687L16.42 8.52042C16.794 8.14652 17 7.64774 17 7.11596C17 6.58428 16.794 6.08546 16.42 5.7115Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <p className="main_text">Поделиться</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Лидеры проекта */}
@@ -508,19 +438,15 @@ export default function QuestionPage() {
             <div className="blocks_title">
               <h2>Лидеры проекта</h2>
             </div>
-            {mockUsers.slice(0, 5).map((user) => (
-              <Link href={`/profile/${user.username}`} key={user.id}>
+            {mockUsers.slice(0, 5).map((u) => (
+              <Link href={`/profile/${u.username}`} key={u.id}>
                 <div className="question_list_item">
                   <div className="question_list_item_left">
-                    <img
-                      src={user.avatar || "/images/icons/avatar.svg"}
-                      alt=""
-                    />
+                    <img src={u.avatar || "/images/icons/avatar.svg"} alt="" />
                     <div>
-                      <p className="main_text">{user.displayName}</p>
+                      <p className="main_text">{u.displayName}</p>
                       <span>
-                        Legen{" "}
-                        {numWord(user.rating, ["балл", "балла", "баллов"])}
+                        Legen {numWord(u.rating, ["балл", "балла", "баллов"])}
                       </span>
                     </div>
                   </div>
@@ -534,19 +460,15 @@ export default function QuestionPage() {
             <div className="blocks_title">
               <h2>Самые активные авторы</h2>
             </div>
-            {mockUsers.slice(3, 8).map((user) => (
-              <Link href={`/profile/${user.username}`} key={user.id}>
+            {mockUsers.slice(3, 8).map((u) => (
+              <Link href={`/profile/${u.username}`} key={u.id}>
                 <div className="question_list_item">
                   <div className="question_list_item_left">
-                    <img
-                      src={user.avatar || "/images/icons/avatar.svg"}
-                      alt=""
-                    />
+                    <img src={u.avatar || "/images/icons/avatar.svg"} alt="" />
                     <div>
-                      <p className="main_text">{user.displayName}</p>
+                      <p className="main_text">{u.displayName}</p>
                       <span>
-                        Legen{" "}
-                        {numWord(user.rating, ["балл", "балла", "баллов"])}
+                        Legen {numWord(u.rating, ["балл", "балла", "баллов"])}
                       </span>
                     </div>
                   </div>
@@ -558,12 +480,10 @@ export default function QuestionPage() {
 
         {/* Основной контент */}
         <div className="questions_page_list">
-          <div className="blocks_title questions_page_list_title">
-            <h2>Ваш вопрос</h2>
-          </div>
-
-          {/* Блок вопроса */}
-          <div className="main_question_block main_question_block_item">
+          <div
+            className="main_question_block main_question_block_item profile_question_block"
+            style={{ marginTop: 0 }}
+          >
             <div className="main_question_bg_wrapper">
               <div className="main_question_block_top_bg">
                 <img
@@ -588,207 +508,220 @@ export default function QuestionPage() {
                 />
               </div>
             </div>
-            <div className="question_list_item-info">
-              <div className="question_list_item_left">
-                <Link href={`/profile/${question.author.username}`}>
+            <div className="user_profile_block_content">
+              <div className="user_profile_block_content_profile">
+                <div className="user_profile_img">
                   <img
-                    src={question.author.avatar || "/images/icons/avatar.svg"}
+                    className="user_profile_image"
+                    src={user.avatar || "/images/icons/avatar.svg"}
                     alt=""
                   />
-                </Link>
-                <div>
-                  <Link
-                    href={`/profile/${question.author.username}`}
-                    className="main_text"
+                </div>
+                <div className="user_profile_block_content_profile_desc">
+                  <h4>{user.displayName}</h4>
+                  <div className="user_role_badge">Гуру</div>
+                </div>
+              </div>
+              <div className="user_public_stats">
+                <div className="stat_item">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "15px",
+                    }}
                   >
-                    {question.author.displayName}
-                  </Link>
-                  <div className="quest_user_title">
-                    <span>Гуру</span>
+                    <svg
+                      width="30"
+                      height="29"
+                      viewBox="0 0 30 29"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M21.453 5.13336L20.9241 3.55937L17.4839 2.98531L15.856 0H14.144L12.5161 2.98531L9.07605 3.55937L8.54695 5.1333L10.981 7.55243L10.4827 10.8926L11.8678 11.8653L15 10.3751L18.1322 11.8653L19.5172 10.8925L19.019 7.55243L21.453 5.13336Z"
+                        fill="#5E68FF"
+                      />
+                      <path
+                        d="M28.1836 27.3008V20.9388H20.5664V27.3008H18.8086V16.4075H11.1914V27.3008H9.43359V19.5227H1.81641V27.3008H0V29H30V27.3008H28.1836Z"
+                        fill="#5E68FF"
+                      />
+                    </svg>
+                    <div className="stat_info">
+                      <div className="stat_value">
+                        {user.rating.toLocaleString()}
+                      </div>
+                      <div className="stat_label">Балл</div>
+                    </div>
                   </div>
-                  <span>Решено 2 часа назад</span>
                 </div>
-                <div className="quest_user_title">
-                  <span>Гуру</span>
-                </div>
-              </div>
-              <div className="question_list_item_right">
-                <button className="s_btn s_btn_icon btn_star_answer btn_star_tooltip">
-                  <svg width="15" height="15">
-                    <use xlinkHref="#star-best"></use>
-                  </svg>
-                  <span className="star_tooltip_text">
-                    Выбрать как лучший ответ
-                  </span>
-                </button>
-              </div>
-            </div>
-            <div className="main_question_block_title">
-              <h1>{question.title}</h1>
-            </div>
-            <div className="leader_quest question_leader_badge">
-              <svg width="12" height="12">
-                <use xlinkHref="#trophy"></use>
-              </svg>
-              <p>Вопрос лидер</p>
-            </div>
-            <div className="main_question_block_text">
-              <p>{question.content}</p>
-            </div>
-
-            <div className="main_question_block_actions">
-              <div className="main_question_block_actions_left">
-                <button
-                  className="s_btn s_btn_active answer_to_main_btn"
-                  onClick={scrollToAnswer}
-                >
-                  Дать ответ
-                </button>
-                <div className="question_vote_container">
-                  <button className="vote_btn like_btn" title="Мне нравится">
-                    <svg width="18" height="18">
-                      <use xlinkHref="#thumb-up"></use>
-                    </svg>
-                    <span className="vote_count">{question.rating}</span>
-                  </button>
-                  <button
-                    className="vote_btn dislike_btn"
-                    title="Мне не нравится"
+                <div className="stats_divider"></div>
+                <div className="stat_item">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "15px",
+                    }}
                   >
-                    <svg width="18" height="18">
-                      <use xlinkHref="#thumb-down"></use>
+                    <svg
+                      width="30"
+                      height="19"
+                      viewBox="0 0 30 19"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5.09074 3.68822L10.0901 8.61204C11.2249 7.71796 12.6031 7.13689 14.1211 6.96867V0C10.6641 0.199499 7.5252 1.55531 5.09074 3.68822Z"
+                        fill="#5E68FF"
+                      />
+                      <path
+                        d="M3.84791 4.91228C1.49906 7.51274 0 10.9256 0 14.6719C0 15.1503 0.393105 15.5375 0.878906 15.5375H6.21094C6.69674 15.5375 7.08984 15.1503 7.08984 14.6719C7.08984 12.836 7.76467 11.169 8.84725 9.8361L3.84791 4.91228Z"
+                        fill="#5E68FF"
+                      />
+                      <path
+                        d="M21.7909 7.90326C21.4948 7.64882 21.0656 7.61587 20.7386 7.82466L13.1109 12.6168C12.0921 13.2576 11.4844 14.3489 11.4844 15.5375C11.4844 17.4471 13.0611 19 15 19C16.363 19 17.6144 18.2138 18.1877 16.9974L22.008 8.91934C22.1729 8.57106 22.0845 8.15683 21.7909 7.90326Z"
+                        fill="#5E68FF"
+                      />
+                      <path
+                        d="M26.1521 4.91228L23.5688 7.45654C23.8941 8.14044 23.9369 8.94103 23.6011 9.6505L22.4454 12.0942C22.7429 12.8992 22.9102 13.7644 22.9102 14.6719C22.9102 15.1503 23.3033 15.5375 23.7891 15.5375H29.1211C29.6069 15.5375 30 15.1503 30 14.6719C30 10.9256 28.5009 7.51274 26.1521 4.91228Z"
+                        fill="#5E68FF"
+                      />
+                      <path
+                        d="M15.8789 0V6.96867C16.6189 7.05067 17.3239 7.23413 17.9855 7.50068L19.7937 6.36463C20.5181 5.90227 21.4033 5.80307 22.3252 6.23323L24.9093 3.68822C22.4748 1.55531 19.3359 0.199499 15.8789 0Z"
+                        fill="#5E68FF"
+                      />
                     </svg>
-                    <span className="vote_count">0</span>
-                  </button>
+                    <div className="stat_info">
+                      <div className="stat_value">78%</div>
+                      <div className="stat_label">
+                        КПД
+                        <div className="kpd_tooltip_icon">?</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="main_question_block_actions_right">
-                <button
-                  className="s_btn s_btn_icon btn_action_outline"
-                  title="Пожаловаться"
-                >
-                  Пожаловаться
-                </button>
-                <button
-                  className="s_btn s_btn_icon btn_action_outline"
-                  title="Мне нравится"
-                >
-                  <svg width="14" height="12">
-                    <use xlinkHref="#like"></use>
-                  </svg>
-                </button>
-                <button
-                  className="s_btn s_btn_icon btn_action_outline"
-                  title="Поделиться"
-                >
-                  <svg width="14" height="14">
-                    <use xlinkHref="#share"></use>
-                  </svg>
-                </button>
-              </div>
             </div>
           </div>
 
-          {/* Лучший ответ */}
-          {bestAnswer && (
-            <div className="best-comments" style={{ display: "block" }}>
-              <div className="blocks_title mt_25px">
-                <h2>Лучший ответ</h2>
-              </div>
-              {renderAnswer(bestAnswer, true)}
-            </div>
-          )}
-
-          {/* Посмотрите все ответы */}
-          <div className="blocks_title mt_25px all-questions">
-            <div className="blocks_title-inner">
-              <h2>Посмотрите все ответы</h2>
-              <span className="answers_count_badge">
-                +{regularAnswers.length}
-              </span>
-            </div>
-            <div className="questions_filter">
-              <button
-                className={`s_btn ${sortBy === "rating" ? "s_btn_active" : ""}`}
-                onClick={() => setSortBy("rating")}
-              >
-                <span>По рейтингу</span>
-              </button>
-              <button
-                className={`s_btn ${sortBy === "date" ? "s_btn_active" : ""}`}
-                onClick={() => setSortBy("date")}
-              >
-                <span>По дате</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Список ответов */}
-          {topLevelAnswers.map((answer) => (
-            <div key={answer.id}>
-              {renderAnswer(answer)}
-              {nestedAnswers
-                .filter((na) => na.parentId === answer.id)
-                .map((nested) => renderAnswer(nested, false, true))}
-            </div>
-          ))}
-
-          {/* Ответить на вопрос */}
-          <div className="blocks_title mt_25px comments-form__title">
-            <h2>Ответить на вопрос</h2>
-          </div>
-
-          <form
-            className="ask_question_form form"
-            onSubmit={(e) => e.preventDefault()}
+          <div
+            className={`user_profile_page_content ${user.isBanned ? "banned_relative" : ""}`}
           >
-            <div className="ask_form_item ask_form_item_block_actions">
-              <textarea
-                ref={answerRef}
-                name="message"
-                placeholder="Введите текст ответа"
-                required
-              ></textarea>
-              <div className="ask_form_item_actions">
-                <div>
-                  <svg width="15.67" height="13.71">
-                    <use xlinkHref="#add-file"></use>
-                  </svg>
-                  <p>
-                    <span>Добавить файл</span>
-                    <span>Файл</span>
-                  </p>
-                </div>
-                <div>
-                  <svg width="13.71" height="12.73">
-                    <use xlinkHref="#add-video"></use>
-                  </svg>
-                  <p>
-                    <span>Добавить видео</span>
-                    <span>Видео</span>
-                  </p>
-                </div>
-                <div>
-                  <svg width="12.73" height="12.73">
-                    <use xlinkHref="#add-link"></use>
-                  </svg>
-                  <p>
-                    <span>Добавить ссылку</span>
-                    <span>Ссылка</span>
-                  </p>
+            {user.isBanned && (
+              <div className="banned_banner">
+                <svg
+                  width="44"
+                  height="44"
+                  viewBox="0 0 44 44"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20.9767 22.5053C27.1932 22.5053 32.2326 17.4674 32.2326 11.2527C32.2326 5.03799 27.1932 0 20.9767 0C14.7603 0 9.72093 5.03799 9.72093 11.2527C9.72093 17.4674 14.7603 22.5053 20.9767 22.5053Z"
+                    fill="white"
+                  />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M38.6832 25.6643L25.6592 38.6846C25.0595 39.2821 25.0595 40.2559 25.6592 40.8533C26.2567 41.4528 27.2309 41.4528 27.8285 40.8533L40.8525 27.833C41.4521 27.2356 41.4521 26.2617 40.8525 25.6643C40.2549 25.0648 39.2807 25.0648 38.6832 25.6643Z"
+                    fill="white"
+                  />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M33.2558 22.5176C27.325 22.5176 22.5116 27.3297 22.5116 33.2588C22.5116 39.1879 27.325 44 33.2558 44C39.1866 44 44 39.1879 44 33.2588C44 27.3297 39.1866 22.5176 33.2558 22.5176ZM33.2558 25.5865C37.4921 25.5865 40.9302 29.0237 40.9302 33.2588C40.9302 37.4939 37.4921 40.9311 33.2558 40.9311C29.0195 40.9311 25.5814 37.4939 25.5814 33.2588C25.5814 29.0237 29.0195 25.5865 33.2558 25.5865Z"
+                    fill="white"
+                  />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M23.893 41.9663C21.7667 39.6831 20.4651 36.6223 20.4651 33.2588C20.4651 29.8155 21.8301 26.6872 24.0486 24.3876C23.0458 24.3099 22.0205 24.2689 20.9767 24.2689C14.1782 24.2689 8.15944 25.9691 4.42251 28.5163C1.57172 30.46 0 32.9294 0 35.5216V38.4882C0 39.411 0.366326 40.2968 1.01916 40.9475C1.672 41.6001 2.55609 41.9663 3.47907 41.9663H23.893Z"
+                    fill="white"
+                  />
+                </svg>
+                <div className="banned_banner_content">
+                  Пользователь заблокирован за нарушение правил использования
+                  сервиса otvet.ai. О наших принципах модерации читайте{" "}
+                  <a href="#">здесь</a>
                 </div>
               </div>
+            )}
+            <div
+              className={`questions_page_inner ${user.isBanned ? "banned_opacity" : ""}`}
+            >
+              <div
+                className="questions_filter"
+                style={{ marginTop: "20px", marginBottom: "14px" }}
+              >
+                <button
+                  className={`s_btn ${profileFilter === "all" ? "s_btn_active questions_filter_active" : ""}`}
+                  onClick={() => setProfileFilter("all")}
+                >
+                  Все
+                </button>
+                <button
+                  className={`s_btn ${profileFilter === "opened" ? "s_btn_active questions_filter_active" : ""}`}
+                  onClick={() => setProfileFilter("opened")}
+                >
+                  Открытые
+                </button>
+                <button
+                  className={`s_btn ${profileFilter === "voting" ? "s_btn_active questions_filter_active" : ""}`}
+                  onClick={() => setProfileFilter("voting")}
+                >
+                  На голосовании
+                </button>
+                <button
+                  className={`s_btn ${profileFilter === "closed" ? "s_btn_active questions_filter_active" : ""}`}
+                  onClick={() => setProfileFilter("closed")}
+                >
+                  Решенные
+                </button>
+              </div>
+
+              <div
+                className="search-results-list"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "5px",
+                }}
+              >
+                {filteredQuestions.length > 0 ? (
+                  filteredQuestions.map((q) => (
+                    <SearchResultCard
+                      key={q.id}
+                      question={q}
+                      isProfilePage={true}
+                      status={q.status}
+                    />
+                  ))
+                ) : (
+                  <div
+                    style={{
+                      padding: "20px",
+                      textAlign: "center",
+                      color: "#899AB5",
+                    }}
+                  >
+                    У этого пользователя пока нет вопросов
+                  </div>
+                )}
+              </div>
+              <div
+                className="show_more_btn_wrapper"
+                style={{ display: "flex", justifyContent: "center" }}
+              >
+                <button className="show_more_btn" type="button">
+                  <svg width="22" height="22">
+                    <use xlinkHref="#sync"></use>
+                  </svg>
+                  <span>Загрузить еще</span>
+                </button>
+              </div>
             </div>
-            <div className="ask_from_send_btn" style={{ marginTop: "15px" }}>
-              <button type="submit" className="m_btn category_btn">
-                Ответить
-              </button>
-              <p>
-                Нажимая на кнопку, вы принимаете условия <br />
-                <a href="/privacy">пользовательского соглашения</a>
-              </p>
-            </div>
-          </form>
+          </div>
         </div>
 
         {/* Правый сайдбар */}

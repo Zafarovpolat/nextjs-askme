@@ -222,6 +222,24 @@ export const mockUsers: User[] = [
     createdAt: '2024-08-01T09:30:00Z',
     role: 'Высший разум'
   },
+  {
+    id: 14,
+    username: 'banned_user',
+    displayName: 'Виктор Banned',
+    email: 'banned@example.com',
+    avatar: '/images/icons/avatar.svg',
+    bio: '',
+    rating: 0,
+    balance: 0,
+    vipStatus: false,
+    questionsCount: 3,
+    followersCount: 0,
+    followingsCount: 1,
+    answersCount: 5,
+    createdAt: '2024-09-01T10:00:00Z',
+    role: 'Новичок',
+    isBanned: true,
+  },
 ];
 
 export const getCurrentUser = (): User | null => {

@@ -11,7 +11,7 @@ export const mockQuestions: Question[] = [
     author: mockUsers[0],
     category: mockCategories[0],
     rating: 39,
-    status: 'opened',
+    status: 'voting',
     commentsCount: 0,
     createdAt: '2026-02-18T17:41:00Z', // 19 минут назад
     updatedAt: '2026-02-18T17:41:00Z',
@@ -50,7 +50,7 @@ export const mockQuestions: Question[] = [
     author: mockUsers[0],
     category: mockCategories[3],
     rating: 39,
-    status: 'opened',
+    status: 'closed',
     commentsCount: 0,
     createdAt: '2026-02-17T12:00:00Z', // Вчера
     updatedAt: '2026-02-17T12:00:00Z',
@@ -113,7 +113,7 @@ export const mockQuestions: Question[] = [
     content: 'Правда ли, что делать что-то с закрытыми глазами улучшает мозг...',
     slug: 'zakrytye-glaza-i-mozg',
     author: mockUsers[2],
-    category: mockCategories[5],
+    category: mockCategories[4],
     rating: 39,
     status: 'opened',
     commentsCount: 0,
