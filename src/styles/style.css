@@ -1952,3 +1952,15 @@ body.dark_mode .theme-toggle-btn .svg-dark {
   opacity: 1;
   pointer-events: auto;
 }
+
+@media (max-width: 1000px) {
+  .theme-toggle-btn {
+    width: 45px !important;
+    height: 45px !important;
+  }
+  .theme-toggle-btn svg {
+    width: 45px !important;
+    height: 45px !important;
+  }
+}
+

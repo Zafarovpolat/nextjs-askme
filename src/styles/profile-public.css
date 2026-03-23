@@ -194,7 +194,8 @@
 }
 
 @media (max-width: 1300px) {
-  .breadcrumbs {
+  .question_wrapper:has(.profile_question_block) ~ .container .breadcrumbs,
+  .container:has(+ .question_wrapper .profile_question_block) .breadcrumbs {
     margin-bottom: 44px !important;
   }
 }
@@ -282,7 +283,7 @@
         width: 100%;
     }
 
-      .breadcrumbs {
+      .container:has(+ .question_wrapper .profile_question_block) .breadcrumbs {
     margin-bottom: 20px !important;
   }
 
