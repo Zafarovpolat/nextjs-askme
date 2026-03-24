@@ -16,6 +16,8 @@ export interface User {
   answersCount: number;
   createdAt: string;
   role: string;
+  city?: string;
+  phoneNumber?: string;
   isBanned?: boolean;
 }
 
