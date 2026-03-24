@@ -4,11 +4,20 @@ import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import SharePopup from "@/components/SharePopup"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState, useRef, useCallback } from "react"
+import { useAuthStore } from "@/store/authStore"
 import { mockUsers } from "@/data/mock-users"
 import { mockQuestions } from "@/data/mock-questions"
 
 export default function ProfilePage() {
+  const router = useRouter()
+  const logout = useAuthStore((s) => s.logout)
+
+  const handleLogout = () => {
+    logout()
+    router.push("/")
+  }
   const [activeTab, setActiveTab] = useState('menu1')
   const [isShareOpen, setIsShareOpen] = useState(false)
   const [shareData, setShareData] = useState({ title: '', url: '' })
@@ -111,6 +120,16 @@ export default function ProfilePage() {
                       <use xlinkHref="#settings"></use>
                     </svg>
                     <p className="main_text">Настройки</p>
+                  </div>
+                  <div
+                    className="profile_menu_item menu_item"
+                    onClick={handleLogout}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && handleLogout()}
+                  >
+                    <img src="/images/icons/logout.svg" alt="" width="20" height="20" />
+                    <p className="main_text">Выход</p>
                   </div>
                 </>
               )}
@@ -215,6 +234,14 @@ export default function ProfilePage() {
                   <svg width="20" height="20">
                     <use xlinkHref="#settings"></use>
                   </svg>
+                </div>
+                <div
+                  className="profile_menu_item menu_item_m"
+                  onClick={handleLogout}
+                  role="button"
+                  title="Выход"
+                >
+                  <img src="/images/icons/logout.svg" alt="" width="20" height="20" />
                 </div>
               </div>
             </div>

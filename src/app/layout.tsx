@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata, Viewport } from 'next'
 import SvgSprites from '@/components/SvgSprites'
+import AuthProvider from '@/components/AuthProvider'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://otvetai.ru'
 const SITE_NAME = 'ОтветАИ'
@@ -118,7 +119,14 @@ export default function RootLayout({
         />
       </head>
       <body className="loaded">
-        {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var m=document.cookie.match(/(?:^|;\\s*)otvetai_theme=([^;]*)/);if(m&&m[1]==='dark')document.body.classList.add('dark_mode');})();`,
+          }}
+        />
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <SvgSprites />
       </body>
     </html>

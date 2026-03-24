@@ -1,5 +1,25 @@
 // Типы для проекта AskMe
 
+/** Пользователь из API (auth/me) */
+export interface ApiUser {
+  id: number
+  first_name: string
+  email: string
+  email_verified_at?: string | null
+  gender: number
+  avatar_url?: string | null
+  description?: string | null
+  balls?: number
+  level?: number
+  level_name?: string
+  subscriptions_count?: number
+  subscribed_questions_count?: number
+  questions_count?: number
+  answers_count?: number
+  best_answers_count?: number
+  settings?: Record<string, unknown>
+}
+
 export interface User {
   id: number;
   username: string;
@@ -64,4 +84,23 @@ export interface Like {
   commentId?: number;
   likeType: 'like' | 'dislike';
   createdAt: string;
+}
+
+/** Вопрос с API для страницы /question/[id] */
+export interface QuestionPageData {
+  id: number
+  title: string
+  description: string
+  created_at: string
+  author: {
+    id: number
+    first_name?: string
+    last_name?: string
+    full_name: string
+    avatar_url?: string | null
+    level?: number
+    level_name?: string
+  }
+  answers_count?: number
+  best_answer?: { best_answer_set_at: string } | null
 }

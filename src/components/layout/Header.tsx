@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { useAuthStore } from "@/store/authStore";
+import { setTheme } from "@/lib/theme-cookie";
 
 export default function Header() {
+  const isAuthorized = useAuthStore((s) => s.isAuthorized);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNavHidden, setIsNavHidden] = useState(false);
   const lastScrollY = useRef(0);
@@ -28,6 +31,7 @@ export default function Header() {
 
   const toggleDarkMode = () => {
     document.body.classList.toggle("dark_mode");
+    setTheme(document.body.classList.contains("dark_mode") ? "dark" : "light");
   };
 
   return (
@@ -102,30 +106,35 @@ export default function Header() {
               </svg>
             </button>
 
-            <Link href="/login">
-              <button
-                className="m_btn m_btn_icon category_btn"
-                title="Личный кабинет"
-              >
-                <img
-                  src="/images/icons/user.svg"
-                  alt=""
-                  width="16"
-                  height="20"
-                />
-              </button>
-            </Link>
-
-            <Link href="/logout" className="logout-btn logged_in_show">
-              <button className="m_btn m_btn_icon category_btn" title="Выход">
-                <img
-                  src="/images/icons/logout.svg"
-                  alt=""
-                  width="16"
-                  height="20"
-                />
-              </button>
-            </Link>
+            {isAuthorized ? (
+              <Link href="/profile">
+                <button
+                  className="m_btn m_btn_icon category_btn"
+                  title="Личный кабинет"
+                >
+                  <img
+                    src="/images/icons/user.svg"
+                    alt=""
+                    width="16"
+                    height="20"
+                  />
+                </button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <button
+                  className="m_btn m_btn_icon category_btn"
+                  title="Войти"
+                >
+                  <img
+                    src="/images/icons/user.svg"
+                    alt=""
+                    width="16"
+                    height="20"
+                  />
+                </button>
+              </Link>
+            )}
 
             <button
               className="m_btn m_btn_icon category_btn desc_mob_btn"
@@ -157,21 +166,19 @@ export default function Header() {
                 height="18"
               />
             </button>
-            <Link href="/login">
-              <button className="m_btn">
-                <img src="/images/icons/user.svg" alt="" />
-              </button>
-            </Link>
-            <Link href="/logout" className="logout-btn logged_in_show">
-              <button className="m_btn m_btn_icon category_btn" title="Выход">
-                <img
-                  src="/images/icons/logout.svg"
-                  alt=""
-                  width="16"
-                  height="20"
-                />
-              </button>
-            </Link>
+            {isAuthorized ? (
+              <Link href="/profile">
+                <button className="m_btn">
+                  <img src="/images/icons/user.svg" alt="" />
+                </button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <button className="m_btn">
+                  <img src="/images/icons/user.svg" alt="" />
+                </button>
+              </Link>
+            )}
             <button className="m_btn" onClick={toggleMenu}>
               <img src="/images/icons/exit-menu.svg" alt="" />
             </button>
