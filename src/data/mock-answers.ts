@@ -5,6 +5,11 @@ export interface UserAnswer extends Comment {
   questionTitle: string;
   questionSlug: string;
   questionAnswersCount: number;
+  isBlocked?: boolean;
+  parentId?: number | null;
+  role?: string;
+  hasMedia?: boolean;
+  mediaLink?: string;
 }
 
 export const mockAnswers: UserAnswer[] = [
@@ -22,6 +27,9 @@ export const mockAnswers: UserAnswer[] = [
     dislikesCount: 741,
     createdAt: '2026-03-22T10:00:00Z',
     updatedAt: '2026-03-22T10:00:00Z',
+    role: 'Гуру',
+    isBlocked: false,
+    hasMedia: false,
   },
   {
     id: 2,
@@ -37,6 +45,9 @@ export const mockAnswers: UserAnswer[] = [
     dislikesCount: 2,
     createdAt: '2026-03-21T15:00:00Z',
     updatedAt: '2026-03-21T15:00:00Z',
+    role: 'Ученик',
+    isBlocked: false,
+    hasMedia: false,
   },
   {
     id: 3,
@@ -52,5 +63,8 @@ export const mockAnswers: UserAnswer[] = [
     dislikesCount: 5,
     createdAt: '2026-03-20T12:00:00Z',
     updatedAt: '2026-03-20T12:00:00Z',
+    role: 'Профи',
+    isBlocked: false,
+    hasMedia: false,
   }
 ];
