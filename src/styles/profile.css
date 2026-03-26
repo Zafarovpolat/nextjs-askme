@@ -114,20 +114,42 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.profile_stats_item.active {
+  background: #5D67FF;
+}
+
+.profile_stats_item.active .main_text {
+  color: #fff !important;
 }
 
 .dark_mode .profile_stats_item {
   background: #2c2b67;
 }
 
-.profile_stats_item div {
+.profile_stats_item .stats_badge {
   border-radius: 12px;
   height: 28px;
-  background: rgb(232, 234, 245);
+  background: #5764FF;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 10px;
+  min-width: 32px;
+}
+
+.profile_stats_item .stats_badge .main_text {
+  color: #fff !important;
+}
+
+.profile_stats_item.active .stats_badge {
+  background: #fff;
+}
+
+.profile_stats_item.active .stats_badge .main_text {
+  color: #5D67FF !important;
 }
 
 .profile_stats_item p {
@@ -136,6 +158,49 @@
 
 .dark_mode .profile_stats_item div {
   background: rgb(96, 105, 255);
+}
+
+.profile_stats_action {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  color: #1f2a3b !important;
+  cursor: pointer;
+}
+
+.profile_stats_action_inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  padding: 0;
+}
+
+.profile_stats_action p {
+  color: #1f2a3b !important;
+  font-weight: 700;
+}
+
+.profile_stats_action svg {
+  color: #5D67FF !important;
+}
+
+.profile_stats_action svg path {
+  fill: #5D67FF !important;
+}
+
+.dark_mode .profile_stats_action {
+  background-color: #5d67ff !important;
+}
+
+.dark_mode .profile_stats_action p {
+  color: #fff !important;
+}
+
+.dark_mode .profile_stats_action svg {
+  color: #fff !important;
+}
+
+.dark_mode .profile_stats_action svg path {
+  fill: #fff !important;
 }
 
 .profile_page_content {
@@ -1012,6 +1077,46 @@
 
 .profile_page_content .show_more_btn {
   margin-top: 20px;
+}
+
+.search-result-category {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.search-result-category svg {
+  fill: #6069ff !important;
+  flex-shrink: 0;
+}
+
+.dark_mode .search-result-category svg {
+  fill: #8b91ff !important;
+}
+
+.search-result-card {
+  background-color: #fff;
+}
+
+.dark_mode .search-result-card {
+  background-color: #2c2b67;
+}
+
+.search-result-answers {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.search-result-separator {
+  width: 1px;
+  height: 14px;
+  background: #d0d5e0;
+  flex-shrink: 0;
+}
+
+.dark_mode .search-result-separator {
+  background: #4a4e8a;
 }
 
 .profile_page .main_text {

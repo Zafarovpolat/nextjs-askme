@@ -5,6 +5,7 @@ export interface ApiUser {
   id: number
   first_name: string
   email: string
+  created_at?: string | null
   email_verified_at?: string | null
   gender: number
   avatar_url?: string | null
@@ -12,6 +13,9 @@ export interface ApiUser {
   balls?: number
   level?: number
   level_name?: string
+  kpd?: number
+  next_level_balls?: number | null
+  balls_to_next_level?: number | null
   subscriptions_count?: number
   subscribed_questions_count?: number
   questions_count?: number
@@ -36,6 +40,7 @@ export interface User {
   answersCount: number;
   createdAt: string;
   role: string;
+  isBanned?: boolean;
 }
 
 export interface Category {
@@ -60,7 +65,7 @@ export interface Question {
   author: User;
   category: Category;
   rating: number;
-  status: 'opened' | 'closed';
+  status: 'opened' | 'closed' | 'voting';
   commentsCount: number;
   createdAt: string;
   updatedAt: string;
@@ -73,6 +78,8 @@ export interface Comment {
   content: string;
   rating: number;
   isBestAnswer: boolean;
+  likesCount?: number;
+  dislikesCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -86,21 +93,71 @@ export interface Like {
   createdAt: string;
 }
 
+/** Пользователь из API ответа/вопроса */
+export interface QuestionPageUser {
+  id: number
+  first_name?: string
+  last_name?: string
+  full_name: string
+  avatar_url?: string | null
+  level?: number
+  level_name?: string
+}
+
+/** Ответ с API (вложенная структура) */
+export interface QuestionPageAnswer {
+  id: number
+  user: QuestionPageUser
+  created_at: string
+  text: string
+  files?: string[]
+  videos?: string[]
+  links?: string[]
+  likes_count: number
+  dislikes_count: number
+  votes_score: number
+  answers_count?: number
+  answers?: QuestionPageAnswer[]
+  parent_user?: QuestionPageUser
+}
+
 /** Вопрос с API для страницы /question/[id] */
 export interface QuestionPageData {
   id: number
   title: string
   description: string
   created_at: string
-  author: {
-    id: number
-    first_name?: string
-    last_name?: string
-    full_name: string
-    avatar_url?: string | null
-    level?: number
-    level_name?: string
-  }
+  author: QuestionPageUser
+  allow_answer_comments?: boolean
+  category?: { slug: string; name: string }
   answers_count?: number
-  best_answer?: { best_answer_set_at: string } | null
+  likes_count?: number
+  dislikes_count?: number
+  votes_score?: number
+  best_answer?: QuestionPageAnswer & { best_answer_set_at?: string } | null
+  answers?: QuestionPageAnswer[]
+  auth_extra?: {
+    is_author?: boolean
+    user_vote?: 1 | -1 | null
+    answer_votes?: Record<number, 1 | -1>
+  }
+}
+
+/** GET /v1/questions/{id}/similar — элемент списка «похожие вопросы» на странице вопроса */
+export interface SimilarQuestionItem {
+  id: number
+  title: string
+  created_at: string
+  answers_count: number
+  likes_count: number
+  author: QuestionPageUser & { balls?: number }
+  latest_likers: { id: number; avatar_url: string | null }[]
+}
+
+export interface SimilarQuestionsPage {
+  questions: SimilarQuestionItem[]
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
 }

@@ -10,8 +10,9 @@ import { api } from "@/lib/api-client"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import { useAuthStore } from "@/store/authStore"
 
-type CategoryTop = { id: number; name: string; slug: string; icon_key: string | null; subcategories: { id: number; name: string; slug: string }[] }
-type HomeQuestionItem = {
+type CategoryInfo = { id: number; name: string; slug: string; icon_key?: string | null }
+type PopularCategory = { id: number; name: string; slug: string; icon_key?: string | null; subcategories: { id: number; name: string; slug: string }[] }
+type QuestionItem = {
   id: number
   title: string
   created_at: string
@@ -20,20 +21,20 @@ type HomeQuestionItem = {
   author: { id: number; full_name: string; avatar_url?: string | null; balls?: number }
   latest_likers: { id: number; avatar_url?: string | null }[]
 }
-type HomeInitialData = {
-  categories: CategoryTop[]
+type SharedBlocks = {
+  popular_categories: PopularCategory[]
   project_leaders: { id: number; first_name: string; last_name: string; avatar_url?: string | null; balls: number }[]
   most_discussed: { id: number; title: string; likes_count: number; latest_likers: { avatar_url?: string | null }[] }[]
   popular_topics: { id: number; name: string; slug: string | null; parent_slug: string | null; parent_icon_key?: string | null; total_likes: number; latest_likers: { avatar_url?: string | null }[] }[]
 }
-type HomeQuestionsPage = { questions: HomeQuestionItem[]; current_page: number; last_page: number; per_page: number; total: number }
+type QuestionsPage = { questions: QuestionItem[]; current_page: number; last_page: number; per_page: number; total: number }
 
 const tabs = [
   { id: "open", label: "Открытые" },
   { id: "voting", label: "На голосовании" },
   { id: "best", label: "Лучшие" },
 ] as const
-type HomeFilter = typeof tabs[number]["id"]
+type Filter = typeof tabs[number]["id"]
 
 const numWord = (value: number, words: [string, string, string]): string => {
   const abs = Math.abs(value)
@@ -42,18 +43,24 @@ const numWord = (value: number, words: [string, string, string]): string => {
   return `${value} ${words[index]}`
 }
 
-export default function HomeContent({
-  initialData,
+export default function CategoryPageClient({
+  category,
+  subcategory,
+  shared,
   initialQuestions,
+  questionsEndpoint,
 }: {
-  initialData: HomeInitialData
-  initialQuestions: HomeQuestionsPage
+  category: CategoryInfo
+  subcategory: CategoryInfo | null
+  shared: SharedBlocks
+  initialQuestions: QuestionsPage
+  questionsEndpoint: string
 }) {
   const router = useRouter()
   const isAuthorized = useAuthStore((s) => s.isAuthorized)
   const { toggleFavorite, isFavorited, isPending } = useFavoriteQuestion()
-  const [activeTab, setActiveTab] = useState<HomeFilter>("open")
-  const [questions, setQuestions] = useState<HomeQuestionItem[]>(initialQuestions.questions ?? [])
+  const [activeTab, setActiveTab] = useState<Filter>("open")
+  const [questions, setQuestions] = useState<QuestionItem[]>(initialQuestions.questions ?? [])
   const [currentPage, setCurrentPage] = useState(initialQuestions.current_page ?? 1)
   const [lastPage, setLastPage] = useState(initialQuestions.last_page ?? 1)
   const [loadingList, setLoadingList] = useState(false)
@@ -64,19 +71,15 @@ export default function HomeContent({
   const shareButtonRef = useRef<HTMLButtonElement | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
-  const fetchQuestions = useCallback(async (filter: HomeFilter, page: number, append: boolean) => {
+  const fetchQuestions = useCallback(async (filter: Filter, page: number, append: boolean) => {
     if (abortRef.current) abortRef.current.abort()
     abortRef.current = new AbortController()
     const signal = abortRef.current.signal
     if (append) setLoadingMore(true)
     else setLoadingList(true)
     try {
-      const params = new URLSearchParams({
-        filter,
-        page: String(page),
-        per_page: "10",
-      })
-      const data = await api.get<HomeQuestionsPage>(`v1/main/questions?${params}`, { signal })
+      const params = new URLSearchParams({ filter, page: String(page), per_page: "10" })
+      const data = await api.get<QuestionsPage>(`${questionsEndpoint}?${params}`, { signal })
       if (append) setQuestions((prev) => [...prev, ...(data.questions ?? [])])
       else setQuestions(data.questions ?? [])
       setCurrentPage(data.current_page ?? 1)
@@ -92,7 +95,7 @@ export default function HomeContent({
       setLoadingMore(false)
       abortRef.current = null
     }
-  }, [])
+  }, [questionsEndpoint])
 
   const handleShareClick = useCallback((e: React.MouseEvent<HTMLButtonElement>, title: string, id: number) => {
     const btn = e.currentTarget
@@ -110,7 +113,6 @@ export default function HomeContent({
   const startX = useRef(0)
   const scrollLeft = useRef(0)
   const hasDragged = useRef(false)
-
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     const el = scrollRef.current
     if (!el) return
@@ -121,7 +123,6 @@ export default function HomeContent({
     el.style.cursor = 'default'
     el.style.userSelect = 'none'
   }, [])
-
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging.current) return
     const el = scrollRef.current
@@ -132,7 +133,6 @@ export default function HomeContent({
     if (Math.abs(walk) > 5) hasDragged.current = true
     el.scrollLeft = scrollLeft.current - walk
   }, [])
-
   const handleMouseUp = useCallback(() => {
     const el = scrollRef.current
     if (!el) return
@@ -140,7 +140,6 @@ export default function HomeContent({
     el.style.cursor = 'default'
     el.style.removeProperty('user-select')
   }, [])
-
   const handleClickCapture = useCallback((e: React.MouseEvent) => {
     if (hasDragged.current) {
       e.preventDefault()
@@ -151,58 +150,33 @@ export default function HomeContent({
 
   return (
     <div className="container">
-      <div className="section popular-section">
-        <div className="blocks_title">
-          <h2>Популярные</h2>
-        </div>
-        <div
-          className="subjects_list_wrapper"
-          ref={scrollRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onClickCapture={handleClickCapture}
-          style={{ cursor: 'default' }}
-        >
-          <div className="subjects_list">
-            {(initialData.categories ?? []).map((category) => (
-              <div className="subject_item" key={category.id}>
-                <div className="subject_item_icon">
-                  <svg width="24" height="24" className="category_icon">
-                    <use xlinkHref={`#${category.icon_key || "gaming"}`}></use>
-                  </svg>
-                </div>
-                <Link href={`/categories/${category.slug}`}>
-                  <h3>{category.name}</h3>
-                </Link>
-                <div className="subject_item_list">
-                  {(category.subcategories ?? []).slice(0, 4).map((subcat) => (
-                    <Link href={`/categories/${category.slug}/${subcat.slug}`} key={subcat.id}>
-                      <div className="subject_item_list_item">
-                        <img src="/images/icons/category-list-item.svg" alt="" />
-                        <p>{subcat.name}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                <Link href="/categories">
-                  <div className="subject_item_more">
-                    <p>Посмотреть все</p>
-                    <img src="/images/icons/more-s-icon.svg" alt="" className="subject_item_more_arrow" />
-                  </div>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="breadcrumbs">
+        <Link href="/" className="breadcrumbs__link">Главная</Link>
+        <span className="breadcrumbs__sep">•</span>
+        <Link href="/categories" className="breadcrumbs__link">Категории вопросов</Link>
+        <span className="breadcrumbs__sep">•</span>
+        <Link href={`/categories/${category.slug}`} className="breadcrumbs__link">{category.name}</Link>
+        {subcategory ? (
+          <>
+            <span className="breadcrumbs__sep">•</span>
+            <span className="breadcrumbs__current">{subcategory.name}</span>
+          </>
+        ) : null}
       </div>
 
-      <div className="line"></div>
-
       <div className="section populars_block">
-        <div className="blocks_title">
-          <h2>Вопросы участников</h2>
+        <div className="blocks_title category_page_block">
+          <svg width="24" height="24" className="category_page_icon">
+            <use xlinkHref={`#${category.icon_key || "gaming"}`}></use>
+          </svg>
+          <h2>{category.name}</h2>
+          {subcategory ? (
+            <div className="subcatogory_title">
+              <div></div>
+              <h3>{subcategory.name}</h3>
+            </div>
+          ) : null}
+
           <div className="questions_filter">
             {tabs.map((tab) => (
               <button
@@ -251,18 +225,14 @@ export default function HomeContent({
                     onClick={() => toggleFavorite(question.id)}
                     disabled={isPending(question.id)}
                   >
-                    <svg width="13.714355" height="12.000000">
-                      <use xlinkHref="#like"></use>
-                    </svg>
+                    <svg width="13.714355" height="12.000000"><use xlinkHref="#like"></use></svg>
                   </button>
                   <button
                     className="s_btn s_btn_icon share-this"
                     title="Поделиться"
                     onClick={(e) => handleShareClick(e, question.title, question.id)}
                   >
-                    <svg width="14" height="14.000000">
-                      <use xlinkHref="#share"></use>
-                    </svg>
+                    <svg width="14" height="14.000000"><use xlinkHref="#share"></use></svg>
                   </button>
                 </div>
               </div>
@@ -291,18 +261,14 @@ export default function HomeContent({
                     onClick={() => toggleFavorite(question.id)}
                     disabled={isPending(question.id)}
                   >
-                    <svg width="13.714355" height="12.000000">
-                      <use xlinkHref="#like"></use>
-                    </svg>
+                    <svg width="13.714355" height="12.000000"><use xlinkHref="#like"></use></svg>
                   </button>
                   <button
                     className="s_btn s_btn_icon share-this"
                     title="Поделиться"
                     onClick={(e) => handleShareClick(e, question.title, question.id)}
                   >
-                    <svg width="14" height="14.000000">
-                      <use xlinkHref="#share"></use>
-                    </svg>
+                    <svg width="14" height="14.000000"><use xlinkHref="#share"></use></svg>
                   </button>
                   <Link href={`/question/${question.id}`} className="s_btn">Посмотреть</Link>
                   <Link href={`/question/${question.id}#answer`} className="s_btn s_btn_active">Ответить</Link>
@@ -312,21 +278,11 @@ export default function HomeContent({
           ))}
         </div>
 
-        {loadingList ? (
-          <p className="secondary_text" style={{ textAlign: "center" }}>Загрузка вопросов…</p>
-        ) : null}
-
+        {loadingList ? <p className="secondary_text" style={{ textAlign: "center" }}>Загрузка вопросов…</p> : null}
         {currentPage < lastPage ? (
           <div className="show_more_btn_wrapper">
-            <button
-              className="show_more_btn"
-              type="button"
-              onClick={() => fetchQuestions(activeTab, currentPage + 1, true)}
-              disabled={loadingMore}
-            >
-              <svg width="22" height="22">
-                <use xlinkHref="#sync"></use>
-              </svg>
+            <button className="show_more_btn" type="button" onClick={() => fetchQuestions(activeTab, currentPage + 1, true)} disabled={loadingMore}>
+              <svg width="22" height="22"><use xlinkHref="#sync"></use></svg>
               {loadingMore ? "Загрузка…" : "Показать еще"}
             </button>
           </div>
@@ -335,19 +291,61 @@ export default function HomeContent({
 
       <div className="line"></div>
 
+      <div className="section popular-section">
+        <div className="blocks_title"><h2>Популярные</h2></div>
+        <div
+          className="subjects_list_wrapper"
+          ref={scrollRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onClickCapture={handleClickCapture}
+          style={{ cursor: 'default' }}
+        >
+          <div className="subjects_list">
+            {(shared.popular_categories ?? []).map((c) => (
+              <div className="subject_item" key={c.id}>
+                <div className="subject_item_icon">
+                  <svg width="24" height="24" className="category_icon">
+                    <use xlinkHref={`#${c.icon_key || "gaming"}`}></use>
+                  </svg>
+                </div>
+                <Link href={`/categories/${c.slug}`}><h3>{c.name}</h3></Link>
+                <div className="subject_item_list">
+                  {(c.subcategories ?? []).slice(0, 4).map((s) => (
+                    <Link href={`/categories/${c.slug}/${s.slug}`} key={s.id}>
+                      <div className="subject_item_list_item">
+                        <img src="/images/icons/category-list-item.svg" alt="" />
+                        <p>{s.name}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <Link href="/categories">
+                  <div className="subject_item_more">
+                    <p>Посмотреть все</p>
+                    <img src="/images/icons/more-s-icon.svg" alt="" className="subject_item_more_arrow" />
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="line"></div>
+
       <div className="tops_block">
         <div className="tops_block_item">
           <div className="blocks_title"><h2>Лидеры проекта</h2></div>
           <div className="tops_block_item_top_subjects">
-            {(initialData.project_leaders ?? []).map((u) => (
+            {(shared.project_leaders ?? []).map((u) => (
               <div className="question_list_item" key={u.id}>
                 <Link href={`/profile/${u.id}`}>
                   <div className="question_list_item_left">
                     <img src={u.avatar_url || "/images/icons/avatar.svg"} alt={u.first_name} />
-                    <div>
-                      <div className="main_text">{u.first_name} {u.last_name}</div>
-                      <span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span>
-                    </div>
+                    <div><div className="main_text">{u.first_name} {u.last_name}</div><span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span></div>
                   </div>
                 </Link>
               </div>
@@ -358,7 +356,7 @@ export default function HomeContent({
         <div className="tops_block_item">
           <div className="blocks_title"><h2>Самые обсуждаемые</h2></div>
           <div className="tops_block_item_top_subjects">
-            {(initialData.most_discussed ?? []).map((q) => (
+            {(shared.most_discussed ?? []).map((q) => (
               <div className="question_list_item" key={q.id}>
                 <Link href={`/question/${q.id}`}>
                   <div className="question_list_item_left">
@@ -367,9 +365,7 @@ export default function HomeContent({
                   </div>
                 </Link>
                 <div className="question_list_item_users">
-                  {(q.latest_likers ?? []).slice(0, 3).map((u, idx) => (
-                    <img key={idx} src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                  ))}
+                  {(q.latest_likers ?? []).slice(0, 3).map((u, idx) => <img key={idx} src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />)}
                   <p className="main_text">+{q.likes_count}</p>
                 </div>
               </div>
@@ -380,7 +376,7 @@ export default function HomeContent({
         <div className="tops_block_item">
           <div className="blocks_title"><h2>Популярные темы</h2></div>
           <div className="tops_block_item_top_subjects">
-            {(initialData.popular_topics ?? []).map((topic) => (
+            {(shared.popular_topics ?? []).map((topic) => (
               <div className="question_list_item" key={topic.id}>
                 <Link href={topic.parent_slug && topic.slug ? `/categories/${topic.parent_slug}/${topic.slug}` : "/categories"}>
                   <div className="question_list_item_left">
@@ -391,9 +387,7 @@ export default function HomeContent({
                   </div>
                 </Link>
                 <div className="question_list_item_users">
-                  {(topic.latest_likers ?? []).slice(0, 3).map((u, idx) => (
-                    <img key={idx} src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                  ))}
+                  {(topic.latest_likers ?? []).slice(0, 3).map((u, idx) => <img key={idx} src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />)}
                   <p className="main_text">+{topic.total_likes}</p>
                 </div>
               </div>
@@ -403,14 +397,8 @@ export default function HomeContent({
       </div>
 
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
-
-      <SharePopup
-        isOpen={isShareOpen}
-        onClose={() => setIsShareOpen(false)}
-        anchorRef={shareButtonRef}
-        title={shareData.title}
-        url={shareData.url}
-      />
+      <SharePopup isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} anchorRef={shareButtonRef} title={shareData.title} url={shareData.url} />
     </div>
   )
 }
+
