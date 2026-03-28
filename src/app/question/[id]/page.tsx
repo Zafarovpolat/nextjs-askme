@@ -793,14 +793,31 @@ export default function QuestionPage() {
 
         {/* Правый сайдбар */}
         <div className="question_right_list">
-          <div className="vip_status_block">
-            <div className="vip_icon">
-              <img src="/images/vip.svg" alt="VIP" />
-            </div>
-            <p className="vip_gift_text">Подарить</p>
-            <h3 className="vip_title">VIP статус</h3>
-            <button className="vip_button">ПОДАРИТЬ</button>
+          <div className="blocks_title">
+            <h2>Вопросы лидеры</h2>
           </div>
+          {rightSidebarQuestions.map((q) => (
+            <Link href={`/question/${q.id}`} key={q.id}>
+              <div
+                className="question_list_item question_leader_card"
+                style={{ cursor: "pointer" }}
+              >
+                <div className="question_list_item_left">
+                  <img
+                    src={q.author.avatar || "/images/icons/avatar.svg"}
+                    alt=""
+                  />
+                  <div>
+                    <p className="main_text">{q.author.displayName}</p>
+                    <span>{formatTimeAgo(q.createdAt)}</span>
+                  </div>
+                </div>
+                <div className="question_text">
+                  <p>{q.title}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
 
