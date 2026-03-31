@@ -26,16 +26,19 @@
   align-items: center;
   gap: 6px;
   background: transparent;
-  border: 1px solid #646BFF;
+  border: 1px solid #646bff;
   border-radius: 12px;
   padding: 0 12px;
   min-height: 40px;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .vote_btn:hover {
-  background-color: #5D67FF;
+  background-color: #5d67ff;
 }
 
 .vote_btn:hover .vote_count,
@@ -45,7 +48,7 @@
 }
 
 .vote_btn svg {
-  fill: #646BFF;
+  fill: #646bff;
   flex-shrink: 0;
   transition: fill 0.2s ease;
 }
@@ -54,17 +57,17 @@
   font-family: Nunito;
   font-size: 16px;
   font-weight: 400;
-  color: #1F2A3B;
+  color: #1f2a3b;
   transition: color 0.2s ease;
 }
 
 .main_question_block.main_question_block_item .vote_btn .vote_count {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .dark_mode .vote_btn {
   background: transparent;
-  border-color: #646BFF;
+  border-color: #646bff;
 }
 
 .dark_mode .main_question_block_item .vote_btn {
@@ -81,8 +84,8 @@
 
 /* Dark Mode Hovers */
 .dark_mode .vote_btn:hover {
-  background-color: #646BFF;
-  border-color: #646BFF;
+  background-color: #646bff;
+  border-color: #646bff;
 }
 
 .dark_mode .vote_btn:hover svg,
@@ -98,8 +101,8 @@
 
 .dark_mode .main_question_block_item .vote_btn:hover svg,
 .dark_mode .main_question_block_item .vote_btn:hover .vote_count {
-  fill: #5D67FF;
-  color: #5D67FF;
+  fill: #5d67ff;
+  color: #5d67ff;
 }
 
 .question_right_list .question_list_item {
@@ -396,9 +399,9 @@
 .main_question_block_text p {
   color: rgb(92, 102, 118);
   font-family: Nunito;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.6;
   letter-spacing: 0;
   text-align: left;
 }
@@ -700,13 +703,16 @@
   display: none;
 }
 
-.main_question_block.main_question_block_item .question_list_item-info .question_list_item_left .main_text {
+.main_question_block.main_question_block_item
+  .question_list_item-info
+  .question_list_item_left
+  .main_text {
   font-size: 17px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 700;
-  color: #2C3545;
+  color: #2c3545;
 }
 
 .answer_author_info {
@@ -718,20 +724,20 @@
 }
 
 .answer_author_info .main_text {
-  color: #2C3545;
+  color: #2c3545;
   text-decoration: none;
   padding-right: 0;
 }
 
 .answer_author_info .reply_text {
-  color: #2C3545;
+  color: #2c3545;
   font-size: 17px;
   font-weight: 700;
   line-height: 22px;
 }
 
 .answer_author_info .reply_to_text {
-  color: #6069FF;
+  color: #6069ff;
   font-size: 17px;
   font-weight: 700;
   line-height: 22px;
@@ -1214,9 +1220,9 @@
 }
 
 .ask_form_item input {
- border: 2px solid rgb(239, 239, 246) !important;
- height: 50px !important;
- border-radius: 12px !important;
+  border: 2px solid rgb(239, 239, 246) !important;
+  height: 50px !important;
+  border-radius: 12px !important;
 }
 
 .ask_form_item input:focus {
@@ -1224,7 +1230,7 @@
 }
 
 .ask_form_checkboxes .chechbox_item span {
-  color: #8B94A1;
+  color: #8b94a1;
 }
 
 .ask_form_item .super-select {
@@ -1232,7 +1238,7 @@
 }
 
 .ask_form_item .super-select {
-  color: #8B94A1;
+  color: #8b94a1;
 }
 
 .ask_form_item textarea {
@@ -1288,7 +1294,7 @@
 
   .questions_page_list {
     padding-bottom: 25px;
-    border-bottom: 1px solid rgb(224, 226, 239) ;
+    border-bottom: 1px solid rgb(224, 226, 239);
   }
 
   .question_wrapper.container {
@@ -1339,15 +1345,13 @@
   .btn_star_tooltip {
     display: none;
   }
-
-
 }
 
 @media only screen and (max-width: 768px) {
   .question_list_item {
     gap: 20px;
   }
-  
+
   .questions_page_list {
     padding-bottom: 20px;
   }
@@ -1358,7 +1362,7 @@
 }
 
 @media only screen and (max-width: 630px) {
-    .main_question_block_actions {
+  .main_question_block_actions {
     flex-direction: column;
     align-items: start;
     gap: 10px;
@@ -1639,7 +1643,7 @@
 
 .vip_button {
   background: #fff;
-  color: #1F2A3B;
+  color: #1f2a3b;
   border: none;
   border-radius: 12px;
   padding: 0 28px;
@@ -1662,4 +1666,3 @@
 .vip_button:active {
   opacity: 0.8;
 }
-
