@@ -226,7 +226,27 @@
   transition: all 0.2s ease;
 }
 
+.login_socials_list a {
+  cursor: pointer;
+  box-sizing: border-box;
+  border: 1.68px solid rgb(239, 239, 246);
+  border-radius: 10.09px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
 .login_socials_list div:hover {
+  transition: all 0.2s ease;
+  background: rgb(239, 239, 246);
+}
+
+.login_socials_list a:hover {
   transition: all 0.2s ease;
   background: rgb(239, 239, 246);
 }
@@ -235,11 +255,35 @@
   fill: rgb(95, 104, 255);
 }
 
+.login_socials_list a svg {
+  fill: rgb(95, 104, 255);
+}
+
+.login_socials_list .login_socials_tg {
+  box-sizing: border-box;
+  border: 1.68px solid rgb(239, 239, 246);
+  border-radius: 10.09px;
+  min-width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 .dark_mode .login_socials_list div:hover svg {
   fill: rgb(95, 104, 255);
 }
 
+.dark_mode .login_socials_list a:hover svg {
+  fill: rgb(95, 104, 255);
+}
+
 .dark_mode .login_socials_list div svg {
+  fill: #fff;
+}
+
+.dark_mode .login_socials_list a svg {
   fill: #fff;
 }
 

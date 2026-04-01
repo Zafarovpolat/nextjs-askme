@@ -241,7 +241,12 @@ export default function Header() {
                 width="18"
                 height="18"
               />
-              <input type="text" name="s" placeholder="Найти вопрос" />
+              <input
+                type="text"
+                name="s"
+                placeholder="Найти вопрос"
+                suppressHydrationWarning
+              />
             </form>
 
             <a href="/ask">
@@ -367,7 +372,11 @@ export default function Header() {
               height="18"
               style={{ fill: "#fff" }}
             />
-            <input type="text" placeholder="Найти вопрос" />
+            <input
+              type="text"
+              placeholder="Найти вопрос"
+              suppressHydrationWarning
+            />
           </form>
 
           <Link href="/ask" className="mob_sec_item">

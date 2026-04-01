@@ -12,6 +12,9 @@ import { useRouter } from "next/navigation";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { mockUsers } from "@/data/mock-users";
+import type { UserAnswer } from "@/data/mock-answers";
+import SearchResultCard from "@/components/SearchResultCard";
+import AnswerResultCard from "@/components/AnswerResultCard";
 
 type ProfileQuestionItem = {
   id: number;
@@ -19,8 +22,32 @@ type ProfileQuestionItem = {
   created_at: string;
   answers_count: number;
   likes_count: number;
+  dislikes_count?: number;
+  description?: string;
+  votes_count?: number;
+  user_vote?: 1 | -1 | null;
+  status?: "open" | "opened" | "voting" | "best" | "closed";
+  category?: { name?: string; slug?: string; icon_key?: string; svg_icon?: string };
   author: { id: number; full_name: string; avatar_url?: string | null; balls?: number };
   latest_likers: { id: number; avatar_url?: string | null }[];
+};
+
+type ProfileAnswerItem = {
+  id: number;
+  text: string;
+  created_at: string;
+  comments_count: number;
+  is_best: boolean;
+  question: { id: number; title: string } | null;
+};
+
+type ProfileFollowUser = {
+  id: number;
+  full_name: string;
+  avatar_url?: string | null;
+  balls?: number;
+  created_at?: string | null;
+  subscribed_by_me?: boolean;
 };
 
 type ProfileSettings = {
@@ -121,6 +148,23 @@ export default function ProfilePage() {
   };
   const [settingsDraft, setSettingsDraft] = useState<ProfileSettings>(mergedFromMe);
   const [settingsSaving, setSettingsSaving] = useState(false);
+  const [answersFilter, setAnswersFilter] = useState<"all" | "best">("all");
+  const [subscriptions, setSubscriptions] = useState<ProfileFollowUser[]>([]);
+  const [subscriptionsPage, setSubscriptionsPage] = useState(1);
+  const [subscriptionsLastPage, setSubscriptionsLastPage] = useState(1);
+  const [subscriptionsLoading, setSubscriptionsLoading] = useState(false);
+  const [subscriptionsLoadingMore, setSubscriptionsLoadingMore] = useState(false);
+  const [subscribers, setSubscribers] = useState<ProfileFollowUser[]>([]);
+  const [subscribersPage, setSubscribersPage] = useState(1);
+  const [subscribersLastPage, setSubscribersLastPage] = useState(1);
+  const [subscribersLoading, setSubscribersLoading] = useState(false);
+  const [subscribersLoadingMore, setSubscribersLoadingMore] = useState(false);
+  const [followPendingIds, setFollowPendingIds] = useState<number[]>([]);
+  const [myAnswers, setMyAnswers] = useState<ProfileAnswerItem[]>([]);
+  const [myAnswersPage, setMyAnswersPage] = useState(1);
+  const [myAnswersLastPage, setMyAnswersLastPage] = useState(1);
+  const [myAnswersLoading, setMyAnswersLoading] = useState(false);
+  const [myAnswersLoadingMore, setMyAnswersLoadingMore] = useState(false);
 
   const fetchMyQuestions = useCallback(
     async (
@@ -270,6 +314,234 @@ export default function ProfilePage() {
     setSettingsDraft(mergedFromMe);
   }, [mergedFromMe]);
 
+  const fetchMyAnswers = useCallback(
+    async (filter: "all" | "best", page: number, append: boolean) => {
+      if (append) setMyAnswersLoadingMore(true);
+      else setMyAnswersLoading(true);
+      try {
+        const params = new URLSearchParams({
+          filter,
+          page: String(page),
+          per_page: "10",
+        });
+        const data = await api.get<{
+          answers: ProfileAnswerItem[];
+          current_page: number;
+          last_page: number;
+        }>(`v1/me/my-answers?${params}`);
+        setMyAnswers((prev) => (append ? [...prev, ...(data.answers ?? [])] : (data.answers ?? [])));
+        setMyAnswersPage(data.current_page ?? 1);
+        setMyAnswersLastPage(data.last_page ?? 1);
+      } catch {
+        if (!append) {
+          setMyAnswers([]);
+          setMyAnswersPage(1);
+          setMyAnswersLastPage(1);
+        }
+      } finally {
+        setMyAnswersLoading(false);
+        setMyAnswersLoadingMore(false);
+      }
+    },
+    [],
+  );
+
+  const fetchSubscriptions = useCallback(async (page: number, append: boolean) => {
+    if (append) setSubscriptionsLoadingMore(true);
+    else setSubscriptionsLoading(true);
+    try {
+      const params = new URLSearchParams({ page: String(page), per_page: "10" });
+      const data = await api.get<{
+        subscriptions: ProfileFollowUser[];
+        current_page: number;
+        last_page: number;
+      }>(`v1/me/subscriptions?${params}`);
+      setSubscriptions((prev) => (append ? [...prev, ...(data.subscriptions ?? [])] : (data.subscriptions ?? [])));
+      setSubscriptionsPage(data.current_page ?? 1);
+      setSubscriptionsLastPage(data.last_page ?? 1);
+    } finally {
+      setSubscriptionsLoading(false);
+      setSubscriptionsLoadingMore(false);
+    }
+  }, []);
+
+  const fetchSubscribers = useCallback(async (page: number, append: boolean) => {
+    if (append) setSubscribersLoadingMore(true);
+    else setSubscribersLoading(true);
+    try {
+      const params = new URLSearchParams({ page: String(page), per_page: "10" });
+      const data = await api.get<{
+        subscribers: ProfileFollowUser[];
+        current_page: number;
+        last_page: number;
+      }>(`v1/me/subscribers?${params}`);
+      setSubscribers((prev) => (append ? [...prev, ...(data.subscribers ?? [])] : (data.subscribers ?? [])));
+      setSubscribersPage(data.current_page ?? 1);
+      setSubscribersLastPage(data.last_page ?? 1);
+    } finally {
+      setSubscribersLoading(false);
+      setSubscribersLoadingMore(false);
+    }
+  }, []);
+
+  const toggleFollow = useCallback(async (targetId: number, shouldSubscribe: boolean) => {
+    setFollowPendingIds((prev) => [...prev, targetId]);
+    try {
+      if (shouldSubscribe) await api.post(`v1/users/${targetId}/subscribe`);
+      else await api.delete(`v1/users/${targetId}/subscribe`);
+      setSubscriptions((prev) => prev.filter((u) => (shouldSubscribe ? true : u.id !== targetId)));
+      setSubscribers((prev) => prev.map((u) => (u.id === targetId ? { ...u, subscribed_by_me: shouldSubscribe } : u)));
+      patchUser({
+        subscriptions_count: Math.max(0, (authUser?.subscriptions_count ?? 0) + (shouldSubscribe ? 1 : -1)),
+      });
+    } finally {
+      setFollowPendingIds((prev) => prev.filter((id) => id !== targetId));
+    }
+  }, [patchUser, authUser?.subscriptions_count]);
+
+  useEffect(() => {
+    if (activeTab !== "menu_answers") return;
+    if (myAnswers.length > 0) return;
+    fetchMyAnswers(answersFilter, 1, false);
+  }, [activeTab, myAnswers.length, answersFilter, fetchMyAnswers]);
+
+  useEffect(() => {
+    if (activeTab !== "menu_subscriptions") return;
+    if (subscriptions.length > 0) return;
+    fetchSubscriptions(1, false);
+  }, [activeTab, subscriptions.length, fetchSubscriptions]);
+
+  useEffect(() => {
+    if (activeTab !== "menu_subscribers") return;
+    if (subscribers.length > 0) return;
+    fetchSubscribers(1, false);
+  }, [activeTab, subscribers.length, fetchSubscribers]);
+
+  const profileQuestionStatus = (q: ProfileQuestionItem): "opened" | "voting" | "closed" => {
+    if (q.status === "voting") return "voting";
+    if (q.status === "closed" || q.status === "best") return "closed";
+    if (questionsFilter === "voting") return "voting";
+    if (questionsFilter === "best") return "closed";
+    return "opened";
+  };
+
+  const profileQuestionsForCard = userQuestions.map((q) => ({
+    id: q.id,
+    title: q.title,
+    content: q.description || "",
+    slug: String(q.id),
+    author: {
+      id: q.author.id,
+      username: String(q.author.id),
+      displayName: q.author.full_name,
+      email: "",
+      avatar: q.author.avatar_url || "/images/icons/avatar.svg",
+      bio: "",
+      rating: q.author.balls ?? 0,
+      balance: 0,
+      vipStatus: false,
+      followersCount: 0,
+      followingsCount: 0,
+      questionsCount: 0,
+      answersCount: 0,
+      createdAt: q.created_at,
+      role: "",
+    },
+    category: {
+      id: 0,
+      name: q.category?.name || "Без категории",
+      slug: q.category?.slug || "",
+      description: "",
+      svgIcon: q.category?.svg_icon || q.category?.icon_key,
+      parent: null,
+      children: [],
+      questionsCount: 0,
+    },
+    rating: q.likes_count,
+    status: profileQuestionStatus(q),
+    commentsCount: q.answers_count,
+    createdAt: q.created_at,
+    updatedAt: q.created_at,
+    votesCount:
+      q.votes_count ??
+      (q.likes_count ?? 0) + (q.dislikes_count ?? 0),
+  }));
+
+  const profileAnswersForCard: UserAnswer[] = myAnswers.map((a) => ({
+    id: a.id,
+    questionId: a.question?.id ?? 0,
+    questionTitle: a.question?.title || "Без заголовка",
+    questionSlug: String(a.question?.id ?? 0),
+    questionAnswersCount: a.comments_count ?? 0,
+    author: {
+      id: authUser?.id ?? user.id,
+      username: String(authUser?.id ?? user.id),
+      displayName: displayName,
+      email: authUser?.email || "",
+      avatar: avatarUrl || "/images/icons/avatar.svg",
+      bio: authUser?.description || "",
+      rating: balls,
+      balance: 0,
+      vipStatus: false,
+      followersCount: 0,
+      followingsCount: 0,
+      questionsCount: authUser?.questions_count ?? 0,
+      answersCount: authUser?.answers_count ?? 0,
+      createdAt: registeredAt || new Date().toISOString(),
+      role: authUser?.level_name || "",
+    },
+    content: a.text,
+    rating: 0,
+    isBestAnswer: a.is_best,
+    likesCount: 0,
+    dislikesCount: 0,
+    createdAt: a.created_at,
+    updatedAt: a.created_at,
+  }));
+
+  const renderUserFollowCard = (u: ProfileFollowUser, isSubscriberView: boolean) => (
+    <div className="user-follow-card" key={u.id}>
+      <div className="user-follow-left">
+        <Link href={`/profile/${u.id}`}>
+          <img src={u.avatar_url || "/images/icons/avatar.svg"} alt={u.full_name} className="user-follow-avatar" />
+        </Link>
+        <div className="user-follow-info">
+          <Link href={`/profile/${u.id}`} className="user-follow-name">
+            {u.full_name || "Login 4000"}
+          </Link>
+          <span className="user-follow-time">В сервисе {u.created_at ? formatTimeAgo(u.created_at).replace(/\s+назад$/, "") : "недавно"}</span>
+        </div>
+      </div>
+      <div className="user-follow-separator"></div>
+      <div className="user-follow-stat">
+        <div style={{ display: "flex", gap: "4px" }}>
+          <span className="user-follow-stat-bold">{u.balls ?? 0} балл</span>
+        </div>
+      </div>
+      <div className="user-follow-right">
+        {(isSubscriberView ? !u.subscribed_by_me : false) ? (
+          <button
+            className="user-follow-btn subscribe-btn"
+            style={{ minWidth: "140px" }}
+            disabled={followPendingIds.includes(u.id)}
+            onClick={() => toggleFollow(u.id, true)}
+          >
+            Подписаться
+          </button>
+        ) : (
+          <button
+            className="user-follow-btn subscribed-btn"
+            style={{ minWidth: "140px" }}
+            disabled={followPendingIds.includes(u.id)}
+            onClick={() => toggleFollow(u.id, false)}
+          >
+            Вы подписаны
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="profile_page_layout">
       <Header />
@@ -403,25 +675,82 @@ export default function ProfilePage() {
                     <p>В сервисе {registeredInService}</p>
                   </div>
                 </div>
-                <div className="user_grades">
-                  <div>
-                    <p>
-                      Баллы: <span>{balls}/{nextLevelBalls}</span>
-                    </p>
-                    <div className="user_grade_line">
-                      <div
-                        className="user_grade_line_value"
-                        style={{ width: `${progress}%` }}
-                      ></div>
+                <div className="user_public_stats">
+                  <div className="stat_item">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "15px",
+                      }}
+                    >
+                      <svg
+                        width="30"
+                        height="29"
+                        viewBox="0 0 30 29"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M21.453 5.13336L20.9241 3.55937L17.4839 2.98531L15.856 0H14.144L12.5161 2.98531L9.07605 3.55937L8.54695 5.1333L10.981 7.55243L10.4827 10.8926L11.8678 11.8653L15 10.3751L18.1322 11.8653L19.5172 10.8925L19.019 7.55243L21.453 5.13336Z"
+                          fill="#5E68FF"
+                        />
+                        <path
+                          d="M28.1836 27.3008V20.9388H20.5664V27.3008H18.8086V16.4075H11.1914V27.3008H9.43359V19.5227H1.81641V27.3008H0V29H30V27.3008H28.1836Z"
+                          fill="#5E68FF"
+                        />
+                      </svg>
+                      <div className="stat_info">
+                        <div className="stat_value">{balls}</div>
+                        <div className="stat_label">Балл</div>
+                      </div>
                     </div>
                   </div>
-                  <div className="user_kpd">
-                    <p>
-                      КПД: <span>{kpdPercent}%</span>
-                    </p>
-                    <svg width="16" height="16">
-                      <use xlinkHref="#kpd-icon"></use>
-                    </svg>
+                  <div className="stats_divider"></div>
+                  <div className="stat_item">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "15px",
+                      }}
+                    >
+                      <svg
+                        width="30"
+                        height="19"
+                        viewBox="0 0 30 19"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M5.09074 3.68822L10.0901 8.61204C11.2249 7.71796 12.6031 7.13689 14.1211 6.96867V0C10.6641 0.199499 7.5252 1.55531 5.09074 3.68822Z"
+                          fill="#5E68FF"
+                        />
+                        <path
+                          d="M3.84791 4.91228C1.49906 7.51274 0 10.9256 0 14.6719C0 15.1503 0.393105 15.5375 0.878906 15.5375H6.21094C6.69674 15.5375 7.08984 15.1503 7.08984 14.6719C7.08984 12.836 7.76467 11.169 8.84725 9.8361L3.84791 4.91228Z"
+                          fill="#5E68FF"
+                        />
+                        <path
+                          d="M21.7909 7.90326C21.4948 7.64882 21.0656 7.61587 20.7386 7.82466L13.1109 12.6168C12.0921 13.2576 11.4844 14.3489 11.4844 15.5375C11.4844 17.4471 13.0611 19 15 19C16.363 19 17.6144 18.2138 18.1877 16.9974L22.008 8.91934C22.1729 8.57106 22.0845 8.15683 21.7909 7.90326Z"
+                          fill="#5E68FF"
+                        />
+                        <path
+                          d="M26.1521 4.91228L23.5688 7.45654C23.8941 8.14044 23.9369 8.94103 23.6011 9.6505L22.4454 12.0942C22.7429 12.8992 22.9102 13.7644 22.9102 14.6719C22.9102 15.1503 23.3033 15.5375 23.7891 15.5375H29.1211C29.6069 15.5375 30 15.1503 30 14.6719C30 10.9256 28.5009 7.51274 26.1521 4.91228Z"
+                          fill="#5E68FF"
+                        />
+                        <path
+                          d="M15.8789 0V6.96867C16.6189 7.05067 17.3239 7.23413 17.9855 7.50068L19.7937 6.36463C20.5181 5.90227 21.4033 5.80307 22.3252 6.23323L24.9093 3.68822C22.4748 1.55531 19.3359 0.199499 15.8789 0Z"
+                          fill="#5E68FF"
+                        />
+                      </svg>
+                      <div className="stat_info">
+                        <div className="stat_value">{kpdPercent}%</div>
+                        <div className="stat_label">
+                          КПД
+                          <div className="kpd_tooltip_icon">?</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -536,78 +865,30 @@ export default function ProfilePage() {
 
                   {userQuestions.length > 0 ? (
                     <>
-                      {userQuestions.map((question) => (
-                        <div className="question_list_item" key={question.id}>
-                          <div className="question_item_top_data">
-                            <div className="question_item_top_data_left">
-                              <img
-                                src={question.author.avatar_url || "/images/icons/avatar.svg"}
-                                alt={question.author.full_name}
-                              />
-                              <div>
-                                <p className="main_text">
-                                  {question.author.full_name}
-                                </p>
-                                <span>{question.author.balls ?? 0} баллов</span>
-                              </div>
-                            </div>
-                            <div className="question_item_top_data_right">
-                              <button
-                                className="s_btn s_btn_icon share-this"
-                                title="Поделиться"
-                                onClick={(e) =>
-                                  handleShareClick(
-                                    e,
-                                    question.title,
-                                    question.id,
-                                  )
-                                }
-                              >
-                                <svg width="14" height="14">
-                                  <use xlinkHref="#share"></use>
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                          <Link href={`/question/${question.id}`}>
-                            <div className="question_list_item_left">
-                              <img
-                                src={question.author.avatar_url || "/images/icons/avatar.svg"}
-                                alt={question.author.full_name}
-                              />
-                              <div>
-                                <p className="main_text">{question.title}</p>
-                                <span>{formatTimeAgo(question.created_at)}</span>
-                              </div>
-                            </div>
-                          </Link>
-                          <div className="question_list_item_right">
-                            <div className="question_list_item_right_actions">
-                              <button
-                                className="s_btn s_btn_icon share-this"
-                                title="Поделиться"
-                                onClick={(e) =>
-                                  handleShareClick(
-                                    e,
-                                    question.title,
-                                    question.id,
-                                  )
-                                }
-                              >
-                                <svg width="14" height="14">
-                                  <use xlinkHref="#share"></use>
-                                </svg>
-                              </button>
-                              <Link
-                                className="s_btn"
-                                href={`/question/${question.id}`}
-                              >
-                                Посмотреть
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                      <div
+                        className="questions_list_profile"
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "5px",
+                        }}
+                      >
+                        {profileQuestionsForCard.map((question, index) => (
+                          <SearchResultCard
+                            key={question.id}
+                            question={question}
+                            isProfilePage={true}
+                            status={question.status as "opened" | "voting" | "closed"}
+                            votesCount={question.votesCount}
+                            isOwnProfile={true}
+                            answersCountOverride={userQuestions[index]?.answers_count ?? 0}
+                            showQuestionVotes
+                            likesCount={userQuestions[index]?.likes_count ?? 0}
+                            dislikesCount={userQuestions[index]?.dislikes_count ?? 0}
+                            userVote={userQuestions[index]?.user_vote ?? null}
+                          />
+                        ))}
+                      </div>
                       {userQuestionsPage < userQuestionsLastPage ? (
                         <div
                           className="show_more_btn_wrapper"
@@ -643,6 +924,127 @@ export default function ProfilePage() {
                       Вопросов пока нет
                     </p>
                   )}
+                </div>
+              </div>
+
+              {/* Таб: Ответы пользователя */}
+              <div
+                className={`menu_item_content menu_item_content_m user_profile_pages_answers ${activeTab === "menu_answers" ? "active_menu" : ""}`}
+                id="menu_answers"
+              >
+                <div className="user_profile_page_content">
+                  <div className="questions_filter" style={{ marginBottom: "12px" }}>
+                    <button
+                      className={`s_btn ${answersFilter === "all" ? "s_btn_active questions_filter_active" : ""}`}
+                      onClick={() => {
+                        setAnswersFilter("all");
+                        fetchMyAnswers("all", 1, false);
+                      }}
+                    >
+                      Все
+                    </button>
+                    <button
+                      className={`s_btn ${answersFilter === "best" ? "s_btn_active questions_filter_active" : ""}`}
+                      onClick={() => {
+                        setAnswersFilter("best");
+                        fetchMyAnswers("best", 1, false);
+                      }}
+                    >
+                      Лучшие
+                    </button>
+                  </div>
+                  {profileAnswersForCard.length > 0 ? (
+                    <>
+                      <div className="answers_list_profile" style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                        {profileAnswersForCard.map((answer) => (
+                          <AnswerResultCard
+                            key={answer.id}
+                            answer={answer}
+                            isBestView={answer.isBestAnswer}
+                            isOwnProfile={true}
+                          />
+                        ))}
+                      </div>
+                      {myAnswersPage < myAnswersLastPage ? (
+                        <div className="show_more_btn_wrapper" style={{ display: "flex", justifyContent: "center" }}>
+                          <button
+                            className="show_more_btn"
+                            type="button"
+                            onClick={() => fetchMyAnswers(answersFilter, myAnswersPage + 1, true)}
+                            disabled={myAnswersLoadingMore}
+                          >
+                            <svg width="22" height="22">
+                              <use xlinkHref="#sync"></use>
+                            </svg>
+                            <span>{myAnswersLoadingMore ? "Загрузка..." : "Загрузить еще"}</span>
+                          </button>
+                        </div>
+                      ) : null}
+                      {myAnswersLoading ? (
+                        <p className="secondary_text" style={{ textAlign: "center", padding: "20px 0" }}>
+                          Загрузка ответов...
+                        </p>
+                      ) : null}
+                    </>
+                  ) : (
+                    <p className="secondary_text" style={{ textAlign: "center", padding: "40px 0" }}>Ответов пока нет</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Таб: Подписки пользователя */}
+              <div
+                className={`menu_item_content menu_item_content_m user_profile_pages_answers ${activeTab === "menu_subscriptions" ? "active_menu" : ""}`}
+                id="menu_subscriptions"
+              >
+                <div className="user_profile_page_content">
+                  <div className="answers_list_profile" style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                    {subscriptions.length > 0 ? subscriptions.map((u) => renderUserFollowCard(u, false)) : (
+                      <p className="secondary_text" style={{ textAlign: "center", padding: "40px 0" }}>Список пуст</p>
+                    )}
+                  </div>
+                  {subscriptionsPage < subscriptionsLastPage ? (
+                    <div className="show_more_btn_wrapper" style={{ display: "flex", justifyContent: "center" }}>
+                      <button
+                        className="show_more_btn"
+                        type="button"
+                        onClick={() => fetchSubscriptions(subscriptionsPage + 1, true)}
+                        disabled={subscriptionsLoadingMore}
+                      >
+                        <svg width="22" height="22"><use xlinkHref="#sync"></use></svg>
+                        <span>{subscriptionsLoadingMore ? "Загрузка..." : "Загрузить еще"}</span>
+                      </button>
+                    </div>
+                  ) : null}
+                  {subscriptionsLoading ? <p className="secondary_text" style={{ textAlign: "center", padding: "20px 0" }}>Загрузка подписок...</p> : null}
+                </div>
+              </div>
+
+              {/* Таб: Подписчики пользователя */}
+              <div
+                className={`menu_item_content menu_item_content_m user_profile_pages_answers ${activeTab === "menu_subscribers" ? "active_menu" : ""}`}
+                id="menu_subscribers"
+              >
+                <div className="user_profile_page_content">
+                  <div className="answers_list_profile" style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                    {subscribers.length > 0 ? subscribers.map((u) => renderUserFollowCard(u, true)) : (
+                      <p className="secondary_text" style={{ textAlign: "center", padding: "40px 0" }}>Список пуст</p>
+                    )}
+                  </div>
+                  {subscribersPage < subscribersLastPage ? (
+                    <div className="show_more_btn_wrapper" style={{ display: "flex", justifyContent: "center" }}>
+                      <button
+                        className="show_more_btn"
+                        type="button"
+                        onClick={() => fetchSubscribers(subscribersPage + 1, true)}
+                        disabled={subscribersLoadingMore}
+                      >
+                        <svg width="22" height="22"><use xlinkHref="#sync"></use></svg>
+                        <span>{subscribersLoadingMore ? "Загрузка..." : "Загрузить еще"}</span>
+                      </button>
+                    </div>
+                  ) : null}
+                  {subscribersLoading ? <p className="secondary_text" style={{ textAlign: "center", padding: "20px 0" }}>Загрузка подписчиков...</p> : null}
                 </div>
               </div>
 
@@ -1265,31 +1667,61 @@ export default function ProfilePage() {
               <h2>Статистика</h2>
             </div>
             <div className="profile_stats_list">
-              <div className="profile_stats_item">
+              <div className={`profile_stats_item ${activeTab === "menu1" ? "active" : ""}`} onClick={() => handleTabClick("menu1")} style={{ cursor: "pointer" }}>
                 <p className="main_text">Вопросы</p>
                 <div className="stats_badge">
-                  <p className="main_text">{user.questionsCount}</p>
+                  <p className="main_text">{authUser?.questions_count ?? user.questionsCount}</p>
                 </div>
               </div>
-              <div className="profile_stats_item">
+              <div className={`profile_stats_item ${activeTab === "menu_answers" ? "active" : ""}`} onClick={() => handleTabClick("menu_answers")} style={{ cursor: "pointer" }}>
                 <p className="main_text">Ответы</p>
                 <div className="stats_badge">
-                  <p className="main_text">{user.answersCount}</p>
+                  <p className="main_text">{authUser?.answers_count ?? user.answersCount}</p>
                 </div>
               </div>
-              <div className="profile_stats_item">
+              <div className={`profile_stats_item ${activeTab === "menu_subscriptions" ? "active" : ""}`} onClick={() => handleTabClick("menu_subscriptions")} style={{ cursor: "pointer" }}>
                 <p className="main_text">Подписки</p>
                 <div className="stats_badge">
-                  <p className="main_text">{user.followingsCount}</p>
+                  <p className="main_text">{authUser?.subscriptions_count ?? subscriptions.length}</p>
                 </div>
               </div>
-              <div className="profile_stats_item">
+              <div className={`profile_stats_item ${activeTab === "menu_subscribers" ? "active" : ""}`} onClick={() => handleTabClick("menu_subscribers")} style={{ cursor: "pointer" }}>
                 <p className="main_text">Подписчики</p>
                 <div className="stats_badge">
-                  <p className="main_text">{user.followersCount}</p>
+                  <p className="main_text">{authUser?.subscribers_count ?? subscribers.length}</p>
                 </div>
               </div>
             </div>
+            <>
+              <div className="blocks_title" style={{ marginTop: "24px" }}>
+                <h2>Ограничения на день</h2>
+              </div>
+              <div className="profile_stats_list profile_stats_limits_list">
+                {[
+                  { value: 10, label: "Вопросы" },
+                  { value: 0, label: "Прямых вопросов" },
+                  { value: 30, label: "Ответов" },
+                  { value: 30, label: "Комментариев" },
+                  { value: 100, label: "Голосов за ответ" },
+                  { value: 100, label: "Голоссов в опрос" },
+                  { value: 60, label: "Оценок вопросов" },
+                  { value: 60, label: "Оценок ответов" },
+                  { value: 10, label: "Фото" },
+                  { value: 0, label: "Видео" },
+                  { value: 0, label: "Рекомендации" },
+                ].map(({ value, label }) => (
+                  <div key={label} className="profile_stats_item limits_stat_item">
+                    <div className="stats_badge limits_badge">
+                      <p className="main_text">{value}</p>
+                    </div>
+                    <p className="main_text">{label}</p>
+                  </div>
+                ))}
+                <div className="limits_help">
+                  <Link href="#" className="limits_help_link">Нужна помощь?</Link>
+                </div>
+              </div>
+            </>
           </div>
         </div>
       </div>

@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { useAuthStore } from "@/store/authStore"
+import SocialAuthButtons from "@/components/SocialAuthButtons"
+import LoginOAuthError from "@/components/LoginOAuthError"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -58,6 +60,9 @@ export default function LoginPage() {
           </div>
 
           <form method="POST" className="login_block_content login_form" onSubmit={handleSubmit}>
+            <Suspense fallback={null}>
+              <LoginOAuthError />
+            </Suspense>
             {error && <p className="login_error" style={{ color: "#c00", marginBottom: 8 }}>{error}</p>}
             <div className="login_input">
               <input type="email" name="email" placeholder="Ваша почта" required autoComplete="email" />
@@ -74,28 +79,7 @@ export default function LoginPage() {
               </p>
               <div className="login_socials">
                 <p>Войти через<br />социальные сети</p>
-                <div className="login_socials_list">
-                  <div>
-                    <svg width="22" height="12">
-                      <use xlinkHref="#vk"></use>
-                    </svg>
-                  </div>
-                  <div>
-                    <svg width="20" height="20">
-                      <use xlinkHref="#ok"></use>
-                    </svg>
-                  </div>
-                  <div>
-                    <svg width="23" height="18">
-                      <use xlinkHref="#discord"></use>
-                    </svg>
-                  </div>
-                  <div>
-                    <svg width="17" height="16">
-                      <use xlinkHref="#tg"></use>
-                    </svg>
-                  </div>
-                </div>
+                <SocialAuthButtons />
               </div>
             </div>
           </form>

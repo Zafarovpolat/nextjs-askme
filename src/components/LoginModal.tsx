@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import SocialAuthButtons from '@/components/SocialAuthButtons'
 
 interface LoginModalProps {
   isOpen: boolean
@@ -87,20 +88,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               </div>
               <div className="login_socials">
                 <p>Войти через<br />социальные сети</p>
-                <div className="login_socials_list">
-                  <div>
-                    <svg width="22" height="12"><use xlinkHref="#vk"></use></svg>
-                  </div>
-                  <div>
-                    <svg width="20" height="20"><use xlinkHref="#ok"></use></svg>
-                  </div>
-                  <div>
-                    <svg width="23" height="18"><use xlinkHref="#discord"></use></svg>
-                  </div>
-                  <div>
-                    <svg width="17" height="16"><use xlinkHref="#tg"></use></svg>
-                  </div>
-                </div>
+                <SocialAuthButtons />
               </div>
             </div>
           </form>

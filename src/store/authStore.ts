@@ -13,11 +13,12 @@ type AuthState = {
   patchUser: (patch: Partial<ApiUser>) => void
   fetchMe: () => Promise<void>
   login: (email: string, password: string) => Promise<void>
+  loginWithToken: (token: string) => Promise<void>
   register: (data: { first_name: string; email: string; password: string; password_confirmation: string; gender?: number }) => Promise<void>
   logout: () => void
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthorized: 0,
   isLoading: true,
@@ -58,6 +59,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     const data = await api.post<{ user: ApiUser; token: string }>('v1/auth/login', { email, password })
     setToken(data.token)
     set({ user: data.user, isAuthorized: 1 })
+  },
+
+  loginWithToken: async (token: string) => {
+    setToken(token)
+    await get().fetchMe()
   },
 
   register: async (payload) => {

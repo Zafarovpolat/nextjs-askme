@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { useAuthStore } from "@/store/authStore"
+import SocialAuthButtons from "@/components/SocialAuthButtons"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -115,28 +116,7 @@ export default function SignupPage() {
               </div>
               <div className="login_socials auth_socials">
                 <p>Регистрация через<br /> социальные сети</p>
-                <div className="login_socials_list">
-                  <div>
-                    <svg width="22" height="12">
-                      <use xlinkHref="#vk"></use>
-                    </svg>
-                  </div>
-                  <div>
-                    <svg width="20" height="20">
-                      <use xlinkHref="#ok"></use>
-                    </svg>
-                  </div>
-                  <div>
-                    <svg width="23" height="18">
-                      <use xlinkHref="#discord"></use>
-                    </svg>
-                  </div>
-                  <div>
-                    <svg width="17" height="16">
-                      <use xlinkHref="#tg"></use>
-                    </svg>
-                  </div>
-                </div>
+                <SocialAuthButtons />
                 <div className="ask_from_send_btn">
                   <button type="submit" className="m_btn category_btn">
                     Регистрация

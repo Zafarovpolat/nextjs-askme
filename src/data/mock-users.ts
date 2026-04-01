@@ -16,7 +16,9 @@ export const mockUsers: User[] = [
     followingsCount: 22,
     answersCount: 320,
     createdAt: '2024-01-15T10:00:00Z',
-    role: 'Высший разум'
+    role: 'Высший разум',
+    city: 'Москва',
+    phoneNumber: '+7 (999) 000-00-00'
   },
   {
     id: 2,

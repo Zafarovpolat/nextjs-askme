@@ -1,5 +1,20 @@
 // Типы для проекта AskMe
 
+/** Публичный профиль: GET /v1/users/{id} */
+export interface PublicProfileUser {
+  id: number
+  first_name: string
+  full_name: string
+  avatar_url: string | null
+  balls: number
+  kpd: number
+  level: number
+  level_name: string
+  questions_count: number
+  answers_count: number
+  subscribed_by_me: boolean
+}
+
 /** Пользователь из API (auth/me) */
 export interface ApiUser {
   id: number
@@ -17,6 +32,7 @@ export interface ApiUser {
   next_level_balls?: number | null
   balls_to_next_level?: number | null
   subscriptions_count?: number
+  subscribers_count?: number
   subscribed_questions_count?: number
   questions_count?: number
   answers_count?: number
@@ -40,6 +56,8 @@ export interface User {
   answersCount: number;
   createdAt: string;
   role: string;
+  city?: string;
+  phoneNumber?: string;
   isBanned?: boolean;
 }
 

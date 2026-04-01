@@ -267,7 +267,7 @@ function SearchPageContent() {
     >
       <div className="question_list_item-info">
         <div className="question_list_item_left">
-          <Link href={`/profile/${answer.author.username}`}>
+          <Link href={`/profile/${answer.author.id ?? answer.author.username}`}>
             <img
               src={answer.author.avatar || "/images/icons/avatar.svg"}
               alt=""
@@ -275,7 +275,7 @@ function SearchPageContent() {
           </Link>
           <div>
             <Link
-              href={`/profile/${answer.author.username}`}
+              href={`/profile/${answer.author.id ?? answer.author.username}`}
               className="main_text"
             >
               {answer.author.displayName}
@@ -486,7 +486,7 @@ function SearchPageContent() {
                 <h2>Лидеры проекта</h2>
               </div>
               {mockUsers.slice(0, 5).map((user) => (
-                <Link href={`/profile/${user.username}`} key={user.id}>
+                <Link href={`/profile/${user.id}`} key={user.id}>
                   <div className="question_list_item">
                     <div className="question_list_item_left">
                       <img
@@ -512,7 +512,7 @@ function SearchPageContent() {
                 <h2>Самые активные авторы</h2>
               </div>
               {mockUsers.slice(3, 8).map((user) => (
-                <Link href={`/profile/${user.username}`} key={user.id}>
+                <Link href={`/profile/${user.id}`} key={user.id}>
                   <div className="question_list_item">
                     <div className="question_list_item_left">
                       <img

@@ -17,7 +17,7 @@ export default function SidebarRight() {
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {topUsers.map((user) => (
-            <Link href={`/profile/${user.username}`} key={user.id}>
+            <Link href={`/profile/${user.id}`} key={user.id}>
               <div className="question_list_item">
                 <div className="question_list_item_left">
                   <img src={user.avatar || '/images/avatar.png'} alt={user.displayName} />

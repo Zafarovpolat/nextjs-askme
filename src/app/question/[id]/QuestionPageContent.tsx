@@ -18,7 +18,7 @@ import { formatTimeAgo } from "@/lib/time-ago";
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import { useVoteQuestion } from "@/hooks/useVoteQuestion";
 import ComplaintModal from "@/components/ComplaintModal";
-import { AnswerWithReplies } from "./AnswerBlock";
+import AnswerBlock, { AnswerWithReplies } from "./AnswerBlock";
 import SimilarQuestionsBlock from "./SimilarQuestionsBlock";
 import { mockUsers } from "@/data/mock-users";
 import { api } from "@/lib/api-client";
@@ -142,6 +142,11 @@ export default function QuestionPageContent({
   const apiAnswers = initialQuestion.answers ?? [];
   const bestAnswer = initialQuestion.best_answer ?? null;
   const bestAnswerIdFromApi = bestAnswer?.id ?? null;
+  const perPage = 10;
+  const totalAnswers = Math.max(
+    0,
+    initialQuestion.answers_count ?? apiAnswers.length
+  );
   const [sortBy, setSortBy] = useState<"rating" | "date">("rating");
   const [openCategories, setOpenCategories] = useState<string[]>([categorySlug]);
   const [complaintModal, setComplaintModal] = useState<{
@@ -160,6 +165,12 @@ export default function QuestionPageContent({
     null
   );
   const [answerSubmitPending, setAnswerSubmitPending] = useState(false);
+  const [answersPage, setAnswersPage] = useState(1);
+  const [answersLastPage, setAnswersLastPage] = useState(
+    Math.max(1, Math.ceil(totalAnswers / perPage))
+  );
+  const [answersLoadingMore, setAnswersLoadingMore] = useState(false);
+  const [answersData, setAnswersData] = useState(apiAnswers);
   /** Только вводимый текст (без «Имя,»); на сервер уходит только он */
   const [answerText, setAnswerText] = useState("");
 
@@ -317,9 +328,7 @@ export default function QuestionPageContent({
     [initialQuestion.id, isAuthorized, replyTarget, router, answerText]
   );
 
-  const regularAnswers = apiAnswers.filter(
-    (a) => a.id !== (bestAnswerId ?? bestAnswerIdFromApi)
-  );
+  const regularAnswers = answersData;
 
   const sortedAnswers = [...regularAnswers].sort((a, b) =>
     sortBy === "rating"
@@ -328,6 +337,31 @@ export default function QuestionPageContent({
   );
 
   const answerVotes = initialQuestion.auth_extra?.answer_votes ?? {};
+  const loadMoreAnswers = useCallback(async () => {
+    if (answersLoadingMore || answersPage >= answersLastPage) return;
+    setAnswersLoadingMore(true);
+    try {
+      const nextPage = answersPage + 1;
+      const data = await api.get<{
+        answers: NonNullable<QuestionPageData["answers"]>;
+        current_page: number;
+        last_page: number;
+      }>(
+        `v1/questions/${initialQuestion.id}/answers?page=${nextPage}&per_page=${perPage}`
+      );
+      setAnswersData((prev) => [...prev, ...(data.answers ?? [])]);
+      setAnswersPage(data.current_page ?? nextPage);
+      setAnswersLastPage(data.last_page ?? answersLastPage);
+    } finally {
+      setAnswersLoadingMore(false);
+    }
+  }, [
+    answersLoadingMore,
+    answersLastPage,
+    answersPage,
+    initialQuestion.id,
+    perPage,
+  ]);
   const toggleCategory = (slug: string) => {
     setOpenCategories((prev) =>
       prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
@@ -417,7 +451,7 @@ export default function QuestionPageContent({
               <h2>Лидеры проекта</h2>
             </div>
             {mockUsers.slice(0, 5).map((user) => (
-              <Link href={`/profile/${user.username}`} key={user.id}>
+              <Link href={`/profile/${user.id}`} key={user.id}>
                 <div className="question_list_item">
                   <div className="question_list_item_left">
                     <img
@@ -442,7 +476,7 @@ export default function QuestionPageContent({
               <h2>Самые активные авторы</h2>
             </div>
             {mockUsers.slice(3, 8).map((user) => (
-              <Link href={`/profile/${user.username}`} key={user.id}>
+              <Link href={`/profile/${user.id}`} key={user.id}>
                 <div className="question_list_item">
                   <div className="question_list_item_left">
                     <img
@@ -613,11 +647,11 @@ export default function QuestionPageContent({
               <div className="blocks_title mt_25px">
                 <h2>Лучший ответ</h2>
               </div>
-              <AnswerWithReplies
-                answer={bestAnswer}
+              <AnswerBlock
+                answer={{ ...bestAnswer, answers: [] }}
                 questionId={initialQuestion.id}
                 questionTitle={initialQuestion.title}
-                isBestRoot
+                isBest
                 onComplaint={(id) => setComplaintModal({ answerId: id })}
                 onScrollToAnswer={scrollToAnswer}
                 onStartReplyToAnswer={beginReplyToAnswer}
@@ -632,7 +666,7 @@ export default function QuestionPageContent({
             <div className="blocks_title-inner">
               <h2>Посмотрите все ответы</h2>
               <span className="answers_count_badge">
-                +{sortedAnswers.length}
+                {totalAnswers}
               </span>
             </div>
             <div className="questions_filter">
@@ -669,6 +703,21 @@ export default function QuestionPageContent({
               />
             </div>
           ))}
+          {answersPage < answersLastPage ? (
+            <div className="show_more_btn_wrapper" style={{ display: "flex", justifyContent: "center", marginTop: 12 }}>
+              <button
+                className="show_more_btn"
+                type="button"
+                onClick={loadMoreAnswers}
+                disabled={answersLoadingMore}
+              >
+                <svg width="22" height="22">
+                  <use xlinkHref="#sync"></use>
+                </svg>
+                <span>{answersLoadingMore ? "Загрузка..." : "Загрузить еще"}</span>
+              </button>
+            </div>
+          ) : null}
 
           {/* Ответить на вопрос / пользователю */}
           <div className="blocks_title mt_25px comments-form__title" id="answer">
