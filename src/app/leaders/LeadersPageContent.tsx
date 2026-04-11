@@ -1,44 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { api } from "@/lib/api-client";
-
-type LeaderUser = {
-  id: number;
-  full_name: string;
-  avatar_url?: string | null;
-  balls: number;
-  level_name?: string | null;
-};
-
-type LeadersPageResponse = {
-  top_leaders: LeaderUser[];
-  leaders: LeaderUser[];
-  current_page: number;
-  last_page: number;
-  per_page: number;
-  total: number;
-};
+import type {
+  LeaderCategory,
+  LeaderUser,
+  LeadersPageResponse,
+} from "./page";
 
 type LeadersPageContentProps = {
   initialData: LeadersPageResponse;
 };
 
-const categories = [
-  { slug: "auto-moto", name: "Авто, Мото", subcategories: ["Автоспорт", "Автострахование", "Выбор автомобиля"] },
-  { slug: "entertainment", name: "Развлечения", subcategories: ["Игры без компьютера", "Клубы, Дискотеки"] },
-  { slug: "plants", name: "Растения", subcategories: ["Дикая природа", "Комнатные растения"] },
-  { slug: "beauty-health", name: "Красота и Здоровье", subcategories: ["Баня, Массаж, Фитнес", "Болезни, Лекарства"] },
-  { slug: "family-home", name: "Семья, Дом", subcategories: ["Беременность, Роды", "Воспитание детей"] },
-  { slug: "business-finance", name: "Бизнес, Финансы", subcategories: ["Банки и Кредиты", "Недвижимость, Ипотека"] },
-  { slug: "food-cooking", name: "Еда, Кулинария", subcategories: ["Вторые блюда", "Десерты, Сладости, Выпечка"] },
-  { slug: "sport", name: "Спорт", subcategories: ["Теннис", "Футбол", "Хоккей"] },
-  { slug: "homework", name: "Домашние задания", subcategories: ["Математика", "Алгебра", "Геометрия"] },
-  { slug: "programming", name: "Программирование", subcategories: ["Android", "C/C++", "Python"] },
-];
+const PERIODS = [
+  { value: "year", label: "За год" },
+  { value: "month", label: "За месяц" },
+  { value: "week", label: "За неделю" },
+  { value: "day", label: "За день" },
+] as const;
+
+const METRICS = [
+  { value: "answers", label: "По количеству ответов" },
+  { value: "rating", label: "По рейтингу" },
+  { value: "questions", label: "По количеству вопросов" },
+] as const;
 
 const numWord = (value: number, words: [string, string, string]): string => {
   const abs = Math.abs(value);
@@ -47,20 +35,64 @@ const numWord = (value: number, words: [string, string, string]): string => {
   return `${value} ${words[index]}`;
 };
 
+function formatMetricLine(metric: string, metricValue: number): string {
+  if (metric === "rating") {
+    const abs = Math.abs(metricValue);
+    const tail = numWord(abs, ["балл", "балла", "баллов"]).replace(/^\d+\s+/, "");
+    if (metricValue > 0) return `+${abs} ${tail} за период`;
+    if (metricValue < 0) return `-${abs} ${tail} за период`;
+    return `0 ${tail} за период`;
+  }
+  if (metric === "questions") {
+    return numWord(metricValue, ["вопрос", "вопроса", "вопросов"]);
+  }
+  return numWord(metricValue, ["ответ", "ответа", "ответов"]);
+}
+
+function buildLeadersQuery(
+  period: string,
+  metric: string,
+  categoryId: string,
+  subcategoryId: string
+): string {
+  const p = new URLSearchParams();
+  p.set("period", period);
+  p.set("metric", metric);
+  p.set("page", "1");
+  if (metric !== "rating") {
+    if (categoryId) p.set("category_id", categoryId);
+    if (subcategoryId) p.set("subcategory_id", subcategoryId);
+  }
+  return p.toString();
+}
+
 export default function LeadersPageContent({ initialData }: LeadersPageContentProps) {
-  const [periodFilter, setPeriodFilter] = useState("week");
-  const [sortFilter, setSortFilter] = useState("answers");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [subcategoryFilter, setSubcategoryFilter] = useState("");
+  const [categories, setCategories] = useState<LeaderCategory[]>(initialData.categories ?? []);
+  const [periodFilter, setPeriodFilter] = useState(initialData.period ?? "day");
+  const [metricFilter, setMetricFilter] = useState(initialData.metric ?? "answers");
+  const [categoryFilter, setCategoryFilter] = useState<string>(
+    initialData.category_id != null ? String(initialData.category_id) : ""
+  );
+  const [subcategoryFilter, setSubcategoryFilter] = useState<string>(
+    initialData.subcategory_id != null ? String(initialData.subcategory_id) : ""
+  );
 
-  const [topLeaders] = useState<LeaderUser[]>(initialData.top_leaders ?? []);
-  const [leaders, setLeaders] = useState<LeaderUser[]>(initialData.leaders ?? []);
-  const [currentPage, setCurrentPage] = useState<number>(initialData.current_page ?? 1);
-  const [lastPage, setLastPage] = useState<number>(initialData.last_page ?? 1);
-  const [perPage] = useState<number>(initialData.per_page ?? 10);
+  const initialUsers = initialData.users ?? [];
+  const [topLeaders, setTopLeaders] = useState<LeaderUser[]>(() => initialUsers.slice(0, 3));
+  const [tableLeaders, setTableLeaders] = useState<LeaderUser[]>(() => initialUsers.slice(3));
+  const [currentPage, setCurrentPage] = useState(initialData.current_page ?? 1);
+  const [lastPage, setLastPage] = useState(initialData.last_page ?? 1);
+  const [total, setTotal] = useState(initialData.total ?? 0);
+
   const [loadingMore, setLoadingMore] = useState(false);
+  const [filterLoading, setFilterLoading] = useState(false);
 
-  const currentCategory = categories.find((c) => c.slug === categoryFilter);
+  const skipFilterEffect = useRef(true);
+
+  const currentCategory = useMemo(
+    () => categories.find((c) => String(c.id) === categoryFilter),
+    [categories, categoryFilter]
+  );
   const subcategoryOptions = currentCategory?.subcategories ?? [];
 
   const topPlaceIcons = [
@@ -70,6 +102,44 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
   ];
 
   const hasMore = currentPage < lastPage;
+  const categorySelectDisabled = metricFilter === "rating";
+
+  const refetchPage1 = useCallback(async () => {
+    setFilterLoading(true);
+    try {
+      const qs = buildLeadersQuery(periodFilter, metricFilter, categoryFilter, subcategoryFilter);
+      const data = await api.get<LeadersPageResponse>(`v1/leaders?${qs}`);
+      setCategories(data.categories ?? []);
+      const list = data.users ?? [];
+      setTopLeaders(list.slice(0, 3));
+      setTableLeaders(list.slice(3));
+      setCurrentPage(data.current_page ?? 1);
+      setLastPage(data.last_page ?? 1);
+      setTotal(data.total ?? 0);
+      if (data.metric) setMetricFilter(data.metric);
+      if (data.period) setPeriodFilter(data.period);
+    } catch {
+      // оставляем предыдущие данные
+    } finally {
+      setFilterLoading(false);
+    }
+  }, [periodFilter, metricFilter, categoryFilter, subcategoryFilter]);
+
+  useEffect(() => {
+    if (skipFilterEffect.current) {
+      skipFilterEffect.current = false;
+      return;
+    }
+    void refetchPage1();
+  }, [periodFilter, metricFilter, categoryFilter, subcategoryFilter, refetchPage1]);
+
+  const handleMetricChange = (value: string) => {
+    setMetricFilter(value);
+    if (value === "rating") {
+      setCategoryFilter("");
+      setSubcategoryFilter("");
+    }
+  };
 
   const handleCategoryChange = (value: string) => {
     setCategoryFilter(value);
@@ -77,16 +147,26 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
   };
 
   const loadMore = async () => {
-    if (!hasMore || loadingMore) return;
+    if (!hasMore || loadingMore || filterLoading) return;
     const nextPage = currentPage + 1;
     setLoadingMore(true);
     try {
-      const data = await api.get<LeadersPageResponse>(`v1/leaders?page=${nextPage}&per_page=${perPage}`);
-      setLeaders((prev) => [...prev, ...(data.leaders ?? [])]);
+      const body: Record<string, unknown> = {
+        period: periodFilter,
+        metric: metricFilter,
+        page: nextPage,
+      };
+      if (metricFilter !== "rating") {
+        if (categoryFilter) body.category_id = Number(categoryFilter);
+        if (subcategoryFilter) body.subcategory_id = Number(subcategoryFilter);
+      }
+      const data = await api.post<LeadersPageResponse>("v1/leaders/page", body);
+      setTableLeaders((prev) => [...prev, ...(data.users ?? [])]);
       setCurrentPage(data.current_page ?? nextPage);
       setLastPage(data.last_page ?? lastPage);
+      setTotal(data.total ?? total);
     } catch {
-      // Ошибку скрываем: базовый список уже отрендерен сервером.
+      // тихо
     } finally {
       setLoadingMore(false);
     }
@@ -110,25 +190,39 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
 
         <div className="top_leaders_filter">
           <div className="top_leaders_filter_item">
-            <select className="super-select" value={periodFilter} onChange={(e) => setPeriodFilter(e.target.value)}>
-              <option value="year">За год</option>
-              <option value="month">За месяц</option>
-              <option value="week">За неделю</option>
-              <option value="day">За день</option>
+            <select
+              className="super-select"
+              value={periodFilter}
+              onChange={(e) => setPeriodFilter(e.target.value)}
+              disabled={filterLoading}
+            >
+              {PERIODS.map((p) => (
+                <option key={p.value} value={p.value}>{p.label}</option>
+              ))}
             </select>
           </div>
           <div className="top_leaders_filter_item">
-            <select className="super-select" value={sortFilter} onChange={(e) => setSortFilter(e.target.value)}>
-              <option value="answers">По количеству ответов</option>
-              <option value="rating">По рейтингу</option>
-              <option value="questions">По количеству вопросов</option>
+            <select
+              className="super-select"
+              value={metricFilter}
+              onChange={(e) => handleMetricChange(e.target.value)}
+              disabled={filterLoading}
+            >
+              {METRICS.map((m) => (
+                <option key={m.value} value={m.value}>{m.label}</option>
+              ))}
             </select>
           </div>
           <div className="top_leaders_filter_item">
-            <select className="super-select" value={categoryFilter} onChange={(e) => handleCategoryChange(e.target.value)}>
+            <select
+              className="super-select"
+              value={categoryFilter}
+              onChange={(e) => handleCategoryChange(e.target.value)}
+              disabled={filterLoading || categorySelectDisabled}
+            >
               <option value="">Категория</option>
               {categories.map((cat) => (
-                <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+                <option key={cat.id} value={String(cat.id)}>{cat.name}</option>
               ))}
             </select>
           </div>
@@ -137,11 +231,11 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
               className="super-select"
               value={subcategoryFilter}
               onChange={(e) => setSubcategoryFilter(e.target.value)}
-              disabled={!categoryFilter}
+              disabled={filterLoading || categorySelectDisabled || !categoryFilter}
             >
               <option value="">Все подкатегории</option>
-              {subcategoryOptions.map((subcat) => (
-                <option key={subcat} value={subcat}>{subcat}</option>
+              {subcategoryOptions.map((sub) => (
+                <option key={sub.id} value={String(sub.id)}>{sub.name}</option>
               ))}
             </select>
           </div>
@@ -149,6 +243,9 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
       </div>
 
       <div className="container">
+        {filterLoading && (
+          <p className="secondary_text" style={{ marginBottom: 12 }}>Обновление списка…</p>
+        )}
         <div className="top_leaders_list">
           {topLeaders.map((user, index) => (
             <div className="top_leader_card" key={user.id}>
@@ -162,12 +259,15 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                     src={user.avatar_url || "/images/icons/avatar.svg"}
                     alt={user.full_name}
                   />
-                  <img className="top_leader_place" src={topPlaceIcons[index]} alt={`${index + 1} место`} />
+                  <img className="top_leader_place" src={topPlaceIcons[index]} alt={`${user.rank} место`} />
                 </div>
                 <div className="top_leader_card_desc">
                   <h3>{user.full_name}</h3>
                   <h4>{user.level_name || ""}</h4>
-                  <p>{numWord(user.balls ?? 0, ["балл", "балла", "баллов"])}</p>
+                  <p>{formatMetricLine(metricFilter, user.metric_value)}</p>
+                  <p className="secondary_text" style={{ fontSize: "0.9em" }}>
+                    Сейчас: {numWord(user.balls ?? 0, ["балл", "балла", "баллов"])}
+                  </p>
                 </div>
               </div>
             </div>
@@ -178,42 +278,42 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
       <div className="project_leaders_list container">
         <div className="blocks_title">
           <h2>Лидеры проекта</h2>
+          {total > 0 && (
+            <p className="secondary_text">Всего в выборке: {total}</p>
+          )}
         </div>
 
-        {leaders.length > 0 ? (
+        {tableLeaders.length > 0 ? (
           <div className="project_leaders_grid">
-            {leaders.map((user, index) => (
+            {tableLeaders.map((user) => (
               <div className="question_list_item" key={user.id}>
                 <div className="question_list_item-left">
-                  <span className="leader_number">{4 + index}</span>
+                  <span className="leader_number">{user.rank}</span>
                   <Link href={`/profile/${user.id}`}>
                     <div className="question_list_item_left">
                       <img src={user.avatar_url || "/images/icons/avatar.svg"} alt={user.full_name} />
                       <div>
                         <p className="main_text">{user.full_name}</p>
-                        <span>{numWord(user.balls ?? 0, ["балл", "балла", "баллов"])}</span>
+                        <span>{formatMetricLine(metricFilter, user.metric_value)}</span>
+                        <span className="secondary_text" style={{ display: "block", fontSize: "0.85em" }}>
+                          {numWord(user.balls ?? 0, ["балл", "балла", "баллов"])} всего
+                        </span>
                       </div>
                     </div>
                   </Link>
                 </div>
-                <div className="question_list_item_users">
-                  <img src="/images/icons/avatar.svg" alt="" />
-                  <img src="/images/icons/avatar.svg" alt="" />
-                  <img src="/images/icons/avatar.svg" alt="" />
-                  <p className="main_text">+4K</p>
-                </div>
               </div>
             ))}
           </div>
-        ) : (
+        ) : topLeaders.length === 0 && tableLeaders.length === 0 && !filterLoading ? (
           <div className="empty-list">
             <p className="secondary_text">Список пуст</p>
           </div>
-        )}
+        ) : null}
 
         {hasMore && (
           <div className="show_more_btn_wrapper">
-            <button className="show_more_btn" onClick={loadMore} disabled={loadingMore}>
+            <button className="show_more_btn" onClick={() => void loadMore()} disabled={loadingMore || filterLoading}>
               <svg width="22" height="22">
                 <use xlinkHref="#sync"></use>
               </svg>

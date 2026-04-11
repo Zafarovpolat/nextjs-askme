@@ -1,9 +1,10 @@
 import { getApiFullUrl } from '@/config/api'
 import { getToken } from '@/lib/cookies'
 
-type RequestInitWithBody = RequestInit & { body?: object }
+/** Без поля body из RequestInit — там BodyInit, у нас JSON передаём отдельно как object */
+type ApiFetchInit = Omit<RequestInit, 'body'> & { body?: object }
 
-async function request<T>(path: string, init: RequestInitWithBody = {}): Promise<T> {
+async function request<T>(path: string, init: ApiFetchInit = {}): Promise<T> {
   const { body, headers: initHeaders, ...rest } = init
   const url = getApiFullUrl(path)
   const token = typeof window !== 'undefined' ? getToken() : undefined
@@ -31,8 +32,10 @@ async function request<T>(path: string, init: RequestInitWithBody = {}): Promise
 }
 
 export const api = {
-  get: <T>(path: string, init?: RequestInit) => request<T>(path, { ...init, method: 'GET' }),
-  post: <T>(path: string, body?: object, init?: RequestInit) => request<T>(path, { ...init, method: 'POST', body }),
-  put: <T>(path: string, body?: object, init?: RequestInit) => request<T>(path, { ...init, method: 'PUT', body }),
-  delete: <T>(path: string, init?: RequestInit) => request<T>(path, { ...init, method: 'DELETE' }),
+  get: <T>(path: string, init?: Omit<RequestInit, 'body'>) => request<T>(path, { ...init, method: 'GET' }),
+  post: <T>(path: string, body?: object, init?: Omit<RequestInit, 'body'>) =>
+    request<T>(path, { ...init, method: 'POST', body }),
+  put: <T>(path: string, body?: object, init?: Omit<RequestInit, 'body'>) =>
+    request<T>(path, { ...init, method: 'PUT', body }),
+  delete: <T>(path: string, init?: Omit<RequestInit, 'body'>) => request<T>(path, { ...init, method: 'DELETE' }),
 }

@@ -105,6 +105,7 @@ export default function AnswerBlock({
         {!isBest && !isNested && canSelectBestAnswer && onSetBestAnswer ? (
           <div className="question_list_item_right">
             <button
+              type="button"
               className="s_btn s_btn_icon btn_star_answer btn_star_tooltip"
               onClick={() => onSetBestAnswer(answer.id)}
               disabled={pendingBestAnswer}
@@ -116,6 +117,21 @@ export default function AnswerBlock({
               <span className="star_tooltip_text">
                 Выбрать как лучший ответ
               </span>
+            </button>
+          </div>
+        ) : null}
+        {isBest ? (
+          <div className="question_list_item_right">
+            <button
+              type="button"
+              className="s_btn s_btn_icon btn_star_answer_active btn_star_tooltip"
+              disabled
+              aria-label="Лучший ответ"
+            >
+              <svg width="15" height="15">
+                <use xlinkHref="#star-best"></use>
+              </svg>
+              <span className="star_tooltip_text">Лучший ответ</span>
             </button>
           </div>
         ) : null}

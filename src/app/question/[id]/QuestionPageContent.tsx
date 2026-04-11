@@ -20,6 +20,7 @@ import { useVoteQuestion } from "@/hooks/useVoteQuestion";
 import ComplaintModal from "@/components/ComplaintModal";
 import AnswerBlock, { AnswerWithReplies } from "./AnswerBlock";
 import SimilarQuestionsBlock from "./SimilarQuestionsBlock";
+import QuestionLeadersSidebar from "./QuestionLeadersSidebar";
 import { mockUsers } from "@/data/mock-users";
 import { api } from "@/lib/api-client";
 import { useAuthStore } from "@/store/authStore";
@@ -461,7 +462,7 @@ export default function QuestionPageContent({
                     <div>
                       <p className="main_text">{user.displayName}</p>
                       <span>
-                        Legen {numWord(user.rating, ["балл", "балла", "баллов"])}
+                        {numWord(user.rating, ["балл", "балла", "баллов"])}
                       </span>
                     </div>
                   </div>
@@ -486,7 +487,7 @@ export default function QuestionPageContent({
                     <div>
                       <p className="main_text">{user.displayName}</p>
                       <span>
-                        Legen {numWord(user.rating, ["балл", "балла", "баллов"])}
+                        {numWord(user.rating, ["балл", "балла", "баллов"])}
                       </span>
                     </div>
                   </div>
@@ -555,11 +556,22 @@ export default function QuestionPageContent({
                   </div>
                   <span>{timeAgoText}</span>
                 </div>
-                <div className="quest_user_title">
-                  <span>
-                    {initialQuestion.author.level_name ?? "Участник"}
+              </div>
+              <div className="question_list_item_right">
+                <button
+                  type="button"
+                  className="s_btn s_btn_icon btn_star_answer btn_star_tooltip"
+                  disabled
+                  tabIndex={-1}
+                  aria-hidden
+                >
+                  <svg width="15" height="15">
+                    <use xlinkHref="#star-best"></use>
+                  </svg>
+                  <span className="star_tooltip_text">
+                    Выбрать как лучший ответ
                   </span>
-                </div>
+                </button>
               </div>
             </div>
             <div className="main_question_block_title">
@@ -665,9 +677,7 @@ export default function QuestionPageContent({
           <div className="blocks_title mt_25px all-questions">
             <div className="blocks_title-inner">
               <h2>Посмотрите все ответы</h2>
-              <span className="answers_count_badge">
-                {totalAnswers}
-              </span>
+              <span className="answers_count_badge">+{totalAnswers}</span>
             </div>
             <div className="questions_filter">
               <button
@@ -801,17 +811,8 @@ export default function QuestionPageContent({
           </form>
         </div>
 
-        {/* Правый сайдбар */}
-        <div className="question_right_list">
-          <div className="vip_status_block">
-            <div className="vip_icon">
-              <img src="/images/vip.svg" alt="VIP" />
-            </div>
-            <p className="vip_gift_text">Подарить</p>
-            <h3 className="vip_title">VIP статус</h3>
-            <button className="vip_button">ПОДАРИТЬ</button>
-          </div>
-        </div>
+        {/* Правый сайдбар — как в макете: вопросы-лидеры с API */}
+        <QuestionLeadersSidebar questionId={initialQuestion.id} />
       </div>
 
       {/* Не нашли то, что искали? */}
