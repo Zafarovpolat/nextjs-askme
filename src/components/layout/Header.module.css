@@ -1,0 +1,268 @@
+/* Notification Dropdown */
+.notificationDropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 300px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  z-index: 1000;
+}
+
+/* Невидимая область сверху для плавного перехода */
+.notificationDropdown::after {
+  content: "";
+  position: absolute;
+  top: -60px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: transparent;
+}
+
+/* Треугольник сверху справа */
+.notificationDropdown::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white;
+  z-index: 1;
+}
+
+.notificationTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px !important;
+  color: #1f2a3b;
+}
+
+.notificationToggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #0000000e;
+  margin-bottom: 12px;
+}
+
+.toggleLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2a3b;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  border: 1px solid #d7d7d7;
+  border-radius: 34px;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.slider.active {
+  background-color: #6069ff;
+}
+
+.sliderButton {
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 2px;
+  background-color: #6069ff;
+  border-radius: 50%;
+  transition:
+    left 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.sliderButton.active {
+  left: 21px;
+  background-color: white;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #acacac;
+  margin-bottom: 12px !important;
+}
+
+.notificationItem {
+  padding: 9px;
+  background-color: #eff0f6;
+  margin-bottom: 5px;
+  border-radius: 12px;
+}
+
+.notificationHeader {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.notificationAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.notificationInfo {
+  flex: 1;
+}
+
+.notificationName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f2a3b;
+}
+
+.notificationTime {
+  font-size: 12px;
+  color: #8b94a1;
+}
+
+.notificationText {
+  font-size: 13px;
+  color: #5c6676;
+  line-height: 16px;
+}
+
+/* Old notifications */
+.notificationItemOld {
+  position: relative;
+  cursor: pointer;
+}
+
+.notificationItemOld:hover .expandedDropdown {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Expanded dropdown при hover */
+.expandedDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 24px;
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s,
+    visibility 0.3s;
+  z-index: 10;
+}
+
+/* Невидимая область сверху для плавного перехода */
+.expandedDropdown::after {
+  content: "";
+  position: absolute;
+  top: -30px;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: transparent;
+}
+
+/* Треугольник сверху для второго дропдауна */
+.expandedDropdown::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid white;
+  z-index: 1;
+}
+
+.expandedHeader {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.expandedAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.expandedInfo {
+  flex: 1;
+}
+
+.expandedName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f2a3b;
+}
+
+.expandedUsername {
+  font-size: 13px;
+  color: #8b94a1;
+}
+
+.expandedText {
+  font-size: 13px;
+  color: #5c6676;
+  line-height: 18px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .notificationDropdown {
+    width: 280px;
+    right: -10px;
+  }
+
+  .notificationDropdown::before {
+    right: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .notificationDropdown {
+    width: calc(100vw - 40px);
+    right: -20px;
+    max-width: 300px;
+  }
+}

@@ -4,7 +4,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SharePopup from "@/components/SharePopup";
 import Link from "next/link";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import "@/styles/profile.css";
 import "@/styles/profile-public.css";
 import { CheckIcon } from "@/components/AboutIcons";
@@ -15,7 +16,16 @@ import SearchResultCard from "@/components/SearchResultCard";
 import AnswerResultCard from "@/components/AnswerResultCard";
 
 export default function ProfilePage() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("menu1");
+
+  // Обработка query параметра tab
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "vip") {
+      setActiveTab("menu_vip");
+    }
+  }, [searchParams]);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [shareData, setShareData] = useState({ title: "", url: "" });
   const shareButtonRef = useRef<HTMLButtonElement | null>(null);

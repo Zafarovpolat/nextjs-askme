@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import styles from "./Header.module.css";
 
 const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
   <button
@@ -169,10 +170,202 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
   </button>
 );
 
+// Кнопка уведомлений (колокольчик)
+const NotificationBtn = ({
+  onMouseEnter,
+  onMouseLeave,
+  isOpen,
+}: {
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  isOpen: boolean;
+}) => {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+  // Моковые данные для уведомлений
+  const mockNotifications = [
+    {
+      id: 1,
+      type: "new",
+      avatar: "/images/icons/avatar.svg",
+      title: "Специалист отдела",
+      time: "2 дня назад",
+      text: "Тебе с ними детей крестить, или жить всю дальнейшую жизнь?)",
+    },
+    {
+      id: 2,
+      type: "new",
+      avatar: "/images/icons/avatar.svg",
+      title: "Специалист отдела",
+      time: "2 дня назад",
+      text: "Тебе с ними детей крестить, или жить всю дальнейшую жизнь?)",
+    },
+    {
+      id: 3,
+      type: "old",
+      avatar: "/images/icons/avatar.svg",
+      title: "Специалист отдела",
+      username: "Non_non",
+      fullName: "Сталин",
+      time: "2 дня назад",
+      text: "Тебе с ними детей крестить, или жить всю дальнейшую жизнь?)",
+    },
+  ];
+
+  return (
+    <div
+      className="notification-dropdown-wrapper"
+      style={{ position: "relative" }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <button
+        className="theme-toggle-btn mode_toggler"
+        title="Уведомления"
+        aria-label="Уведомления"
+      >
+        <svg
+          width="50"
+          height="50"
+          viewBox="0 0 50 50"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect width="50" height="50" rx="12" fill="white" />
+          <g transform="translate(16.5, 15)">
+            <path
+              d="M16.6426 13.8085C16.5692 13.7192 16.4971 13.6299 16.4263 13.5438C15.4532 12.3558 14.8644 11.6388 14.8644 8.27589C14.8644 6.53482 14.4517 5.10625 13.6383 4.03482C13.0385 3.2433 12.2277 2.64286 11.159 2.19911C11.1318 2.18385 11.1182 2.15359 11.109 2.12382C10.7137 0.849869 9.67259 0 8.50011 0C7.32737 0 6.28646 0.850251 5.89143 2.12339C5.88239 2.15253 5.86869 2.18189 5.84212 2.19688C3.34823 3.23304 2.13623 5.22098 2.13623 8.27455C2.13623 11.6388 1.54837 12.3558 0.574347 13.5424C0.503574 13.6286 0.431473 13.7161 0.358045 13.8071C0.168372 14.038 0.0481989 14.3189 0.0117471 14.6165C-0.0247047 14.9141 0.024091 15.2161 0.152359 15.4866C0.42528 16.067 1.00695 16.4272 1.6709 16.4272H15.3342C15.995 16.4272 16.5727 16.0674 16.8465 15.4897C16.9754 15.2191 17.0246 14.917 16.9885 14.619C16.9523 14.321 16.8323 14.0397 16.6426 13.8085Z"
+              fill="#6069FF"
+            />
+            <path
+              d="M8.50011 20C9.1393 19.9995 9.76643 19.8244 10.315 19.4932C10.8636 19.1621 11.3131 18.6873 11.6159 18.1192C11.6302 18.092 11.6372 18.0615 11.6364 18.0307C11.6355 17.9999 11.6268 17.9699 11.611 17.9435C11.5953 17.9171 11.573 17.8953 11.5464 17.8802C11.5199 17.865 11.4898 17.8571 11.4593 17.8571H5.54177C5.51122 17.857 5.48116 17.8649 5.45452 17.88C5.42787 17.8951 5.40556 17.9169 5.38975 17.9433C5.37394 17.9697 5.36517 17.9998 5.36429 18.0306C5.36341 18.0614 5.37046 18.0919 5.38474 18.1192C5.68754 18.6872 6.137 19.162 6.68548 19.4931C7.23395 19.8242 7.86099 19.9994 8.50011 20Z"
+              fill="#6069FF"
+            />
+          </g>
+        </svg>
+      </button>
+
+      {/* Дропдаун уведомлений */}
+      {isOpen && (
+        <div ref={dropdownRef} className={styles.notificationDropdown}>
+          {/* Заголовок */}
+          <h3 className={styles.notificationTitle}>Уведомления</h3>
+
+          {/* Всплывающие оповещения с переключателем */}
+          <div className={styles.notificationToggle}>
+            <div className={styles.toggleLabel}>Всплывающие оповещения</div>
+            <label className={styles.switch}>
+              <input
+                type="checkbox"
+                checked={notificationsEnabled}
+                onChange={(e) => setNotificationsEnabled(e.target.checked)}
+              />
+              <span
+                className={`${styles.slider} ${notificationsEnabled ? styles.active : ""}`}
+              >
+                <span
+                  className={`${styles.sliderButton} ${notificationsEnabled ? styles.active : ""}`}
+                />
+              </span>
+            </label>
+          </div>
+
+          {/* Новые */}
+          <div style={{ marginBottom: "12px", paddingBottom: "12px", borderBottom: '1px solid #0000000e' }}>
+            <h4 className={styles.sectionTitle}>Новые</h4>
+            {mockNotifications
+              .filter((n) => n.type === "new")
+              .map((notification) => (
+                <div key={notification.id} className={styles.notificationItem}>
+                  <div className={styles.notificationHeader}>
+                    <img
+                      src={notification.avatar}
+                      alt=""
+                      className={styles.notificationAvatar}
+                    />
+                    <div className={styles.notificationInfo}>
+                      <div className={styles.notificationName}>
+                        {notification.title}
+                      </div>
+                      <div className={styles.notificationTime}>
+                        {notification.time}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.notificationText}>
+                    {notification.text}
+                  </div>
+                </div>
+              ))}
+          </div>
+
+          {/* За последние 30 дней */}
+          <div>
+            <h4 className={styles.sectionTitle}>За последние 30 дней</h4>
+            {mockNotifications
+              .filter((n) => n.type === "old")
+              .map((notification) => (
+                <div key={notification.id} className={styles.notificationItemOld}>
+                  <div style={{ padding: "9px", border: "1px solid #EFF0F6", borderRadius: "12px" }}>
+                    <div className={styles.notificationHeader}>
+                      <img
+                        src={notification.avatar}
+                        alt=""
+                        className={styles.notificationAvatar}
+                      />
+                      <div className={styles.notificationInfo}>
+                        <div className={styles.notificationName}>
+                          {notification.title}
+                        </div>
+                        <div className={styles.notificationTime}>
+                          {notification.time}
+                        </div>
+                      </div>
+                    </div>
+                    <div className={styles.notificationText}>
+                      {notification.text}
+                    </div>
+                  </div>
+
+                  {/* Expanded dropdown при hover */}
+                  <div className={styles.expandedDropdown}>
+                    <div className={styles.expandedHeader}>
+                      <img
+                        src={notification.avatar}
+                        alt=""
+                        className={styles.expandedAvatar}
+                      />
+                      <div className={styles.expandedInfo}>
+                        <div className={styles.expandedName}>
+                          {notification.fullName || notification.title}
+                        </div>
+                        <div className={styles.expandedUsername}>
+                          {notification.username} ответил вам:
+                        </div>
+                      </div>
+                    </div>
+                    <div className={styles.expandedText}>
+                      {notification.text}
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNavHidden, setIsNavHidden] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const lastScrollY = useRef(0);
+
+  // Моковые данные - проверка авторизации
+  const isLoggedIn = false; // Измените на true для проверки залогиненного состояния
 
   useEffect(() => {
     const handleScroll = () => {
@@ -249,6 +442,36 @@ export default function Header() {
               </button>
             </a>
 
+            <Link href={isLoggedIn ? "/profile?tab=vip" : "/login"}>
+              <button className="m_btn m_btn_icon category_btn">
+                <svg
+                  width="20"
+                  height="17"
+                  viewBox="0 0 20 17"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
+                    fill="white"
+                  />
+                  <path
+                    d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
+                    fill="white"
+                  />
+                  <path
+                    d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
+                    fill="white"
+                  />
+                  <path
+                    d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
+                    fill="white"
+                  />
+                </svg>
+                <span style={{ textTransform: "capitalize" }}>Премиум</span>
+              </button>
+            </Link>
+
             <a href="/leaders">
               <button className="m_btn">
                 <svg width="20" height="20">
@@ -259,6 +482,12 @@ export default function Header() {
             </a>
 
             <ThemeToggleBtn onClick={toggleDarkMode} />
+
+            <NotificationBtn
+              onMouseEnter={() => setIsNotificationOpen(true)}
+              onMouseLeave={() => setIsNotificationOpen(false)}
+              isOpen={isNotificationOpen}
+            />
 
             <Link href="/login">
               <button
