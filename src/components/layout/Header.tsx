@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import styles from "./Header.module.css";
 
 const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
@@ -170,18 +170,169 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
   </button>
 );
 
+// Выпадающее меню профиля
+const ProfileDropdown = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const menuItems = [
+    {
+      label: "Редактировать профиль",
+      href: "/profile?tab=edit",
+      icon: "profile",
+    },
+    {
+      label: "Уровни",
+      href: "/profile?tab=levels",
+      icon: "levels",
+    },
+    {
+      label: "Ограничения",
+      href: "/profile?tab=rules",
+      icon: "rules",
+    },
+    {
+      label: "VIP - статус",
+      href: "/profile?tab=vip",
+      icon: "vip",
+    },
+    {
+      label: "Настройки",
+      href: "/profile?tab=settings",
+      icon: "settings",
+    },
+    {
+      label: "Выйти",
+      href: "/logout",
+      icon: "logout",
+      className: styles.logoutItem,
+    },
+  ];
+
+  return (
+    <div ref={wrapperRef} className={styles.notificationWrapper}>
+      <button
+        className="m_btn m_btn_icon category_btn"
+        title="Личный кабинет"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          backgroundColor: isOpen ? "#6069FF" : "white",
+          transition: "background-color 0.3s",
+        }}
+      >
+        <img
+          src="/images/icons/user.svg"
+          alt=""
+          width="16"
+          height="20"
+          style={{ filter: isOpen ? "brightness(0) invert(1)" : "none" }}
+        />
+      </button>
+
+      {isOpen && (
+        <div className={styles.profileDropdown}>
+          <div className={styles.profileHeader}>
+            <div className={styles.profileAvatarWrapper}>
+              <img
+                src="/images/prof.png"
+                alt="Avatar"
+                className={styles.profileAvatar}
+              />
+              <div className={styles.profilePremiumBadge}>
+                <svg
+                  width="84"
+                  height="18"
+                  viewBox="0 0 67 15"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M0.448004 2.52418C-0.497898 1.60395 0.153589 0 1.47327 0H65.4579C66.7532 0 67.2524 1.68695 66.1656 2.3918C66.0307 2.47929 65.9132 2.59104 65.8191 2.72138L62.8648 6.81082C62.7047 7.03251 62.6185 7.29904 62.6185 7.57253C62.6185 7.84602 62.7047 8.11256 62.8648 8.33425L65.8186 12.423C65.9129 12.5536 66.0323 12.6642 66.1698 12.7482C67.2167 13.3882 66.7631 15 65.536 15H2.11323C0.902503 15 0.454925 13.4097 1.48793 12.7782C1.65688 12.6749 1.79761 12.5314 1.89757 12.3605L4.27245 8.29905C4.38955 8.09878 4.45127 7.87096 4.45127 7.63897C4.45127 7.32476 4.33814 7.02106 4.13257 6.78343L0.448004 2.52418Z"
+                    fill="#6069FF"
+                  />
+                </svg>
+                <span className={styles.profilePremiumText}>Премиум</span>
+              </div>
+            </div>
+            <div className={styles.profileUserDetail}>
+              <div className={styles.profileName}>Victor_314</div>
+              <div className={styles.roleBadge}>Гуру</div>
+            </div>
+          </div>
+
+          <div className={styles.profileMenuList}>
+            {menuItems.map((item, index) => (
+              <Fragment key={index}>
+                <Link
+                  href={item.href}
+                  className={`${styles.profileMenuItem} ${item.className || ""}`}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <div className={styles.profileMenuIcon}>
+                    <svg width="24" height="24">
+                      <use xlinkHref={`#${item.icon}`}></use>
+                    </svg>
+                  </div>
+                  {item.label}
+                </Link>
+                {index < menuItems.length - 1 && (
+                  <div className={styles.menuDivider}></div>
+                )}
+              </Fragment>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Кнопка уведомлений (колокольчик)
-const NotificationBtn = ({
-  onMouseEnter,
-  onMouseLeave,
-  isOpen,
-}: {
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-  isOpen: boolean;
-}) => {
-  const dropdownRef = useRef<HTMLDivElement>(null);
+const NotificationBtn = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+  // Закрытие при клике вне области
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
   // Моковые данные для уведомлений
   const mockNotifications = [
@@ -215,14 +366,14 @@ const NotificationBtn = ({
 
   return (
     <div
+      ref={wrapperRef}
       className={`notification-dropdown-wrapper ${styles.notificationWrapper}`}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
     >
       <button
         className="theme-toggle-btn mode_toggler"
         title="Уведомления"
         aria-label="Уведомления"
+        onClick={() => setIsOpen(!isOpen)}
       >
         <svg
           width="50"
@@ -247,7 +398,7 @@ const NotificationBtn = ({
 
       {/* Дропдаун уведомлений */}
       {isOpen && (
-        <div ref={dropdownRef} className={styles.notificationDropdown}>
+        <div className={styles.notificationDropdown}>
           {/* Заголовок */}
           <h3 className={styles.notificationTitle}>Уведомления</h3>
 
@@ -305,7 +456,10 @@ const NotificationBtn = ({
             {mockNotifications
               .filter((n) => n.type === "old")
               .map((notification) => (
-                <div key={notification.id} className={styles.notificationItemOld}>
+                <div
+                  key={notification.id}
+                  className={styles.notificationItemOld}
+                >
                   <div className={styles.notificationItemOldCard}>
                     <div className={styles.notificationHeader}>
                       <img
@@ -360,11 +514,10 @@ const NotificationBtn = ({
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNavHidden, setIsNavHidden] = useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const lastScrollY = useRef(0);
 
   // Моковые данные - проверка авторизации
-  const isLoggedIn = false; // Измените на true для проверки залогиненного состояния
+  const isLoggedIn = true; // Измените на true для проверки залогиненного состояния
 
   useEffect(() => {
     const handleScroll = () => {
@@ -482,36 +635,25 @@ export default function Header() {
 
             <ThemeToggleBtn onClick={toggleDarkMode} />
 
-            <NotificationBtn
-              onMouseEnter={() => setIsNotificationOpen(true)}
-              onMouseLeave={() => setIsNotificationOpen(false)}
-              isOpen={isNotificationOpen}
-            />
+            <NotificationBtn />
 
-            <Link href="/login">
-              <button
-                className="m_btn m_btn_icon category_btn"
-                title="Личный кабинет"
-              >
-                <img
-                  src="/images/icons/user.svg"
-                  alt=""
-                  width="16"
-                  height="20"
-                />
-              </button>
-            </Link>
-
-            <Link href="/logout" className="logout-btn logged_in_show">
-              <button className="m_btn m_btn_icon category_btn" title="Выход">
-                <img
-                  src="/images/icons/logout.svg"
-                  alt=""
-                  width="16"
-                  height="20"
-                />
-              </button>
-            </Link>
+            {isLoggedIn ? (
+              <ProfileDropdown />
+            ) : (
+              <Link href="/login">
+                <button
+                  className="m_btn m_btn_icon category_btn"
+                  title="Личный кабинет"
+                >
+                  <img
+                    src="/images/icons/user.svg"
+                    alt=""
+                    width="16"
+                    height="20"
+                  />
+                </button>
+              </Link>
+            )}
 
             <button
               className="m_btn m_btn_icon category_btn desc_mob_btn"

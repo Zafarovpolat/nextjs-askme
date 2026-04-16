@@ -207,9 +207,10 @@ const rightSidebarQuestions = mockQuestions.slice(0, 5);
 
 export default function QuestionPage() {
   const params = useParams();
-  const id = Number(params.id);
+  const slug = String(params.id);
 
-  const question = mockQuestions.find((q) => q.id === id) ?? mockQuestions[0];
+  const question =
+    mockQuestions.find((q) => q.slug === slug) ?? mockQuestions[0];
   const bestAnswer = mockAnswers.find((a) => a.isBestAnswer);
   const regularAnswers = mockAnswers.filter((a) => !a.isBestAnswer);
 
@@ -266,7 +267,7 @@ export default function QuestionPage() {
     isBest = false,
     isNested = false,
   ) => {
-    const isPremium = answer.author.vipStatus === true;
+    const isPremium = question.isPremium && answer.author.vipStatus === true;
 
     return (
       <div
@@ -609,15 +610,21 @@ export default function QuestionPage() {
             <h2>Ваш вопрос</h2>
           </div>
 
-          {/* Блок вопроса */}
           <div
-            className={`main_question_block main_question_block_item ${question.author.vipStatus ? "premium-question" : ""}`}
+            className={`main_question_block main_question_block_item ${question.isPremium ? "premium-question" : ""}`}
           >
+            {question.isPremium && (
+              <div className="premium_crown_floating">
+                <svg width="38" height="31">
+                  <use xlinkHref="#crown-premium"></use>
+                </svg>
+              </div>
+            )}
             <div className="main_question_bg_wrapper">
               <div className="main_question_block_top_bg">
                 <img
                   src={
-                    question.author.vipStatus
+                    question.isPremium
                       ? "/images/top-leader-bg-d-2.svg"
                       : "/images/top-leader-bg.svg"
                   }
@@ -631,7 +638,7 @@ export default function QuestionPage() {
                 />
                 <img
                   src={
-                    question.author.vipStatus
+                    question.isPremium
                       ? "/images/blues-rect-dark.svg"
                       : "/images/blues-rect.svg"
                   }
@@ -653,13 +660,13 @@ export default function QuestionPage() {
                   >
                     <img
                       src={
-                        question.author.vipStatus
+                        question.isPremium
                           ? "/images/premium-avatar.png"
                           : question.author.avatar || "/images/icons/avatar.svg"
                       }
                       alt=""
                     />
-                    {question.author.vipStatus && (
+                    {question.isPremium && (
                       <div className="premium-badge">
                         <svg
                           width="49"
@@ -710,10 +717,10 @@ export default function QuestionPage() {
               <h1>{question.title}</h1>
             </div>
             <div className="leader_quest question_leader_badge">
-              <svg width="12" height="12">
-                <use xlinkHref="#trophy"></use>
+              <svg width="20" height="20">
+                <use xlinkHref="#crown-premium"></use>
               </svg>
-              <p>Вопрос лидер</p>
+              <p>{question.isPremium ? "Премиум вопрос" : "Вопрос лидер"}</p>
             </div>
             <div className="main_question_block_text">
               <p>{question.content}</p>

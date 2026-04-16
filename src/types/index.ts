@@ -47,6 +47,7 @@ export interface Question {
   commentsCount: number;
   createdAt: string;
   updatedAt: string;
+  isPremium?: boolean;
 }
 
 export interface Comment {

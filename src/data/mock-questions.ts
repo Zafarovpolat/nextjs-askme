@@ -15,8 +15,7 @@ export const mockQuestions: Question[] = [
     commentsCount: 0,
     createdAt: '2026-02-18T17:41:00Z', // 19 минут назад
     updatedAt: '2026-02-18T17:41:00Z',
-    isPremium: true,
-  } as any,
+  },
   {
     id: 2,
     title: 'Можно ли скачать на переносной жёсткий диск игру и играть в неё с телефона ?',
@@ -42,8 +41,7 @@ export const mockQuestions: Question[] = [
     commentsCount: 0,
     createdAt: '2026-02-18T16:00:00Z', // 2 часа назад
     updatedAt: '2026-02-18T16:00:00Z',
-    isPremium: true,
-  } as any,
+  },
   {
     id: 4,
     title: 'Какие татуировки и с какой целью себе набивали классические и современные писатели?',

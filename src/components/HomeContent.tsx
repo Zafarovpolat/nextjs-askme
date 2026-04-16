@@ -1,122 +1,163 @@
-'use client'
+"use client";
 
-import { useState, useRef, useCallback } from 'react'
-import { mockQuestions } from "@/data/mock-questions"
-import { mockCategories } from "@/data/mock-categories"
-import { mockUsers } from "@/data/mock-users"
-import Link from "next/link"
-import LoginModal from "@/components/LoginModal"
-import QuestionModal from "@/components/QuestionModal"
-import SharePopup from "@/components/SharePopup"
+import { useState, useRef, useCallback } from "react";
+import { mockQuestions } from "@/data/mock-questions";
+import { mockCategories } from "@/data/mock-categories";
+import { mockUsers } from "@/data/mock-users";
+import Link from "next/link";
+import LoginModal from "@/components/LoginModal";
+import QuestionModal from "@/components/QuestionModal";
+import SharePopup from "@/components/SharePopup";
 
 // Подкатегории для каждой категории
 const subcategories: Record<string, string[]> = {
-  "auto-moto": ["Автоспорт", "Автострахование", "Выбор автомобиля, мотоцикла", "ГИБДД, Обучение, Права"],
-  entertainment: ["Игры без компьютера", "Клубы, Дискотеки", "Концерты, Выставки, Спектакли", "Охота и Рыбалка"],
+  "auto-moto": [
+    "Автоспорт",
+    "Автострахование",
+    "Выбор автомобиля, мотоцикла",
+    "ГИБДД, Обучение, Права",
+  ],
+  entertainment: [
+    "Игры без компьютера",
+    "Клубы, Дискотеки",
+    "Концерты, Выставки, Спектакли",
+    "Охота и Рыбалка",
+  ],
   plants: ["Дикая природа", "Домашние", "Комнатные растения", "Сад-Огород"],
-  "beauty-health": ["Коронавирус", "Баня, Массаж, Фитнес", "Болезни, Лекарства", "Детское здоровье"],
-  "family-home": ["Беременность, Роды", "Воспитание детей", "Домашняя бухгалтерия", "Домоводство"],
-}
+  "beauty-health": [
+    "Коронавирус",
+    "Баня, Массаж, Фитнес",
+    "Болезни, Лекарства",
+    "Детское здоровье",
+  ],
+  "family-home": [
+    "Беременность, Роды",
+    "Воспитание детей",
+    "Домашняя бухгалтерия",
+    "Домоводство",
+  ],
+};
 
 // Данные для блока "Популярные темы" с уникальными иконками
 const popularTopics = [
   { id: 101, name: "Еда, Кулинария", slug: "food", svgIcon: "food" },
-  { id: 102, name: "Знакомства, Любовь, Отношения", slug: "relationships", svgIcon: "relationships" },
+  {
+    id: 102,
+    name: "Знакомства, Любовь, Отношения",
+    slug: "relationships",
+    svgIcon: "relationships",
+  },
   { id: 103, name: "Программирование", slug: "programming", svgIcon: "it" },
-  { id: 104, name: "Философия, Непознанное", slug: "philosophy", svgIcon: "philosophy" },
-  { id: 105, name: "Фотография, Видеосъемка", slug: "photo-video", svgIcon: "camera" },
-]
+  {
+    id: 104,
+    name: "Философия, Непознанное",
+    slug: "philosophy",
+    svgIcon: "philosophy",
+  },
+  {
+    id: 105,
+    name: "Фотография, Видеосъемка",
+    slug: "photo-video",
+    svgIcon: "camera",
+  },
+];
 
-const tabs = ["Открытые", "На голосовании", "Лучшие", "Премиум"]
+const tabs = ["Открытые", "На голосовании", "Лучшие", "Премиум"];
 
 export default function HomeContent() {
-  const [activeTab, setActiveTab] = useState(0)
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false)
-  const [isShareOpen, setIsShareOpen] = useState(false)
-  const [shareData, setShareData] = useState({ title: '', url: '' })
-  const shareButtonRef = useRef<HTMLButtonElement | null>(null)
+  const [activeTab, setActiveTab] = useState(0);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [shareData, setShareData] = useState({ title: "", url: "" });
+  const shareButtonRef = useRef<HTMLButtonElement | null>(null);
 
   // Обработчик клика по кнопке "Поделиться"
-  const handleShareClick = useCallback((e: React.MouseEvent<HTMLButtonElement>, title: string, slug: string) => {
-    const btn = e.currentTarget
-    if (shareButtonRef.current === btn && isShareOpen) {
-      setIsShareOpen(false)
-      return
-    }
-    shareButtonRef.current = btn
-    setShareData({ title, url: `${typeof window !== 'undefined' ? window.location.origin : ''}/question/${slug}` })
-    setIsShareOpen(true)
-  }, [isShareOpen])
+  const handleShareClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>, title: string, slug: string) => {
+      const btn = e.currentTarget;
+      if (shareButtonRef.current === btn && isShareOpen) {
+        setIsShareOpen(false);
+        return;
+      }
+      shareButtonRef.current = btn;
+      setShareData({
+        title,
+        url: `${typeof window !== "undefined" ? window.location.origin : ""}/question/${slug}`,
+      });
+      setIsShareOpen(true);
+    },
+    [isShareOpen],
+  );
 
   // Drag-to-scroll для списка категорий
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const isDragging = useRef(false)
-  const startX = useRef(0)
-  const scrollLeft = useRef(0)
-  const hasDragged = useRef(false)
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+  const hasDragged = useRef(false);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    const el = scrollRef.current
-    if (!el) return
-    isDragging.current = true
-    hasDragged.current = false
-    startX.current = e.pageX - el.offsetLeft
-    scrollLeft.current = el.scrollLeft
-    el.style.cursor = 'default'
-    el.style.userSelect = 'none'
-  }, [])
+    const el = scrollRef.current;
+    if (!el) return;
+    isDragging.current = true;
+    hasDragged.current = false;
+    startX.current = e.pageX - el.offsetLeft;
+    scrollLeft.current = el.scrollLeft;
+    el.style.cursor = "default";
+    el.style.userSelect = "none";
+  }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging.current) return
-    const el = scrollRef.current
-    if (!el) return
-    e.preventDefault()
-    const x = e.pageX - el.offsetLeft
-    const walk = (x - startX.current) * 1.5
-    if (Math.abs(walk) > 5) hasDragged.current = true
-    el.scrollLeft = scrollLeft.current - walk
-  }, [])
+    if (!isDragging.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - startX.current) * 1.5;
+    if (Math.abs(walk) > 5) hasDragged.current = true;
+    el.scrollLeft = scrollLeft.current - walk;
+  }, []);
 
   const handleMouseUp = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) return
-    isDragging.current = false
-    el.style.cursor = 'default'
-    el.style.removeProperty('user-select')
-  }, [])
+    const el = scrollRef.current;
+    if (!el) return;
+    isDragging.current = false;
+    el.style.cursor = "default";
+    el.style.removeProperty("user-select");
+  }, []);
 
   const handleClickCapture = useCallback((e: React.MouseEvent) => {
     if (hasDragged.current) {
-      e.preventDefault()
-      e.stopPropagation()
-      hasDragged.current = false
+      e.preventDefault();
+      e.stopPropagation();
+      hasDragged.current = false;
     }
-  }, [])
+  }, []);
 
   // Топ 4 пользователя для блока "Лидеры"
-  const topUsers = mockUsers.slice(0, 5)
+  const topUsers = mockUsers.slice(0, 5);
 
   // Популярные вопросы (для блока "Самые обсуждаемые")
-  const popularQuestions = mockQuestions.slice(0, 5)
+  const popularQuestions = mockQuestions.slice(0, 5);
 
   // Фильтрация вопросов по активному табу
   const getFilteredQuestions = () => {
     switch (activeTab) {
       case 0: // Открытые
-        return mockQuestions.filter(q => q.status === 'opened')
+        return mockQuestions.filter((q) => q.status === "opened");
       case 1: // На голосовании
-        return mockQuestions.filter(q => q.status === 'voting')
+        return mockQuestions.filter((q) => q.status === "voting");
       case 2: // Лучшие
-        return mockQuestions.filter(q => q.status === 'closed')
+        return mockQuestions.filter((q) => q.status === "closed");
       case 3: // Премиум
-        return mockQuestions.filter(q => (q as any).isPremium === true)
+        return mockQuestions.filter((q) => (q as any).isPremium === true);
       default:
-        return mockQuestions
+        return mockQuestions;
     }
-  }
+  };
 
-  const filteredQuestions = getFilteredQuestions()
+  const filteredQuestions = getFilteredQuestions();
 
   return (
     <div className="container">
@@ -134,7 +175,7 @@ export default function HomeContent() {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
           onClickCapture={handleClickCapture}
-          style={{ cursor: 'default' }}
+          style={{ cursor: "default" }}
         >
           <div className="subjects_list">
             {mockCategories.slice(0, 5).map((category) => (
@@ -173,7 +214,11 @@ export default function HomeContent() {
                 <Link href="/categories">
                   <div className="subject_item_more">
                     <p>Посмотреть все</p>
-                    <img src="/images/icons/more-s-icon.svg" alt="" className="subject_item_more_arrow" />
+                    <img
+                      src="/images/icons/more-s-icon.svg"
+                      alt=""
+                      className="subject_item_more_arrow"
+                    />
                   </div>
                 </Link>
               </div>
@@ -253,133 +298,162 @@ export default function HomeContent() {
         {/* Список вопросов */}
         <div className="questions_list">
           {filteredQuestions.map((question) => {
-            const isPremium = (question as any).isPremium === true
+            const isPremium = question.isPremium === true;
             return (
-            <div key={question.id} className={`question_list_item ${isPremium ? 'premium-question' : ''}`}>
-              {/* Верхняя панель (мобильная) */}
-              <div className="question_item_top_data">
-                <div className="question_item_top_data_left">
-                  <div style={{ position: 'relative', display: 'inline-block' }}>
-                    <img
-                      src={isPremium ? "/images/premium-avatar.png" : (question.author.avatar || "/images/icons/avatar.svg")}
-                      alt={question.author.displayName}
-                    />
-                    {isPremium && (
-                      <div className="premium-badge">
-                        <svg
-                          width="49"
-                          height="17"
-                          viewBox="0 0 49 17"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M45.9141 0.5C47.6509 0.50023 48.4901 2.62786 47.2207 3.81348C47.1855 3.84635 47.1526 3.88194 47.123 3.91992L43.8467 8.12695C43.7476 8.2542 43.6934 8.411 43.6934 8.57227C43.6934 8.73353 43.7477 8.8903 43.8467 9.01758L47.1162 13.2168C47.1473 13.2567 47.1827 13.2937 47.2207 13.3271C48.4745 14.4313 47.6932 16.5 46.0225 16.5H2.9375C1.28066 16.4997 0.506513 14.4485 1.75 13.3535C1.79989 13.3096 1.84435 13.259 1.88184 13.2041L4.7373 9.02441C4.81984 8.9036 4.86422 8.76057 4.86426 8.61426C4.86426 8.43791 4.79981 8.26739 4.68359 8.13477L0.925781 3.85449L0.90918 3.83496L0.894531 3.81445C-0.0957061 2.42675 0.896675 0.5 2.60156 0.5H45.9141Z" fill="white" stroke="#6069FF"/>
-                        </svg>
-                        <span className="premium-badge-text">База</span>
-                      </div>
-                    )}
+              <div
+                key={question.id}
+                className={`question_list_item ${isPremium ? "premium-question" : ""}`}
+              >
+                {/* Верхняя панель (мобильная) */}
+                <div className="question_item_top_data">
+                  <div className="question_item_top_data_left">
+                    <div
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
+                      <img
+                        src={
+                          isPremium
+                            ? "/images/premium-avatar.png"
+                            : question.author.avatar ||
+                              "/images/icons/avatar.svg"
+                        }
+                        alt={question.author.displayName}
+                      />
+                      {isPremium && (
+                        <div className="premium-badge">
+                          <svg
+                            width="49"
+                            height="17"
+                            viewBox="0 0 49 17"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M45.9141 0.5C47.6509 0.50023 48.4901 2.62786 47.2207 3.81348C47.1855 3.84635 47.1526 3.88194 47.123 3.91992L43.8467 8.12695C43.7476 8.2542 43.6934 8.411 43.6934 8.57227C43.6934 8.73353 43.7477 8.8903 43.8467 9.01758L47.1162 13.2168C47.1473 13.2567 47.1827 13.2937 47.2207 13.3271C48.4745 14.4313 47.6932 16.5 46.0225 16.5H2.9375C1.28066 16.4997 0.506513 14.4485 1.75 13.3535C1.79989 13.3096 1.84435 13.259 1.88184 13.2041L4.7373 9.02441C4.81984 8.9036 4.86422 8.76057 4.86426 8.61426C4.86426 8.43791 4.79981 8.26739 4.68359 8.13477L0.925781 3.85449L0.90918 3.83496L0.894531 3.81445C-0.0957061 2.42675 0.896675 0.5 2.60156 0.5H45.9141Z"
+                              fill="white"
+                              stroke="#6069FF"
+                            />
+                          </svg>
+                          <span className="premium-badge-text">База</span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="main_text">{question.author.displayName}</p>
+                      <span>{question.author.rating} баллов</span>
+                    </div>
                   </div>
-                  <div>
-                    <p className="main_text">{question.author.displayName}</p>
-                    <span>{question.author.rating} баллов</span>
+                  <div className="question_item_top_data_right">
+                    <button
+                      title="Мне нравится"
+                      className="s_btn s_btn_icon btn-like"
+                      onClick={() => setIsLoginModalOpen(true)}
+                    >
+                      <svg width="13.714355" height="12.000000">
+                        <use xlinkHref="#like"></use>
+                      </svg>
+                    </button>
+                    <button
+                      className="s_btn s_btn_icon share-this"
+                      title="Поделиться"
+                      onClick={(e) =>
+                        handleShareClick(e, question.title, question.slug)
+                      }
+                    >
+                      <svg width="14" height="14.000000">
+                        <use xlinkHref="#share"></use>
+                      </svg>
+                    </button>
                   </div>
                 </div>
-                <div className="question_item_top_data_right">
-                  <button
-                    title="Мне нравится"
-                    className="s_btn s_btn_icon btn-like"
-                    onClick={() => setIsLoginModalOpen(true)}
-                  >
-                    <svg width="13.714355" height="12.000000">
-                      <use xlinkHref="#like"></use>
-                    </svg>
-                  </button>
-                  <button
-                    className="s_btn s_btn_icon share-this"
-                    title="Поделиться"
-                    onClick={(e) => handleShareClick(e, question.title, question.slug)}
-                  >
-                    <svg width="14" height="14.000000">
-                      <use xlinkHref="#share"></use>
-                    </svg>
-                  </button>
+
+                {/* Основной контент */}
+                <Link href={`/question/${question.slug}`}>
+                  <div className="question_list_item_left">
+                    <div
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
+                      <img
+                        src={
+                          isPremium
+                            ? "/images/premium-avatar.png"
+                            : question.author.avatar ||
+                              "/images/icons/avatar.svg"
+                        }
+                        alt={question.author.displayName}
+                      />
+                      {isPremium && (
+                        <div className="premium-badge">
+                          <svg
+                            width="49"
+                            height="17"
+                            viewBox="0 0 49 17"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M45.9141 0.5C47.6509 0.50023 48.4901 2.62786 47.2207 3.81348C47.1855 3.84635 47.1526 3.88194 47.123 3.91992L43.8467 8.12695C43.7476 8.2542 43.6934 8.411 43.6934 8.57227C43.6934 8.73353 43.7477 8.8903 43.8467 9.01758L47.1162 13.2168C47.1473 13.2567 47.1827 13.2937 47.2207 13.3271C48.4745 14.4313 47.6932 16.5 46.0225 16.5H2.9375C1.28066 16.4997 0.506513 14.4485 1.75 13.3535C1.79989 13.3096 1.84435 13.259 1.88184 13.2041L4.7373 9.02441C4.81984 8.9036 4.86422 8.76057 4.86426 8.61426C4.86426 8.43791 4.79981 8.26739 4.68359 8.13477L0.925781 3.85449L0.90918 3.83496L0.894531 3.81445C-0.0957061 2.42675 0.896675 0.5 2.60156 0.5H45.9141Z"
+                              fill="white"
+                              stroke="#6069FF"
+                            />
+                          </svg>
+                          <span className="premium-badge-text">База</span>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="main_text">{question.title}</p>
+                      <span>8 месяцев назад</span>
+                    </div>
+                  </div>
+                </Link>
+
+                <div className="question_list_item_right">
+                  {/* Аватары пользователей */}
+                  <div className="question_list_item_users">
+                    <img src="/images/icons/avatar.svg" alt="" />
+                    <img src="/images/icons/avatar.svg" alt="" />
+                    <img src="/images/icons/avatar.svg" alt="" />
+                    <p className="main_text">+5</p>
+                  </div>
+
+                  <div className="question_list_item_right_actions">
+                    <button
+                      title="Мне нравится"
+                      className="s_btn s_btn_icon btn-like"
+                      onClick={() => setIsLoginModalOpen(true)}
+                    >
+                      <svg width="13.714355" height="12.000000">
+                        <use xlinkHref="#like"></use>
+                      </svg>
+                    </button>
+
+                    <button
+                      className="s_btn s_btn_icon share-this"
+                      title="Поделиться"
+                      onClick={(e) =>
+                        handleShareClick(e, question.title, question.slug)
+                      }
+                    >
+                      <svg width="14" height="14.000000">
+                        <use xlinkHref="#share"></use>
+                      </svg>
+                    </button>
+
+                    <Link href={`/question/${question.slug}`} className="s_btn">
+                      Посмотреть
+                    </Link>
+
+                    <Link
+                      href={`/question/${question.slug}#answer`}
+                      className="s_btn s_btn_active"
+                    >
+                      Ответить
+                    </Link>
+                  </div>
                 </div>
               </div>
-
-              {/* Основной контент */}
-              <Link href={`/question/${question.slug}`}>
-                <div className="question_list_item_left">
-                  <div style={{ position: 'relative', display: 'inline-block' }}>
-                    <img
-                      src={isPremium ? "/images/premium-avatar.png" : (question.author.avatar || "/images/icons/avatar.svg")}
-                      alt={question.author.displayName}
-                    />
-                    {isPremium && (
-                      <div className="premium-badge">
-                        <svg
-                          width="49"
-                          height="17"
-                          viewBox="0 0 49 17"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M45.9141 0.5C47.6509 0.50023 48.4901 2.62786 47.2207 3.81348C47.1855 3.84635 47.1526 3.88194 47.123 3.91992L43.8467 8.12695C43.7476 8.2542 43.6934 8.411 43.6934 8.57227C43.6934 8.73353 43.7477 8.8903 43.8467 9.01758L47.1162 13.2168C47.1473 13.2567 47.1827 13.2937 47.2207 13.3271C48.4745 14.4313 47.6932 16.5 46.0225 16.5H2.9375C1.28066 16.4997 0.506513 14.4485 1.75 13.3535C1.79989 13.3096 1.84435 13.259 1.88184 13.2041L4.7373 9.02441C4.81984 8.9036 4.86422 8.76057 4.86426 8.61426C4.86426 8.43791 4.79981 8.26739 4.68359 8.13477L0.925781 3.85449L0.90918 3.83496L0.894531 3.81445C-0.0957061 2.42675 0.896675 0.5 2.60156 0.5H45.9141Z" fill="white" stroke="#6069FF"/>
-                        </svg>
-                        <span className="premium-badge-text">База</span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <p className="main_text">{question.title}</p>
-                    <span>8 месяцев назад</span>
-                  </div>
-                </div>
-              </Link>
-
-              <div className="question_list_item_right">
-                {/* Аватары пользователей */}
-                <div className="question_list_item_users">
-                  <img src="/images/icons/avatar.svg" alt="" />
-                  <img src="/images/icons/avatar.svg" alt="" />
-                  <img src="/images/icons/avatar.svg" alt="" />
-                  <p className="main_text">+5</p>
-                </div>
-
-                <div className="question_list_item_right_actions">
-                  <button
-                    title="Мне нравится"
-                    className="s_btn s_btn_icon btn-like"
-                    onClick={() => setIsLoginModalOpen(true)}
-                  >
-                    <svg width="13.714355" height="12.000000">
-                      <use xlinkHref="#like"></use>
-                    </svg>
-                  </button>
-
-                  <button
-                    className="s_btn s_btn_icon share-this"
-                    title="Поделиться"
-                    onClick={(e) => handleShareClick(e, question.title, question.slug)}
-                  >
-                    <svg width="14" height="14.000000">
-                      <use xlinkHref="#share"></use>
-                    </svg>
-                  </button>
-
-                  <Link href={`/question/${question.slug}`} className="s_btn">
-                    Посмотреть
-                  </Link>
-
-                  <Link
-                    href={`/question/${question.slug}#answer`}
-                    className="s_btn s_btn_active"
-                  >
-                    Ответить
-                  </Link>
-                </div>
-              </div>
-            </div>
-            )
+            );
           })}
         </div>
 
@@ -442,9 +516,7 @@ export default function HomeContent() {
                 <Link href={`/question/${question.slug}`}>
                   <div className="question_list_item_left">
                     <img
-                      src={
-                        question.author.avatar || "/images/icons/avatar.svg"
-                      }
+                      src={question.author.avatar || "/images/icons/avatar.svg"}
                       alt={question.author.displayName}
                     />
                     <div>
@@ -514,5 +586,5 @@ export default function HomeContent() {
         url={shareData.url}
       />
     </div>
-  )
+  );
 }

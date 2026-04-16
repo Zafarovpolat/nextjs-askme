@@ -350,3 +350,200 @@
 :global(.dark_mode) .expandedText {
   color: rgba(255, 255, 255, 0.9);
 }
+
+/* Profile Dropdown */
+.profileDropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 280px;
+  background: #6069FF;
+  border: 1px solid #6069FF;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 20px 0 2px 0;
+  z-index: 1000;
+}
+
+/* Треугольник сверху */
+.profileDropdown::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 18px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #6069FF;
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  padding: 0 18px 12px 18px;
+}
+
+.profileAvatarWrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin-right: 16px;
+}
+
+.profileAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profilePremiumBadge {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+}
+
+.profilePremiumBadge svg {
+  width: 100%;
+  height: auto;
+}
+
+.profilePremiumText {
+  position: absolute;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  pointer-events: none;
+}
+
+.profileUserDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profileName {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+}
+
+.roleBadge {
+  background: white;
+  color: #6069ff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.profileMenuList {
+  display: flex;
+  flex-direction: column;
+  padding: 0 11px;
+}
+
+.profileMenuItem {
+  display: flex;
+  align-items: center;
+  padding: 20px 14px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s;
+  border-radius: 12px;
+}
+
+.profileMenuItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.profileMenuIcon {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profileMenuIcon svg {
+  width: 100%;
+  height: auto;
+  fill: white;
+}
+
+.profileMenuIcon img {
+  width: 20px;
+  height: 20px;
+}
+
+.logoutItem {
+  color: white;
+}
+
+.menuDivider {
+  height: 1px;
+  background: white;
+  margin: 0px 20px;
+  opacity: 0.15;
+}
+
+/* Dark Mode Profile Dropdown */
+:global(.dark_mode) .profileDropdown {
+  background: #6069FF;
+  border: 1px solid #6069FF;
+}
+
+:global(.dark_mode) .profileDropdown::before {
+  border-bottom-color: #6069FF;
+}
+
+:global(.dark_mode) .profileName {
+  color: white;
+}
+
+:global(.dark_mode) .profileMenuItem {
+  color: white;
+}
+
+:global(.dark_mode) .profilePremiumBadge svg path {
+  fill: white;
+}
+
+:global(.dark_mode) .profilePremiumText {
+  color: #6069FF;
+}
+
+:global(.dark_mode) .profileMenuItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+:global(.dark_mode) .profileMenuIcon svg {
+  fill: white;
+}
+
+:global(.dark_mode) .roleBadge {
+  background: white;
+  color: #6069FF;
+}
+
+:global(.dark_mode) .menuDivider {
+  background: white;
+  opacity: 0.08;
+}

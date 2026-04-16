@@ -157,3 +157,159 @@
 .main_question_block.premium-question .quest_user_title p {
   color: #6069FF !important;
 }
+
+/* Позиционирование плавающей короны */
+.main_question_block {
+  position: relative !important;
+}
+
+.premium_crown_floating {
+  position: absolute;
+  top: -26px;
+  right: 22px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* --- ПРЕМИУМ ВОПРОС (ГЛАВНЫЙ БЛОК) --- */
+
+/* СВЕТЛАЯ ТЕМА (Главный блок) */
+.main_question_block.main_question_block_item.premium-question .btn_star_answer:hover {
+  background: transparent !important;
+}
+.main_question_block.main_question_block_item.premium-question .btn_star_answer:hover svg {
+  fill: #ffffff !important;
+}
+
+.main_question_block.main_question_block_item.premium-question .answer_to_main_btn:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.main_question_block.main_question_block_item.premium-question .btn_action_outline:hover {
+  background: #ffffff !important;
+  color: #6069FF !important;
+}
+.main_question_block.main_question_block_item.premium-question .btn_action_outline:hover svg {
+  fill: #6069FF !important;
+}
+
+/* Лайк/Дизлайк - ховер в светлой теме */
+.main_question_block.main_question_block_item.premium-question .vote_btn:hover {
+  background: #ffffff !important;
+}
+.main_question_block.main_question_block_item.premium-question .vote_btn:hover svg {
+  fill: #6069FF !important;
+}
+.main_question_block.main_question_block_item.premium-question .vote_btn:hover .vote_count {
+  color: #6069FF !important;
+}
+
+/* ТЕМНАЯ ТЕМА (Главный блок) */
+.dark_mode .main_question_block.main_question_block_item.premium-question .answer_to_main_btn:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+/* Лайк/Дизлайк - иконка и текст синие, фон белый */
+.dark_mode .main_question_block.main_question_block_item.premium-question .vote_btn:hover {
+  background: #ffffff !important;
+}
+.dark_mode .main_question_block.main_question_block_item.premium-question .vote_btn:hover svg {
+  fill: #6069FF !important;
+}
+.dark_mode .main_question_block.main_question_block_item.premium-question .vote_btn:hover .vote_count {
+  color: #6069FF !important;
+}
+
+/* Тултип главного вопроса в темной теме - фон белый, текст синий */
+.dark_mode .main_question_block.main_question_block_item.premium-question .star_tooltip_text {
+  background-color: #ffffff !important;
+  color: #6069FF !important;
+}
+.dark_mode .main_question_block.main_question_block_item.premium-question .star_tooltip_text::after {
+  border-top-color: #ffffff !important;
+}
+
+/* --- ПРЕМИУМ ОТВЕТЫ --- */
+
+/* СВЕТЛАЯ ТЕМА (Ответы) */
+.main_question_block.premium-question:not(.main_question_block_item) .btn_star_answer:hover,
+.main_question_block.premium-question:not(.main_question_block_item) .btn_star_answer_active:hover {
+  background: transparent !important;
+}
+.main_question_block.premium-question:not(.main_question_block_item) .btn_star_answer:hover svg,
+.main_question_block.premium-question:not(.main_question_block_item) .btn_star_answer_active:hover svg {
+  fill: #ffffff !important;
+}
+
+.main_question_block.premium-question:not(.main_question_block_item) .s_btn_active:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+/* Лайк/дизлайк в ответах */
+.main_question_block.premium-question:not(.main_question_block_item) .vote_btn:hover {
+  background: #ffffff !important;
+}
+.main_question_block.premium-question:not(.main_question_block_item) .vote_btn:hover svg {
+  fill: #6069FF !important;
+}
+.main_question_block.premium-question:not(.main_question_block_item) .vote_btn:hover .vote_count {
+  color: #6069FF !important;
+}
+
+/* Пожаловаться, сердечко, поделиться в ответах (Light) */
+.main_question_block.premium-question:not(.main_question_block_item) .btn_action_outline:hover {
+  background: #ffffff !important;
+  color: #6069FF !important;
+}
+.main_question_block.premium-question:not(.main_question_block_item) .btn_action_outline:hover svg {
+  fill: #6069FF !important;
+}
+
+/* ТЕМНАЯ ТЕМА (Ответы) */
+.dark_mode .main_question_block.premium-question:not(.main_question_block_item) .btn_star_answer:hover,
+.dark_mode .main_question_block.premium-question:not(.main_question_block_item) .btn_star_answer_active:hover {
+  background: transparent !important;
+}
+.dark_mode .main_question_block.premium-question:not(.main_question_block_item) .btn_star_answer:hover svg,
+.dark_mode .main_question_block.premium-question:not(.main_question_block_item) .btn_star_answer_active:hover svg {
+  fill: #ffffff !important;
+}
+
+/* Тултип ответа в темной теме - фон белый, текст синий */
+.dark_mode .main_question_block.premium-question:not(.main_question_block_item) .star_tooltip_text {
+  background-color: #ffffff !important;
+  color: #6069FF !important;
+}
+.dark_mode .main_question_block.premium-question:not(.main_question_block_item) .star_tooltip_text::after {
+  border-top-color: #ffffff !important;
+}
+
+.dark_mode .main_question_block.premium-question:not(.main_question_block_item) .s_btn_active:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+/* Пожаловаться, сердечко, поделиться в ответах */
+.dark_mode .main_question_block.premium-question:not(.main_question_block_item) .btn_action_outline:hover {
+  background: #ffffff !important;
+  color: #6069FF !important;
+}
+.dark_mode .main_question_block.premium-question:not(.main_question_block_item) .btn_action_outline:hover svg {
+  fill: #6069FF !important;
+}
+@media screen and (max-width: 600px) {
+  .premium_crown_floating {
+    display: none !important;
+  }
+  .main_question_block.main_question_block_item.premium-question {
+    background: url(/images/subject-bg-m-d.svg) no-repeat top center !important;
+    background-size: 100% auto !important;
+  }
+}

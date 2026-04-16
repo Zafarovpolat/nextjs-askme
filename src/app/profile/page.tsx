@@ -24,6 +24,14 @@ function ProfilePageContent() {
     const tab = searchParams.get("tab");
     if (tab === "vip") {
       setActiveTab("menu_vip");
+    } else if (tab === "levels") {
+      setActiveTab("menu_levels");
+    } else if (tab === "rules") {
+      setActiveTab("menu_rules");
+    } else if (tab === "settings") {
+      setActiveTab("menu4");
+    } else if (tab === "edit") {
+      setActiveTab("menu2");
     }
   }, [searchParams]);
   const [isShareOpen, setIsShareOpen] = useState(false);
