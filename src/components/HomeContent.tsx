@@ -27,7 +27,7 @@ const popularTopics = [
   { id: 105, name: "Фотография, Видеосъемка", slug: "photo-video", svgIcon: "camera" },
 ]
 
-const tabs = ["Открытые", "На голосовании", "Лучшие"]
+const tabs = ["Открытые", "На голосовании", "Лучшие", "Премиум"]
 
 export default function HomeContent() {
   const [activeTab, setActiveTab] = useState(0)
@@ -99,6 +99,24 @@ export default function HomeContent() {
 
   // Популярные вопросы (для блока "Самые обсуждаемые")
   const popularQuestions = mockQuestions.slice(0, 5)
+
+  // Фильтрация вопросов по активному табу
+  const getFilteredQuestions = () => {
+    switch (activeTab) {
+      case 0: // Открытые
+        return mockQuestions.filter(q => q.status === 'opened')
+      case 1: // На голосовании
+        return mockQuestions.filter(q => q.status === 'voting')
+      case 2: // Лучшие
+        return mockQuestions.filter(q => q.status === 'closed')
+      case 3: // Премиум
+        return mockQuestions.filter(q => (q as any).isPremium === true)
+      default:
+        return mockQuestions
+    }
+  }
+
+  const filteredQuestions = getFilteredQuestions()
 
   return (
     <div className="container">
@@ -175,9 +193,36 @@ export default function HomeContent() {
             {tabs.map((tab, index) => (
               <button
                 key={tab}
-                className={`s_btn ${activeTab === index ? "s_btn_active" : ""}`}
+                className={`s_btn ${activeTab === index ? "s_btn_active" : ""} ${index === 3 ? "premium-filter-btn" : ""}`}
                 onClick={() => setActiveTab(index)}
               >
+                {index === 3 && (
+                  <svg
+                    className="premium-crown-icon"
+                    width="20"
+                    height="17"
+                    viewBox="0 0 20 17"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                )}
                 {tab}
               </button>
             ))}
@@ -207,15 +252,33 @@ export default function HomeContent() {
 
         {/* Список вопросов */}
         <div className="questions_list">
-          {mockQuestions.map((question) => (
-            <div key={question.id} className="question_list_item">
+          {filteredQuestions.map((question) => {
+            const isPremium = (question as any).isPremium === true
+            return (
+            <div key={question.id} className={`question_list_item ${isPremium ? 'premium-question' : ''}`}>
               {/* Верхняя панель (мобильная) */}
               <div className="question_item_top_data">
                 <div className="question_item_top_data_left">
-                  <img
-                    src={question.author.avatar || "/images/icons/avatar.svg"}
-                    alt={question.author.displayName}
-                  />
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <img
+                      src={isPremium ? "/images/premium-avatar.png" : (question.author.avatar || "/images/icons/avatar.svg")}
+                      alt={question.author.displayName}
+                    />
+                    {isPremium && (
+                      <div className="premium-badge">
+                        <svg
+                          width="49"
+                          height="17"
+                          viewBox="0 0 49 17"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M45.9141 0.5C47.6509 0.50023 48.4901 2.62786 47.2207 3.81348C47.1855 3.84635 47.1526 3.88194 47.123 3.91992L43.8467 8.12695C43.7476 8.2542 43.6934 8.411 43.6934 8.57227C43.6934 8.73353 43.7477 8.8903 43.8467 9.01758L47.1162 13.2168C47.1473 13.2567 47.1827 13.2937 47.2207 13.3271C48.4745 14.4313 47.6932 16.5 46.0225 16.5H2.9375C1.28066 16.4997 0.506513 14.4485 1.75 13.3535C1.79989 13.3096 1.84435 13.259 1.88184 13.2041L4.7373 9.02441C4.81984 8.9036 4.86422 8.76057 4.86426 8.61426C4.86426 8.43791 4.79981 8.26739 4.68359 8.13477L0.925781 3.85449L0.90918 3.83496L0.894531 3.81445C-0.0957061 2.42675 0.896675 0.5 2.60156 0.5H45.9141Z" fill="white" stroke="#6069FF"/>
+                        </svg>
+                        <span className="premium-badge-text">База</span>
+                      </div>
+                    )}
+                  </div>
                   <div>
                     <p className="main_text">{question.author.displayName}</p>
                     <span>{question.author.rating} баллов</span>
@@ -246,10 +309,26 @@ export default function HomeContent() {
               {/* Основной контент */}
               <Link href={`/question/${question.slug}`}>
                 <div className="question_list_item_left">
-                  <img
-                    src={question.author.avatar || "/images/icons/avatar.svg"}
-                    alt={question.author.displayName}
-                  />
+                  <div style={{ position: 'relative', display: 'inline-block' }}>
+                    <img
+                      src={isPremium ? "/images/premium-avatar.png" : (question.author.avatar || "/images/icons/avatar.svg")}
+                      alt={question.author.displayName}
+                    />
+                    {isPremium && (
+                      <div className="premium-badge">
+                        <svg
+                          width="49"
+                          height="17"
+                          viewBox="0 0 49 17"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M45.9141 0.5C47.6509 0.50023 48.4901 2.62786 47.2207 3.81348C47.1855 3.84635 47.1526 3.88194 47.123 3.91992L43.8467 8.12695C43.7476 8.2542 43.6934 8.411 43.6934 8.57227C43.6934 8.73353 43.7477 8.8903 43.8467 9.01758L47.1162 13.2168C47.1473 13.2567 47.1827 13.2937 47.2207 13.3271C48.4745 14.4313 47.6932 16.5 46.0225 16.5H2.9375C1.28066 16.4997 0.506513 14.4485 1.75 13.3535C1.79989 13.3096 1.84435 13.259 1.88184 13.2041L4.7373 9.02441C4.81984 8.9036 4.86422 8.76057 4.86426 8.61426C4.86426 8.43791 4.79981 8.26739 4.68359 8.13477L0.925781 3.85449L0.90918 3.83496L0.894531 3.81445C-0.0957061 2.42675 0.896675 0.5 2.60156 0.5H45.9141Z" fill="white" stroke="#6069FF"/>
+                        </svg>
+                        <span className="premium-badge-text">База</span>
+                      </div>
+                    )}
+                  </div>
                   <div>
                     <p className="main_text">{question.title}</p>
                     <span>8 месяцев назад</span>
@@ -300,7 +379,8 @@ export default function HomeContent() {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Показать больше */}

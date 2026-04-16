@@ -4,7 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SharePopup from "@/components/SharePopup";
 import Link from "next/link";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import "@/styles/profile.css";
 import "@/styles/profile-public.css";
@@ -15,7 +15,7 @@ import { mockAnswers, UserAnswer } from "@/data/mock-answers";
 import SearchResultCard from "@/components/SearchResultCard";
 import AnswerResultCard from "@/components/AnswerResultCard";
 
-export default function ProfilePage() {
+function ProfilePageContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("menu1");
 
@@ -1743,5 +1743,22 @@ export default function ProfilePage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="container"
+          style={{ padding: "50px 0", textAlign: "center" }}
+        >
+          Загрузка...
+        </div>
+      }
+    >
+      <ProfilePageContent />
+    </Suspense>
   );
 }

@@ -128,7 +128,7 @@ export default function ProfilePage() {
   const userQuestions = mockQuestions.filter((q) => q.author.id === user.id);
 
   const [profileFilter, setProfileFilter] = useState<
-    "all" | "opened" | "voting" | "closed"
+    "all" | "opened" | "voting" | "closed" | "premium"
   >("all");
   const [similarFilter, setSimilarFilter] = useState<
     "opened" | "voting" | "best"
@@ -159,7 +159,9 @@ export default function ProfilePage() {
   const filteredQuestions =
     profileFilter === "all"
       ? userQuestions
-      : userQuestions.filter((q) => q.status === profileFilter);
+      : profileFilter === "premium"
+        ? userQuestions.filter((q) => (q as any).isPremium === true)
+        : userQuestions.filter((q) => q.status === profileFilter);
 
   const filteredAnswers = mockAnswers.filter((a) => {
     if (a.author.username !== username) return false;
@@ -783,6 +785,37 @@ export default function ProfilePage() {
                   onClick={() => setProfileFilter("closed")}
                 >
                   Решенные
+                </button>
+                <button
+                  className={`s_btn premium-filter-btn ${profileFilter === "premium" ? "s_btn_active questions_filter_active" : ""}`}
+                  onClick={() => setProfileFilter("premium")}
+                >
+                  <svg
+                    className="premium-crown-icon"
+                    width="20"
+                    height="17"
+                    viewBox="0 0 20 17"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  Премиум
                 </button>
               </div>
             ) : (

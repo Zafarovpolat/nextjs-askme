@@ -1,0 +1,159 @@
+/* Премиум вопросы */
+.premium-question {
+  background: #6069FF !important;
+}
+
+.premium-question .main_text,
+.premium-question p,
+.premium-question span,
+.premium-question a,
+.premium-question h1,
+.premium-question h2,
+.premium-question h3,
+.premium-question .search-result-meta,
+.premium-question .search-result-meta span,
+.premium-question .search-result-meta div {
+  color: #ffffff !important;
+}
+
+.premium-question .search-result-meta svg,
+.premium-question .search-result-meta svg path {
+  fill: #ffffff !important;
+}
+
+.premium-question .search-result-separator {
+  background: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Бейдж текст — всегда синий, в том числе при ховере */
+.premium-question .premium-badge-text,
+.premium-question:hover .premium-badge-text {
+  color: #6069FF !important;
+}
+
+.premium-question:hover {
+  background: #4e56e0 !important;
+}
+
+.dark_mode .premium-question {
+  background: #6069FF !important;
+}
+
+.dark_mode .premium-question:hover {
+  background: #4e56e0 !important;
+}
+
+/* Кнопки в премиум вопросах */
+.premium-question .s_btn,
+.premium-question .s_btn_active,
+.premium-question .s_btn_icon {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+}
+
+/* При ховере на САМ премиум-вопрос: "Ответить" должна стать с белым фоном и синим текстом */
+.premium-question:hover .s_btn_active {
+  background: #ffffff !important;
+  color: #6069FF !important;
+}
+
+/* Ховер самих кнопок — белый фон, синий текст */
+.premium-question .s_btn:hover,
+.premium-question .s_btn_active:hover,
+.premium-question .s_btn_icon:hover {
+  background: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  color: #6069FF !important;
+}
+
+.premium-question .s_btn svg,
+.premium-question .s_btn_icon svg {
+  fill: #ffffff !important;
+}
+
+.premium-question .s_btn:hover svg,
+.premium-question .s_btn_icon:hover svg {
+  fill: #6069FF !important;
+}
+
+/* Бейдж премиум аватара */
+.premium-badge {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.premium-badge-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding-top: 1px !important;
+  line-height: 1 !important;
+  color: #6069FF !important;
+}
+
+/* СПЕЦИФИЧНЫЕ СТИЛИ ДЛЯ ГЛАВНОГО БЛОКА ВОПРОСА В СТРАНИЦЕ ВОПРОСА */
+
+/* Отключить изменение фона при ховере для главного блока */
+.main_question_block.premium-question:hover,
+.dark_mode .main_question_block.premium-question:hover {
+  background: #6069FF !important;
+}
+
+/* Кнопка "Дать ответ" и "Ответить" в ответах */
+.main_question_block.premium-question .answer_to_main_btn,
+.main_question_block.premium-question .s_btn--answer {
+  background: #ffffff !important;
+  color: #6069FF !important;
+  border-color: #ffffff !important;
+}
+
+/* Кнопка стар - фон белый, иконка синяя */
+.main_question_block.premium-question .btn_star_answer,
+.main_question_block.premium-question .btn_star_answer_active {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+}
+.main_question_block.premium-question .btn_star_answer svg,
+.main_question_block.premium-question .btn_star_answer_active svg {
+  fill: #6069FF !important;
+}
+
+/* Иконки лайка и дизлайка белые + у кнопок белый бордер */
+.main_question_block.premium-question .vote_btn {
+  border: 1px solid #ffffff !important;
+}
+.main_question_block.premium-question .vote_btn svg {
+  fill: #ffffff !important;
+}
+
+/* Пожаловаться, лайк, поделиться - белые бордера */
+.main_question_block.premium-question .btn_action_outline {
+  border: 1px solid #ffffff !important;
+}
+
+/* Тултип избранного - текст синий */
+.main_question_block.premium-question .star_tooltip_text {
+  color: #6069FF !important;
+}
+
+/* Плашка роли ("Гуру" и тд) */
+.main_question_block.premium-question .quest_user_title {
+  background: #ffffff !important;
+}
+.main_question_block.premium-question .quest_user_title span,
+.main_question_block.premium-question .quest_user_title p {
+  color: #6069FF !important;
+}

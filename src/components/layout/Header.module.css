@@ -15,7 +15,7 @@
 .notificationDropdown::after {
   content: "";
   position: absolute;
-  top: -60px;
+  top: -40px;
   left: 0;
   right: 0;
   height: 60px;
@@ -163,6 +163,26 @@
   cursor: pointer;
 }
 
+.notificationItemOldCard {
+  padding: 9px;
+  border: 1px solid #eff0f6;
+  border-radius: 12px;
+}
+
+.newNotificationsSection {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #0000000e;
+}
+
+.premiumText {
+  text-transform: capitalize;
+}
+
+.notificationWrapper {
+  position: relative;
+}
+
 .notificationItemOld:hover .expandedDropdown {
   opacity: 1;
   visibility: visible;
@@ -265,4 +285,68 @@
     right: -20px;
     max-width: 300px;
   }
+}
+
+/* Dark mode для дропдауна уведомлений */
+:global(.dark_mode) .notificationDropdown {
+  background: #6069FF;
+  border: 1px solid #6069FF;
+}
+
+:global(.dark_mode) .notificationDropdown::before {
+  border-bottom-color: #6069FF;
+}
+
+:global(.dark_mode) .notificationTitle {
+  color: #ffffff;
+}
+
+:global(.dark_mode) .toggleLabel {
+  color: #ffffff;
+}
+
+:global(.dark_mode) .sectionTitle {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+:global(.dark_mode) .notificationItem {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+:global(.dark_mode) .notificationName {
+  color: #ffffff;
+}
+
+:global(.dark_mode) .notificationTime {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+:global(.dark_mode) .notificationText {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+:global(.dark_mode) .notificationItemOld > div {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+:global(.dark_mode) .expandedDropdown {
+  background: #6069FF;
+  border-color: #6069FF;
+}
+
+:global(.dark_mode) .expandedDropdown::before {
+  border-bottom-color: #6069FF;
+}
+
+:global(.dark_mode) .expandedName {
+  color: #ffffff;
+}
+
+:global(.dark_mode) .expandedUsername {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+:global(.dark_mode) .expandedText {
+  color: rgba(255, 255, 255, 0.9);
 }

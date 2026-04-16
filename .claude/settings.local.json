@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pkill -f \"next dev\")"
+      "Bash(pkill -f \"next dev\")",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(head -n -5 src/styles/main.css)",
+      "Bash(cp /tmp/main_temp.css src/styles/main.css)",
+      "Bash(head -n 267 src/components/layout/Header.module.css)",
+      "Bash(cp /tmp/header_temp.css src/components/layout/Header.module.css)"
     ]
   }
 }

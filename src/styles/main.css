@@ -1946,3 +1946,53 @@ footer .line {
     margin-bottom: 22px;
   }
 }
+
+/* Premium filter button with crown icon */
+.premium-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.premium-crown-icon {
+  width: 16px;
+  height: 14px;
+  color: #6069FF;
+  transition: color 0.3s ease;
+  margin-top: -3px;
+}
+
+/* Light theme */
+.premium-filter-btn .premium-crown-icon {
+  color: #6069FF;
+}
+
+.premium-filter-btn:hover .premium-crown-icon {
+  color: white;
+}
+
+.premium-filter-btn.s_btn_active .premium-crown-icon {
+  color: white;
+}
+
+/* Dark theme */
+.dark_mode .premium-filter-btn .premium-crown-icon {
+  color: white;
+}
+
+.dark_mode .premium-filter-btn:hover .premium-crown-icon {
+  color: white;
+}
+
+.dark_mode .premium-filter-btn.s_btn_active .premium-crown-icon {
+  color: white;
+}
+
+/* Dark theme для кнопки уведомлений в Header */
+.dark_mode .notification-dropdown-wrapper .theme-toggle-btn svg rect {
+  fill: #6069FF !important;
+}
+
+.dark_mode .notification-dropdown-wrapper .theme-toggle-btn svg path {
+  fill: white !important;
+}

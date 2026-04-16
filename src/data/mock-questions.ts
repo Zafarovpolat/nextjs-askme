@@ -15,7 +15,8 @@ export const mockQuestions: Question[] = [
     commentsCount: 0,
     createdAt: '2026-02-18T17:41:00Z', // 19 минут назад
     updatedAt: '2026-02-18T17:41:00Z',
-  },
+    isPremium: true,
+  } as any,
   {
     id: 2,
     title: 'Можно ли скачать на переносной жёсткий диск игру и играть в неё с телефона ?',
@@ -41,7 +42,8 @@ export const mockQuestions: Question[] = [
     commentsCount: 0,
     createdAt: '2026-02-18T16:00:00Z', // 2 часа назад
     updatedAt: '2026-02-18T16:00:00Z',
-  },
+    isPremium: true,
+  } as any,
   {
     id: 4,
     title: 'Какие татуировки и с какой целью себе набивали классические и современные писатели?',
@@ -67,7 +69,8 @@ export const mockQuestions: Question[] = [
     commentsCount: 0,
     createdAt: '2026-01-18T12:00:00Z', // 1 месяц назад
     updatedAt: '2026-01-18T12:00:00Z',
-  },
+    isPremium: true,
+  } as any,
   {
     id: 6,
     title: 'Можно ли играть в JoJo eyes of heaven с другом на одной консоли?',
@@ -159,4 +162,18 @@ export const mockQuestions: Question[] = [
     createdAt: '2026-03-01T12:00:00Z',
     updatedAt: '2026-03-01T12:00:00Z',
   },
+  {
+    id: 13,
+    title: 'Это тестовый премиум вопрос для демонстрации?',
+    content: 'Описание тестового премиум вопроса.',
+    slug: 'someurlforpremiumquestion',
+    author: mockUsers[0], // Admin is VIP
+    category: mockCategories[0],
+    rating: 100,
+    status: 'opened',
+    commentsCount: 1,
+    createdAt: '2026-04-16T12:00:00Z',
+    updatedAt: '2026-04-16T12:00:00Z',
+    isPremium: true,
+  } as any,
 ];

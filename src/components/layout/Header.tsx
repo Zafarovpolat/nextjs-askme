@@ -215,8 +215,7 @@ const NotificationBtn = ({
 
   return (
     <div
-      className="notification-dropdown-wrapper"
-      style={{ position: "relative" }}
+      className={`notification-dropdown-wrapper ${styles.notificationWrapper}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -272,7 +271,7 @@ const NotificationBtn = ({
           </div>
 
           {/* Новые */}
-          <div style={{ marginBottom: "12px", paddingBottom: "12px", borderBottom: '1px solid #0000000e' }}>
+          <div className={styles.newNotificationsSection}>
             <h4 className={styles.sectionTitle}>Новые</h4>
             {mockNotifications
               .filter((n) => n.type === "new")
@@ -307,7 +306,7 @@ const NotificationBtn = ({
               .filter((n) => n.type === "old")
               .map((notification) => (
                 <div key={notification.id} className={styles.notificationItemOld}>
-                  <div style={{ padding: "9px", border: "1px solid #EFF0F6", borderRadius: "12px" }}>
+                  <div className={styles.notificationItemOldCard}>
                     <div className={styles.notificationHeader}>
                       <img
                         src={notification.avatar}
@@ -468,7 +467,7 @@ export default function Header() {
                     fill="white"
                   />
                 </svg>
-                <span style={{ textTransform: "capitalize" }}>Премиум</span>
+                <span className={styles.premiumText}>Премиум</span>
               </button>
             </Link>
 
@@ -575,7 +574,6 @@ export default function Header() {
               alt=""
               width="18"
               height="18"
-              style={{ fill: "#fff" }}
             />
             <input type="text" placeholder="Найти вопрос" />
           </form>
