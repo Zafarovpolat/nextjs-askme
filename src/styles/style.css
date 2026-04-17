@@ -1383,8 +1383,6 @@ hr {
   .breadcrumbs.breadcrumbs--search {
     margin-bottom: 20px !important;
   }
-  
-  
 }
 
 .breadcrumbs-item {
@@ -1963,4 +1961,3 @@ body.dark_mode .theme-toggle-btn .svg-dark {
     height: 45px !important;
   }
 }
-
