@@ -313,3 +313,106 @@
     background-size: 100% auto !important;
   }
 }
+
+/* Личный кабинет - Премиум профиль */
+/* Позиционирование бейджа "База" на аватарке */
+.user_profile_img .user_profile_img_badge {
+  bottom: -4px;
+}
+
+.user_profile_block.premium-profile .user_profile_block_content_profile_desc h4,
+.user_profile_block.premium-profile .user_profile_block_content_profile_desc p,
+.user_profile_block.premium-profile .stat_value,
+.user_profile_block.premium-profile .stat_label {
+  color: #ffffff !important;
+}
+
+.user_profile_block.premium-profile .stat_label div {
+  background: #ffffff !important;
+  color: #5E68FF !important;
+}
+
+.user_profile_block.premium-profile .stat_item svg path {
+  fill: #ffffff !important;
+}
+
+.user_profile_block.premium-profile .stats_divider {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Сохраняем премиум-фон и стиль карандашика в темной теме */
+.dark_mode .user_profile_block.premium-profile .user_profile_block_bg {
+  display: block !important;
+}
+
+.dark_mode .user_profile_block.premium-profile .user_profile_img_action {
+  border-color: #ffffff !important;
+}
+@media only screen and (max-width: 1300px) {
+  .user_profile_block.premium-profile .profile_menu_list_mob.tabs_list_m {
+    background-color: #5d67ff;
+    border-radius: 0 0 22px 22px;
+    padding-bottom: 15px;
+  }
+}
+
+/* Сдвигаем бейдж вниз на мобилках в шапке профиля */
+@media (max-width: 768px) {
+  .premium-profile .user_profile_img .premium-badge {
+    bottom: -4px !important;
+  }
+}
+@media (max-width: 600px) {
+  .search-result-card.premium-question {
+    position: relative !important;
+    padding-top: 36px !important;
+  }
+
+  .premium-badge-card {
+    position: absolute !important;
+    top: 11px !important;
+    left: 20px !important;
+  }
+}
+
+/* Премиум ответы в профиле */
+.answer-result-card.premium-answer {
+  background: #6069FF !important;
+  border: none !important;
+}
+
+.answer-result-card.premium-answer .answer-result-title,
+.answer-result-card.premium-answer .answer-result-subtext,
+.answer-result-card.premium-answer .search-result-meta,
+.answer-result-card.premium-answer .search-result-meta span,
+.answer-result-card.premium-answer .search-result-date,
+.answer-result-card.premium-answer .search-result-answers {
+  color: #ffffff !important;
+}
+
+.answer-result-card.premium-answer .search-result-meta svg,
+.answer-result-card.premium-answer .search-result-meta svg path,
+.answer-result-card.premium-answer .search-result-answers svg,
+.answer-result-card.premium-answer .search-result-answers svg path {
+  fill: #ffffff !important;
+}
+
+.answer-result-card.premium-answer .search-result-separator {
+  background: rgba(255, 255, 255, 0.4) !important;
+}
+
+.answer-result-card.premium-answer .like-badge,
+.answer-result-card.premium-answer .dislike-badge {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+.answer-result-card.premium-answer .like-badge svg path,
+.answer-result-card.premium-answer .dislike-badge svg path {
+  fill: #ffffff !important;
+}
+
+.answer-result-card.premium-answer:hover {
+  background: #4e56e0 !important;
+}

@@ -10,7 +10,7 @@ export const mockUsers: User[] = [
     bio: 'Главный администратор платформы AskMe',
     rating: 1250,
     balance: 0,
-    vipStatus: true,
+    vipStatus: false,
     questionsCount: 45,
     followersCount: 34,
     followingsCount: 22,
@@ -22,6 +22,25 @@ export const mockUsers: User[] = [
   },
   {
     id: 2,
+    username: 'premium_user',
+    displayName: 'Премиум Пользователь',
+    email: 'premium@askme.com',
+    avatar: '/images/icons/avatar.svg',
+    bio: 'VIP пользователь с премиум статусом',
+    rating: 2500,
+    balance: 500,
+    vipStatus: true,
+    questionsCount: 89,
+    followersCount: 120,
+    followingsCount: 45,
+    answersCount: 450,
+    createdAt: '2024-01-01T08:00:00Z',
+    role: 'Высший разум',
+    city: 'Москва',
+    phoneNumber: '+7 (999) 111-11-11'
+  },
+  {
+    id: 3,
     username: 'john_doe',
     displayName: 'Джон Доу',
     email: 'john@example.com',
@@ -38,7 +57,7 @@ export const mockUsers: User[] = [
     role: 'Исскуственный интелект'
   },
   {
-    id: 3,
+    id: 4,
     username: 'jane_smith',
     displayName: 'Джейн Смит',
     email: 'jane@example.com',
@@ -55,7 +74,7 @@ export const mockUsers: User[] = [
     role: 'Просто умный'
   },
   {
-    id: 4,
+    id: 5,
     username: 'maria_ivanova',
     displayName: 'Мария Иванова',
     email: 'maria@example.com',
@@ -72,7 +91,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 5,
+    id: 6,
     username: 'alex_petrov',
     displayName: 'Алексей Петров',
     email: 'alex@example.com',
@@ -89,7 +108,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 6,
+    id: 7,
     username: 'olga_sidorova',
     displayName: 'Ольга Сидорова',
     email: 'olga@example.com',
@@ -106,7 +125,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 7,
+    id: 8,
     username: 'dmitry_k',
     displayName: 'Дмитрий Козлов',
     email: 'dmitry@example.com',
@@ -123,7 +142,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 8,
+    id: 9,
     username: 'elena_v',
     displayName: 'Елена Васильева',
     email: 'elena@example.com',
@@ -140,7 +159,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 9,
+    id: 10,
     username: 'sergey_n',
     displayName: 'Сергей Новиков',
     email: 'sergey@example.com',
@@ -157,7 +176,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 10,
+    id: 11,
     username: 'natalia_m',
     displayName: 'Наталья Морозова',
     email: 'natalia@example.com',
@@ -174,7 +193,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 11,
+    id: 12,
     username: 'ivan_f',
     displayName: 'Иван Федоров',
     email: 'ivan@example.com',
@@ -191,7 +210,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 12,
+    id: 13,
     username: 'anna_l',
     displayName: 'Анна Лебедева',
     email: 'anna@example.com',
@@ -208,7 +227,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 13,
+    id: 14,
     username: 'pavel_z',
     displayName: 'Павел Зайцев',
     email: 'pavel@example.com',
@@ -225,7 +244,7 @@ export const mockUsers: User[] = [
     role: 'Высший разум'
   },
   {
-    id: 14,
+    id: 15,
     username: 'banned_user',
     displayName: 'Виктор',
     email: 'banned@example.com',

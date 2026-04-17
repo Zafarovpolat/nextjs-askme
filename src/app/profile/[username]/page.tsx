@@ -10,6 +10,7 @@ import { mockUsers } from "@/data/mock-users";
 import { mockAnswers, UserAnswer } from "@/data/mock-answers";
 import SearchResultCard from "@/components/SearchResultCard";
 import AnswerResultCard from "@/components/AnswerResultCard";
+import "@/styles/profile.css";
 
 // Склонение
 const numWord = (value: number, words: [string, string, string]): string => {
@@ -131,7 +132,7 @@ export default function ProfilePage() {
     "all" | "opened" | "voting" | "closed" | "premium"
   >("all");
   const [similarFilter, setSimilarFilter] = useState<
-    "opened" | "voting" | "best"
+    "opened" | "voting" | "best" | "premium"
   >("opened");
 
   const [activeMainTab, setActiveMainTab] = useState<"questions" | "answers">(
@@ -556,7 +557,7 @@ export default function ProfilePage() {
           )}
 
           <div
-            className="main_question_block main_question_block_item profile_question_block"
+            className={`main_question_block main_question_block_item profile_question_block ${user.vipStatus ? "premium-profile premium-user" : ""}`}
             style={{ marginTop: 0, marginBottom: "8px" }}
           >
             <div className="main_question_bg_wrapper">
@@ -588,12 +589,37 @@ export default function ProfilePage() {
               style={{ justifyContent: "space-between", padding: 0 }}
             >
               <div className="user_profile_block_content_profile">
-                <div className="user_profile_img">
+                <div
+                  className="user_profile_img"
+                  style={{ position: "relative" }}
+                >
                   <img
                     className="user_profile_image"
-                    src={user.avatar || "/images/icons/avatar.svg"}
+                    src={
+                      user.vipStatus
+                        ? "/images/premium-avatar.png"
+                        : user.avatar || "/images/icons/avatar.svg"
+                    }
                     alt=""
                   />
+                  {user.vipStatus && (
+                    <div className="premium-badge">
+                      <svg
+                        width="49"
+                        height="17"
+                        viewBox="0 0 49 17"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M45.9141 0.5C47.6509 0.50023 48.4901 2.62786 47.2207 3.81348C47.1855 3.84635 47.1526 3.88194 47.123 3.91992L43.8467 8.12695C43.7476 8.2542 43.6934 8.411 43.6934 8.57227C43.6934 8.73353 43.7477 8.8903 43.8467 9.01758L47.1162 13.2168C47.1473 13.2567 47.1827 13.2937 47.2207 13.3271C48.4745 14.4313 47.6932 16.5 46.0225 16.5H2.9375C1.28066 16.4997 0.506513 14.4485 1.75 13.3535C1.79989 13.3096 1.84435 13.259 1.88184 13.2041L4.7373 9.02441C4.81984 8.9036 4.86422 8.76057 4.86426 8.61426C4.86426 8.43791 4.79981 8.26739 4.68359 8.13477L0.925781 3.85449L0.90918 3.83496L0.894531 3.81445C-0.0957061 2.42675 0.896675 0.5 2.60156 0.5H45.9141Z"
+                          fill="white"
+                          stroke="#6069FF"
+                        />
+                      </svg>
+                      <span className="premium-badge-text">База</span>
+                    </div>
+                  )}
                 </div>
                 <div className="user_profile_block_content_profile_desc">
                   <h4>{user.displayName}</h4>
@@ -786,37 +812,6 @@ export default function ProfilePage() {
                 >
                   Решенные
                 </button>
-                <button
-                  className={`s_btn premium-filter-btn ${profileFilter === "premium" ? "s_btn_active questions_filter_active" : ""}`}
-                  onClick={() => setProfileFilter("premium")}
-                >
-                  <svg
-                    className="premium-crown-icon"
-                    width="20"
-                    height="17"
-                    viewBox="0 0 20 17"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                  Премиум
-                </button>
               </div>
             ) : (
               <div
@@ -854,6 +849,8 @@ export default function ProfilePage() {
                       question={q}
                       isProfilePage={true}
                       status={q.status}
+                      isOwnProfile={true}
+                      userIsPremium={user.vipStatus}
                     />
                   ))
                 ) : (
@@ -873,6 +870,7 @@ export default function ProfilePage() {
                     key={a.id}
                     answer={a}
                     isBestView={answersFilter === "best"}
+                    isPremiumUser={user.vipStatus}
                   />
                 ))
               ) : (
@@ -946,92 +944,141 @@ export default function ProfilePage() {
             >
               Лучшие
             </button>
+            <button
+              className={`s_btn premium-filter-btn ${similarFilter === "premium" ? "s_btn_active questions_filter_active" : ""}`}
+              onClick={() => setSimilarFilter("premium")}
+            >
+              <svg
+                className="premium-crown-icon"
+                width="20"
+                height="17"
+                viewBox="0 0 20 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
+                  fill="currentColor"
+                />
+              </svg>
+              Премиум
+            </button>
           </div>
         </div>
 
-        {mockQuestions.map((q) => (
-          <div className="question_list_item" key={q.id}>
-            <div className="question_item_top_data">
-              <div className="question_item_top_data_left">
-                <img
-                  src={q.author.avatar || "/images/icons/avatar.svg"}
-                  alt={q.author.displayName}
-                />
-                <div>
-                  <p className="main_text">{q.author.displayName}</p>
-                  <span>
-                    {numWord(q.author.rating, ["балл", "балла", "баллов"])}
-                  </span>
+        {mockQuestions
+          .filter((q) => {
+            if (similarFilter === "premium") {
+              return (q as any).isPremium === true;
+            }
+            return true;
+          })
+          .map((q) => {
+            const isPremium = (q as any).isPremium === true;
+            return (
+              <div className="question_list_item" key={q.id}>
+                <div className="question_item_top_data">
+                  <div className="question_item_top_data_left">
+                    <div
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
+                      <img
+                        src={q.author.avatar || "/images/icons/avatar.svg"}
+                        alt={q.author.displayName}
+                      />
+                    </div>
+                    <div>
+                      <p className="main_text">{q.author.displayName}</p>
+                      <span>
+                        {numWord(q.author.rating, ["балл", "балла", "баллов"])}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="question_item_top_data_right">
+                    <button
+                      title="Мне нравится"
+                      className="s_btn s_btn_icon btn-like"
+                    >
+                      <svg width="13.71" height="12">
+                        <use xlinkHref="#like"></use>
+                      </svg>
+                    </button>
+                    <button
+                      className="s_btn s_btn_icon share-this"
+                      title="Поделиться"
+                    >
+                      <svg width="14" height="14">
+                        <use xlinkHref="#share"></use>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <Link href={`/question/${q.id}`}>
+                  <div className="question_list_item_left">
+                    <div
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
+                      <img
+                        src={q.author.avatar || "/images/icons/avatar.svg"}
+                        alt={q.author.displayName}
+                      />
+                    </div>
+                    <div>
+                      <p className="main_text">{q.title}</p>
+                      <span>{formatTimeAgo(q.createdAt)}</span>
+                    </div>
+                  </div>
+                </Link>
+                <div className="question_list_item_right">
+                  <div className="question_list_item_users">
+                    <img src="/images/icons/avatar.svg" alt="" />
+                    <img src="/images/icons/avatar.svg" alt="" />
+                    <img src="/images/icons/avatar.svg" alt="" />
+                    <p className="main_text">+{q.commentsCount}</p>
+                  </div>
+                  <div className="question_list_item_right_actions">
+                    <button
+                      title="Мне нравится"
+                      className="s_btn s_btn_icon btn-like"
+                    >
+                      <svg width="13.71" height="12">
+                        <use xlinkHref="#like"></use>
+                      </svg>
+                    </button>
+                    <button
+                      className="s_btn s_btn_icon share-this"
+                      title="Поделиться"
+                    >
+                      <svg width="14" height="14">
+                        <use xlinkHref="#share"></use>
+                      </svg>
+                    </button>
+                    <Link className="s_btn" href={`/question/${q.id}`}>
+                      Посмотреть
+                    </Link>
+                    <Link
+                      className="s_btn s_btn_active"
+                      href={`/question/${q.id}#answer`}
+                    >
+                      Ответить
+                    </Link>
+                  </div>
                 </div>
               </div>
-              <div className="question_item_top_data_right">
-                <button
-                  title="Мне нравится"
-                  className="s_btn s_btn_icon btn-like"
-                >
-                  <svg width="13.71" height="12">
-                    <use xlinkHref="#like"></use>
-                  </svg>
-                </button>
-                <button
-                  className="s_btn s_btn_icon share-this"
-                  title="Поделиться"
-                >
-                  <svg width="14" height="14">
-                    <use xlinkHref="#share"></use>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <Link href={`/question/${q.id}`}>
-              <div className="question_list_item_left">
-                <img
-                  src={q.author.avatar || "/images/icons/avatar.svg"}
-                  alt={q.author.displayName}
-                />
-                <div>
-                  <p className="main_text">{q.title}</p>
-                  <span>{formatTimeAgo(q.createdAt)}</span>
-                </div>
-              </div>
-            </Link>
-            <div className="question_list_item_right">
-              <div className="question_list_item_users">
-                <img src="/images/icons/avatar.svg" alt="" />
-                <img src="/images/icons/avatar.svg" alt="" />
-                <img src="/images/icons/avatar.svg" alt="" />
-                <p className="main_text">+{q.commentsCount}</p>
-              </div>
-              <div className="question_list_item_right_actions">
-                <button
-                  title="Мне нравится"
-                  className="s_btn s_btn_icon btn-like"
-                >
-                  <svg width="13.71" height="12">
-                    <use xlinkHref="#like"></use>
-                  </svg>
-                </button>
-                <button
-                  className="s_btn s_btn_icon share-this"
-                  title="Поделиться"
-                >
-                  <svg width="14" height="14">
-                    <use xlinkHref="#share"></use>
-                  </svg>
-                </button>
-                <Link className="s_btn" href={`/question/${q.id}`}>
-                  Посмотреть
-                </Link>
-                <Link
-                  className="s_btn s_btn_active"
-                  href={`/question/${q.id}#answer`}
-                >
-                  Ответить
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
+            );
+          })}
 
         <div
           className="show_more_btn_wrapper"
