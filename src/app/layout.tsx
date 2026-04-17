@@ -1,5 +1,6 @@
 import './globals.css'
 import type { Metadata, Viewport } from 'next'
+import { cookies } from 'next/headers'
 import SvgSprites from '@/components/SvgSprites'
 import AuthProvider from '@/components/AuthProvider'
 
@@ -93,8 +94,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const theme = cookies().get('otvetai_theme')?.value
+  const bodyClass = theme === 'dark' ? 'loaded dark_mode' : 'loaded'
+
   return (
-    <html lang="ru">
+    <html lang="ru" suppressHydrationWarning>
       <head>
         {/* Preload критического шрифта для ускорения FCP */}
         <link
@@ -118,12 +122,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="loaded">
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var m=document.cookie.match(/(?:^|;\\s*)otvetai_theme=([^;]*)/);if(m&&m[1]==='dark')document.body.classList.add('dark_mode');})();`,
-          }}
-        />
+      <body className={bodyClass} suppressHydrationWarning>
         <AuthProvider>
           {children}
         </AuthProvider>

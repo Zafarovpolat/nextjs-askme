@@ -24,6 +24,8 @@ export type LeaderUser = {
   avatar_url?: string | null;
   balls: number;
   level_name?: string | null;
+  subscribers_count?: number;
+  subscriber_preview?: { id: number; avatar_url: string | null }[];
 };
 
 export type LeadersPageResponse = {

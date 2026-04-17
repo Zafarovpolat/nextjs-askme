@@ -1,11 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useId } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { setTheme } from "@/lib/theme-cookie";
 
-const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
+function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
+  const uid = useId().replace(/:/g, "");
+  const maskLight = `theme_mask_l_${uid}`;
+  const gradLight = `theme_grad_l_${uid}`;
+  const maskDark = `theme_mask_d_${uid}`;
+  const gradDark = `theme_grad_d_${uid}`;
+  return (
   <button
     className="theme-toggle-btn mode_toggler"
     onClick={onClick}
@@ -21,7 +28,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       xmlns="http://www.w3.org/2000/svg"
     >
       <mask
-        id="mask0_3_4601"
+        id={maskLight}
         style={{ maskType: "alpha" }}
         maskUnits="userSpaceOnUse"
         x="0"
@@ -31,7 +38,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       >
         <rect width="50" height="50" rx="12" fill="white" />
       </mask>
-      <g mask="url(#mask0_3_4601)">
+      <g mask={`url(#${maskLight})`}>
         <rect width="50" height="50" rx="12" fill="white" />
         <ellipse
           opacity="0.11"
@@ -39,7 +46,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
           cy="45.5"
           rx="41.5"
           ry="23.5"
-          fill="url(#paint0_linear_3_4601)"
+          fill={`url(#${gradLight})`}
         />
         <path
           d="M32.8721 28.0248C32.7185 27.8268 32.4606 27.7536 32.2337 27.8388C31.5975 28.0776 30.9075 28.2 30.1809 28.2C26.7046 28.2 23.877 25.2384 23.877 21.6C23.877 19.41 24.9097 17.3712 26.6392 16.1448C26.8352 16.0056 26.9292 15.7548 26.8765 15.5136C26.8238 15.2724 26.6346 15.09 26.3997 15.054C26.1315 15.0132 25.8644 15 25.5962 15C20.8557 15 17 19.0368 17 24C17 28.9632 20.8557 33 25.5962 33C28.6049 33 31.3419 31.3992 32.9156 28.7184C33.0428 28.5012 33.0245 28.224 32.8721 28.0248Z"
@@ -64,7 +71,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       </g>
       <defs>
         <linearGradient
-          id="paint0_linear_3_4601"
+          id={gradLight}
           x1="25.5"
           y1="22"
           x2="25.5"
@@ -85,7 +92,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       xmlns="http://www.w3.org/2000/svg"
     >
       <mask
-        id="mask0_3_4582"
+        id={maskDark}
         style={{ maskType: "alpha" }}
         maskUnits="userSpaceOnUse"
         x="0"
@@ -95,7 +102,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       >
         <rect width="50" height="50" rx="12" fill="white" />
       </mask>
-      <g mask="url(#mask0_3_4582)">
+      <g mask={`url(#${maskDark})`}>
         <rect width="50" height="50" rx="12" fill="#6069FF" />
         <ellipse
           opacity="0.55"
@@ -103,7 +110,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
           cy="45.5"
           rx="41.5"
           ry="23.5"
-          fill="url(#paint0_linear_3_4582)"
+          fill={`url(#${gradDark})`}
         />
         <path
           fillRule="evenodd"
@@ -156,7 +163,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       </g>
       <defs>
         <linearGradient
-          id="paint0_linear_3_4582"
+          id={gradDark}
           x1="25.5"
           y1="22"
           x2="25.5"
@@ -169,9 +176,11 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       </defs>
     </svg>
   </button>
-);
+  );
+}
 
 export default function Header() {
+  const router = useRouter();
   const isAuthorized = useAuthStore((s) => s.isAuthorized);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNavHidden, setIsNavHidden] = useState(false);
@@ -198,6 +207,15 @@ export default function Header() {
   const toggleDarkMode = () => {
     document.body.classList.toggle("dark_mode");
     setTheme(document.body.classList.contains("dark_mode") ? "dark" : "light");
+  };
+
+  const submitHeaderSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const raw = fd.get("q") ?? fd.get("s");
+    const q = String(raw ?? "").trim();
+    if (!q) return;
+    router.push(`/search?q=${encodeURIComponent(q)}`);
   };
 
   return (
@@ -234,7 +252,7 @@ export default function Header() {
               </button>
             </Link>
 
-            <form method="POST" action="/" className="search_input">
+            <form onSubmit={submitHeaderSearch} className="search_input">
               <img
                 src="/images/icons/search.svg"
                 alt=""
@@ -243,7 +261,7 @@ export default function Header() {
               />
               <input
                 type="text"
-                name="s"
+                name="q"
                 placeholder="Найти вопрос"
                 suppressHydrationWarning
               />
@@ -320,23 +338,11 @@ export default function Header() {
           <div>
             <ThemeToggleBtn onClick={toggleDarkMode} />
             {isAuthorized ? (
-              <>
-                <Link href="/profile">
-                  <button className="m_btn">
-                    <img src="/images/icons/user.svg" alt="" />
-                  </button>
-                </Link>
-                <Link href="/logout" className="logout-btn logged_in_show">
-                  <button className="m_btn m_btn_icon category_btn" title="Выход">
-                    <img
-                      src="/images/icons/logout.svg"
-                      alt=""
-                      width="16"
-                      height="20"
-                    />
-                  </button>
-                </Link>
-              </>
+              <Link href="/profile">
+                <button className="m_btn">
+                  <img src="/images/icons/user.svg" alt="" />
+                </button>
+              </Link>
             ) : (
               <Link href="/login">
                 <button className="m_btn">
@@ -361,8 +367,7 @@ export default function Header() {
           </Link>
 
           <form
-            method="POST"
-            action="/"
+            onSubmit={submitHeaderSearch}
             className="search_input search_input_mob"
           >
             <img
@@ -374,6 +379,7 @@ export default function Header() {
             />
             <input
               type="text"
+              name="q"
               placeholder="Найти вопрос"
               suppressHydrationWarning
             />

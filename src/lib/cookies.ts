@@ -1,6 +1,7 @@
 import Cookies from 'js-cookie'
+import { AUTH_TOKEN_COOKIE_KEY } from '@/lib/auth-constants'
 
-const TOKEN_KEY = 'otvetai_token'
+const TOKEN_KEY = AUTH_TOKEN_COOKIE_KEY
 
 const COOKIE_OPTIONS: Cookies.CookieAttributes = {
   path: '/',

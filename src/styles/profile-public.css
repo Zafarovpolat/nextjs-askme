@@ -320,17 +320,22 @@
   top: 140px;
   left: 0;
   right: 0;
-  height: 100px;
+  min-height: 100px;
+  height: auto;
   background-color: #5D67FF;
   border-radius: 20px;
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 0 30px;
+  padding: 16px 30px;
   color: #fff;
   z-index: 10;
   width: calc(100% - 40px);
   margin: 0 auto;
+}
+
+.dark_mode .banned_banner {
+  background-color: #4a52cc;
 }
 
 .questions_page_list.banned_opacity {
@@ -348,6 +353,8 @@
   line-height: 1.4;
   font-weight: 500;
   color: #fff;
+  flex: 1;
+  min-width: 0;
 }
 
 .banned_banner_content a {

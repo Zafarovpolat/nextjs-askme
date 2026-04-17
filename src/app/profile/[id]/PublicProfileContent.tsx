@@ -7,6 +7,9 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SearchResultCard from "@/components/SearchResultCard";
 import AnswerResultCard from "@/components/AnswerResultCard";
+import ProfileRelatedQuestionsBlock from "./ProfileRelatedQuestionsBlock";
+import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
+import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
 import type { UserAnswer } from "@/data/mock-answers";
 import { api } from "@/lib/api-client";
 import { getToken } from "@/lib/cookies";
@@ -80,9 +83,10 @@ const ProfileSharePopup = () => (
 
 type PublicProfileContentProps = {
   initialUser: PublicProfileUser;
+  initialWidgets: ProfileWidgetsPayload;
 };
 
-export default function PublicProfileContent({ initialUser }: PublicProfileContentProps) {
+export default function PublicProfileContent({ initialUser, initialWidgets }: PublicProfileContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const authUser = useAuthStore((s) => s.user);
@@ -213,24 +217,10 @@ export default function PublicProfileContent({ initialUser }: PublicProfileConte
     setProfile(initialUser);
   }, [initialUser]);
 
-  /** Серверный fetch без cookie — subscribed_by_me может быть неверным; с токеном подтягиваем с API. */
-  useEffect(() => {
-    if (!getToken()) return;
-    let cancelled = false;
-    api
-      .get<{ user: PublicProfileUser }>(`v1/users/${initialUser.id}`)
-      .then((data) => {
-        if (!cancelled && data?.user) setProfile(data.user);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [initialUser.id]);
-
   const kpdPercent = Math.round((profile.kpd ?? 0) * 100);
   const displayName = profile.full_name || profile.first_name || "Пользователь";
   const isOwnProfile = authUser?.id === profile.id;
+  const isBanned = Boolean(profile.is_blocked);
 
   const profileQuestionStatus = (q: ProfileQuestionItem): "opened" | "voting" | "closed" => {
     if (q.status === "voting") return "voting";
@@ -387,7 +377,7 @@ export default function PublicProfileContent({ initialUser }: PublicProfileConte
 
   const statsBlock = (mobile: boolean) => (
     <div className={`profile_stats ${mobile ? "profile_stats_mobile" : "profile_stats_desktop"}`} style={{ width: "100%", marginBottom: "14px" }}>
-      <div className="profile_stats_list">
+      <div className={`profile_stats_list${isBanned ? " banned_opacity" : ""}`}>
         <div
           className={`profile_stats_item ${activeMainTab === "questions" ? "active" : ""}`}
           onClick={() => setTab("questions")}
@@ -408,7 +398,7 @@ export default function PublicProfileContent({ initialUser }: PublicProfileConte
             <p className="main_text">{profile.answers_count}</p>
           </div>
         </div>
-        {!isOwnProfile && (
+        {!isOwnProfile && !isBanned && (
           <div className="profile_stats_item profile_stats_action">
             <button
               type="button"
@@ -466,9 +456,51 @@ export default function PublicProfileContent({ initialUser }: PublicProfileConte
       <div className="question_wrapper container" style={{ paddingBottom: "20px", borderBottom: "1px solid #E0E2EF" }}>
         <div className="question_left_list">
           {statsBlock(false)}
+          <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
         </div>
 
-        <div className="questions_page_list" style={{ width: "63%", position: "relative" }}>
+        <div
+          className={`questions_page_list${isBanned ? " banned_relative banned_opacity" : ""}`}
+          style={{ width: "63%", position: "relative" }}
+        >
+          {isBanned ? (
+            <div className="banned_banner" role="note">
+              <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <path
+                  d="M20.9767 22.5053C27.1932 22.5053 32.2326 17.4674 32.2326 11.2527C32.2326 5.03799 27.1932 0 20.9767 0C14.7603 0 9.72093 5.03799 9.72093 11.2527C9.72093 17.4674 14.7603 22.5053 20.9767 22.5053Z"
+                  fill="white"
+                />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M38.6832 25.6643L25.6592 38.6846C25.0595 39.2821 25.0595 40.2559 25.6592 40.8533C26.2567 41.4528 27.2309 41.4528 27.8285 40.8533L40.8525 27.833C41.4521 27.2356 41.4521 26.2617 40.8525 25.6643C40.2549 25.0648 39.2807 25.0648 38.6832 25.6643Z"
+                  fill="white"
+                />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M33.2558 22.5176C27.325 22.5176 22.5116 27.3297 22.5116 33.2588C22.5116 39.1879 27.325 44 33.2558 44C39.1866 44 44 39.1879 44 33.2588C44 27.3297 39.1866 22.5176 33.2558 22.5176ZM33.2558 25.5865C37.4921 25.5865 40.9302 29.0237 40.9302 33.2588C40.9302 37.4939 37.4921 40.9311 33.2558 40.9311C29.0195 40.9311 25.5814 37.4939 25.5814 33.2588C25.5814 29.0237 29.0195 25.5865 33.2558 25.5865Z"
+                  fill="white"
+                />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M23.893 41.9663C21.7667 39.6831 20.4651 36.6223 20.4651 33.2588C20.4651 29.8155 21.8301 26.6872 24.0486 24.3876C23.0458 24.3099 22.0205 24.2689 20.9767 24.2689C14.1782 24.2689 8.15944 25.9691 4.42251 28.5163C1.57172 30.46 0 32.9294 0 35.5216V38.4882C0 39.411 0.366326 40.2968 1.01916 40.9475C1.672 41.6001 2.55609 41.9663 3.47907 41.9663H23.893Z"
+                  fill="white"
+                />
+              </svg>
+              <div className="banned_banner_content">
+                {profile.block_reason?.trim() ? (
+                  <p style={{ margin: 0 }}>{profile.block_reason.trim()}</p>
+                ) : (
+                  <p style={{ margin: 0 }}>
+                    Пользователь заблокирован за нарушение правил использования сервиса. О принципах модерации читайте{" "}
+                    <Link href="/about">здесь</Link>.
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : null}
           <div className="main_question_block main_question_block_item profile_question_block" style={{ marginTop: 0, marginBottom: "8px" }}>
             <div className="main_question_bg_wrapper">
               <div className="main_question_block_top_bg">
@@ -609,10 +641,6 @@ export default function PublicProfileContent({ initialUser }: PublicProfileConte
                       status={question.status}
                       votesCount={question.votesCount}
                       answersCountOverride={questions[index]?.answers_count ?? 0}
-                      showQuestionVotes
-                      likesCount={questions[index]?.likes_count ?? 0}
-                      dislikesCount={questions[index]?.dislikes_count ?? 0}
-                      userVote={questions[index]?.user_vote ?? null}
                     />
                   ))
                 ) : (
@@ -622,7 +650,13 @@ export default function PublicProfileContent({ initialUser }: PublicProfileConte
                 <div style={{ padding: "24px", textAlign: "center", color: "#899AB5" }}>Загрузка…</div>
               ) : profileAnswersForCard.length > 0 ? (
                 profileAnswersForCard.map((a) => (
-                  <AnswerResultCard key={a.id} answer={a} isBestView={aFilter === "best"} isOwnProfile={isOwnProfile} />
+                  <AnswerResultCard
+                    key={a.id}
+                    answer={a}
+                    isBestView={aFilter === "best"}
+                    isOwnProfile={isOwnProfile}
+                    hideVotes
+                  />
                 ))
               ) : (
                 <div style={{ padding: "20px", textAlign: "center", color: "#899AB5" }}>У этого пользователя пока нет ответов</div>
@@ -653,7 +687,7 @@ export default function PublicProfileContent({ initialUser }: PublicProfileConte
           </div>
         </div>
 
-        <div className="question_right_list">
+        <div className={`question_right_list${isBanned ? " banned_opacity" : ""}`}>
           <div className="vip_status_block">
             <div className="vip_icon">
               <img src="/images/vip.svg" alt="VIP" />
@@ -675,6 +709,8 @@ export default function PublicProfileContent({ initialUser }: PublicProfileConte
           </Link>
         </div>
       </div>
+
+      <ProfileRelatedQuestionsBlock profileUserId={profile.id} />
 
       <Footer />
     </>

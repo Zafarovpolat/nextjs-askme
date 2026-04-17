@@ -53,6 +53,25 @@
   gap: 19px;
 }
 
+/* Левая колонка: меню + виджеты «Лидеры» / «Активные авторы» (как dont-toch-test) */
+.profile_menu_column {
+  width: 18%;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.profile_menu_column .profile_menu {
+  width: 100%;
+}
+
+.profile_menu_weekly {
+  margin-top: 18px;
+}
+
+.profile_menu_weekly .question_leaders {
+  margin-bottom: 8px;
+}
+
 .profile_menu {
   width: 18%;
 }
@@ -106,6 +125,18 @@
 .profile_menu_list .active_menu svg {
   transition: all 0.2s ease;
   fill: #fff;
+}
+
+/* Одна правая колонка: статистика + лидеры (ширина задаётся на .profile_stats_column) */
+.profile_stats_column .profile_stats {
+  width: 100%;
+}
+
+.profile_stats_column {
+  width: 18%;
+  min-width: 0;
+  flex-shrink: 0;
+  margin-top: 38px;
 }
 
 .profile_stats {
@@ -331,6 +362,13 @@
   position: relative;
 }
 
+/* profile-public задаёт .user_profile_img { width:100% } — ломает ряд «аватар + имя» в кабинете */
+.profile_page .user_profile_img {
+  width: auto;
+  height: auto;
+  display: block;
+}
+
 .user_profile_img_action {
   position: absolute;
   bottom: 0px;
@@ -343,6 +381,7 @@
   width: 21px;
   height: 21px;
   border-radius: 8px;
+  border: none;
   background: rgb(93, 103, 255);
   padding: 0;
 }
@@ -384,6 +423,7 @@
   font-weight: 400;
   letter-spacing: 0;
   text-align: left;
+  margin: 0;
 }
 
 .dark_mode .user_profile_block_content_profile_desc p {
@@ -1460,9 +1500,11 @@
 }
 
 .user-follow-card {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(160px, 240px) minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 8px;
   background-color: #F4F5F8;
   border-radius: 12px;
   padding: 11px 16px;
@@ -1476,8 +1518,8 @@
 .user-follow-left {
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex: 0 0 190px;
+  gap: 12px;
+  min-width: 0;
 }
 
 .user-follow-avatar {
@@ -1552,14 +1594,32 @@
   width: 1px;
   height: 38px;
   background-color: #E2E4EB;
+  flex-shrink: 0;
 }
 
 .dark_mode .user-follow-separator {
   background-color: #3b426e;
 }
 
+.user-follow-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  gap: 0 10px;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.user-follow-stats-row .user-follow-stat svg {
+  flex-shrink: 0;
+}
+
 .user-follow-right {
   display: flex;
+  flex-shrink: 0;
 }
 
 .user-follow-btn {
@@ -1627,11 +1687,7 @@
 
 
   .user-follow-card {
-    gap: 10px;
-  }
-
-  .user-follow-left {
-    flex: 0 0 180px;
+    column-gap: 12px;
   }
 }
 
@@ -1640,7 +1696,7 @@
     display: none;
   }
 
-  .user-follow-left + .user-follow-separator {
+  .user-follow-stats-row > .user-follow-separator:first-of-type {
     display: none;
   }
 
@@ -1667,6 +1723,15 @@
   .profile_page_content {
     width: 100%;
     max-width: 100%;
+  }
+
+  .profile_stats_column {
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  .profile_menu_column {
+    width: 100%;
   }
 
   .profile_menu,
@@ -1794,6 +1859,26 @@
 }
 
 @media only screen and (max-width: 940px) {
+  .user-follow-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .user-follow-stats-row {
+    flex-wrap: wrap;
+    order: 0;
+    width: 100%;
+    padding-top: 0;
+    overflow-x: visible;
+  }
+
+  .user-follow-right {
+    order: 0;
+    margin-left: 0;
+    align-self: flex-end;
+  }
+
   .user_profile_block_content {
     padding: 20px 24px 10px;
   }
@@ -1819,25 +1904,8 @@
     top: 13px;
   }
 
-  .user-follow-left + .user-follow-separator {
+  .user-follow-stats-row > .user-follow-separator:first-of-type {
     display: flex;
-  }
-
-  .user-follow-stat:nth-child(3) + .user-follow-separator {
-    display: none;
-  }
-
-  .user-follow-card {
-    display: grid;
-    grid-template-columns: auto auto auto ;
-  }
-
-  .user-follow-right {
-    grid-column: 1 / 4;
-  }
-
-  .user-follow-card {
-    gap: 0;
   }
 
 }
@@ -2167,8 +2235,8 @@
     gap: 22px;
   }
 
-  .user-follow-stat:nth-child(3) {
-    flex-direction: column;
+  .user-follow-stats-row .user-follow-stat {
+    flex-wrap: wrap;
   }
 
   .user-follow-card {
@@ -2177,12 +2245,8 @@
     flex-wrap: wrap;
   }
 
-  .user-follow-separator:nth-child(2) {
-    height: 38px;
-  }
-
-  .user-follow-separator:nth-child(6) {
-    height: 18px;
+  .user-follow-stats-row .user-follow-separator {
+    height: 32px;
   }
 
   .user-follow-right {

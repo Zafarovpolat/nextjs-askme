@@ -1,4 +1,8 @@
-import Link from 'next/link'
+import Link from "next/link";
+import {
+  LEGAL_FOOTER_SLUGS,
+  legalFooterHref,
+} from "@/lib/legal-footer-slugs";
 
 export default function Footer() {
   return (
@@ -9,13 +13,19 @@ export default function Footer() {
           <img className="light_logo" src="/images/logo.svg" alt="AskMe" />
           <img className="dark_logo" src="/images/logo_dark.svg" alt="AskMe" />
         </Link>
-        
-        <Link href="/user-agreement">Пользовательские соглашения</Link>
-        <Link href="/support">Служба поддержки</Link>
-        <Link href="/cookies">Файлы Cookie</Link>
-        
+
+        <Link href={legalFooterHref(LEGAL_FOOTER_SLUGS.userAgreement)}>
+          Пользовательские соглашения
+        </Link>
+        <Link href={legalFooterHref(LEGAL_FOOTER_SLUGS.support)}>
+          Служба поддержки
+        </Link>
+        <Link href={legalFooterHref(LEGAL_FOOTER_SLUGS.cookies)}>
+          Файлы Cookie
+        </Link>
+
         <p>Все права защищены © otvetai 2026</p>
       </div>
     </footer>
-  )
+  );
 }

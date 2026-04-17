@@ -5,6 +5,8 @@ interface AnswerResultCardProps {
   answer: UserAnswer;
   isBestView?: boolean;
   isOwnProfile?: boolean;
+  /** Скрыть лайк/дизлайк (список на странице профиля — только просмотр). */
+  hideVotes?: boolean;
 }
 
 // Склонение ответов
@@ -43,6 +45,7 @@ export default function AnswerResultCard({
   answer,
   isBestView,
   isOwnProfile,
+  hideVotes,
 }: AnswerResultCardProps) {
   return (
     <div className="answer-result-card">
@@ -66,7 +69,7 @@ export default function AnswerResultCard({
         <p className="answer-result-subtext">{answer.content}</p>
 
         <div className="answer-result-meta">
-          {!isOwnProfile && (
+          {!isOwnProfile && !hideVotes && (
             <>
               <button className="like-badge" type="button">
                 <svg

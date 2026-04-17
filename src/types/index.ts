@@ -13,6 +13,10 @@ export interface PublicProfileUser {
   questions_count: number
   answers_count: number
   subscribed_by_me: boolean
+  /** Аккаунт заблокирован — для вёрстки профиля (баннер, полупрозрачность). */
+  is_blocked?: boolean
+  /** Текст причины, если задана в админке. */
+  block_reason?: string | null
 }
 
 /** Пользователь из API (auth/me) */

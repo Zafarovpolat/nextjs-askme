@@ -265,9 +265,6 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                   <h3>{user.full_name}</h3>
                   <h4>{user.level_name || ""}</h4>
                   <p>{formatMetricLine(metricFilter, user.metric_value)}</p>
-                  <p className="secondary_text" style={{ fontSize: "0.9em" }}>
-                    Сейчас: {numWord(user.balls ?? 0, ["балл", "балла", "баллов"])}
-                  </p>
                 </div>
               </div>
             </div>
@@ -295,13 +292,28 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                       <div>
                         <p className="main_text">{user.full_name}</p>
                         <span>{formatMetricLine(metricFilter, user.metric_value)}</span>
-                        <span className="secondary_text" style={{ display: "block", fontSize: "0.85em" }}>
-                          {numWord(user.balls ?? 0, ["балл", "балла", "баллов"])} всего
-                        </span>
                       </div>
                     </div>
                   </Link>
                 </div>
+                {(user.subscribers_count ?? 0) > 0 ? (
+                  <div className="question_list_item_users">
+                    {(user.subscriber_preview ?? []).map((s) => (
+                      <img
+                        key={s.id}
+                        src={s.avatar_url || "/images/icons/avatar.svg"}
+                        alt=""
+                      />
+                    ))}
+                    <p className="main_text">
+                      {numWord(user.subscribers_count ?? 0, [
+                        "подписчик",
+                        "подписчика",
+                        "подписчиков",
+                      ])}
+                    </p>
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>

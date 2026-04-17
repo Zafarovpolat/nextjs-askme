@@ -1,20 +1,13 @@
-import dynamic from "next/dynamic";
+import { cache, Suspense } from "react";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getApiFullUrl } from "@/config/api";
+import { AUTH_TOKEN_COOKIE_KEY } from "@/lib/auth-constants";
 import type { PublicProfileUser } from "@/types";
+import { fetchProfileWidgetsCached } from "@/lib/server-profile-widgets";
+import PublicProfileContent from "./PublicProfileContent";
 
-/**
- * useSearchParams + тяжёлый клиентский UI: при SSR в Next 14 иногда падает с 500.
- * Рендер только на клиенте — API Laravel при этом не трогается.
- */
-const PublicProfileContent = dynamic(() => import("./PublicProfileContent"), {
-  ssr: false,
-  loading: () => (
-    <div className="container" style={{ padding: 40 }}>
-      Загрузка…
-    </div>
-  ),
-});
+const PROFILE_REVALIDATE_SEC = 60;
 
 async function fetchPublicProfileJson(
   id: string,
@@ -27,8 +20,19 @@ async function fetchPublicProfileJson(
     );
     return null;
   }
+  const token = cookies().get(AUTH_TOKEN_COOKIE_KEY)?.value;
+  const headers: HeadersInit = {
+    Accept: "application/json",
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+  if (token) {
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+  }
   try {
-    const res = await fetch(url, init);
+    const res = await fetch(url, {
+      ...init,
+      headers,
+    });
     if (!res.ok) return null;
     const ct = res.headers.get("content-type") ?? "";
     if (!ct.includes("application/json")) {
@@ -42,6 +46,11 @@ async function fetchPublicProfileJson(
     return null;
   }
 }
+
+/** Один HTTP-запрос к API на весь запрос страницы (generateMetadata + RSC). */
+const getPublicProfileCached = cache(async (id: string) =>
+  fetchPublicProfileJson(id, { next: { revalidate: PROFILE_REVALIDATE_SEC } }),
+);
 
 async function resolveId(
   params: Promise<{ id: string }> | { id: string },
@@ -60,7 +69,7 @@ export async function generateMetadata({
     if (!id || !/^\d+$/.test(id)) {
       return { title: "Профиль" };
     }
-    const data = await fetchPublicProfileJson(id, { next: { revalidate: 60 } });
+    const data = await getPublicProfileCached(id);
     if (!data) {
       return { title: "Профиль" };
     }
@@ -72,6 +81,14 @@ export async function generateMetadata({
   }
 }
 
+function ProfilePageFallback() {
+  return (
+    <div className="container" style={{ padding: 40 }}>
+      Загрузка…
+    </div>
+  );
+}
+
 export default async function PublicProfilePage({
   params,
 }: {
@@ -81,10 +98,17 @@ export default async function PublicProfilePage({
   if (!id || !/^\d+$/.test(id)) {
     notFound();
   }
-  const data = await fetchPublicProfileJson(id, { next: { revalidate: 30 } });
+  const [data, initialWidgets] = await Promise.all([
+    getPublicProfileCached(id),
+    fetchProfileWidgetsCached(),
+  ]);
   if (!data) {
     notFound();
   }
 
-  return <PublicProfileContent initialUser={data.user} />;
+  return (
+    <Suspense fallback={<ProfilePageFallback />}>
+      <PublicProfileContent initialUser={data.user} initialWidgets={initialWidgets} />
+    </Suspense>
+  );
 }
