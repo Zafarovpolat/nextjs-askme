@@ -672,6 +672,20 @@
   stroke: #fff !important;
 }
 
+/* Dark mode - белый фон у соцсетей, синие иконки */
+.dark_mode .share_icon_btn {
+  background: #ffffff !important;
+}
+
+.dark_mode .profile_stats_action .profile_share_popup_icons svg path {
+  fill: #5764ff !important;
+}
+
+.dark_mode .profile_stats_action .profile_share_popup_icons .ok svg path:last-child {
+  fill: none !important;
+  stroke: #5764ff !important;
+}
+
 /* Premium Profile - Media Queries */
 @media only screen and (max-width: 940px) {
   .main_question_block.main_question_block_item.profile_question_block::after {

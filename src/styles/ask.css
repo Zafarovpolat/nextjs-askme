@@ -7,7 +7,7 @@
   border-radius: 12px;
   height: 55px;
   background: rgb(255, 255, 255);
-  border: 2px solid transparent;
+  border: 2px solid rgb(98, 106, 255);
   text-indent: 18px;
   color: #899ab5;
   font-family: Nunito;
@@ -204,6 +204,51 @@
   gap: 25px;
 }
 
+.ask_premium_btn {
+  height: 50px;
+  padding: 0 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #6b73ff 0%, #5e68ff 100%);
+  border: none;
+  color: #ffffff;
+  font-family: Nunito;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 22px;
+  letter-spacing: 0;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+  white-space: nowrap;
+  text-transform: none;
+}
+
+.ask_premium_btn:hover {
+  background: linear-gradient(135deg, #545bde 0%, #4a54d9 100%);
+  transition: all 0.2s ease;
+}
+
+.ask_premium_btn .premium_checkbox_icon {
+  width: 25px;
+  height: 25px;
+  flex-shrink: 0;
+}
+
+.ask_premium_btn .premium_crown_icon {
+  width: 20px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.ask_premium_btn .premium_crown_icon path {
+  fill: #ffffff;
+}
+
 .chechbox_item {
   display: flex;
   align-items: center;
@@ -260,6 +305,7 @@
   font-size: 17px;
   font-weight: 700;
   text-transform: none;
+  white-space: nowrap;
 }
 
 .dark_mode .ask_from_send_btn .m_btn {
@@ -293,9 +339,15 @@
   }
 
   .ask_form_checkboxes {
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     gap: 12px;
+  }
+
+  .ask_premium_btn {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
   }
 
   .select_category_filters {
