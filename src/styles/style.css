@@ -125,6 +125,7 @@ body {
 
 .header__logo {
   display: block;
+  overflow: visible;
 }
 
 .header__logo img {
@@ -1961,3 +1962,4 @@ body.dark_mode .theme-toggle-btn .svg-dark {
     height: 45px !important;
   }
 }
+  

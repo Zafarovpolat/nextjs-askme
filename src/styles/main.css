@@ -135,6 +135,7 @@ nav.nav--hidden {
   align-items: center;
   justify-content: space-between;
   gap: 34px;
+  overflow: visible;
 }
 
 .m_btn {
@@ -1264,9 +1265,14 @@ footer .line {
     display: none !important;
   }
 
-  .nav_list button:last-child,
-  .nav_list a:nth-child(6),
+  /* На мобиле скрываем кнопку уведомлений и темы */
+  .nav_list .notification-dropdown-wrapper,
   .nav_list .mode_toggler {
+    display: none !important;
+  }
+
+  .nav_list button:last-child,
+  .nav_list a:nth-child(6) {
     display: flex;
     width: 45px;
     height: 45px;
@@ -2001,6 +2007,8 @@ footer .line {
 .logo-container {
   display: flex;
   align-items: center;
+  overflow: visible;
+  isolation: isolate;
 }
 
 .logo-container.light_logo {
@@ -2031,10 +2039,12 @@ svg.logo-ai {
   filter: drop-shadow(0 0 5px rgba(150, 160, 255, 0.7))
           drop-shadow(0 0 10px rgba(130, 145, 255, 0.5))
           drop-shadow(0 0 15px rgba(110, 130, 255, 0.3));
-  animation: neon-flicker 2s linear infinite;
-  animation-play-state: running;
-  animation-fill-mode: forwards;
+  animation: neon-flicker 5s ease-in-out infinite !important;
+  animation-play-state: running !important;
   will-change: filter, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  overflow: visible;
 }
 
 @keyframes neon-flicker {
@@ -2044,36 +2054,29 @@ svg.logo-ai {
             drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
     opacity: 1;
   }
-  2% {
-    filter: drop-shadow(0 0 1px rgba(150, 160, 255, 0.2));
-    opacity: 0.4;
-  }
-  4% {
-    filter: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
-            drop-shadow(0 0 12px rgba(130, 145, 255, 0.7));
-    opacity: 1;
-  }
-  6% {
-    filter: drop-shadow(0 0 1px rgba(150, 160, 255, 0.2));
-    opacity: 0.4;
-  }
-  8% {
+  78% {
     filter: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
             drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
             drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
     opacity: 1;
   }
-  70% {
+  82% {
+    filter: drop-shadow(0 0 2px rgba(150, 160, 255, 0.3))
+            drop-shadow(0 0 4px rgba(130, 145, 255, 0.2));
+    opacity: 0.85;
+  }
+  86% {
     filter: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
             drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
             drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
     opacity: 1;
   }
-  72% {
-    filter: drop-shadow(0 0 1px rgba(150, 160, 255, 0.2));
-    opacity: 0.4;
+  90% {
+    filter: drop-shadow(0 0 3px rgba(150, 160, 255, 0.4))
+            drop-shadow(0 0 6px rgba(130, 145, 255, 0.3));
+    opacity: 0.9;
   }
-  74% {
+  94% {
     filter: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
             drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
             drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
@@ -2091,10 +2094,12 @@ svg.logo-ai {
   filter: drop-shadow(0 0 10px rgba(97, 106, 255, 1))
           drop-shadow(0 0 20px rgba(97, 106, 255, 0.9))
           drop-shadow(0 0 30px rgba(97, 106, 255, 0.7));
-  animation: neon-flicker-dark 2s linear infinite;
-  animation-play-state: running;
-  animation-fill-mode: forwards;
+  animation: neon-flicker-dark 5s ease-in-out infinite !important;
+  animation-play-state: running !important;
   will-change: filter, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  overflow: visible;
 }
 
 @keyframes neon-flicker-dark {
@@ -2104,36 +2109,29 @@ svg.logo-ai {
             drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
     opacity: 1;
   }
-  2% {
-    filter: drop-shadow(0 0 2px rgba(97, 106, 255, 0.3));
-    opacity: 0.3;
-  }
-  4% {
-    filter: drop-shadow(0 0 15px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 30px rgba(97, 106, 255, 1));
-    opacity: 1;
-  }
-  6% {
-    filter: drop-shadow(0 0 2px rgba(97, 106, 255, 0.3));
-    opacity: 0.3;
-  }
-  8% {
+  78% {
     filter: drop-shadow(0 0 15px rgba(97, 106, 255, 1))
             drop-shadow(0 0 30px rgba(97, 106, 255, 1))
             drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
     opacity: 1;
   }
-  70% {
+  82% {
+    filter: drop-shadow(0 0 4px rgba(97, 106, 255, 0.5))
+            drop-shadow(0 0 8px rgba(97, 106, 255, 0.3));
+    opacity: 0.85;
+  }
+  86% {
     filter: drop-shadow(0 0 15px rgba(97, 106, 255, 1))
             drop-shadow(0 0 30px rgba(97, 106, 255, 1))
             drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
     opacity: 1;
   }
-  72% {
-    filter: drop-shadow(0 0 2px rgba(97, 106, 255, 0.3));
-    opacity: 0.3;
+  90% {
+    filter: drop-shadow(0 0 6px rgba(97, 106, 255, 0.6))
+            drop-shadow(0 0 12px rgba(97, 106, 255, 0.4));
+    opacity: 0.9;
   }
-  74% {
+  94% {
     filter: drop-shadow(0 0 15px rgba(97, 106, 255, 1))
             drop-shadow(0 0 30px rgba(97, 106, 255, 1))
             drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
@@ -2200,5 +2198,24 @@ svg.logo-ai {
 .nav_mob_wrapper_nav .theme-toggle-btn svg {
   width: 45px !important;
   height: 45px !important;
+}
+
+/* Профиль: дропдаун на десктопе, прямая ссылка на мобиле */
+.profile-link-mobile {
+  display: none;
+}
+
+.profile-dropdown-desktop {
+  display: flex;
+}
+
+@media only screen and (max-width: 768px) {
+  .profile-dropdown-desktop {
+    display: none !important;
+  }
+
+  .profile-link-mobile {
+    display: flex;
+  }
 }
 
