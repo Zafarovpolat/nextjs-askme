@@ -1555,6 +1555,102 @@
   background-color: #403586;
 }
 
+/* Премиум кабинет - синий фон для вопросов и ответов */
+.premium-profile .questions_list_profile .search-result-card,
+.premium-profile .answers_list_profile .answer-result-card,
+.premium-user .questions_list_profile .search-result-card,
+.premium-user .answers_list_profile .answer-result-card {
+  background-color: #5d67ff !important;
+}
+
+/* Белый текст в премиум кабинете */
+.premium-profile .search-result-card .search-result-title,
+.premium-profile .search-result-card .main_text,
+.premium-profile .search-result-card .secondary_text,
+.premium-profile .search-result-card .search-result-category-name,
+.premium-profile .search-result-card .search-result-date,
+.premium-profile .search-result-card .search-result-subtext,
+.premium-user .search-result-card .search-result-title,
+.premium-user .search-result-card .main_text,
+.premium-user .search-result-card .secondary_text,
+.premium-user .search-result-card .search-result-category-name,
+.premium-user .search-result-card .search-result-date,
+.premium-user .search-result-card .search-result-subtext {
+  color: #ffffff !important;
+}
+
+.premium-profile .answer-result-card .main_text,
+.premium-profile .answer-result-card .secondary_text,
+.premium-profile .answer-result-card .answer-result-title,
+.premium-profile .answer-result-card .answer-result-question,
+.premium-profile .answer-result-card .answer-result-text,
+.premium-user .answer-result-card .main_text,
+.premium-user .answer-result-card .secondary_text,
+.premium-user .answer-result-card .answer-result-title,
+.premium-user .answer-result-card .answer-result-question,
+.premium-user .answer-result-card .answer-result-text {
+  color: #ffffff !important;
+}
+
+/* Белые иконки в премиум кабинете */
+.premium-profile .search-result-card svg,
+.premium-profile .search-result-card svg path,
+.premium-profile .answer-result-card svg,
+.premium-profile .answer-result-card svg path,
+.premium-user .search-result-card svg,
+.premium-user .search-result-card svg path,
+.premium-user .answer-result-card svg,
+.premium-user .answer-result-card svg path {
+  fill: #ffffff !important;
+}
+
+/* Белые разделители в премиум кабинете */
+.premium-profile .search-result-separator,
+.premium-user .search-result-separator {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Дополнительные стили для ответов в премиум кабинете */
+.premium-profile .answer-result-card a,
+.premium-profile .answer-result-card .answer-result-title,
+.premium-user .answer-result-card a,
+.premium-user .answer-result-card .answer-result-title {
+  color: #ffffff !important;
+}
+
+.premium-profile .answer-result-card .answer-result-subtext,
+.premium-user .answer-result-card .answer-result-subtext {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.premium-profile .answer-result-meta .search-result-date,
+.premium-profile .answer-result-meta .search-result-answers,
+.premium-profile .answer-result-meta span,
+.premium-user .answer-result-meta .search-result-date,
+.premium-user .answer-result-meta .search-result-answers,
+.premium-user .answer-result-meta span {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Белые ссылки в карточках */
+.premium-profile .search-result-card a,
+.premium-user .search-result-card a {
+  color: #ffffff !important;
+}
+
+/* Белый текст для количества ответов */
+.premium-profile .search-result-answers,
+.premium-user .search-result-answers {
+  color: #ffffff !important;
+}
+
+.premium-profile .search-result-answers svg,
+.premium-profile .search-result-answers svg path,
+.premium-user .search-result-answers svg,
+.premium-user .search-result-answers svg path {
+  fill: #ffffff !important;
+}
+
 .search-result-subtext {
   color: #5c6676;
 }
@@ -1847,15 +1943,18 @@
     background-color: rgb(51, 46, 113);
   }
 
-  .premium-user .profile_menu_list_mob.tabs_list_m .profile_menu_item {
+  .premium-user .profile_menu_list_mob.tabs_list_m .profile_menu_item,
+  .premium-profile .profile_menu_list_mob.tabs_list_m .profile_menu_item {
     background: white !important;
   }
 
-  .dark_mode .premium-user .profile_menu_list_mob.tabs_list_m .profile_menu_item {
+  .dark_mode .premium-user .profile_menu_list_mob.tabs_list_m .profile_menu_item,
+  .dark_mode .premium-profile .profile_menu_list_mob.tabs_list_m .profile_menu_item {
     background: white !important;
   }
 
-  .premium-user .profile_menu_list_mob.tabs_list_m .profile_menu_item:hover {
+  .premium-user .profile_menu_list_mob.tabs_list_m .profile_menu_item:hover,
+  .premium-profile .profile_menu_list_mob.tabs_list_m .profile_menu_item:hover {
     background: transparent !important;
   }
 
@@ -1915,7 +2014,8 @@
     z-index: -1;
   }
 
-  .user_profile_block.premium-user::after {
+  .user_profile_block.premium-user::after,
+  .user_profile_block.premium-profile::after {
     background-color: #6069ff !important;
   }
 
