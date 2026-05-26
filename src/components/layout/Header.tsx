@@ -2,17 +2,28 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useRef, useId } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
+import styles from "./Header.module.css";
 import { useAuthStore } from "@/store/authStore";
+import { useNavChromeStore } from "@/store/navChromeStore";
 import { setTheme } from "@/lib/theme-cookie";
+import NotificationBtnRealtime from "./NotificationBtnRealtime";
+import UserAvatar from "@/components/UserAvatar";
 
-function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
-  const uid = useId().replace(/:/g, "");
-  const maskLight = `theme_mask_l_${uid}`;
-  const gradLight = `theme_grad_l_${uid}`;
-  const maskDark = `theme_mask_d_${uid}`;
-  const gradDark = `theme_grad_d_${uid}`;
-  return (
+type PremiumUserLike = {
+  is_premium?: boolean | number;
+  vip?: boolean | number;
+  vip_status?: boolean | number;
+};
+
+const isUserPremium = (user?: PremiumUserLike | null): boolean =>
+  Boolean(
+    user?.is_premium ||
+      user?.vip ||
+      (typeof user?.vip_status === "number" ? user.vip_status > 0 : user?.vip_status),
+  );
+
+const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
   <button
     className="theme-toggle-btn mode_toggler"
     onClick={onClick}
@@ -28,7 +39,7 @@ function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <mask
-        id={maskLight}
+        id="mask0_3_4601"
         style={{ maskType: "alpha" }}
         maskUnits="userSpaceOnUse"
         x="0"
@@ -38,7 +49,7 @@ function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
       >
         <rect width="50" height="50" rx="12" fill="white" />
       </mask>
-      <g mask={`url(#${maskLight})`}>
+      <g mask="url(#mask0_3_4601)">
         <rect width="50" height="50" rx="12" fill="white" />
         <ellipse
           opacity="0.11"
@@ -46,7 +57,7 @@ function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
           cy="45.5"
           rx="41.5"
           ry="23.5"
-          fill={`url(#${gradLight})`}
+          fill="url(#paint0_linear_3_4601)"
         />
         <path
           d="M32.8721 28.0248C32.7185 27.8268 32.4606 27.7536 32.2337 27.8388C31.5975 28.0776 30.9075 28.2 30.1809 28.2C26.7046 28.2 23.877 25.2384 23.877 21.6C23.877 19.41 24.9097 17.3712 26.6392 16.1448C26.8352 16.0056 26.9292 15.7548 26.8765 15.5136C26.8238 15.2724 26.6346 15.09 26.3997 15.054C26.1315 15.0132 25.8644 15 25.5962 15C20.8557 15 17 19.0368 17 24C17 28.9632 20.8557 33 25.5962 33C28.6049 33 31.3419 31.3992 32.9156 28.7184C33.0428 28.5012 33.0245 28.224 32.8721 28.0248Z"
@@ -71,7 +82,7 @@ function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
       </g>
       <defs>
         <linearGradient
-          id={gradLight}
+          id="paint0_linear_3_4601"
           x1="25.5"
           y1="22"
           x2="25.5"
@@ -92,7 +103,7 @@ function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <mask
-        id={maskDark}
+        id="mask0_3_4582"
         style={{ maskType: "alpha" }}
         maskUnits="userSpaceOnUse"
         x="0"
@@ -102,7 +113,7 @@ function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
       >
         <rect width="50" height="50" rx="12" fill="white" />
       </mask>
-      <g mask={`url(#${maskDark})`}>
+      <g mask="url(#mask0_3_4582)">
         <rect width="50" height="50" rx="12" fill="#6069FF" />
         <ellipse
           opacity="0.55"
@@ -110,7 +121,7 @@ function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
           cy="45.5"
           rx="41.5"
           ry="23.5"
-          fill={`url(#${gradDark})`}
+          fill="url(#paint0_linear_3_4582)"
         />
         <path
           fillRule="evenodd"
@@ -163,7 +174,7 @@ function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
       </g>
       <defs>
         <linearGradient
-          id={gradDark}
+          id="paint0_linear_3_4582"
           x1="25.5"
           y1="22"
           x2="25.5"
@@ -176,15 +187,179 @@ function ThemeToggleBtn({ onClick }: { onClick: () => void }) {
       </defs>
     </svg>
   </button>
+);
+
+// Выпадающее меню профиля
+const ProfileDropdown = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const isPremiumUser = isUserPremium(user);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const menuItems = [
+    {
+      label: "Редактировать профиль",
+      href: "/profile?tab=edit",
+      icon: "profile",
+    },
+    {
+      label: "Уровни",
+      href: "/profile?tab=levels",
+      icon: "levels",
+    },
+    {
+      label: "Ограничения",
+      href: "/profile?tab=rules",
+      icon: "rules",
+    },
+    {
+      label: "VIP - статус",
+      href: "/profile?tab=vip",
+      icon: "vip",
+    },
+    {
+      label: "Настройки",
+      href: "/profile?tab=settings",
+      icon: "settings",
+    },
+  ];
+
+  return (
+    <div ref={wrapperRef} className={styles.notificationWrapper}>
+      <button
+        className="m_btn m_btn_icon category_btn"
+        title="Личный кабинет"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          backgroundColor: isOpen ? "#6069FF" : "white",
+          transition: "background-color 0.3s",
+        }}
+      >
+        <img
+          src="/images/icons/user.svg"
+          alt=""
+          width="16"
+          height="20"
+          style={{ filter: isOpen ? "brightness(0) invert(1)" : "none" }}
+        />
+      </button>
+
+      {isOpen && (
+        <div className={styles.profileDropdown}>
+          <div className={styles.profileHeader}>
+            <div className={styles.profileAvatarWrapper}>
+              <UserAvatar
+                src={user?.avatar_url || "/images/icons/avatar.svg"}
+                src2x={user?.avatar_url_2x}
+                alt=""
+                premium={isPremiumUser}
+                premiumText="Премиум"
+                size={80}
+                imgClassName={styles.profileAvatar}
+              />
+            </div>
+            <div className={styles.profileUserDetail}>
+              <div className={styles.profileName}>
+                {user?.first_name?.trim() || "Профиль"}
+              </div>
+              <div className={styles.roleBadge}>
+                {user?.level_name?.trim() || "—"}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.profileMenuList}>
+            {menuItems.map((item, index) => (
+              <Fragment key={item.href}>
+                <Link
+                  href={item.href}
+                  className={styles.profileMenuItem}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <div className={styles.profileMenuIcon}>
+                    <svg width="24" height="24">
+                      <use xlinkHref={`#${item.icon}`}></use>
+                    </svg>
+                  </div>
+                  {item.label}
+                </Link>
+                {index < menuItems.length - 1 && (
+                  <div className={styles.menuDivider}></div>
+                )}
+              </Fragment>
+            ))}
+            <button
+              type="button"
+              className={`${styles.profileMenuItem} ${styles.logoutItem}`}
+              onClick={() => {
+                setIsOpen(false);
+                logout();
+                router.push("/");
+                router.refresh();
+              }}
+            >
+              <div className={styles.profileMenuIcon}>
+                <svg width="24" height="24">
+                  <use xlinkHref="#logout"></use>
+                </svg>
+              </div>
+              Выйти
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
-}
+};
+
+// Кнопка уведомлений (колокольчик)
+const NotificationBtn = () => <NotificationBtnRealtime />;
 
 export default function Header() {
   const router = useRouter();
-  const isAuthorized = useAuthStore((s) => s.isAuthorized);
+  const isAuthorized = useAuthStore((s) => s.isAuthorized === 1);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNavHidden, setIsNavHidden] = useState(false);
   const lastScrollY = useRef(0);
+  const desktopSearchRef = useRef<HTMLInputElement>(null);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
+
+  const goSearch = (input: HTMLInputElement | null) => {
+    const q = input?.value.trim() ?? "";
+    if (!q) return;
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+  };
+
+  const onSearchSubmit = (
+    e: React.FormEvent<HTMLFormElement>,
+    ref: React.RefObject<HTMLInputElement | null>
+  ) => {
+    e.preventDefault();
+    goSearch(ref.current);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -200,43 +375,148 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const setMainNavCollapsed = useNavChromeStore((s) => s.setMainNavCollapsed);
+  const mainNavCollapsed = isNavHidden || isMenuOpen;
+  useEffect(() => {
+    setMainNavCollapsed(mainNavCollapsed);
+    return () => setMainNavCollapsed(false);
+  }, [mainNavCollapsed, setMainNavCollapsed]);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const toggleDarkMode = () => {
-    document.body.classList.toggle("dark_mode");
-    setTheme(document.body.classList.contains("dark_mode") ? "dark" : "light");
+    const nextDark = !document.body.classList.contains("dark_mode");
+    document.body.classList.toggle("dark_mode", nextDark);
+    setTheme(nextDark ? "dark" : "light");
   };
 
-  const submitHeaderSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const raw = fd.get("q") ?? fd.get("s");
-    const q = String(raw ?? "").trim();
-    if (!q) return;
-    router.push(`/search?q=${encodeURIComponent(q)}`);
-  };
+  const isPremiumUser = isUserPremium(user);
 
   return (
     <>
       <nav className={isNavHidden || isMenuOpen ? "nav--hidden" : ""}>
         <div className="nav_wrapper container">
           <Link href="/" className="header__logo">
-            <img
-              src="/images/logo.svg"
-              className="light_logo"
-              alt="AskMe"
-              width="321"
-              height="96"
-            />
-            <img
-              src="/images/logo_dark.svg"
-              className="dark_logo"
-              alt="AskMe"
-              width="321"
-              height="96"
-            />
+            <div className="logo-container light_logo">
+              <svg
+                width="44"
+                height="50"
+                viewBox="0 0 44 50"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M21.8621 0C33.5553 0 44 9.4959 44 21.2097C44 29.661 39.9808 38.1356 21.931 50V42.2812C34.6207 29.2373 34.6207 26.1072 34.6207 19.6207C34.6207 13.1342 28.4061 7.87591 21.931 7.87591C15.456 7.87591 9.51724 13.1342 9.51724 19.6207C9.51724 26.061 15.3816 32.1379 21.7931 32.212V42.4188C10.1316 42.3816 0 32.9005 0 21.2097C0 9.4959 10.1689 0 21.8621 0Z"
+                  fill="#616AFF"
+                />
+              </svg>
+              <svg
+                width="81"
+                height="27"
+                viewBox="0 0 81 27"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16.1278 10.186V21.0868C16.1278 25.0182 14.2812 26.9839 10.5881 26.9839H5.53974C1.84658 26.9839 0 25.0182 0 21.0868V10.186C0 6.25455 1.84658 4.28883 5.53974 4.28883H10.5881C14.2812 4.28883 16.1278 6.25455 16.1278 10.186ZM10.1413 22.3377V8.8904C10.1413 8.65213 10.052 8.44364 9.87325 8.26494C9.72433 8.08624 9.53074 7.99689 9.29247 7.99689H6.83533C6.59706 7.99689 6.38858 8.08624 6.20987 8.26494C6.06096 8.44364 5.9865 8.65213 5.9865 8.8904V22.3377C5.9865 22.5759 6.06096 22.7844 6.20987 22.9631C6.38858 23.1418 6.59706 23.2312 6.83533 23.2312H9.29247C9.53074 23.2312 9.72433 23.1418 9.87325 22.9631C10.052 22.7844 10.1413 22.5759 10.1413 22.3377Z"
+                  fill="#384B67"
+                />
+                <path
+                  d="M28.1521 23.0972H29.9391V26.9839H25.7396C22.0465 26.9839 20.1999 25.0182 20.1999 21.0868V0H26.1864V4.73559H29.9391V9.0691H26.1864V20.9527C26.1864 21.7867 26.3502 22.3526 26.6778 22.6504C27.0054 22.9482 27.4969 23.0972 28.1521 23.0972Z"
+                  fill="#384B67"
+                />
+                <path
+                  d="M43.1222 4.73559H48.93L44.1497 26.5372H36.2422L31.4619 4.73559H37.2697L40.2183 21.6675L43.1222 4.73559Z"
+                  fill="#384B67"
+                />
+                <path
+                  d="M62.1131 4.28883C65.8062 4.28883 67.6528 6.25455 67.6528 10.186V17.2447H57.5115V21.8016C57.5115 22.0398 57.5859 22.2483 57.7349 22.427C57.9136 22.6057 58.1221 22.6951 58.3603 22.6951H60.8175C61.0557 22.6951 61.2493 22.6057 61.3982 22.427C61.577 22.2483 61.6663 22.0398 61.6663 21.8016V19.3891H67.6528V21.0868C67.6528 25.0182 65.8062 26.9839 62.1131 26.9839H57.0647C53.3716 26.9839 51.525 25.0182 51.525 21.0868V10.186C51.525 6.25455 53.3716 4.28883 57.0647 4.28883H62.1131ZM57.5115 13.3133H61.6663V9.29247C61.6663 9.05421 61.577 8.84572 61.3982 8.66702C61.2493 8.48832 61.0557 8.39897 60.8175 8.39897H58.3603C58.1221 8.39897 57.9136 8.48832 57.7349 8.66702C57.5859 8.84572 57.5115 9.05421 57.5115 9.29247V13.3133Z"
+                  fill="#384B67"
+                />
+                <path
+                  d="M78.8918 23.0972H80.6788V26.9839H76.4793C72.7862 26.9839 70.9396 25.0182 70.9396 21.0868V0H76.9261V4.73559H80.6788V9.0691H76.9261V20.9527C76.9261 21.7867 77.0899 22.3526 77.4175 22.6504C77.7451 22.9482 78.2365 23.0972 78.8918 23.0972Z"
+                  fill="#384B67"
+                />
+              </svg>
+              <svg
+                width="28"
+                height="31"
+                viewBox="0 0 28 31"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="logo-ai"
+              >
+                <path
+                  d="M11.0795 8.35429H16.1278V30.1559H11.0795V28.5476C10.1562 29.9176 8.62234 30.6026 6.47793 30.6026H5.53974C1.84658 30.6026 0 28.6369 0 24.7055V13.8047C0 9.87325 1.84658 7.90754 5.53974 7.90754H6.47793C8.62234 7.90754 10.1562 8.59256 11.0795 9.9626V8.35429ZM10.1413 25.4203V13.0899C10.1413 12.8516 10.052 12.6431 9.87325 12.4644C9.72433 12.2857 9.53074 12.1964 9.29247 12.1964H6.83533C6.59706 12.1964 6.38858 12.2857 6.20987 12.4644C6.06096 12.6431 5.9865 12.8516 5.9865 13.0899V25.4203C5.9865 25.6585 6.06096 25.867 6.20987 26.0457C6.38858 26.2244 6.59706 26.3138 6.83533 26.3138H9.29247C9.53074 26.3138 9.72433 26.2244 9.87325 26.0457C10.052 25.867 10.1413 25.6585 10.1413 25.4203Z"
+                  fill="#616AFF"
+                />
+                <path
+                  d="M26.2757 5.62909C25.6503 6.25455 24.8908 6.56728 23.9973 6.56728C23.1038 6.56728 22.3294 6.25455 21.6742 5.62909C21.0189 4.97386 20.6913 4.19948 20.6913 3.30598C20.6913 2.38268 21.0189 1.60831 21.6742 0.982856C22.3294 0.327619 23.1038 0 23.9973 0C24.8908 0 25.6503 0.327619 26.2757 0.982856C26.931 1.60831 27.2586 2.38268 27.2586 3.30598C27.2586 4.22927 26.931 5.00364 26.2757 5.62909ZM21.004 30.1559V8.35429H26.9905V30.1559H21.004Z"
+                  fill="#616AFF"
+                />
+              </svg>
+            </div>
+            <div className="logo-container dark_logo">
+              <svg
+                width="44"
+                height="50"
+                viewBox="0 0 44 50"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M21.8621 0C33.5553 0 44 9.4959 44 21.2097C44 29.661 39.9808 38.1356 21.931 50V42.2812C34.6207 29.2373 34.6207 26.1072 34.6207 19.6207C34.6207 13.1342 28.4061 7.87591 21.931 7.87591C15.456 7.87591 9.51724 13.1342 9.51724 19.6207C9.51724 26.061 15.3816 32.1379 21.7931 32.212V42.4188C10.1316 42.3816 0 32.9005 0 21.2097C0 9.4959 10.1689 0 21.8621 0Z"
+                  fill="#616AFF"
+                />
+              </svg>
+              <svg
+                width="81"
+                height="27"
+                viewBox="0 0 81 27"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16.1278 10.186V21.0868C16.1278 25.0182 14.2812 26.9839 10.5881 26.9839H5.53974C1.84658 26.9839 0 25.0182 0 21.0868V10.186C0 6.25455 1.84658 4.28883 5.53974 4.28883H10.5881C14.2812 4.28883 16.1278 6.25455 16.1278 10.186ZM10.1413 22.3377V8.8904C10.1413 8.65213 10.052 8.44364 9.87325 8.26494C9.72433 8.08624 9.53074 7.99689 9.29247 7.99689H6.83533C6.59706 7.99689 6.38858 8.08624 6.20987 8.26494C6.06096 8.44364 5.9865 8.65213 5.9865 8.8904V22.3377C5.9865 22.5759 6.06096 22.7844 6.20987 22.9631C6.38858 23.1418 6.59706 23.2312 6.83533 23.2312H9.29247C9.53074 23.2312 9.72433 23.1418 9.87325 22.9631C10.052 22.7844 10.1413 22.5759 10.1413 22.3377Z"
+                  fill="#FFFFFF"
+                />
+                <path
+                  d="M28.1521 23.0972H29.9391V26.9839H25.7396C22.0465 26.9839 20.1999 25.0182 20.1999 21.0868V0H26.1864V4.73559H29.9391V9.0691H26.1864V20.9527C26.1864 21.7867 26.3502 22.3526 26.6778 22.6504C27.0054 22.9482 27.4969 23.0972 28.1521 23.0972Z"
+                  fill="#FFFFFF"
+                />
+                <path
+                  d="M43.1222 4.73559H48.93L44.1497 26.5372H36.2422L31.4619 4.73559H37.2697L40.2183 21.6675L43.1222 4.73559Z"
+                  fill="#FFFFFF"
+                />
+                <path
+                  d="M62.1131 4.28883C65.8062 4.28883 67.6528 6.25455 67.6528 10.186V17.2447H57.5115V21.8016C57.5115 22.0398 57.5859 22.2483 57.7349 22.427C57.9136 22.6057 58.1221 22.6951 58.3603 22.6951H60.8175C61.0557 22.6951 61.2493 22.6057 61.3982 22.427C61.577 22.2483 61.6663 22.0398 61.6663 21.8016V19.3891H67.6528V21.0868C67.6528 25.0182 65.8062 26.9839 62.1131 26.9839H57.0647C53.3716 26.9839 51.525 25.0182 51.525 21.0868V10.186C51.525 6.25455 53.3716 4.28883 57.0647 4.28883H62.1131ZM57.5115 13.3133H61.6663V9.29247C61.6663 9.05421 61.577 8.84572 61.3982 8.66702C61.2493 8.48832 61.0557 8.39897 60.8175 8.39897H58.3603C58.1221 8.39897 57.9136 8.48832 57.7349 8.66702C57.5859 8.84572 57.5115 9.05421 57.5115 9.29247V13.3133Z"
+                  fill="#FFFFFF"
+                />
+                <path
+                  d="M78.8918 23.0972H80.6788V26.9839H76.4793C72.7862 26.9839 70.9396 25.0182 70.9396 21.0868V0H76.9261V4.73559H80.6788V9.0691H76.9261V20.9527C76.9261 21.7867 77.0899 22.3526 77.4175 22.6504C77.7451 22.9482 78.2365 23.0972 78.8918 23.0972Z"
+                  fill="#FFFFFF"
+                />
+              </svg>
+              <svg
+                width="28"
+                height="31"
+                viewBox="0 0 28 31"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="logo-ai"
+              >
+                <path
+                  d="M11.0795 8.35429H16.1278V30.1559H11.0795V28.5476C10.1562 29.9176 8.62234 30.6026 6.47793 30.6026H5.53974C1.84658 30.6026 0 28.6369 0 24.7055V13.8047C0 9.87325 1.84658 7.90754 5.53974 7.90754H6.47793C8.62234 7.90754 10.1562 8.59256 11.0795 9.9626V8.35429ZM10.1413 25.4203V13.0899C10.1413 12.8516 10.052 12.6431 9.87325 12.4644C9.72433 12.2857 9.53074 12.1964 9.29247 12.1964H6.83533C6.59706 12.1964 6.38858 12.2857 6.20987 12.4644C6.06096 12.6431 5.9865 12.8516 5.9865 13.0899V25.4203C5.9865 25.6585 6.06096 25.867 6.20987 26.0457C6.38858 26.2244 6.59706 26.3138 6.83533 26.3138H9.29247C9.53074 26.3138 9.72433 26.2244 9.87325 26.0457C10.052 25.867 10.1413 25.6585 10.1413 25.4203Z"
+                  fill="#616AFF"
+                />
+                <path
+                  d="M26.2757 5.62909C25.6503 6.25455 24.8908 6.56728 23.9973 6.56728C23.1038 6.56728 22.3294 6.25455 21.6742 5.62909C21.0189 4.97386 20.6913 4.19948 20.6913 3.30598C20.6913 2.38268 21.0189 1.60831 21.6742 0.982856C22.3294 0.327619 23.1038 0 23.9973 0C24.8908 0 25.6503 0.327619 26.2757 0.982856C26.931 1.60831 27.2586 2.38268 27.2586 3.30598C27.2586 4.22927 26.931 5.00364 26.2757 5.62909ZM21.004 30.1559V8.35429H26.9905V30.1559H21.004Z"
+                  fill="#616AFF"
+                />
+              </svg>
+            </div>
           </Link>
 
           <div className="nav_list">
@@ -252,7 +532,10 @@ export default function Header() {
               </button>
             </Link>
 
-            <form onSubmit={submitHeaderSearch} className="search_input">
+            <form
+              className="search_input"
+              onSubmit={(e) => onSearchSubmit(e, desktopSearchRef)}
+            >
               <img
                 src="/images/icons/search.svg"
                 alt=""
@@ -260,10 +543,11 @@ export default function Header() {
                 height="18"
               />
               <input
-                type="text"
+                ref={desktopSearchRef}
+                type="search"
                 name="q"
                 placeholder="Найти вопрос"
-                suppressHydrationWarning
+                autoComplete="off"
               />
             </form>
 
@@ -276,6 +560,36 @@ export default function Header() {
               </button>
             </a>
 
+            <Link href={isAuthorized ? "/profile?tab=vip" : "/login"}>
+              <button className="m_btn m_btn_icon category_btn">
+                <svg
+                  width="20"
+                  height="17"
+                  viewBox="0 0 20 17"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
+                    fill="white"
+                  />
+                  <path
+                    d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
+                    fill="white"
+                  />
+                  <path
+                    d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
+                    fill="white"
+                  />
+                  <path
+                    d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
+                    fill="white"
+                  />
+                </svg>
+                <span className={styles.premiumText}>Премиум</span>
+              </button>
+            </Link>
+
             <a href="/leaders">
               <button className="m_btn">
                 <svg width="20" height="20">
@@ -287,25 +601,34 @@ export default function Header() {
 
             <ThemeToggleBtn onClick={toggleDarkMode} />
 
+            {isAuthorized ? <NotificationBtn /> : null}
+
             {isAuthorized ? (
-              <Link href="/profile">
-                <button
-                  className="m_btn m_btn_icon category_btn"
-                  title="Личный кабинет"
-                >
-                  <img
-                    src="/images/icons/user.svg"
-                    alt=""
-                    width="16"
-                    height="20"
-                  />
-                </button>
-              </Link>
+              <>
+                {/* Десктоп — дропдаун профиля */}
+                <div className="profile-dropdown-desktop">
+                  <ProfileDropdown />
+                </div>
+                {/* Мобиль — прямая ссылка на профиль */}
+                <Link href="/profile" className="profile-link-mobile">
+                  <button
+                    className="m_btn m_btn_icon category_btn"
+                    title="Личный кабинет"
+                  >
+                    <img
+                      src="/images/icons/user.svg"
+                      alt=""
+                      width="16"
+                      height="20"
+                    />
+                  </button>
+                </Link>
+              </>
             ) : (
               <Link href="/login">
                 <button
                   className="m_btn m_btn_icon category_btn"
-                  title="Войти"
+                  title="Личный кабинет"
                 >
                   <img
                     src="/images/icons/user.svg"
@@ -337,18 +660,38 @@ export default function Header() {
           </Link>
           <div>
             <ThemeToggleBtn onClick={toggleDarkMode} />
-            {isAuthorized ? (
-              <Link href="/profile">
-                <button className="m_btn">
+            {!isAuthorized ? (
+              <Link href="/login">
+                <button type="button" className="m_btn">
                   <img src="/images/icons/user.svg" alt="" />
                 </button>
               </Link>
             ) : (
-              <Link href="/login">
-                <button className="m_btn">
-                  <img src="/images/icons/user.svg" alt="" />
+              <>
+                <Link href="/profile">
+                  <button type="button" className="m_btn">
+                    <img src="/images/icons/user.svg" alt="" />
+                  </button>
+                </Link>
+                <button
+                  type="button"
+                  className="m_btn m_btn_icon category_btn"
+                  title="Выход"
+                  onClick={() => {
+                    logout();
+                    router.push("/");
+                    router.refresh();
+                    setIsMenuOpen(false);
+                  }}
+                >
+                  <img
+                    src="/images/icons/logout.svg"
+                    alt=""
+                    width="16"
+                    height="20"
+                  />
                 </button>
-              </Link>
+              </>
             )}
             <button className="m_btn" onClick={toggleMenu}>
               <img src="/images/icons/exit-menu.svg" alt="" />
@@ -367,21 +710,21 @@ export default function Header() {
           </Link>
 
           <form
-            onSubmit={submitHeaderSearch}
             className="search_input search_input_mob"
+            onSubmit={(e) => onSearchSubmit(e, mobileSearchRef)}
           >
             <img
               src="/images/icons/mob-search.svg"
               alt=""
               width="18"
               height="18"
-              style={{ fill: "#fff" }}
             />
             <input
-              type="text"
+              ref={mobileSearchRef}
+              type="search"
               name="q"
               placeholder="Найти вопрос"
-              suppressHydrationWarning
+              autoComplete="off"
             />
           </form>
 
@@ -400,6 +743,54 @@ export default function Header() {
                 <use xlinkHref="#leaders"></use>
               </svg>
               Лидеры
+            </button>
+          </Link>
+
+          <Link href="/notifications" className="mob_sec_item">
+            <button className="m_btn notification-btn-mob">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10 0C8.89543 0 8 0.89543 8 2V2.29C5.16229 3.02104 3 5.60626 3 8.66667V12.5L1.29289 14.2071C0.902369 14.5976 0.902369 15.2308 1.29289 15.6213C1.68342 16.0118 2.31658 16.0118 2.70711 15.6213L3 15.3284V16C3 17.1046 3.89543 18 5 18H7.17071C7.58254 19.1652 8.69378 20 10 20C11.3062 20 12.4175 19.1652 12.8293 18H15C16.1046 18 17 17.1046 17 16V15.3284L17.2929 15.6213C17.6834 16.0118 18.3166 16.0118 18.7071 15.6213C19.0976 15.2308 19.0976 14.5976 18.7071 14.2071L17 12.5V8.66667C17 5.60626 14.8377 3.02104 12 2.29V2C12 0.89543 11.1046 0 10 0ZM10 2C10.5523 2 11 2.44772 11 3V3.04938C10.6711 3.01659 10.3375 3 10 3C9.6625 3 9.32887 3.01659 9 3.04938V3C9 2.44772 9.44772 2 10 2ZM10 18C9.44772 18 9 17.5523 9 17H11C11 17.5523 10.5523 18 10 18Z"
+                  fill="currentColor"
+                />
+              </svg>
+              Уведомления
+            </button>
+          </Link>
+
+          <Link href="/profile" className="mob_sec_item">
+            <button className="m_btn premium-btn-mob">
+              <svg
+                width="20"
+                height="17"
+                viewBox="0 0 20 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
+                  fill="currentColor"
+                />
+              </svg>
+              Премиум
             </button>
           </Link>
         </div>

@@ -21,6 +21,11 @@ export type LeaderUser = {
   metric_value: number;
   id: number;
   full_name: string;
+  first_name?: string | null;
+  is_ai?: boolean;
+  ai_provider_name?: string | null;
+  ai_model_short?: string | null;
+  ai_rank_label?: string | null;
   avatar_url?: string | null;
   balls: number;
   level_name?: string | null;

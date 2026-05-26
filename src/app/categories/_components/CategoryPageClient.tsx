@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import LoginModal from "@/components/LoginModal"
 import SharePopup from "@/components/SharePopup"
-import { formatTimeAgo } from "@/lib/time-ago"
+import QuestionListCard from "@/components/QuestionListCard"
 import { api } from "@/lib/api-client"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import { useAuthStore } from "@/store/authStore"
@@ -209,72 +209,14 @@ export default function CategoryPageClient({
 
         <div className="questions_list">
           {questions.map((question) => (
-            <div key={question.id} className="question_list_item">
-              <div className="question_item_top_data">
-                <div className="question_item_top_data_left">
-                  <img src={question.author.avatar_url || "/images/icons/avatar.svg"} alt={question.author.full_name} />
-                  <div>
-                    <p className="main_text">{question.author.full_name}</p>
-                    <span>{numWord(question.author.balls ?? 0, ["балл", "балла", "баллов"])}</span>
-                  </div>
-                </div>
-                <div className="question_item_top_data_right">
-                  <button
-                    title="Мне нравится"
-                    className={`s_btn s_btn_icon btn-like ${isFavorited(question.id) ? "btn-like--active" : ""}`}
-                    onClick={() => toggleFavorite(question.id)}
-                    disabled={isPending(question.id)}
-                  >
-                    <svg width="13.714355" height="12.000000"><use xlinkHref="#like"></use></svg>
-                  </button>
-                  <button
-                    className="s_btn s_btn_icon share-this"
-                    title="Поделиться"
-                    onClick={(e) => handleShareClick(e, question.title, question.id)}
-                  >
-                    <svg width="14" height="14.000000"><use xlinkHref="#share"></use></svg>
-                  </button>
-                </div>
-              </div>
-
-              <Link href={`/question/${question.id}`}>
-                <div className="question_list_item_left">
-                  <img src={question.author.avatar_url || "/images/icons/avatar.svg"} alt={question.author.full_name} />
-                  <div>
-                    <p className="main_text">{question.title}</p>
-                    <span>{formatTimeAgo(question.created_at)}</span>
-                  </div>
-                </div>
-              </Link>
-
-              <div className="question_list_item_right">
-                <div className="question_list_item_users">
-                  {(question.latest_likers ?? []).slice(0, 3).map((u) => (
-                    <img key={u.id} src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                  ))}
-                  <p className="main_text">+{question.answers_count}</p>
-                </div>
-                <div className="question_list_item_right_actions">
-                  <button
-                    title="Мне нравится"
-                    className={`s_btn s_btn_icon btn-like ${isFavorited(question.id) ? "btn-like--active" : ""}`}
-                    onClick={() => toggleFavorite(question.id)}
-                    disabled={isPending(question.id)}
-                  >
-                    <svg width="13.714355" height="12.000000"><use xlinkHref="#like"></use></svg>
-                  </button>
-                  <button
-                    className="s_btn s_btn_icon share-this"
-                    title="Поделиться"
-                    onClick={(e) => handleShareClick(e, question.title, question.id)}
-                  >
-                    <svg width="14" height="14.000000"><use xlinkHref="#share"></use></svg>
-                  </button>
-                  <Link href={`/question/${question.id}`} className="s_btn">Посмотреть</Link>
-                  <Link href={`/question/${question.id}#answer`} className="s_btn s_btn_active">Ответить</Link>
-                </div>
-              </div>
-            </div>
+            <QuestionListCard
+              key={question.id}
+              question={question}
+              isFavorited={isFavorited}
+              isPending={isPending}
+              onToggleFavorite={toggleFavorite}
+              onShare={handleShareClick}
+            />
           ))}
         </div>
 
@@ -345,7 +287,7 @@ export default function CategoryPageClient({
                 <Link href={`/profile/${u.id}`}>
                   <div className="question_list_item_left">
                     <img src={u.avatar_url || "/images/icons/avatar.svg"} alt={u.first_name} />
-                    <div><div className="main_text">{u.first_name} {u.last_name}</div><span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span></div>
+                    <div className="question_list_item_left__user_meta"><div className="main_text">{u.first_name} {u.last_name}</div><span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span></div>
                   </div>
                 </Link>
               </div>
@@ -361,7 +303,11 @@ export default function CategoryPageClient({
                 <Link href={`/question/${q.id}`}>
                   <div className="question_list_item_left">
                     <img src={q.latest_likers[0]?.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                    <div><div className="main_text question_title_clamp">{q.title}</div></div>
+                    <div className="question_list_item_left__user_meta">
+                      <div className="main_text question_title_clamp">
+                        {q.title}
+                      </div>
+                    </div>
                   </div>
                 </Link>
                 <div className="question_list_item_users">
@@ -383,7 +329,7 @@ export default function CategoryPageClient({
                     <svg width="24" height="24" className="topic_icon">
                       <use xlinkHref={`#${topic.parent_icon_key || "gaming"}`}></use>
                     </svg>
-                    <div><div className="main_text">{topic.name}</div></div>
+                    <div className="question_list_item_left__user_meta"><div className="main_text">{topic.name}</div></div>
                   </div>
                 </Link>
                 <div className="question_list_item_users">

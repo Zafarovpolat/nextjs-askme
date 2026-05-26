@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { Question } from "@/types";
 import SearchResultQuestionVotes from "@/components/SearchResultQuestionVotes";
+import UserAvatar from "@/components/UserAvatar";
+import PremiumQuestionCardBadge from "@/components/PremiumQuestionCardBadge";
+import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
 
 interface SearchResultCardProps {
   question: Question;
@@ -62,8 +65,17 @@ export default function SearchResultCard({
   userVote = null,
 }: SearchResultCardProps) {
   const answersCount = answersCountOverride ?? question.commentsCount ?? 0;
+  const q = question as Question & { isPremium?: boolean; is_premium?: boolean };
+  /** Только флаг вопроса: премиум-оформление не зависит от премиума автора/профиля */
+  const isPremium = q.isPremium === true || q.is_premium === true;
+  const authorPremium =
+    question.author.premium_is_active ??
+    question.author.is_premium ??
+    false;
+  const authorPremiumText = displayPremiumBadge(question.author) ?? "Премиум";
+  const authorName = displayUserName(question.author);
   return (
-    <div className="search-result-card">
+    <div className={`search-result-card ${isPremium ? "premium-question" : ""}`}>
       <div
         className="search-result-top"
         style={{
@@ -75,28 +87,38 @@ export default function SearchResultCard({
         {!isOwnProfile && (
           <Link
             href={`/profile/${question.author?.id ?? question.author?.username ?? ""}`}
-            style={{ display: "flex" }}
+            style={{ display: "flex", position: "relative" }}
           >
-            <img
-              src={question.author?.avatar || "/images/icons/avatar.svg"}
-              alt={question.author?.displayName || ""}
-              className="search-result-avatar"
-              style={{
-                width: "51px",
-                height: "51px",
-                borderRadius: "50%",
-                flexShrink: 0,
-              }}
+            <UserAvatar
+              src={question.author?.avatar}
+              src2x={question.author?.avatar2x}
+              alt={authorName}
+              premium={authorPremium}
+              premiumText={authorPremiumText}
+              size={51}
+              imgClassName="search-result-avatar"
             />
           </Link>
         )}
         <div style={{ flex: 1 }}>
-          <Link
-            href={`/question/${question.slug}`}
-            className="search-result-title"
+          <div
+            style={{
+              marginBottom: "4px",
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              columnGap: "10px",
+              rowGap: "6px",
+            }}
           >
-            {question.title || "Без заголовка"}
-          </Link>
+            <Link
+              href={`/question/${question.slug}`}
+              className="search-result-title"
+            >
+              {question.title || "Без заголовка"}
+            </Link>
+            {isPremium ? <PremiumQuestionCardBadge /> : null}
+          </div>
           {isOwnProfile && question.content && (
             <p
               className="search-result-subtext"

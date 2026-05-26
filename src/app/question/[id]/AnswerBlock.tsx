@@ -2,10 +2,18 @@
 
 import Link from "next/link";
 import { Fragment } from "react";
+import UserAvatar from "@/components/UserAvatar";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { useVoteAnswer } from "@/hooks/useVoteAnswer";
 import { useFavoriteAnswer } from "@/hooks/useFavoriteAnswer";
 import type { QuestionPageAnswer } from "@/types";
+import TextWithLinks from "@/components/TextWithLinks";
+import BodyAttachments from "@/components/BodyAttachments";
+import {
+  displayPremiumBadge,
+  displayUserName,
+  displayUserSubtitle,
+} from "@/lib/ai-user-display";
 
 export interface AnswerBlockProps {
   answer: QuestionPageAnswer;
@@ -57,11 +65,16 @@ export default function AnswerBlock({
 
   const isNegative = (dislikes_count ?? 0) > (likes_count ?? 0);
   const parentUser = answer.parent_user;
-  const levelLabel = answer.user.level_name ?? "Участник";
+  const isAuthorPremium = Boolean(
+    answer.user.premium_is_active ?? answer.user.is_premium,
+  );
+  const premiumText = displayPremiumBadge(answer.user) ?? "Премиум";
+  const rankLabel = displayUserSubtitle(answer.user) || "Участник";
 
   return (
     <div
-      className={`main_question_block ${isBest ? "best_answer_block" : ""} ${isNested ? "secondary_question_block" : ""} ${isNegative ? "answer_negative_rating" : ""}`}
+      id={`answer-${answer.id}`}
+      className={`main_question_block ${isBest ? "best_answer_block" : ""} ${isNested ? "secondary_question_block" : ""} ${isNegative ? "blocked_question_block" : ""} ${isAuthorPremium ? "premium-question" : ""}`}
       style={
         isNested
           ? { width: "calc(100% - 40px)", marginLeft: "40px" }
@@ -71,15 +84,25 @@ export default function AnswerBlock({
       <div className="question_list_item-info">
         <div className="question_list_item_left">
           <Link href={`/profile/${answer.user.id}`}>
-            <img
-              src={answer.user.avatar_url || "/images/icons/avatar.svg"}
-              alt=""
-            />
+            <div
+              style={{ position: "relative", display: "inline-block" }}
+            >
+              <UserAvatar
+                src={answer.user.avatar_url}
+                src2x={answer.user.avatar_url_2x}
+                alt={displayUserName(answer.user)}
+                size={40}
+                premium={
+                  answer.user.premium_is_active ?? answer.user.is_premium ?? false
+                }
+                premiumText={premiumText}
+              />
+            </div>
           </Link>
-          <div className="answer_author_container">
+          <div className="answer_author_container question_list_item_left__user_meta">
             <div className="answer_author_info">
               <Link href={`/profile/${answer.user.id}`} className="main_text">
-                {answer.user.full_name}
+                {displayUserName(answer.user)}
               </Link>
               {parentUser && (
                 <>
@@ -94,12 +117,12 @@ export default function AnswerBlock({
               )}
             </div>
             <div className="quest_user_title">
-              <p>{levelLabel}</p>
+              <p>{rankLabel}</p>
             </div>
             <span>{formatTimeAgo(answer.created_at)}</span>
           </div>
           <div className="quest_user_title">
-            <p>{levelLabel}</p>
+            <p>{rankLabel}</p>
           </div>
         </div>
         {!isBest && !isNested && canSelectBestAnswer && onSetBestAnswer ? (
@@ -144,36 +167,35 @@ export default function AnswerBlock({
       )}
 
       <div className="main_question_block_text">
-        <p>
+        <div className="main_question_block_text-body">
           {isNested && parentUser && (
             <span style={{ color: "#6069ff", marginRight: "5px" }}>
               {parentUser.full_name},
             </span>
           )}
-          {answer.text}
-        </p>
+          <TextWithLinks text={answer.text} />
+        </div>
+        <BodyAttachments
+          files={answer.files}
+          videos={answer.videos}
+          links={answer.links}
+        />
       </div>
 
       <div className="main_question_block_actions">
         <div className="main_question_block_actions_left">
-          <button
-            type="button"
-            className="s_btn s_btn_active s_btn--answer"
-            disabled={!allowAnswerComments}
-            title={
-              allowAnswerComments
-                ? undefined
-                : "Комментарии к ответам отключены автором вопроса"
-            }
-            onClick={() => {
-              if (allowAnswerComments) {
+          {allowAnswerComments ? (
+            <button
+              type="button"
+              className="s_btn s_btn_active s_btn--answer"
+              onClick={() => {
                 onStartReplyToAnswer?.(answer.id, answer.user.full_name);
-              }
-              onScrollToAnswer();
-            }}
-          >
-            Ответить
-          </button>
+                onScrollToAnswer();
+              }}
+            >
+              Ответить
+            </button>
+          ) : null}
           <div className="question_vote_container">
             <button
               className={`vote_btn like_btn ${user_vote === 1 ? "vote_btn--active" : ""}`}

@@ -8,6 +8,7 @@ import {
   type MouseEvent,
 } from "react";
 import Link from "next/link";
+import UserAvatar from "@/components/UserAvatar";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import { api } from "@/lib/api-client";
@@ -119,14 +120,23 @@ export default function ProfileRelatedQuestionsBlock({
         </p>
       ) : (
         <>
-          {items.map((q) => (
+          {items.map((q) => {
+            const authorPremium =
+              q.author.premium_is_active ?? q.author.is_premium ?? false;
+            const authorPremiumText = q.author.premium_is_permanent
+              ? "Постоянный"
+              : q.author.premium_package_name?.trim() || "Премиум";
+            return (
             <div className="question_list_item" key={q.id}>
               <div className="question_item_top_data">
                 <div className="question_item_top_data_left">
                   <Link href={`/profile/${q.author.id}`}>
-                    <img
-                      src={q.author.avatar_url || "/images/icons/avatar.svg"}
+                    <UserAvatar
+                      src={q.author.avatar_url}
+                      src2x={q.author.avatar_url_2x}
                       alt=""
+                      premium={authorPremium}
+                      premiumText={authorPremiumText}
                     />
                   </Link>
                   <div>
@@ -166,11 +176,14 @@ export default function ProfileRelatedQuestionsBlock({
               </div>
               <Link href={`/question/${q.id}`}>
                 <div className="question_list_item_left">
-                  <img
-                    src={q.author.avatar_url || "/images/icons/avatar.svg"}
+                  <UserAvatar
+                    src={q.author.avatar_url}
+                    src2x={q.author.avatar_url_2x}
                     alt=""
+                    premium={authorPremium}
+                    premiumText={authorPremiumText}
                   />
-                  <div>
+                  <div className="question_list_item_left__user_meta">
                     <p className="main_text">{q.title}</p>
                     <span>{formatTimeAgo(q.created_at)}</span>
                   </div>
@@ -179,10 +192,12 @@ export default function ProfileRelatedQuestionsBlock({
               <div className="question_list_item_right">
                 <div className="question_list_item_users">
                   {q.latest_likers.slice(0, 3).map((u) => (
-                    <img
+                    <UserAvatar
                       key={u.id}
-                      src={u.avatar_url || "/images/icons/avatar.svg"}
+                      src={u.avatar_url}
+                      src2x={u.avatar_url_2x}
                       alt=""
+                      size={30}
                     />
                   ))}
                   <p className="main_text">+{q.answers_count}</p>
@@ -218,7 +233,8 @@ export default function ProfileRelatedQuestionsBlock({
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
 
           {page < lastPage ? (
             <div

@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { api } from "@/lib/api-client";
+import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
 import type {
   LeaderCategory,
   LeaderUser,
@@ -248,7 +249,12 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
         )}
         <div className="top_leaders_list">
           {topLeaders.map((user, index) => (
-            <div className="top_leader_card" key={user.id}>
+            <Link
+              key={user.id}
+              href={`/profile/${user.id}`}
+              className="top_leader_card"
+              aria-label={`Профиль: ${displayUserName(user)}`}
+            >
               <img className="top_leader_card_bg" src="/images/top-leader-bg.svg" alt="" />
               <img className="top_leader_card_bg_dark" src="/images/top-leader-bg-d.svg" alt="" />
               <img className="top_leader_card_rect" src="/images/blues-rect.svg" alt="" />
@@ -257,17 +263,17 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                   <img
                     className="top_leader_card_image"
                     src={user.avatar_url || "/images/icons/avatar.svg"}
-                    alt={user.full_name}
+                    alt={displayUserName(user)}
                   />
-                  <img className="top_leader_place" src={topPlaceIcons[index]} alt={`${user.rank} место`} />
+                  <img className="top_leader_place" src={topPlaceIcons[index]} alt="" />
                 </div>
                 <div className="top_leader_card_desc">
-                  <h3>{user.full_name}</h3>
-                  <h4>{user.level_name || ""}</h4>
+                  <h3>{displayUserName(user)}</h3>
+                  <h4>{displayUserSubtitle(user)}</h4>
                   <p>{formatMetricLine(metricFilter, user.metric_value)}</p>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -288,9 +294,9 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                   <span className="leader_number">{user.rank}</span>
                   <Link href={`/profile/${user.id}`}>
                     <div className="question_list_item_left">
-                      <img src={user.avatar_url || "/images/icons/avatar.svg"} alt={user.full_name} />
-                      <div>
-                        <p className="main_text">{user.full_name}</p>
+                      <img src={user.avatar_url || "/images/icons/avatar.svg"} alt={displayUserName(user)} />
+                      <div className="question_list_item_left__user_meta">
+                        <p className="main_text">{displayUserName(user)}</p>
                         <span>{formatMetricLine(metricFilter, user.metric_value)}</span>
                       </div>
                     </div>

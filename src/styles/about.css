@@ -166,15 +166,6 @@
   margin-bottom: 16px;
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 72px;
-}
-
-.about-card-icon svg {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  flex-shrink: 0;
 }
 
 .about-card-title {

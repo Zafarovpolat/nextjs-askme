@@ -9,7 +9,7 @@ import { getApiFullUrl } from "@/config/api";
 import { getToken } from "@/lib/cookies";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useRef, useCallback, useEffect, useLayoutEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo } from "react";
 import { useAuthStore } from "@/store/authStore";
 import type { MeApiResponse } from "@/lib/server-me";
 import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
@@ -17,8 +17,16 @@ import { mockUsers } from "@/data/mock-users";
 import type { UserAnswer } from "@/data/mock-answers";
 import SearchResultCard from "@/components/SearchResultCard";
 import AnswerResultCard from "@/components/AnswerResultCard";
+import ProfileHeaderBlock from "@/components/profile/ProfileHeaderBlock";
+import UserAvatar from "@/components/UserAvatar";
 import { ProfileLevelsMenuInner, ProfileRulesMenuInner } from "./ProfileLevelsRulesContent";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
+import { CheckIcon } from "@/components/AboutIcons";
+import { useSearchParams } from "next/navigation";
+import type { SubscriptionPackage } from "@/types";
+import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
+import { showSystemToast } from "@/store/systemToastStore";
+import { getApiErrorMessage } from "@/lib/api-error-message";
 
 type ProfileQuestionItem = {
   id: number;
@@ -32,8 +40,15 @@ type ProfileQuestionItem = {
   user_vote?: 1 | -1 | null;
   status?: "open" | "opened" | "voting" | "best" | "closed";
   category?: { name?: string; slug?: string; icon_key?: string; svg_icon?: string };
-  author: { id: number; full_name: string; avatar_url?: string | null; balls?: number };
-  latest_likers: { id: number; avatar_url?: string | null }[];
+  author: {
+    id: number;
+    full_name: string;
+    avatar_url?: string | null;
+    avatar_url_2x?: string | null;
+    balls?: number;
+  };
+  latest_likers: { id: number; avatar_url?: string | null; avatar_url_2x?: string | null }[];
+  is_premium?: boolean;
 };
 
 type ProfileAnswerItem = {
@@ -42,6 +57,10 @@ type ProfileAnswerItem = {
   created_at: string;
   comments_count: number;
   is_best: boolean;
+  likes_count: number;
+  dislikes_count: number;
+  votes_count: number;
+  user_vote?: 1 | -1 | null;
   question: { id: number; title: string } | null;
 };
 
@@ -49,20 +68,18 @@ type ProfileFollowUser = {
   id: number;
   full_name: string;
   avatar_url?: string | null;
+  avatar_url_2x?: string | null;
   balls?: number;
   created_at?: string | null;
   subscribed_by_me?: boolean;
   questions_count?: number;
   answers_count?: number;
   level_name?: string | null;
+  is_premium?: boolean;
+  premium_is_active?: boolean;
+  premium_is_permanent?: boolean;
+  premium_package_name?: string | null;
 };
-
-function numWordFollow(value: number, words: [string, string, string]): string {
-  const abs = Math.abs(value);
-  const cases = [2, 0, 1, 1, 1, 2];
-  const index = abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)];
-  return `${value.toLocaleString("ru-RU")} ${words[index]}`;
-}
 
 type ProfileSettings = {
   site: {
@@ -70,7 +87,6 @@ type ProfileSettings = {
     new_answer_on_my_question: boolean;
     my_content_liked: boolean;
     new_comment_on_my_answer: boolean;
-    balls_balance_changes: boolean;
     sound_enabled: boolean;
     receive_project_news: boolean;
     compact_view: boolean;
@@ -83,8 +99,6 @@ type ProfileSettings = {
     new_comment_on_my_answer: boolean;
   };
   general: {
-    new_poll_vote_site: boolean;
-    new_poll_vote_email: boolean;
   };
 };
 
@@ -94,7 +108,6 @@ const defaultSettings: ProfileSettings = {
     new_answer_on_my_question: true,
     my_content_liked: true,
     new_comment_on_my_answer: true,
-    balls_balance_changes: true,
     sound_enabled: true,
     receive_project_news: true,
     compact_view: false,
@@ -107,8 +120,7 @@ const defaultSettings: ProfileSettings = {
     new_comment_on_my_answer: true,
   },
   general: {
-    new_poll_vote_site: true,
-    new_poll_vote_email: false,
+    // reserved
   },
 };
 
@@ -118,6 +130,7 @@ type ProfilePageClientProps = {
 };
 
 export default function ProfilePageClient({ initialMe, initialWidgets }: ProfilePageClientProps) {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const logout = useAuthStore((s) => s.logout);
   const authUser = useAuthStore((s) => s.user);
@@ -159,16 +172,47 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     () => initialMe.user.description ?? user.bio ?? "",
   );
   const [profileSaving, setProfileSaving] = useState(false);
-  const displayName = meUser.first_name?.trim() || user.displayName;
+  const isPremiumUser = Boolean(
+    (meUser.premium_is_active ?? meUser.is_premium) ||
+      meUser.vip ||
+      (typeof meUser.vip_status === "number" ? meUser.vip_status > 0 : meUser.vip_status),
+  );
+
+  const dailyLimitsRows = useMemo(() => {
+    const limits = meUser.daily_action_limits;
+    if (!limits) {
+      return [] as { value: string; label: string }[];
+    }
+    const fmt = (v: number | null | undefined) =>
+      v === null || v === undefined ? "∞" : String(v);
+
+    return [
+      { value: fmt(limits.ask_question), label: "Вопросы" },
+      { value: fmt(limits.answer), label: "Ответов" },
+      { value: fmt(limits.answer_comment), label: "Комментариев" },
+      { value: fmt(limits.vote_best), label: "Голосов за ответ" },
+      { value: fmt(limits.vote_question), label: "Оценок вопроса" },
+      { value: fmt(limits.file), label: "Фото" },
+      { value: fmt(limits.video), label: "Видео" },
+    ];
+  }, [meUser]);
+  const premiumBadgeText = meUser.premium_is_permanent
+    ? "Постоянный"
+    : meUser.premium_package_name?.trim() || "Премиум";
+  const isAiUser = Boolean(meUser.is_ai);
+  const displayName = displayUserName(meUser);
+  const rankLabel = displayUserSubtitle(meUser);
   const avatarUrl = meUser.avatar_url || user.avatar;
-  const balls = meUser.balls ?? user.rating;
+  const avatarUrl2x = meUser.avatar_url_2x ?? null;
+  const balls = isAiUser ? 0 : (meUser.balls ?? user.rating);
+  const ballsDisplay = isAiUser ? "∞" : String(meUser.balls ?? user.rating);
   const kpdPercent = Math.round((meUser.kpd ?? 0) * 100);
   const nextLevelBalls = meUser.next_level_balls ?? 1000;
   const registeredAt = meUser.created_at ?? user.createdAt;
   const registeredAgo = registeredAt ? formatTimeAgo(registeredAt) : "только что";
   const registeredInService = registeredAgo.replace(/\s+назад$/, "");
   const progress = nextLevelBalls && nextLevelBalls > 0
-    ? Math.max(0, Math.min(100, Math.round((balls / nextLevelBalls) * 100)))
+    ? (isAiUser ? 100 : Math.max(0, Math.min(100, Math.round((balls / nextLevelBalls) * 100))))
     : 100;
 
   const [questionsFilter, setQuestionsFilter] = useState<"all" | "open" | "voting" | "best">("all");
@@ -206,6 +250,10 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
   const [myAnswersLastPage, setMyAnswersLastPage] = useState(1);
   const [myAnswersLoading, setMyAnswersLoading] = useState(false);
   const [myAnswersLoadingMore, setMyAnswersLoadingMore] = useState(false);
+  const [subscriptionPackages, setSubscriptionPackages] = useState<SubscriptionPackage[]>([]);
+  const [subscriptionPackagesLoading, setSubscriptionPackagesLoading] = useState(false);
+  const [subscriptionPackagesLoaded, setSubscriptionPackagesLoaded] = useState(false);
+  const [packageCheckoutLoadingId, setPackageCheckoutLoadingId] = useState<number | null>(null);
 
   const fetchMyQuestions = useCallback(
     async (
@@ -267,6 +315,21 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
   };
 
   useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "edit") {
+      setActiveTab("menu2");
+    } else if (tab === "levels") {
+      setActiveTab("menu_levels");
+    } else if (tab === "rules") {
+      setActiveTab("menu_rules");
+    } else if (tab === "vip" || tab === "packages") {
+      setActiveTab("menu_packages");
+    } else if (tab === "settings") {
+      setActiveTab("menu4");
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     setProfileName(initialName);
     setProfileDescription(initialDescription);
   }, [initialName, initialDescription]);
@@ -291,6 +354,9 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
         first_name: profileName.trim(),
         description: profileDescription.trim() || null,
       });
+      showSystemToast("Профиль сохранён", "success");
+    } catch (err) {
+      showSystemToast(getApiErrorMessage(err), "error");
     } finally {
       setProfileSaving(false);
     }
@@ -333,8 +399,13 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error((data as { message?: string }).message || "Ошибка загрузки аватара");
-      const nextAvatar = (data as { avatar_url?: string }).avatar_url;
-      if (nextAvatar) patchUser({ avatar_url: nextAvatar });
+      const payload = data as { avatar_url?: string; avatar_url_2x?: string | null };
+      if (payload.avatar_url) {
+        patchUser({
+          avatar_url: payload.avatar_url,
+          avatar_url_2x: payload.avatar_url_2x ?? null,
+        });
+      }
     } finally {
       setAvatarUploading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = "";
@@ -445,6 +516,36 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     }
   }, [subscriberFilter]);
 
+  const fetchSubscriptionPackages = useCallback(async () => {
+    setSubscriptionPackagesLoading(true);
+    try {
+      const data = await api.get<{ packages: SubscriptionPackage[] }>("v1/subscription-packages");
+      setSubscriptionPackages(data.packages ?? []);
+    } catch {
+      setSubscriptionPackages([]);
+    } finally {
+      setSubscriptionPackagesLoaded(true);
+      setSubscriptionPackagesLoading(false);
+    }
+  }, []);
+
+  const handlePurchasePackage = useCallback(async (packageId: number) => {
+    setPackageCheckoutLoadingId(packageId);
+    try {
+      const data = await api.post<{
+        payment: {
+          confirmation_url?: string | null;
+        };
+      }>("v1/premium-subscriptions/checkout", { package_id: packageId });
+      const confirmationUrl = data.payment?.confirmation_url;
+      if (confirmationUrl && typeof window !== "undefined") {
+        window.location.href = confirmationUrl;
+      }
+    } finally {
+      setPackageCheckoutLoadingId(null);
+    }
+  }, []);
+
   const toggleFollow = useCallback(async (targetId: number, shouldSubscribe: boolean) => {
     setFollowPendingIds((prev) => [...prev, targetId]);
     try {
@@ -476,12 +577,55 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     void fetchSubscribers(1, false);
   }, [activeTab, subscriberFilter, fetchSubscribers]);
 
+  useEffect(() => {
+    if (activeTab !== "menu_packages") return;
+    if (subscriptionPackagesLoaded || subscriptionPackagesLoading) return;
+    void fetchSubscriptionPackages();
+  }, [activeTab, subscriptionPackagesLoaded, subscriptionPackagesLoading, fetchSubscriptionPackages]);
+
   const profileQuestionStatus = (q: ProfileQuestionItem): "opened" | "voting" | "closed" => {
     if (q.status === "voting") return "voting";
     if (q.status === "closed" || q.status === "best") return "closed";
     if (questionsFilter === "voting") return "voting";
     if (questionsFilter === "best") return "closed";
     return "opened";
+  };
+
+  const renderSubscriptionPackageIcon = (iconKey?: string | null) => {
+    switch (iconKey) {
+      case "standard":
+        return (
+          <svg width="28" height="24" viewBox="0 0 28 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <path d="M23.7286 10.8317L20.167 11.7513C20.0912 11.7714 20.0115 11.7683 19.9374 11.7423C19.8634 11.7164 19.7982 11.6688 19.7498 11.6053L15.8454 6.55586C15.6166 6.28154 15.3334 6.06144 15.015 5.91058C14.6966 5.75971 14.3505 5.68162 14.0003 5.68162C13.6501 5.68162 13.304 5.75971 12.9856 5.91058C12.6672 6.06144 12.384 6.28154 12.1553 6.55586L8.24959 11.6066C8.19981 11.6686 8.13426 11.7151 8.06033 11.7407C7.98639 11.7662 7.90702 11.7699 7.83117 11.7513L4.27198 10.8317C3.99236 10.7593 3.6994 10.7631 3.42161 10.8426C3.14383 10.9222 2.89067 11.0747 2.68677 11.2855C2.48286 11.4962 2.33517 11.7579 2.25804 12.0452C2.18091 12.3325 2.17699 12.6356 2.24664 12.9249L4.47609 22.1476C4.60283 22.677 4.89747 23.1472 5.31293 23.483C5.72838 23.8188 6.24065 24.0008 6.76789 24H21.2321C21.7593 24.0008 22.2716 23.8188 22.6871 23.483C23.1025 23.1472 23.3972 22.677 23.5239 22.1476L25.7534 12.9249C25.823 12.6356 25.8191 12.3326 25.742 12.0454C25.6649 11.7582 25.5173 11.4964 25.3135 11.2857C25.1096 11.075 24.8566 10.9224 24.5788 10.8428C24.3011 10.7633 24.0082 10.7594 23.7286 10.8317Z" fill="white"/>
+            <path d="M1.95349 9.76735C3.03237 9.76735 3.90698 8.86259 3.90698 7.74652C3.90698 6.63045 3.03237 5.72569 1.95349 5.72569C0.874607 5.72569 0 6.63045 0 7.74652C0 8.86259 0.874607 9.76735 1.95349 9.76735Z" fill="white"/>
+            <path d="M26.0465 9.76735C27.1254 9.76735 28 8.86259 28 7.74652C28 6.63045 27.1254 5.72569 26.0465 5.72569C24.9676 5.72569 24.093 6.63045 24.093 7.74652C24.093 8.86259 24.9676 9.76735 26.0465 9.76735Z" fill="white"/>
+            <path d="M14 4.04166C15.0789 4.04166 15.9535 3.13691 15.9535 2.02083C15.9535 0.904757 15.0789 0 14 0C12.9211 0 12.0465 0.904757 12.0465 2.02083C12.0465 3.13691 12.9211 4.04166 14 4.04166Z" fill="white"/>
+          </svg>
+        );
+      case "premium":
+        return (
+          <svg width="30" height="28" viewBox="0 0 30 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <path d="M8.78504 6.74069L5.23553 17.3803C5.21447 17.4394 5.20831 17.5025 5.21755 17.5644C5.2268 17.6262 5.2512 17.6851 5.28873 17.7361C5.32627 17.7872 5.37587 17.8289 5.43347 17.858C5.49107 17.887 5.55501 17.9025 5.62006 17.9032H6.61392C6.70263 17.9029 6.78887 17.8751 6.85977 17.8239C6.93068 17.7727 6.98244 17.7008 7.00732 17.619L7.56341 15.9139H12.4233L12.3553 15.8088L12.9646 17.619C12.9895 17.7008 13.0412 17.7727 13.1121 17.8239C13.183 17.8751 13.2693 17.9029 13.358 17.9032H14.3519C14.417 17.9035 14.4812 17.8891 14.5393 17.8609C14.5975 17.8328 14.6478 17.7917 14.6862 17.7412C14.7246 17.6907 14.75 17.6322 14.7603 17.5704C14.7705 17.5087 14.7654 17.4455 14.7453 17.386L11.1957 6.74638C11.1704 6.66481 11.1186 6.59319 11.0478 6.54204C10.977 6.49089 10.8909 6.46291 10.8023 6.4622H9.16957C9.08314 6.46389 8.99946 6.49171 8.93042 6.5417C8.86139 6.5917 8.81052 6.66133 8.78504 6.74069ZM8.155 14.2089L9.98596 8.73278L11.8317 14.2089H8.155Z" fill="white"/>
+            <path d="M18.8124 6.46504H17.8659C17.6372 6.46504 17.4518 6.64316 17.4518 6.86289V17.5025C17.4518 17.7222 17.6372 17.9003 17.8659 17.9003H18.8124C19.0411 17.9003 19.2265 17.7222 19.2265 17.5025V6.86289C19.2265 6.64316 19.0411 6.46504 18.8124 6.46504Z" fill="white"/>
+            <path d="M13.9792 22.1658H5.37159C4.73145 22.1658 4.11752 21.9215 3.66487 21.4867C3.21222 21.0518 2.95793 20.462 2.95793 19.847V5.16067C2.95793 4.54566 3.21222 3.95584 3.66487 3.52097C4.11752 3.08609 4.73145 2.84178 5.37159 2.84178H20.6581C21.2983 2.84178 21.9122 3.08609 22.3649 3.52097C22.8175 3.95584 23.0718 4.54566 23.0718 5.16067V12.5038C23.0772 12.6588 23.1462 12.8055 23.2636 12.912C23.381 13.0184 23.5375 13.076 23.6989 13.0722C24.2026 13.0707 24.6998 13.1816 25.1512 13.3961C25.245 13.4423 25.3495 13.4644 25.4548 13.4602C25.56 13.4559 25.6623 13.4256 25.7517 13.3721C25.8411 13.3185 25.9145 13.2437 25.9648 13.1547C26.0151 13.0658 26.0405 12.9659 26.0386 12.8647V5.16067C26.0386 4.48224 25.8994 3.81047 25.6289 3.1838C25.3584 2.55712 24.9619 1.98784 24.4622 1.50851C23.9624 1.02919 23.3692 0.649235 22.7165 0.390389C22.0638 0.131544 21.3643 -0.0011137 20.6581 7.04248e-06H5.37159C3.94696 7.04248e-06 2.58067 0.543718 1.5733 1.51153C0.565934 2.47934 0 3.79198 0 5.16067V19.847C0 21.2156 0.565934 22.5283 1.5733 23.4961C2.58067 24.4639 3.94696 25.0076 5.37159 25.0076H15.2215C15.3425 25.0078 15.4609 24.9734 15.5616 24.909C15.6624 24.8445 15.741 24.7528 15.7875 24.6455C15.834 24.5382 15.8464 24.42 15.823 24.3059C15.7997 24.1918 15.7417 24.0869 15.6563 24.0045C15.1961 23.5988 14.8232 23.1102 14.5589 22.5665C14.5166 22.4508 14.4383 22.3503 14.3346 22.2786C14.2309 22.207 14.1069 22.1676 13.9792 22.1658Z" fill="white"/>
+            <path d="M27.133 23.2457L29.8129 22.2312C29.8681 22.2103 29.9154 22.1738 29.9488 22.1267C29.9822 22.0796 30 22.0239 30 21.9669C30 21.9099 29.9822 21.8542 29.9488 21.8071C29.9154 21.76 29.8681 21.7236 29.8129 21.7026L27.133 20.6881C26.6587 20.5079 26.2278 20.2361 25.8671 19.8896C25.5063 19.543 25.2235 19.1291 25.0359 18.6733L23.9799 16.1157C23.958 16.0628 23.92 16.0175 23.871 15.9856C23.8219 15.9537 23.7641 15.9366 23.7048 15.9367C23.6456 15.9366 23.5877 15.9537 23.5386 15.9856C23.4896 16.0175 23.4516 16.0628 23.4297 16.1157L22.3737 18.6733C22.1866 19.1293 21.9039 19.5435 21.5431 19.8901C21.1824 20.2367 20.7512 20.5084 20.2766 20.6881L17.6144 21.7026C17.5593 21.7236 17.5119 21.76 17.4786 21.8071C17.4452 21.8542 17.4274 21.9099 17.4274 21.9669C17.4274 22.0239 17.4452 22.0796 17.4786 22.1267C17.5119 22.1738 17.5593 22.2103 17.6144 22.2312L20.2766 23.2457C20.7512 23.4255 21.1824 23.6971 21.5431 24.0437C21.9039 24.3903 22.1866 24.8045 22.3737 25.2605L23.4297 27.8181C23.4512 27.8715 23.4889 27.9175 23.538 27.9499C23.5871 27.9824 23.6452 27.9998 23.7048 28C23.7644 27.9998 23.8225 27.9824 23.8716 27.9499C23.9207 27.9175 23.9584 27.8715 23.9799 27.8181L25.0359 25.2605C25.2235 24.8048 25.5063 24.3908 25.8671 24.0443C26.2278 23.6977 26.6587 23.4259 27.133 23.2457Z" fill="white"/>
+          </svg>
+        );
+      default:
+        return (
+          <svg width="29" height="18" viewBox="0 0 29 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <path d="M5.356 0L0 17.524H4.108L5.356 13.026H10.374L11.726 17.524H15.99L10.556 0H5.356ZM5.928 10.061L6.968 6.343C7.254 5.329 7.514 4.003 7.774 2.963H7.826C8.086 4.003 8.398 5.303 8.71 6.343L9.802 10.061H5.928Z" fill="white"/>
+            <path d="M27.898 14.429V10.009C27.898 7.019 26.545 4.523 22.308 4.523C19.994 4.523 18.25 5.147 17.368 5.641L18.096 8.189C18.928 7.669 20.307 7.227 21.606 7.227C23.557 7.227 23.92 8.189 23.92 8.866V9.049C19.422 9.023 16.458 10.61 16.458 13.91C16.458 15.938 17.992 17.81 20.566 17.81C22.074 17.81 23.374 17.263 24.206 16.248H24.284L24.517 17.522H28.079C27.95 16.822 27.898 15.652 27.898 14.429ZM24.05 12.896C24.05 13.128 24.024 13.364 23.973 13.572C23.712 14.379 22.907 15.028 21.918 15.028C21.034 15.028 20.357 14.534 20.357 13.52C20.357 11.986 21.97 11.492 24.049 11.517L24.05 12.896Z" fill="white"/>
+            <path d="M21.663 3.607L26.08 1.803L21.663 0V1.241H15.637V2.366H21.663V3.607Z" fill="white"/>
+          </svg>
+        );
+    }
+  };
+
+  const getAdvancedAnswerLabel = (count: number) => {
+    if (count === 1) return "На каждый вопрос 1 продвинутый ответ";
+    if (count >= 2 && count <= 4) return `На каждый вопрос ${count} продвинутых ответа`;
+    return `На каждый вопрос ${count} продвинутых ответов`;
   };
 
   const profileQuestionsForCard = userQuestions.map((q) => ({
@@ -495,6 +639,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
       displayName: q.author.full_name,
       email: "",
       avatar: q.author.avatar_url || "/images/icons/avatar.svg",
+      avatar2x: q.author.avatar_url_2x ?? undefined,
       bio: "",
       rating: q.author.balls ?? 0,
       balance: 0,
@@ -521,6 +666,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     commentsCount: q.answers_count,
     createdAt: q.created_at,
     updatedAt: q.created_at,
+    is_premium: q.is_premium ?? false,
     votesCount:
       q.votes_count ??
       (q.likes_count ?? 0) + (q.dislikes_count ?? 0),
@@ -538,6 +684,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
       displayName: displayName,
       email: meUser.email || "",
       avatar: avatarUrl || "/images/icons/avatar.svg",
+      avatar2x: avatarUrl2x ?? undefined,
       bio: meUser.description || "",
       rating: balls,
       balance: 0,
@@ -552,8 +699,9 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     content: a.text,
     rating: 0,
     isBestAnswer: a.is_best,
-    likesCount: 0,
-    dislikesCount: 0,
+    likesCount: a.likes_count ?? 0,
+    dislikesCount: a.dislikes_count ?? 0,
+    user_vote: a.user_vote ?? null,
     createdAt: a.created_at,
     updatedAt: a.created_at,
   }));
@@ -562,13 +710,25 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     const tenure = u.created_at ? formatTimeAgo(u.created_at).replace(/\s+назад$/, "") : "недавно";
     const qCount = u.questions_count ?? 0;
     const aCount = u.answers_count ?? 0;
-    const ballsLine = numWordFollow(u.balls ?? 0, ["балл", "балла", "баллов"]);
+    const ballsLine = `${u.balls ?? 0} ${["балл", "балла", "баллов"][(u.balls ?? 0) % 10 === 1 && (u.balls ?? 0) % 100 !== 11 ? 0 : (u.balls ?? 0) % 10 >= 2 && (u.balls ?? 0) % 10 <= 4 && !((u.balls ?? 0) % 100 >= 12 && (u.balls ?? 0) % 100 <= 14) ? 1 : 2]}`;
     const showSubscribe = isSubscriberView && !u.subscribed_by_me;
+    const followPremium = u.premium_is_active ?? u.is_premium ?? false;
+    const followPremiumText = u.premium_is_permanent
+      ? "Постоянный"
+      : u.premium_package_name?.trim() || "Премиум";
     return (
       <div className="user-follow-card" key={u.id}>
         <div className="user-follow-left">
           <Link href={`/profile/${u.id}`}>
-            <img src={u.avatar_url || "/images/icons/avatar.svg"} alt={u.full_name} className="user-follow-avatar" />
+            <UserAvatar
+              src={u.avatar_url}
+              src2x={u.avatar_url_2x}
+              alt={u.full_name || ""}
+              premium={followPremium}
+              premiumText={followPremiumText}
+              size={51}
+              imgClassName="user-follow-avatar"
+            />
           </Link>
           <div className="user-follow-info">
             <Link href={`/profile/${u.id}`} className="user-follow-name">
@@ -699,14 +859,14 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     <p className="main_text">Ограничения</p>
                   </div>
                   <div
-                    className={`profile_menu_item menu_item ${activeTab === "menu_vip" ? "active_menu" : ""}`}
-                    data-id="menu_vip"
-                    onClick={() => handleTabClick("menu_vip")}
+                    className={`profile_menu_item menu_item ${activeTab === "menu_packages" ? "active_menu" : ""}`}
+                    data-id="menu_packages"
+                    onClick={() => handleTabClick("menu_packages")}
                   >
                     <svg width="16" height="20">
                       <use xlinkHref="#vip"></use>
                     </svg>
-                    <p className="main_text">VIP - статус</p>
+                    <p className="main_text">Пакеты</p>
                   </div>
                   <div
                     className={`profile_menu_item menu_item ${activeTab === "menu4" ? "active_menu" : ""}`}
@@ -739,191 +899,79 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
           </div>
 
           <div className="profile_page_content">
-            <div className="user_profile_block">
-              <img
-                className="user_profile_block_bg"
-                src="/images/user-profile-bg.svg"
-                alt=""
-              />
-              <img
-                className="user_profile_block_bg_dark"
-                src="/images/user-profile-bg-d.svg"
-                alt=""
-              />
-              <img
-                className="user_profile_block_rect"
-                src="/images/main-rect.svg"
-                alt=""
-              />
-              <div className="user_profile_block_content">
-                <div className="user_profile_block_content_profile">
-                  <div className="user_profile_img">
-                    <img
-                      className="user_profile_image"
-                      src={avatarUrl}
-                      alt=""
-                    />
-                    <button
-                      className="user_profile_img_action"
-                      title="Редактировать аватар"
-                      type="button"
-                      disabled={avatarUploading}
-                      onClick={() => avatarInputRef.current?.click()}
-                    >
-                      <svg width="11" height="11">
-                        <use xlinkHref="#pencil-edit"></use>
-                      </svg>
-                    </button>
-                    <input
-                      ref={avatarInputRef}
-                      type="file"
-                      accept="image/png,image/jpeg,image/gif,image/webp"
-                      style={{ display: "none" }}
-                      onChange={handleAvatarPick}
-                    />
+            <ProfileHeaderBlock
+              variant="cabinet"
+              premium={isPremiumUser}
+              premiumBadgeText={premiumBadgeText}
+              displayName={displayName}
+              rankLabel={rankLabel}
+              registeredInService={registeredInService}
+              avatarUrl={avatarUrl || "/images/icons/avatar.svg"}
+              avatarUrl2x={avatarUrl2x}
+              ballsDisplay={ballsDisplay}
+              kpdPercentDisplay={`${kpdPercent}%`}
+              editableAvatar
+              avatarInputRef={avatarInputRef}
+              onAvatarPick={handleAvatarPick}
+              avatarUploading={avatarUploading}
+              cabinetFooter={
+                <div className="profile_menu_list_mob tabs_list_m">
+                  <div
+                    className={`profile_menu_item menu_item_m ${activeTab === "menu2" ? "active_menu" : ""}`}
+                    data-id="menu2"
+                    onClick={() => handleTabClick("menu2")}
+                  >
+                    <svg width="15.714844" height="20.000000">
+                      <use xlinkHref="#profile"></use>
+                    </svg>
                   </div>
-                  <div className="user_profile_block_content_profile_desc">
-                    <h4>{displayName}</h4>
-                    <p>В сервисе {registeredInService}</p>
+                  <div
+                    className={`profile_menu_item menu_item_m ${activeTab === "menu_levels" ? "active_menu" : ""}`}
+                    data-id="menu_levels"
+                    onClick={() => handleTabClick("menu_levels")}
+                  >
+                    <svg width="13" height="20">
+                      <use xlinkHref="#levels"></use>
+                    </svg>
                   </div>
-                </div>
-                <div className="user_public_stats">
-                  <div className="stat_item">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "15px",
-                      }}
-                    >
-                      <svg
-                        width="30"
-                        height="29"
-                        viewBox="0 0 30 29"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M21.453 5.13336L20.9241 3.55937L17.4839 2.98531L15.856 0H14.144L12.5161 2.98531L9.07605 3.55937L8.54695 5.1333L10.981 7.55243L10.4827 10.8926L11.8678 11.8653L15 10.3751L18.1322 11.8653L19.5172 10.8925L19.019 7.55243L21.453 5.13336Z"
-                          fill="#5E68FF"
-                        />
-                        <path
-                          d="M28.1836 27.3008V20.9388H20.5664V27.3008H18.8086V16.4075H11.1914V27.3008H9.43359V19.5227H1.81641V27.3008H0V29H30V27.3008H28.1836Z"
-                          fill="#5E68FF"
-                        />
-                      </svg>
-                      <div className="stat_info">
-                        <div className="stat_value">{balls}</div>
-                        <div className="stat_label">Балл</div>
-                      </div>
-                    </div>
+                  <div
+                    className={`profile_menu_item menu_item_m ${activeTab === "menu_rules" ? "active_menu" : ""}`}
+                    data-id="menu_rules"
+                    onClick={() => handleTabClick("menu_rules")}
+                  >
+                    <svg width="20" height="17">
+                      <use xlinkHref="#rules"></use>
+                    </svg>
                   </div>
-                  <div className="stats_divider"></div>
-                  <div className="stat_item">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "15px",
-                      }}
-                    >
-                      <svg
-                        width="30"
-                        height="19"
-                        viewBox="0 0 30 19"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M5.09074 3.68822L10.0901 8.61204C11.2249 7.71796 12.6031 7.13689 14.1211 6.96867V0C10.6641 0.199499 7.5252 1.55531 5.09074 3.68822Z"
-                          fill="#5E68FF"
-                        />
-                        <path
-                          d="M3.84791 4.91228C1.49906 7.51274 0 10.9256 0 14.6719C0 15.1503 0.393105 15.5375 0.878906 15.5375H6.21094C6.69674 15.5375 7.08984 15.1503 7.08984 14.6719C7.08984 12.836 7.76467 11.169 8.84725 9.8361L3.84791 4.91228Z"
-                          fill="#5E68FF"
-                        />
-                        <path
-                          d="M21.7909 7.90326C21.4948 7.64882 21.0656 7.61587 20.7386 7.82466L13.1109 12.6168C12.0921 13.2576 11.4844 14.3489 11.4844 15.5375C11.4844 17.4471 13.0611 19 15 19C16.363 19 17.6144 18.2138 18.1877 16.9974L22.008 8.91934C22.1729 8.57106 22.0845 8.15683 21.7909 7.90326Z"
-                          fill="#5E68FF"
-                        />
-                        <path
-                          d="M26.1521 4.91228L23.5688 7.45654C23.8941 8.14044 23.9369 8.94103 23.6011 9.6505L22.4454 12.0942C22.7429 12.8992 22.9102 13.7644 22.9102 14.6719C22.9102 15.1503 23.3033 15.5375 23.7891 15.5375H29.1211C29.6069 15.5375 30 15.1503 30 14.6719C30 10.9256 28.5009 7.51274 26.1521 4.91228Z"
-                          fill="#5E68FF"
-                        />
-                        <path
-                          d="M15.8789 0V6.96867C16.6189 7.05067 17.3239 7.23413 17.9855 7.50068L19.7937 6.36463C20.5181 5.90227 21.4033 5.80307 22.3252 6.23323L24.9093 3.68822C22.4748 1.55531 19.3359 0.199499 15.8789 0Z"
-                          fill="#5E68FF"
-                        />
-                      </svg>
-                      <div className="stat_info">
-                        <div className="stat_value">{kpdPercent}%</div>
-                        <div className="stat_label">
-                          КПД
-                          <div className="kpd_tooltip_icon">?</div>
-                        </div>
-                      </div>
-                    </div>
+                  <div
+                    className={`profile_menu_item menu_item_m ${activeTab === "menu_packages" ? "active_menu" : ""}`}
+                    data-id="menu_packages"
+                    onClick={() => handleTabClick("menu_packages")}
+                  >
+                    <svg width="16" height="20">
+                      <use xlinkHref="#vip"></use>
+                    </svg>
+                  </div>
+                  <div
+                    className={`profile_menu_item menu_item_m ${activeTab === "menu4" ? "active_menu" : ""}`}
+                    data-id="menu4"
+                    onClick={() => handleTabClick("menu4")}
+                  >
+                    <svg width="20" height="20">
+                      <use xlinkHref="#settings"></use>
+                    </svg>
+                  </div>
+                  <div
+                    className="profile_menu_item menu_item_m"
+                    onClick={handleLogout}
+                    role="button"
+                    title="Выход"
+                  >
+                    <img src="/images/icons/logout.svg" alt="" width="20" height="20" />
                   </div>
                 </div>
-              </div>
-
-              {/* Мобильное меню табов */}
-              <div className="profile_menu_list_mob tabs_list_m">
-                <div
-                  className={`profile_menu_item menu_item_m ${activeTab === "menu2" ? "active_menu" : ""}`}
-                  data-id="menu2"
-                  onClick={() => handleTabClick("menu2")}
-                >
-                  <svg width="15.714844" height="20.000000">
-                    <use xlinkHref="#profile"></use>
-                  </svg>
-                </div>
-                <div
-                  className={`profile_menu_item menu_item_m ${activeTab === "menu_levels" ? "active_menu" : ""}`}
-                  data-id="menu_levels"
-                  onClick={() => handleTabClick("menu_levels")}
-                >
-                  <svg width="13" height="20">
-                    <use xlinkHref="#levels"></use>
-                  </svg>
-                </div>
-                <div
-                  className={`profile_menu_item menu_item_m ${activeTab === "menu_rules" ? "active_menu" : ""}`}
-                  data-id="menu_rules"
-                  onClick={() => handleTabClick("menu_rules")}
-                >
-                  <svg width="20" height="17">
-                    <use xlinkHref="#rules"></use>
-                  </svg>
-                </div>
-                <div
-                  className={`profile_menu_item menu_item_m ${activeTab === "menu_vip" ? "active_menu" : ""}`}
-                  data-id="menu_vip"
-                  onClick={() => handleTabClick("menu_vip")}
-                >
-                  <svg width="16" height="20">
-                    <use xlinkHref="#vip"></use>
-                  </svg>
-                </div>
-                <div
-                  className={`profile_menu_item menu_item_m ${activeTab === "menu4" ? "active_menu" : ""}`}
-                  data-id="menu4"
-                  onClick={() => handleTabClick("menu4")}
-                >
-                  <svg width="20" height="20">
-                    <use xlinkHref="#settings"></use>
-                  </svg>
-                </div>
-                <div
-                  className="profile_menu_item menu_item_m"
-                  onClick={handleLogout}
-                  role="button"
-                  title="Выход"
-                >
-                  <img src="/images/icons/logout.svg" alt="" width="20" height="20" />
-                </div>
-              </div>
-            </div>
+              }
+            />
 
             <div className="user_profile_pages">
               {/* Таб 1: Вопросы пользователя */}
@@ -1083,6 +1131,8 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                             answer={answer}
                             isBestView={answer.isBestAnswer}
                             isOwnProfile={true}
+                            isPremiumUser={isPremiumUser}
+                            showVotes
                           />
                         ))}
                       </div>
@@ -1250,7 +1300,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   balls={balls}
                   level={meUser.level ?? 0}
                   kpd={meUser.kpd ?? 0}
-                  levelName={meUser.level_name ?? ""}
+                  levelName={rankLabel}
                   ballsToNextLevel={meUser.balls_to_next_level}
                 />
               </div>
@@ -1335,14 +1385,14 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                 </div>
               </div>
 
-              {/* Таб: VIP-статус */}
+              {/* Таб: Пакеты подписок */}
               <div
-                className={`menu_item_content menu_item_content_m ${activeTab === "menu_vip" ? "active_menu" : ""}`}
-                id="menu_vip"
+                className={`menu_item_content menu_item_content_m ${activeTab === "menu_packages" ? "active_menu" : ""}`}
+                id="menu_packages"
               >
                 <div className="user_profile_page_content profile-vip">
                   <div className="blocks_title">
-                    <h2>Активировать VIP-статус</h2>
+                    <h2>Пакеты подписок</h2>
                   </div>
                   <div className="user_profile_page_content_wrapper">
                     <p className="secondary_text">
@@ -1353,169 +1403,70 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                       ответов в своем личном кабинете, а также отключение
                       рекламы!
                     </p>
-                    <form method="post" className="vip_form">
-                      {/* Карточки услуг */}
-                      <div className="vip_status_card">
-                        <div>
-                          <img src="/images/icons/vip.svg" alt="VIP" />
-                          <h3>100 ₽</h3>
-                          <div className="secondary_text">
-                            Продление VIP статуса на 10 дней
+                    <div className="secondary_text" style={{ marginTop: 12, marginBottom: 20 }}>
+                      {meUser.premium_is_active ? (
+                        <>
+                          Текущий тариф:{" "}
+                          <strong>{meUser.premium_is_permanent ? "Постоянный" : (meUser.premium_package_name ?? "Премиум")}</strong>
+                          {meUser.premium_is_permanent
+                            ? " · действует постоянно"
+                            : meUser.premium_until
+                              ? ` · действует до ${new Date(meUser.premium_until).toLocaleString("ru-RU")}`
+                              : ""}
+                        </>
+                      ) : (
+                        <>Премиум сейчас не активен.</>
+                      )}
+                    </div>
+                    {subscriptionPackagesLoading && subscriptionPackages.length === 0 ? (
+                      <p className="secondary_text" style={{ textAlign: "center", padding: "40px 0" }}>
+                        Загрузка…
+                      </p>
+                    ) : subscriptionPackages.length > 0 ? (
+                      <div className="vip_plans_grid">
+                        {subscriptionPackages.map((packageItem) => (
+                          <div className="vip_plan_card" key={packageItem.id}>
+                            {packageItem.is_recommended ? <div className="vip_recommended_badge">Рекомендуем</div> : null}
+                            <div className="vip_plan_icon">{renderSubscriptionPackageIcon(packageItem.icon_key)}</div>
+                            <h3 className="vip_plan_title">{packageItem.name}</h3>
+                            <div className="vip_plan_price_container">
+                              <span className="vip_plan_price_label">Цена</span>
+                              <span className="vip_plan_price_value">{packageItem.monthly_price.toLocaleString("ru-RU")} ₽/Мес</span>
+                            </div>
+                            <ul className="vip_plan_features">
+                              <li>
+                                <CheckIcon />
+                                <span>
+                                  {packageItem.premium_questions_per_month === null
+                                    ? "Безлимитные премиум вопросы"
+                                    : `${packageItem.premium_questions_per_month} премиум вопросов в месяц`}
+                                </span>
+                              </li>
+                              <li>
+                                <CheckIcon />
+                                <span>{getAdvancedAnswerLabel(packageItem.premium_answers_per_question)}</span>
+                              </li>
+                              <li>
+                                <CheckIcon />
+                                <span>Лимит X{packageItem.limit_multiplier}</span>
+                              </li>
+                            </ul>
+                            <button
+                              className="vip_buy_btn_card"
+                              type="button"
+                              onClick={() => void handlePurchasePackage(packageItem.id)}
+                              disabled={packageCheckoutLoadingId === packageItem.id}
+                            >
+                              {packageCheckoutLoadingId === packageItem.id ? "Создание счёта…" : "Купить"}
+                            </button>
                           </div>
-                        </div>
-                        <svg
-                          width="15"
-                          height="15"
-                          viewBox="0 0 15 15"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M13.6619 1.9725C12.59 0.75 10.2886 0 7.5 0C4.71139 0 2.41005 0.75 1.33808 1.9725C-0.446027 4.0425 -0.446027 10.9725 1.33808 13.0275C2.41005 14.25 4.71139 15 7.5 15C10.2886 15 12.59 14.25 13.6619 13.0275C15.446 10.9575 15.446 4.0425 13.6619 1.9725ZM7.5 3.5625C7.68533 3.5625 7.86649 3.61748 8.02059 3.7205C8.17468 3.82351 8.29478 3.96993 8.3657 4.14123C8.43663 4.31254 8.45518 4.50104 8.41903 4.6829C8.38287 4.86475 8.29363 5.0318 8.16258 5.16291C8.03154 5.29402 7.86457 5.38331 7.68281 5.41949C7.50104 5.45566 7.31263 5.43709 7.14141 5.36614C6.97019 5.29518 6.82385 5.17502 6.72089 5.02085C6.61793 4.86668 6.56297 4.68542 6.56297 4.5C6.56297 4.25136 6.66169 4.0129 6.83742 3.83709C7.01315 3.66127 7.25148 3.5625 7.5 3.5625ZM8.24963 11.625H6.75038C6.55156 11.625 6.36089 11.546 6.22031 11.4053C6.07973 11.2647 6.00075 11.0739 6.00075 10.875C6.00075 10.6761 6.07973 10.4853 6.22031 10.3447C6.36089 10.204 6.55156 10.125 6.75038 10.125V7.875C6.55156 7.875 6.36089 7.79598 6.22031 7.65533C6.07973 7.51468 6.00075 7.32391 6.00075 7.125C6.00075 6.92609 6.07973 6.73532 6.22031 6.59467C6.36089 6.45402 6.55156 6.375 6.75038 6.375H7.5C7.69881 6.375 7.88948 6.45402 8.03007 6.59467C8.17065 6.73532 8.24963 6.92609 8.24963 7.125V10.125C8.44844 10.125 8.63911 10.204 8.77969 10.3447C8.92027 10.4853 8.99925 10.6761 8.99925 10.875C8.99925 11.0739 8.92027 11.2647 8.77969 11.4053C8.63911 11.546 8.44844 11.625 8.24963 11.625Z"
-                            fill="#636BFF"
-                          />
-                        </svg>
+                        ))}
                       </div>
-
-                      <div className="mini-title">Выберите способ платежа</div>
-
-                      {/* Блок AskPay: инпут ФИО + кнопка выйти */}
-                      <div className="payment_askpay_block">
-                        <input
-                          type="text"
-                          placeholder="Введите ФИО"
-                          className="payment_fio_input"
-                        />
-                        <button type="button" className="payment_logout_btn">
-                          <span>Выйти</span>
-                          <svg
-                            width="15"
-                            height="15"
-                            viewBox="0 0 15 15"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M10.5303 8.28597C10.3834 8.27356 10.2378 8.32149 10.1253 8.41926C10.0128 8.51703 9.94258 8.65666 9.93012 8.80751C9.88091 9.40399 9.81999 9.92282 9.76668 10.1955V10.1988C9.60939 11.0324 8.84081 11.8564 8.05261 12.0376C7.98436 12.052 7.91582 12.0659 7.84757 12.0791C7.90615 11.3048 7.9498 10.3147 7.94394 9.55115C7.95273 8.38468 7.84406 6.58864 7.74769 5.87389C7.57459 4.55786 6.78697 3.09827 5.91558 2.47802L5.9103 2.4744C5.30444 2.05386 4.65512 1.70353 3.97421 1.42982C3.85275 1.38147 3.73276 1.33633 3.61423 1.2944C4.26061 1.19172 4.91384 1.1414 5.5679 1.14392C6.45833 1.14392 7.27114 1.22728 8.05261 1.39401C8.84081 1.57458 9.60939 2.39917 9.76668 3.23279V3.2361C9.8197 3.50695 9.88062 4.02578 9.92983 4.62045C9.94234 4.77158 10.0128 4.91142 10.1256 5.0092C10.2385 5.10698 10.3845 5.15469 10.5316 5.14184C10.6787 5.12899 10.8148 5.05663 10.91 4.94068C11.0051 4.82472 11.0516 4.67468 11.0391 4.52355C10.9857 3.87982 10.9201 3.32939 10.8586 3.0128C10.6158 1.73047 9.51127 0.554068 8.28927 0.275994L8.28224 0.274489C7.42345 0.0915136 6.53595 0.00183172 5.56585 2.60448e-05C4.59575 -0.00177963 3.71177 0.0903099 2.85297 0.27479L2.84565 0.276295C2.30026 0.400585 1.7786 0.703939 1.34627 1.11533C1.22943 1.20585 1.1273 1.31485 1.0437 1.43825C0.661754 1.89629 0.384374 2.44431 0.276585 3.0128C0.141556 3.70828 -0.0110467 5.51185 0.000669454 6.71564C-0.00577444 7.36147 0.0349392 8.18004 0.0952775 8.90743C0.127497 9.37389 0.16411 9.78017 0.199259 10.0408C0.372365 11.3568 1.15998 12.8164 2.03167 13.4367L2.03665 13.4403C2.64266 13.8608 3.29207 14.2111 3.97304 14.4849C4.66253 14.7599 5.29521 14.9267 5.90767 14.9947H5.91294C6.736 15.0702 7.48408 14.3362 7.71049 13.263C7.90205 13.2317 8.09195 13.1961 8.28019 13.1562L8.28722 13.1547C9.50951 12.8766 10.6138 11.7002 10.8566 10.4179C10.9181 10.1007 10.984 9.54905 11.0373 8.90382C11.0497 8.75283 11.0033 8.60295 10.9082 8.4871C10.8132 8.37125 10.6772 8.29891 10.5303 8.28597Z"
-                              fill="#5D67FF"
-                            />
-                            <path
-                              d="M15 6.71474C15 6.69578 15 6.67682 14.9971 6.65786C14.9972 6.65666 14.9972 6.65544 14.9971 6.65424C14.9953 6.63646 14.9927 6.61878 14.9892 6.60128V6.59737C14.9672 6.48869 14.9148 6.389 14.8383 6.31056L12.8466 4.26233C12.7422 4.15505 12.6006 4.09477 12.453 4.09474C12.3054 4.09472 12.1638 4.15494 12.0594 4.26218C11.955 4.36941 11.8963 4.51486 11.8963 4.66654C11.8963 4.81822 11.9549 4.9637 12.0592 5.07097L13.104 6.14414H9.26201C9.11441 6.14414 8.97286 6.20438 8.86849 6.31162C8.76412 6.41885 8.70549 6.56429 8.70549 6.71594C8.70549 6.86759 8.76412 7.01303 8.86849 7.12026C8.97286 7.22749 9.11441 7.28774 9.26201 7.28774H13.0991L12.0551 8.36031C11.9511 8.46762 11.8928 8.61294 11.893 8.76438C11.8931 8.91583 11.9517 9.06103 12.056 9.16811C12.1602 9.2752 12.3015 9.33543 12.4489 9.33559C12.5963 9.33575 12.7377 9.27582 12.8422 9.16895L14.8248 7.13185C14.8967 7.06265 14.9493 6.97495 14.9772 6.87785C14.9822 6.86054 14.9863 6.84295 14.9895 6.82518C14.9896 6.82268 14.9896 6.82016 14.9895 6.81766C14.9921 6.80231 14.9947 6.78756 14.9962 6.77131C14.9977 6.75506 14.9962 6.74784 14.9962 6.7364C14.9962 6.72978 14.9962 6.72316 14.9962 6.71654L15 6.71474Z"
-                              fill="#5D67FF"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-
-                      <div className="payment_methods">
-                        {/* Банковская карта */}
-                        <label className="payment_method_label">
-                          <input
-                            type="radio"
-                            name="payment_method"
-                            value="card"
-                            defaultChecked
-                            className="payment_radio"
-                          />
-                          <div className="payment_method">
-                            <div className="payment_method_type">
-                              <img src="/images/icons/payment/1.svg" alt="" />
-                              <div>
-                                <p className="main_text">Банковская карта</p>
-                                <p className="secondary_text">
-                                  Мир, UnionPay, Visa, Mastercard и другие
-                                </p>
-                              </div>
-                            </div>
-                            <span className="payment_custom_check"></span>
-                          </div>
-                        </label>
-
-                        {/* Мобильный платёж */}
-                        <label className="payment_method_label">
-                          <input
-                            type="radio"
-                            name="payment_method"
-                            value="mobile"
-                            className="payment_radio"
-                          />
-                          <div className="payment_method">
-                            <div className="payment_method_type">
-                              <img src="/images/icons/payment/3.svg" alt="" />
-                              <div>
-                                <p className="main_text">Мобильный платёж</p>
-                              </div>
-                            </div>
-                            <span className="payment_custom_check"></span>
-                          </div>
-                        </label>
-
-                        {/* AskPay */}
-                        <label className="payment_method_label">
-                          <input
-                            type="radio"
-                            name="payment_method"
-                            value="askpay"
-                            className="payment_radio"
-                          />
-                          <div className="payment_method">
-                            <div className="payment_method_type">
-                              <svg
-                                width="27"
-                                height="24"
-                                viewBox="0 0 27 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M26.9676 13.3539L24.9261 1.74586C24.7458 0.721037 23.8569 0 22.8537 0C22.7322 0 4.97533 3.12783 4.97533 3.12783C3.82941 3.33042 3.06424 4.42599 3.26632 5.57485L3.46312 6.69394H19.4888C21.5219 6.69394 23.1759 8.3522 23.1759 10.3905V16.169L25.2586 15.8009C26.4045 15.5983 27.1697 14.5027 26.9676 13.3539Z"
-                                  fill="#5D67FF"
-                                />
-                                <path
-                                  d="M21.5957 17.0495H0V21.8877C0 23.0543 0.943313 24 2.1069 24H19.4888C20.6524 24 21.5957 23.0543 21.5957 21.8877V17.0495ZM6.2726 22.0969H2.68824C2.25192 22.0969 1.89817 21.7423 1.89817 21.3048C1.89817 20.8674 2.25192 20.5127 2.68824 20.5127H6.2726C6.70892 20.5127 7.06267 20.8674 7.06267 21.3048C7.06267 21.7423 6.70898 22.0969 6.2726 22.0969Z"
-                                  fill="#5D67FF"
-                                />
-                                <path
-                                  d="M0.00258399 10.2875H21.5931C21.5395 9.16877 20.6179 8.27824 19.4887 8.27824H2.1069C0.977749 8.27824 0.0561621 9.16877 0.00258399 10.2875Z"
-                                  fill="#5D67FF"
-                                />
-                                <path
-                                  d="M0 11.8717H21.5957V15.4653H0V11.8717Z"
-                                  fill="#5D67FF"
-                                />
-                              </svg>
-                              <div>
-                                <p className="main_text">Баланс AskPay</p>
-                                <p className="secondary_text">100 ₽</p>
-                              </div>
-                            </div>
-                            <span className="payment_custom_check"></span>
-                          </div>
-                        </label>
-
-                        {/* Другие способы */}
-                        <label className="payment_method_label">
-                          <input
-                            type="radio"
-                            name="payment_method"
-                            value="other"
-                            className="payment_radio"
-                          />
-                          <div className="payment_method">
-                            <div className="payment_method_type">
-                              <img src="/images/icons/payment/4.svg" alt="" />
-                              <div>
-                                <p className="main_text">Другие способы</p>
-                                <p className="secondary_text">
-                                  SberPay, Юmoney
-                                </p>
-                              </div>
-                            </div>
-                            <span className="payment_custom_check"></span>
-                          </div>
-                        </label>
-                      </div>
-                    </form>
+                    ) : (
+                      <p className="secondary_text" style={{ textAlign: "center", padding: "40px 0" }}>
+                        Пакеты пока не добавлены
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1677,60 +1628,6 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         <span></span>
                       </label>
                     </div>
-                    <div className="user_seting_item">
-                      <p className="secondary_text">
-                        Баллы: начисления и списания
-                      </p>
-                      <label className="chechbox_item">
-                        <input
-                          type="checkbox"
-                          checked={settingsDraft.site.balls_balance_changes}
-                          onChange={(e) =>
-                            setSettingsDraft((prev) => ({
-                              ...prev,
-                              site: {
-                                ...prev.site,
-                                balls_balance_changes: e.target.checked,
-                              },
-                            }))
-                          }
-                        />
-                        <span></span>
-                      </label>
-                      <span className="secondary_text" aria-hidden>
-                        —
-                      </span>
-                    </div>
-                    <div className="user_seting_item">
-                      <p className="secondary_text">Новый голос в опросе</p>
-                      <label className="chechbox_item">
-                        <input
-                          type="checkbox"
-                          checked={settingsDraft.general.new_poll_vote_site}
-                          onChange={(e) =>
-                            setSettingsDraft((prev) => ({
-                              ...prev,
-                              general: { ...prev.general, new_poll_vote_site: e.target.checked },
-                            }))
-                          }
-                        />
-                        <span></span>
-                      </label>
-                      <label className="chechbox_item">
-                        <input
-                          type="checkbox"
-                          checked={settingsDraft.general.new_poll_vote_email}
-                          onChange={(e) =>
-                            setSettingsDraft((prev) => ({
-                              ...prev,
-                              general: { ...prev.general, new_poll_vote_email: e.target.checked },
-                            }))
-                          }
-                        />
-                        <span></span>
-                      </label>
-                    </div>
-
                     <div className="line"></div>
 
                     {/* Включить звук для уведомлений */}
@@ -1936,26 +1833,20 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                 <h2>Ограничения на день</h2>
               </div>
               <div className="profile_stats_list profile_stats_limits_list">
-                {[
-                  { value: 10, label: "Вопросы" },
-                  { value: 0, label: "Прямых вопросов" },
-                  { value: 30, label: "Ответов" },
-                  { value: 30, label: "Комментариев" },
-                  { value: 100, label: "Голосов за ответ" },
-                  { value: 100, label: "Голоссов в опрос" },
-                  { value: 60, label: "Оценок вопросов" },
-                  { value: 60, label: "Оценок ответов" },
-                  { value: 10, label: "Фото" },
-                  { value: 0, label: "Видео" },
-                  { value: 0, label: "Рекомендации" },
-                ].map(({ value, label }) => (
-                  <div key={label} className="profile_stats_item limits_stat_item">
-                    <div className="stats_badge limits_badge">
-                      <p className="main_text">{value}</p>
+                {dailyLimitsRows.length === 0 ? (
+                  <p className="main_text" style={{ padding: "8px 0" }}>
+                    Лимиты загружаются с сервера — обновите страницу.
+                  </p>
+                ) : (
+                  dailyLimitsRows.map(({ value, label }) => (
+                    <div key={label} className="profile_stats_item limits_stat_item">
+                      <div className="stats_badge limits_badge">
+                        <p className="main_text">{value}</p>
+                      </div>
+                      <p className="main_text">{label}</p>
                     </div>
-                    <p className="main_text">{label}</p>
-                  </div>
-                ))}
+                  ))
+                )}
                 <div className="limits_help">
                   <Link href="#" className="limits_help_link">Нужна помощь?</Link>
                 </div>

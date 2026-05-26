@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "js-cookie": "^3.0.5",
+    "laravel-echo": "^2.3.4",
     "next": "14.2.15",
+    "pusher-js": "^8.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zustand": "^4.5.2"
@@ -23,8 +25,8 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "typescript": "^5",
     "eslint": "^8",
-    "eslint-config-next": "14.2.15"
+    "eslint-config-next": "14.2.15",
+    "typescript": "^5"
   }
 }

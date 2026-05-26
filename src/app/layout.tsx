@@ -3,9 +3,11 @@ import type { Metadata, Viewport } from 'next'
 import { cookies } from 'next/headers'
 import SvgSprites from '@/components/SvgSprites'
 import AuthProvider from '@/components/AuthProvider'
+import { ExternalLinkProvider } from '@/components/ExternalLinkProvider'
+import SystemToastStack from '@/components/SystemToastStack'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://otvetai.ru'
-const SITE_NAME = 'ОтветАИ'
+const SITE_NAME = 'Ответы АЙ'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -124,8 +126,11 @@ export default function RootLayout({
       </head>
       <body className={bodyClass} suppressHydrationWarning>
         <AuthProvider>
-          {children}
+          <ExternalLinkProvider>
+            {children}
+          </ExternalLinkProvider>
         </AuthProvider>
+        <SystemToastStack />
         <SvgSprites />
       </body>
     </html>

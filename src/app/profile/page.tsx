@@ -4,7 +4,7 @@ import { fetchMeOnServerCached } from "@/lib/server-me";
 import { fetchProfileWidgetsCached } from "@/lib/server-profile-widgets";
 import ProfilePageClient from "./ProfilePageClient";
 
-const SITE_NAME = "ОтветАИ";
+const SITE_NAME = "Ответы АЙ";
 
 export async function generateMetadata(): Promise<Metadata> {
   const me = await fetchMeOnServerCached();

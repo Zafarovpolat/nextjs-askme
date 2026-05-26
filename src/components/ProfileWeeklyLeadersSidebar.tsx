@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import UserAvatar from "@/components/UserAvatar";
 import type { ProfileWidgetsPayload, ProfileWidgetUser } from "@/lib/server-profile-widgets";
 
 function numWord(value: number, words: [string, string, string]): string {
@@ -34,19 +35,32 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
             Рейтинг за неделю появится после фонового обновления данных.
           </p>
         ) : (
-          weeklyBallsLeaders.map((u) => (
+          weeklyBallsLeaders.map((u) => {
+            const p = u.premium_is_active ?? u.is_premium ?? false;
+            const pt = u.premium_is_permanent
+              ? "Постоянный"
+              : u.premium_package_name?.trim() || "Премиум";
+            return (
             <Link href={`/profile/${u.id}`} key={u.id}>
               <div className="question_list_item">
                 <div className="question_list_item_left">
-                  <img src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                  <div>
+                  <UserAvatar
+                    src={u.avatar_url}
+                    src2x={u.avatar_url_2x}
+                    alt=""
+                    size={40}
+                    premium={p}
+                    premiumText={pt}
+                  />
+                  <div className="question_list_item_left__user_meta">
                     <p className="main_text">{u.full_name}</p>
                     <span>{numWord(u.week_score ?? 0, ["балл", "балла", "баллов"])} за неделю</span>
                   </div>
                 </div>
               </div>
             </Link>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -59,19 +73,32 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
             Топ авторов по вопросам за неделю появится после фонового обновления данных.
           </p>
         ) : (
-          weeklyActiveAuthors.map((u) => (
+          weeklyActiveAuthors.map((u) => {
+            const p = u.premium_is_active ?? u.is_premium ?? false;
+            const pt = u.premium_is_permanent
+              ? "Постоянный"
+              : u.premium_package_name?.trim() || "Премиум";
+            return (
             <Link href={`/profile/${u.id}`} key={u.id}>
               <div className="question_list_item">
                 <div className="question_list_item_left">
-                  <img src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                  <div>
+                  <UserAvatar
+                    src={u.avatar_url}
+                    src2x={u.avatar_url_2x}
+                    alt=""
+                    size={40}
+                    premium={p}
+                    premiumText={pt}
+                  />
+                  <div className="question_list_item_left__user_meta">
                     <p className="main_text">{u.full_name}</p>
                     <span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span>
                   </div>
                 </div>
               </div>
             </Link>
-          ))
+            );
+          })
         )}
       </div>
     </>

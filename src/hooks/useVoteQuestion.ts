@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
+import { getApiErrorMessage } from "@/lib/api-error-message";
 import { useAuthStore } from "@/store/authStore";
+import { showSystemToast } from "@/store/systemToastStore";
 
 export type VoteValue = 1 | -1;
 
@@ -44,6 +46,20 @@ export function useVoteQuestion(
   });
   const [pending, setPending] = useState(false);
 
+  useEffect(() => {
+    setState({
+      likes_count: initialState.likes_count ?? 0,
+      dislikes_count: initialState.dislikes_count ?? 0,
+      votes_score: initialState.votes_score ?? 0,
+      user_vote: (initialState.user_vote ?? null) as VoteValue | null,
+    });
+  }, [
+    initialState.likes_count,
+    initialState.dislikes_count,
+    initialState.votes_score,
+    initialState.user_vote,
+  ]);
+
   const vote = useCallback(
     async (voteValue: VoteValue): Promise<VoteQuestionResult | null> => {
       if (!isAuthorized) {
@@ -67,7 +83,8 @@ export function useVoteQuestion(
           user_vote: data.user_vote,
         });
         return data;
-      } catch {
+      } catch (err) {
+        showSystemToast(getApiErrorMessage(err), "error");
         return null;
       } finally {
         setPending(false);

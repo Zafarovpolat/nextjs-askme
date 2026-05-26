@@ -5,6 +5,7 @@ import {
   useRef,
   useCallback,
   useEffect,
+  useMemo,
   type FormEvent,
   type ChangeEvent,
   type KeyboardEvent,
@@ -14,6 +15,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
+import UserAvatar from "@/components/UserAvatar";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import { useVoteQuestion } from "@/hooks/useVoteQuestion";
@@ -21,13 +23,21 @@ import ComplaintModal from "@/components/ComplaintModal";
 import AnswerBlock, { AnswerWithReplies } from "./AnswerBlock";
 import SimilarQuestionsBlock from "./SimilarQuestionsBlock";
 import QuestionLeadersSidebar from "./QuestionLeadersSidebar";
-import { mockUsers } from "@/data/mock-users";
+import TextWithLinks from "@/components/TextWithLinks";
+import BodyAttachments from "@/components/BodyAttachments";
 import { api } from "@/lib/api-client";
+import { getToken } from "@/lib/cookies";
 import { useAuthStore } from "@/store/authStore";
+import { displayPremiumBadge, displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
+import AnswerLinkUrl from "@/components/AnswerLinkUrl";
+import type { ApiCategoryTree } from "@/lib/server-categories";
+import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
 import type { QuestionPageData } from "@/types";
+import { getApiFullUrl } from "@/config/api";
+import LinkInputModal from "@/components/LinkInputModal";
 
-// Категории для сайдбара
-const sidebarCategories = [
+/** Сайдбар, если API категорий недоступен */
+const FALLBACK_SIDEBAR_CATEGORIES = [
   {
     name: "Авто, Мото",
     slug: "auto-moto",
@@ -101,6 +111,14 @@ const sidebarCategories = [
   },
 ];
 
+function categorySidebarIcon(
+  cat: ApiCategoryTree | (typeof FALLBACK_SIDEBAR_CATEGORIES)[number],
+): string {
+  if ("icon_key" in cat && cat.icon_key) return cat.icon_key;
+  if ("svgIcon" in cat) return (cat as { svgIcon: string }).svgIcon;
+  return "business";
+}
+
 /** Как префикс «имя,» в цепочке ответов (AnswerBlock) */
 const REPLY_NAME_COLOR = "#6069ff";
 
@@ -112,10 +130,19 @@ const numWord = (value: number, words: [string, string, string]): string => {
   return `${value} ${words[index]}`;
 };
 
+function canAddAttachment(remaining: number | null | undefined): boolean {
+  if (remaining === null || remaining === undefined) return true;
+  return remaining > 0;
+}
+
 export default function QuestionPageContent({
   initialQuestion,
+  sidebarCategories = [],
+  widgets = { weekly_balls_leaders: [], weekly_active_authors: [] },
 }: {
   initialQuestion: QuestionPageData;
+  sidebarCategories?: ApiCategoryTree[];
+  widgets?: ProfileWidgetsPayload;
 }) {
   const timeAgoText = initialQuestion.best_answer?.best_answer_set_at
     ? "Решено " + formatTimeAgo(initialQuestion.best_answer.best_answer_set_at)
@@ -123,9 +150,59 @@ export default function QuestionPageContent({
 
   const router = useRouter();
   const isAuthorized = useAuthStore((s) => s.isAuthorized);
+  const user = useAuthStore((s) => s.user);
+  const fetchMe = useAuthStore((s) => s.fetchMe);
+  const canAddFileAttachment = canAddAttachment(user?.attachment_remaining?.file);
+  const canAddVideoAttachment = canAddAttachment(user?.attachment_remaining?.video);
   const categorySlug = initialQuestion.category?.slug ?? "voprosy";
   const categoryName = initialQuestion.category?.name ?? "Вопросы";
+
+  const leftSidebarCats =
+    sidebarCategories.length > 0
+      ? sidebarCategories
+      : FALLBACK_SIDEBAR_CATEGORIES;
+  const weeklyBalls = widgets.weekly_balls_leaders ?? [];
+  const weeklyAuthors = widgets.weekly_active_authors ?? [];
+  const isPremiumQuestion = Boolean(initialQuestion.is_premium);
+  const isPremiumAuthor = Boolean(
+    initialQuestion.author.premium_is_active ??
+      initialQuestion.author.is_premium,
+  );
+  const premiumAuthorText =
+    displayPremiumBadge(initialQuestion.author) ?? "Премиум";
+  const authorRankLabel =
+    displayUserSubtitle(initialQuestion.author) || "Участник";
   const allowAnswerComments = initialQuestion.allow_answer_comments ?? true;
+
+  /** Доп. данные с клиента, если RSC-запрос пришёл без cookie и без auth_extra */
+  const [authExtraClient, setAuthExtraClient] = useState<
+    QuestionPageData["auth_extra"] | undefined
+  >(undefined);
+  const authRefetchTried = useRef(false);
+  const authExtra = authExtraClient ?? initialQuestion.auth_extra;
+
+  useEffect(() => {
+    authRefetchTried.current = false;
+  }, [initialQuestion.id]);
+
+  useEffect(() => {
+    if (isAuthorized !== 1) return;
+    if (initialQuestion.auth_extra !== undefined) return;
+    if (authRefetchTried.current) return;
+    authRefetchTried.current = true;
+    let cancel = false;
+    void api
+      .get<QuestionPageData>(`v1/questions/${initialQuestion.id}`)
+      .then((d) => {
+        if (cancel || !d.auth_extra) return;
+        setAuthExtraClient(d.auth_extra);
+      })
+      .catch(() => {});
+    return () => {
+      cancel = true;
+    };
+  }, [isAuthorized, initialQuestion.id, initialQuestion.auth_extra]);
+
   const { toggleFavorite, isFavorited, isPending } = useFavoriteQuestion();
   const {
     likes_count,
@@ -137,7 +214,7 @@ export default function QuestionPageContent({
     likes_count: initialQuestion.likes_count ?? 0,
     dislikes_count: initialQuestion.dislikes_count ?? 0,
     votes_score: initialQuestion.votes_score ?? 0,
-    user_vote: initialQuestion.auth_extra?.user_vote ?? null,
+    user_vote: authExtra?.user_vote ?? null,
   });
 
   const apiAnswers = initialQuestion.answers ?? [];
@@ -174,13 +251,76 @@ export default function QuestionPageContent({
   const [answersData, setAnswersData] = useState(apiAnswers);
   /** Только вводимый текст (без «Имя,»); на сервер уходит только он */
   const [answerText, setAnswerText] = useState("");
+  const [fileAttachment, setFileAttachment] = useState<{
+    file: File;
+    previewUrl: string;
+  } | null>(null);
+  const [videoAttachment, setVideoAttachment] = useState<{
+    file: File;
+    previewUrl: string;
+  } | null>(null);
+  const [linkAttachment, setLinkAttachment] = useState<string | null>(null);
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const videoInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!allowAnswerComments && replyTarget) {
+      setReplyTarget(null);
+      setAnswerSubmitError(null);
+    }
+  }, [allowAnswerComments, replyTarget]);
+
+  useEffect(() => {
+    if (isAuthorized === 1) {
+      void fetchMe();
+    }
+  }, [isAuthorized, fetchMe]);
 
   const hasBestAnswer =
     bestAnswerId != null || initialQuestion.best_answer != null;
-  const isQuestionAuthor = initialQuestion.auth_extra?.is_author ?? false;
+  const isQuestionAuthor = authExtra?.is_author ?? false;
   const canSelectBestAnswer = !hasBestAnswer && isQuestionAuthor;
 
   const answerRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    return () => {
+      if (fileAttachment?.previewUrl) URL.revokeObjectURL(fileAttachment.previewUrl);
+      if (videoAttachment?.previewUrl) URL.revokeObjectURL(videoAttachment.previewUrl);
+    };
+  }, [fileAttachment, videoAttachment]);
+
+  const onAddFileClick = useCallback(() => {
+    if (!canAddFileAttachment) return;
+    fileInputRef.current?.click();
+  }, [canAddFileAttachment]);
+
+  const onAddVideoClick = useCallback(() => {
+    if (!canAddVideoAttachment) return;
+    videoInputRef.current?.click();
+  }, [canAddVideoAttachment]);
+
+  const onAddLinkClick = useCallback(() => {
+    setIsLinkModalOpen(true);
+  }, []);
+
+  const onFileSelected = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    setAnswerSubmitError(null);
+    if (fileAttachment?.previewUrl) URL.revokeObjectURL(fileAttachment.previewUrl);
+    setFileAttachment({ file: f, previewUrl: URL.createObjectURL(f) });
+  }, [fileAttachment]);
+
+  const onVideoSelected = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    setAnswerSubmitError(null);
+    if (videoAttachment?.previewUrl) URL.revokeObjectURL(videoAttachment.previewUrl);
+    setVideoAttachment({ file: f, previewUrl: URL.createObjectURL(f) });
+  }, [videoAttachment]);
 
   const onSetBestAnswer = useCallback(
     async (answerId: number) => {
@@ -290,6 +430,13 @@ export default function QuestionPageContent({
     [replyTarget, replyPrefix, answerText, clearReplyTarget]
   );
 
+  const canSubmitAnswer = useMemo(() => {
+    const raw = answerText.trim();
+    if (!raw) return false;
+    if (replyTarget && !allowAnswerComments) return false;
+    return true;
+  }, [answerText, replyTarget, allowAnswerComments]);
+
   const submitAnswer = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -300,33 +447,71 @@ export default function QuestionPageContent({
       }
       const raw = answerText.trim();
       if (!raw) return;
+      if (replyTarget && !allowAnswerComments) {
+        setAnswerSubmitError("Комментарии к ответам отключены автором вопроса.");
+        return;
+      }
       setAnswerSubmitPending(true);
       try {
-        await api.post(`v1/questions/${initialQuestion.id}/answers`, {
-          text: raw,
-          ...(replyTarget
-            ? { parent_id: replyTarget.parentAnswerId }
-            : {}),
+        const token = getToken();
+        if (!token) {
+          router.push("/login");
+          return;
+        }
+        const fd = new FormData();
+        fd.append("text", raw);
+        if (replyTarget) fd.append("parent_id", String(replyTarget.parentAnswerId));
+        if (linkAttachment) fd.append("links", linkAttachment);
+        if (fileAttachment?.file) fd.append("file", fileAttachment.file);
+        if (videoAttachment?.file) fd.append("video", videoAttachment.file);
+
+        const res = await fetch(getApiFullUrl(`v1/questions/${initialQuestion.id}/answers`), {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: fd,
         });
+        const data = (await res.json().catch(() => ({}))) as {
+          errors?: Record<string, string[]>;
+          message?: string;
+        };
+        if (!res.ok) {
+          const errLists = data.errors ? Object.values(data.errors) : [];
+          const firstArr = errLists.find((a) => Array.isArray(a) && a.length > 0) as
+            | string[]
+            | undefined;
+          const first = firstArr?.[0];
+          throw new Error(first || data?.message || "Не удалось отправить ответ");
+        }
         setReplyTarget(null);
         setAnswerText("");
+        setFileAttachment(null);
+        setVideoAttachment(null);
+        setLinkAttachment(null);
         router.refresh();
       } catch (err) {
         const e = err as Error & {
           message?: string;
           errors?: Record<string, string[]>;
         };
-        const first =
-          e.errors &&
-          Object.values(e.errors).find((a) => a?.length)?.[0];
-        setAnswerSubmitError(
-          first || e.message || "Не удалось отправить ответ"
-        );
+        setAnswerSubmitError(e.message || "Не удалось отправить ответ");
       } finally {
         setAnswerSubmitPending(false);
       }
     },
-    [initialQuestion.id, isAuthorized, replyTarget, router, answerText]
+    [
+      initialQuestion.id,
+      isAuthorized,
+      replyTarget,
+      router,
+      answerText,
+      allowAnswerComments,
+      fileAttachment,
+      videoAttachment,
+      linkAttachment,
+    ]
   );
 
   const regularAnswers = answersData;
@@ -337,7 +522,7 @@ export default function QuestionPageContent({
       : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
-  const answerVotes = initialQuestion.auth_extra?.answer_votes ?? {};
+  const answerVotes = authExtra?.answer_votes ?? {};
   const loadMoreAnswers = useCallback(async () => {
     if (answersLoadingMore || answersPage >= answersLastPage) return;
     setAnswersLoadingMore(true);
@@ -400,7 +585,7 @@ export default function QuestionPageContent({
             <div className="blocks_title">
               <h2>Категории</h2>
             </div>
-            {sidebarCategories.map((cat) => (
+            {leftSidebarCats.map((cat) => (
               <div
                 className={`quest_catogory ${openCategories.includes(cat.slug) ? "active_quest_catogory" : ""}`}
                 key={cat.slug}
@@ -411,7 +596,7 @@ export default function QuestionPageContent({
                 >
                   <div>
                     <svg width="18" height="18">
-                      <use xlinkHref={`#${cat.svgIcon}`}></use>
+                      <use xlinkHref={`#${categorySidebarIcon(cat)}`}></use>
                     </svg>
                     <p>{cat.name}</p>
                   </div>
@@ -426,20 +611,29 @@ export default function QuestionPageContent({
                 </div>
                 <div className="quest_catogory_content">
                   <div className="subject_item_list">
-                    {cat.subcategories.map((subcat, idx) => (
-                      <Link
-                        href={`/categories/${cat.slug}/${encodeURIComponent(subcat.toLowerCase())}`}
-                        key={idx}
-                      >
-                        <div className="subject_item_list_item">
-                          <img
-                            src="/images/icons/category-list-item.svg"
-                            alt=""
-                          />
-                          <p>{subcat}</p>
-                        </div>
-                      </Link>
-                    ))}
+                    {cat.subcategories.map((subcat, idx) => {
+                      const href =
+                        typeof subcat === "string"
+                          ? `/categories/${cat.slug}/${encodeURIComponent(subcat.toLowerCase())}`
+                          : `/categories/${cat.slug}/${subcat.slug}`;
+                      const label =
+                        typeof subcat === "string" ? subcat : subcat.name;
+                      const key =
+                        typeof subcat === "object" && "id" in subcat
+                          ? subcat.id
+                          : idx;
+                      return (
+                        <Link href={href} key={key}>
+                          <div className="subject_item_list_item">
+                            <img
+                              src="/images/icons/category-list-item.svg"
+                              alt=""
+                            />
+                            <p>{label}</p>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -451,24 +645,39 @@ export default function QuestionPageContent({
             <div className="blocks_title">
               <h2>Лидеры проекта</h2>
             </div>
-            {mockUsers.slice(0, 5).map((user) => (
+            {weeklyBalls.map((user) => {
+              const p = user.premium_is_active ?? user.is_premium ?? false;
+              const pt = user.premium_is_permanent
+                ? "Постоянный"
+                : user.premium_package_name?.trim() || "Премиум";
+              return (
               <Link href={`/profile/${user.id}`} key={user.id}>
                 <div className="question_list_item">
                   <div className="question_list_item_left">
-                    <img
-                      src={user.avatar || "/images/icons/avatar.svg"}
+                    <UserAvatar
+                      src={user.avatar_url}
+                      src2x={user.avatar_url_2x}
                       alt=""
+                      size={40}
+                      premium={p}
+                      premiumText={pt}
                     />
-                    <div>
-                      <p className="main_text">{user.displayName}</p>
+                    <div className="question_list_item_left__user_meta">
+                      <p className="main_text">{user.full_name}</p>
                       <span>
-                        {numWord(user.rating, ["балл", "балла", "баллов"])}
+                        {numWord(user.week_score ?? 0, [
+                          "балл",
+                          "балла",
+                          "баллов",
+                        ])}{" "}
+                        за неделю
                       </span>
                     </div>
                   </div>
                 </div>
               </Link>
-            ))}
+            );
+            })}
           </div>
 
           {/* Самые активные авторы */}
@@ -476,24 +685,34 @@ export default function QuestionPageContent({
             <div className="blocks_title">
               <h2>Самые активные авторы</h2>
             </div>
-            {mockUsers.slice(3, 8).map((user) => (
+            {weeklyAuthors.map((user) => {
+              const p = user.premium_is_active ?? user.is_premium ?? false;
+              const pt = user.premium_is_permanent
+                ? "Постоянный"
+                : user.premium_package_name?.trim() || "Премиум";
+              return (
               <Link href={`/profile/${user.id}`} key={user.id}>
                 <div className="question_list_item">
                   <div className="question_list_item_left">
-                    <img
-                      src={user.avatar || "/images/icons/avatar.svg"}
+                    <UserAvatar
+                      src={user.avatar_url}
+                      src2x={user.avatar_url_2x}
                       alt=""
+                      size={40}
+                      premium={p}
+                      premiumText={pt}
                     />
-                    <div>
-                      <p className="main_text">{user.displayName}</p>
+                    <div className="question_list_item_left__user_meta">
+                      <p className="main_text">{user.full_name}</p>
                       <span>
-                        {numWord(user.rating, ["балл", "балла", "баллов"])}
+                        {numWord(user.balls ?? 0, ["балл", "балла", "баллов"])}
                       </span>
                     </div>
                   </div>
                 </div>
               </Link>
-            ))}
+            );
+            })}
           </div>
         </div>
 
@@ -505,12 +724,23 @@ export default function QuestionPageContent({
 
           {/* Блок вопроса (данные из API) */}
           <div
-            className={`main_question_block main_question_block_item ${(initialQuestion.dislikes_count ?? 0) > (initialQuestion.likes_count ?? 0) ? "answer_negative_rating" : ""}`}
+            className={`main_question_block main_question_block_item ${isPremiumQuestion ? "premium-question" : ""} ${(initialQuestion.dislikes_count ?? 0) > (initialQuestion.likes_count ?? 0) ? "blocked_question_block" : ""}`}
           >
+            {isPremiumQuestion ? (
+              <div className="premium_crown_floating" aria-hidden>
+                <svg width="38" height="31">
+                  <use xlinkHref="#crown-premium" />
+                </svg>
+              </div>
+            ) : null}
             <div className="main_question_bg_wrapper">
               <div className="main_question_block_top_bg">
                 <img
-                  src="/images/top-leader-bg.svg"
+                  src={
+                    isPremiumQuestion
+                      ? "/images/top-leader-bg-d-2.svg"
+                      : "/images/top-leader-bg.svg"
+                  }
                   className="top_bg_light"
                   alt=""
                 />
@@ -520,7 +750,11 @@ export default function QuestionPageContent({
                   alt=""
                 />
                 <img
-                  src="/images/blues-rect.svg"
+                  src={
+                    isPremiumQuestion
+                      ? "/images/blues-rect-dark.svg"
+                      : "/images/blues-rect.svg"
+                  }
                   className="top_bg_rect top_bg_rect_light"
                   alt=""
                 />
@@ -534,57 +768,56 @@ export default function QuestionPageContent({
             <div className="question_list_item-info">
               <div className="question_list_item_left">
                 <Link href={`/profile/${initialQuestion.author.id}`}>
-                  <img
-                    src={
-                      initialQuestion.author.avatar_url ||
-                      "/images/icons/avatar.svg"
-                    }
-                    alt=""
-                  />
+                  <div
+                    style={{ position: "relative", display: "inline-block" }}
+                  >
+                    <UserAvatar
+                      src={initialQuestion.author.avatar_url}
+                      src2x={initialQuestion.author.avatar_url_2x}
+                      alt={displayUserName(initialQuestion.author)}
+                      size={40}
+                      premium={isPremiumAuthor}
+                      premiumText={premiumAuthorText}
+                    />
+                  </div>
                 </Link>
-                <div>
+                <div className="question_list_item_left__user_meta">
                   <Link
                     href={`/profile/${initialQuestion.author.id}`}
                     className="main_text"
                   >
-                    {initialQuestion.author.full_name}
+                    {displayUserName(initialQuestion.author)}
                   </Link>
                   <div className="quest_user_title">
-                    <span>
-                      {initialQuestion.author.level_name ?? "Участник"}
-                    </span>
+                    <p>{authorRankLabel}</p>
                   </div>
                   <span>{timeAgoText}</span>
                 </div>
-              </div>
-              <div className="question_list_item_right">
-                <button
-                  type="button"
-                  className="s_btn s_btn_icon btn_star_answer btn_star_tooltip"
-                  disabled
-                  tabIndex={-1}
-                  aria-hidden
-                >
-                  <svg width="15" height="15">
-                    <use xlinkHref="#star-best"></use>
-                  </svg>
-                  <span className="star_tooltip_text">
-                    Выбрать как лучший ответ
-                  </span>
-                </button>
+                <div className="quest_user_title">
+                  <p>{authorRankLabel}</p>
+                </div>
               </div>
             </div>
             <div className="main_question_block_title">
               <h1>{initialQuestion.title}</h1>
             </div>
-            <div className="leader_quest question_leader_badge">
-              <svg width="12" height="12">
-                <use xlinkHref="#trophy"></use>
-              </svg>
-              <p>Вопрос лидер</p>
-            </div>
+            {isPremiumQuestion ? (
+              <div className="leader_quest question_leader_badge">
+                <svg width="20" height="20" aria-hidden>
+                  <use xlinkHref="#crown-premium" />
+                </svg>
+                <p>Премиум вопрос</p>
+              </div>
+            ) : null}
             <div className="main_question_block_text">
-              <p>{initialQuestion.description}</p>
+              <div className="main_question_block_text-body">
+                <TextWithLinks text={initialQuestion.description} />
+              </div>
+              <BodyAttachments
+                files={initialQuestion.files}
+                videos={initialQuestion.videos}
+                links={initialQuestion.links}
+              />
             </div>
 
             <div className="main_question_block_actions">
@@ -749,9 +982,6 @@ export default function QuestionPageContent({
             className="ask_question_form form"
             onSubmit={submitAnswer}
           >
-            {answerSubmitError ? (
-              <p role="alert">{answerSubmitError}</p>
-            ) : null}
             <div className="ask_form_item ask_form_item_block_actions">
               <textarea
                 ref={answerRef}
@@ -766,7 +996,11 @@ export default function QuestionPageContent({
                 autoComplete="off"
               />
               <div className="ask_form_item_actions">
-                <div>
+                <div
+                  className={!canAddFileAttachment ? "attachment-action-disabled" : undefined}
+                  title={!canAddFileAttachment ? "Достигнут лимит публикаций с фото за сутки" : undefined}
+                  onClick={onAddFileClick}
+                >
                   <svg width="15.67" height="13.71">
                     <use xlinkHref="#add-file"></use>
                   </svg>
@@ -775,7 +1009,11 @@ export default function QuestionPageContent({
                     <span>Файл</span>
                   </p>
                 </div>
-                <div>
+                <div
+                  className={!canAddVideoAttachment ? "attachment-action-disabled" : undefined}
+                  title={!canAddVideoAttachment ? "Достигнут лимит публикаций с видео за сутки" : undefined}
+                  onClick={onAddVideoClick}
+                >
                   <svg width="13.71" height="12.73">
                     <use xlinkHref="#add-video"></use>
                   </svg>
@@ -784,7 +1022,7 @@ export default function QuestionPageContent({
                     <span>Видео</span>
                   </p>
                 </div>
-                <div>
+                <div onClick={onAddLinkClick}>
                   <svg width="12.73" height="12.73">
                     <use xlinkHref="#add-link"></use>
                   </svg>
@@ -794,12 +1032,99 @@ export default function QuestionPageContent({
                   </p>
                 </div>
               </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                style={{ display: "none" }}
+                onChange={onFileSelected}
+              />
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/mp4,video/webm,video/ogg"
+                style={{ display: "none" }}
+                onChange={onVideoSelected}
+              />
+
+              {(fileAttachment || videoAttachment || linkAttachment) ? (
+                <div className="form_attachments_preview">
+                  {linkAttachment ? (
+                    <div className="form_attachment_link_wrap">
+                      <AnswerLinkUrl href={linkAttachment} />
+                      <button
+                        type="button"
+                        className="form_attachment_remove_inline"
+                        aria-label="Удалить ссылку"
+                        onClick={() => setLinkAttachment(null)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : null}
+                  {(fileAttachment || videoAttachment) ? (
+                    <div className="answer_media" style={{ marginTop: 0 }}>
+                      {fileAttachment ? (
+                        <div className="answer_media_item answer_media_item--image">
+                          <img src={fileAttachment.previewUrl} alt="" loading="lazy" decoding="async" />
+                          <button
+                            type="button"
+                            className="form_attachment_remove_overlay"
+                            aria-label="Удалить фото"
+                            onClick={() => {
+                              if (fileAttachment.previewUrl) URL.revokeObjectURL(fileAttachment.previewUrl);
+                              setFileAttachment(null);
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ) : null}
+                      {videoAttachment ? (
+                        <div className="answer_media_item answer_media_item--inline-player answer_media_item--file-video">
+                          <video
+                            className="answer_media_inline_video"
+                            src={videoAttachment.previewUrl}
+                            controls
+                            playsInline
+                            preload="metadata"
+                          />
+                          <button
+                            type="button"
+                            className="form_attachment_remove_overlay"
+                            aria-label="Удалить видео"
+                            onClick={() => {
+                              if (videoAttachment.previewUrl) URL.revokeObjectURL(videoAttachment.previewUrl);
+                              setVideoAttachment(null);
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
             <div className="ask_from_send_btn" style={{ marginTop: "15px" }}>
+              {answerSubmitError ? (
+                <p role="alert" className="secondary_text" style={{ color: "#c00", marginBottom: 10 }}>
+                  {answerSubmitError}
+                </p>
+              ) : null}
               <button
                 type="submit"
                 className="m_btn category_btn"
-                disabled={answerSubmitPending}
+                disabled={answerSubmitPending || (isAuthorized === 1 && !canSubmitAnswer)}
+                title={
+                  isAuthorized === 1 && !canSubmitAnswer
+                    ? replyTarget && !allowAnswerComments
+                      ? "Комментарии к ответам отключены автором вопроса"
+                      : "Введите текст ответа"
+                    : undefined
+                }
               >
                 {answerSubmitPending ? "Отправка…" : "Ответить"}
               </button>
@@ -834,6 +1159,12 @@ export default function QuestionPageContent({
         onClose={() => setComplaintModal(null)}
         questionId={complaintModal?.questionId}
         answerId={complaintModal?.answerId}
+      />
+      <LinkInputModal
+        isOpen={isLinkModalOpen}
+        initialValue={linkAttachment}
+        onClose={() => setIsLinkModalOpen(false)}
+        onSubmit={(url) => setLinkAttachment(url)}
       />
     </>
   );

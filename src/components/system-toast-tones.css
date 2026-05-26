@@ -1,0 +1,42 @@
+/* Тона системных тостов (рядом с классами из Header.module.css). */
+
+[data-system-toast="success"] {
+  border-color: #b7e4c7;
+  background: #f0fdf4;
+  box-shadow: 0 16px 40px rgba(34, 120, 70, 0.12);
+}
+
+[data-system-toast="success"] > div {
+  color: #1b4332;
+}
+
+[data-system-toast="error"] {
+  border-color: #f5c2c7;
+  background: #fff5f5;
+  box-shadow: 0 16px 40px rgba(120, 34, 40, 0.1);
+}
+
+[data-system-toast="error"] > div {
+  color: #7f1d1d;
+}
+
+/* !important — перебиваем .dark_mode .notificationPopup из Header.module.css */
+.dark_mode [data-system-toast="success"] {
+  border-color: #2d6a4f !important;
+  background: linear-gradient(145deg, #1a3d2a 0%, #236b42 55%, #1e4d32 100%) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
+}
+
+.dark_mode [data-system-toast="success"] > div {
+  color: rgba(255, 255, 255, 0.94) !important;
+}
+
+.dark_mode [data-system-toast="error"] {
+  border-color: #b91c1c !important;
+  background: linear-gradient(145deg, #4c1518 0%, #7f1d1d 50%, #5c181c 100%) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
+}
+
+.dark_mode [data-system-toast="error"] > div {
+  color: rgba(255, 255, 255, 0.94) !important;
+}

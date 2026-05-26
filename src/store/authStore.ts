@@ -6,19 +6,34 @@ import { getToken, removeToken, setToken } from '@/lib/cookies'
 import type { ApiUser } from '@/types'
 import { useFavoritesStore } from './favoritesStore'
 
+export type AuthNotification = {
+  id: number
+  title?: string | null
+  hint?: string | null
+  url?: string | null
+  text: string
+  is_read: boolean
+  data?: Record<string, unknown> | null
+  created_at: string
+}
+
 type MeHydratePayload = {
   user: ApiUser
   favorite_question_ids: number[]
   favorite_answer_ids: number[]
   subscribed_user_ids: number[]
   subscribed_question_ids: number[]
+  notifications?: AuthNotification[]
 }
 
 type AuthState = {
   user: ApiUser | null
   isAuthorized: 0 | 1
   isLoading: boolean
+  notifications: AuthNotification[]
   patchUser: (patch: Partial<ApiUser>) => void
+  /** Синхронизировать с БД после mark-read (сид из /me иначе остаётся со старым is_read). */
+  markNotificationsRead: (ids: number[]) => void
   /** Заполнить стор из ответа /me без сети (например после SSR профиля). */
   hydrateFromMe: (data: MeHydratePayload) => void
   fetchMe: () => Promise<void>
@@ -35,12 +50,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthorized: 0,
   isLoading: true,
+  notifications: [],
   patchUser: (patch) => set((state) => ({
     user: state.user ? { ...state.user, ...patch } : state.user,
   })),
 
+  markNotificationsRead: (ids) => {
+    if (ids.length === 0) {
+      return
+    }
+    const idSet = new Set(ids)
+    set((state) => ({
+      notifications: state.notifications.map((n) =>
+        idSet.has(n.id) ? { ...n, is_read: true } : n,
+      ),
+    }))
+  },
+
   hydrateFromMe: (data) => {
-    set({ user: data.user, isAuthorized: 1, isLoading: false })
+    set({ user: data.user, isAuthorized: 1, isLoading: false, notifications: data.notifications ?? [] })
     useFavoritesStore.getState().setFromMe({
       favorite_question_ids: data.favorite_question_ids ?? [],
       favorite_answer_ids: data.favorite_answer_ids ?? [],
@@ -57,17 +85,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     fetchMeInFlight = (async () => {
       const token = getToken()
       if (!token) {
-        set({ user: null, isAuthorized: 0, isLoading: false })
+        set({ user: null, isAuthorized: 0, isLoading: false, notifications: [] })
         useFavoritesStore.getState().clear()
-        return
-      }
-      const existing = get().user
-      if (
-        get().isAuthorized === 1 &&
-        existing !== null &&
-        existing.settings !== undefined
-      ) {
-        set({ isLoading: false })
         return
       }
       try {
@@ -77,8 +96,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           favorite_answer_ids: number[]
           subscribed_user_ids: number[]
           subscribed_question_ids: number[]
+          notifications?: AuthNotification[]
         }>('v1/me')
-        set({ user: data.user, isAuthorized: 1, isLoading: false })
+        set({ user: data.user, isAuthorized: 1, isLoading: false, notifications: data.notifications ?? [] })
         useFavoritesStore.getState().setFromMe({
           favorite_question_ids: data.favorite_question_ids ?? [],
           favorite_answer_ids: data.favorite_answer_ids ?? [],
@@ -87,7 +107,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         })
       } catch {
         removeToken()
-        set({ user: null, isAuthorized: 0, isLoading: false })
+        set({ user: null, isAuthorized: 0, isLoading: false, notifications: [] })
         useFavoritesStore.getState().clear()
       }
     })()
@@ -102,6 +122,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const data = await api.post<{ user: ApiUser; token: string }>('v1/auth/login', { email, password })
     setToken(data.token)
     set({ user: data.user, isAuthorized: 1 })
+    await get().fetchMe()
   },
 
   loginWithToken: async (token: string) => {
@@ -127,6 +148,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     removeToken()
     useFavoritesStore.getState().clear()
-    set({ user: null, isAuthorized: 0 })
+    set({ user: null, isAuthorized: 0, notifications: [] })
   },
 }))

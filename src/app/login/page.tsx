@@ -8,6 +8,7 @@ import Link from "next/link"
 import { useAuthStore } from "@/store/authStore"
 import SocialAuthButtons from "@/components/SocialAuthButtons"
 import LoginOAuthError from "@/components/LoginOAuthError"
+import LoginTelegramHashHandler from "@/components/LoginTelegramHashHandler"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -63,6 +64,7 @@ export default function LoginPage() {
             <Suspense fallback={null}>
               <LoginOAuthError />
             </Suspense>
+            <LoginTelegramHashHandler />
             {error && <p className="login_error" style={{ color: "#c00", marginBottom: 8 }}>{error}</p>}
             <div className="login_input">
               <input type="email" name="email" placeholder="Ваша почта" required autoComplete="email" />

@@ -21,7 +21,7 @@ export default function SidebarRight() {
               <div className="question_list_item">
                 <div className="question_list_item_left">
                   <img src={user.avatar || '/images/avatar.png'} alt={user.displayName} />
-                  <div>
+                  <div className="question_list_item_left__user_meta">
                     <div className="main_text">{user.displayName}</div>
                     <span>{user.rating} баллов</span>
                   </div>
@@ -62,7 +62,7 @@ export default function SidebarRight() {
                   <div style={{ fontSize: '24px', width: '40px', textAlign: 'center' }}>
                     {category.icon}
                   </div>
-                  <div>
+                  <div className="question_list_item_left__user_meta">
                     <div className="main_text">{category.name}</div>
                     <span>{category.questionsCount} вопросов</span>
                   </div>

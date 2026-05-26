@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation"
 import { getApiFullUrl } from "@/config/api"
+import { fetchMeOnServerCached } from "@/lib/server-me"
 import AskPageClient, { type AskPageInitialData } from "./AskPageClient"
 
 async function fetchAskPageData(): Promise<AskPageInitialData> {
@@ -20,6 +22,11 @@ async function fetchAskPageData(): Promise<AskPageInitialData> {
 }
 
 export default async function AskPage() {
+  const me = await fetchMeOnServerCached()
+  if (!me?.user) {
+    redirect("/login")
+  }
+
   let initialData: AskPageInitialData
   try {
     initialData = await fetchAskPageData()

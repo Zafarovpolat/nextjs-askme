@@ -5,10 +5,15 @@ export type ProfileWidgetUser = {
   id: number;
   full_name: string;
   avatar_url?: string | null;
+  avatar_url_2x?: string | null;
   level_name?: string | null;
   week_score?: number;
   /** Текущие баллы (виджет «Самые активные авторы» — отбор по вопросам за неделю). */
   balls?: number;
+  is_premium?: boolean;
+  premium_is_active?: boolean;
+  premium_is_permanent?: boolean;
+  premium_package_name?: string | null;
 };
 
 export type ProfileWidgetsPayload = {

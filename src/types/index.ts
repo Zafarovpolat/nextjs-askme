@@ -5,7 +5,11 @@ export interface PublicProfileUser {
   id: number
   first_name: string
   full_name: string
+  /** Дата регистрации — для строки «В сервисе …» как в личном кабинете */
+  created_at?: string | null
   avatar_url: string | null
+  /** WebP @2x после загрузки аватара; для <img srcSet> */
+  avatar_url_2x?: string | null
   balls: number
   kpd: number
   level: number
@@ -17,6 +21,22 @@ export interface PublicProfileUser {
   is_blocked?: boolean
   /** Текст причины, если задана в админке. */
   block_reason?: string | null
+  is_ai?: boolean
+  ai_setting_id?: number | null
+  ai_provider_type?: string | null
+  ai_model?: string | null
+  ai_label?: string | null
+  ai_provider_name?: string | null
+  ai_model_short?: string | null
+  ai_rank_label?: string | null
+  is_premium?: boolean
+  premium_is_permanent?: boolean
+  premium_is_active?: boolean
+  premium_until?: string | null
+  premium_package_name?: string | null
+  premium_subscription_status?: string | null
+  vip_status?: boolean | number
+  vip?: boolean
 }
 
 /** Пользователь из API (auth/me) */
@@ -28,6 +48,7 @@ export interface ApiUser {
   email_verified_at?: string | null
   gender: number
   avatar_url?: string | null
+  avatar_url_2x?: string | null
   description?: string | null
   balls?: number
   level?: number
@@ -42,6 +63,41 @@ export interface ApiUser {
   answers_count?: number
   best_answers_count?: number
   settings?: Record<string, unknown>
+  is_ai?: boolean
+  ai_setting_id?: number | null
+  ai_provider_type?: string | null
+  ai_model?: string | null
+  ai_label?: string | null
+  ai_provider_name?: string | null
+  ai_model_short?: string | null
+  ai_rank_label?: string | null
+  is_premium?: boolean
+  premium_is_permanent?: boolean
+  vip_status?: boolean | number
+  vip?: boolean
+  premium_is_active?: boolean
+  premium_until?: string | null
+  premium_package_name?: string | null
+  premium_subscription_status?: string | null
+  premium_questions_quota_used?: number
+  premium_questions_quota_total?: number | null
+  premium_questions_quota_available?: number | null
+  premium_questions_quota_is_unlimited?: boolean
+  /** Суточные лимиты (уже с учётом премиум-множителя); null = без лимита. */
+  daily_action_limits?: {
+    ask_question: number | null
+    answer: number | null
+    answer_comment: number | null
+    vote_best: number | null
+    vote_question: number | null
+    file: number | null
+    video: number | null
+  }
+  /** Остаток вложений за 24 ч.; null = без лимита */
+  attachment_remaining?: {
+    file: number | null
+    video: number | null
+  }
 }
 
 export interface User {
@@ -50,6 +106,8 @@ export interface User {
   displayName: string;
   email: string;
   avatar: string;
+  /** Соответствует avatar_url_2x из API при маппинге поиска/списков */
+  avatar2x?: string | null;
   bio: string;
   rating: number;
   balance: number;
@@ -63,6 +121,12 @@ export interface User {
   city?: string;
   phoneNumber?: string;
   isBanned?: boolean;
+  is_premium?: boolean;
+  premium_is_active?: boolean;
+  premium_is_permanent?: boolean;
+  premium_until?: string | null;
+  premium_package_name?: string | null;
+  premium_subscription_status?: string | null;
 }
 
 export interface Category {
@@ -91,6 +155,31 @@ export interface Question {
   commentsCount: number;
   createdAt: string;
   updatedAt: string;
+  is_premium?: boolean;
+}
+
+export interface SubscriptionPackage {
+  id: number;
+  name: string;
+  monthly_price: number;
+  is_recommended: boolean;
+  icon_key?: string | null;
+  premium_questions_per_month: number | null;
+  premium_answers_per_question: number;
+  limit_multiplier: number;
+}
+
+export interface PremiumBillingCheckoutResponse {
+  message: string;
+  payment: {
+    id: number;
+    invoice_id: string | null;
+    status: string;
+    provider_status: string | null;
+    confirmation_url?: string | null;
+    amount: number;
+    currency: string;
+  };
 }
 
 export interface Comment {
@@ -122,8 +211,23 @@ export interface QuestionPageUser {
   last_name?: string
   full_name: string
   avatar_url?: string | null
+  avatar_url_2x?: string | null
   level?: number
   level_name?: string
+  is_premium?: boolean
+  premium_is_active?: boolean
+  premium_is_permanent?: boolean
+  premium_until?: string | null
+  premium_package_name?: string | null
+  premium_subscription_status?: string | null
+  is_ai?: boolean
+  ai_setting_id?: number | null
+  ai_provider_type?: string | null
+  ai_model?: string | null
+  ai_label?: string | null
+  ai_provider_name?: string | null
+  ai_model_short?: string | null
+  ai_rank_label?: string | null
 }
 
 /** Ответ с API (вложенная структура) */
@@ -150,8 +254,13 @@ export interface QuestionPageData {
   description: string
   created_at: string
   author: QuestionPageUser
+  /** Если API отдаёт — включается премиум-вёрстка карточки вопроса */
+  is_premium?: boolean
   allow_answer_comments?: boolean
   category?: { slug: string; name: string }
+  files?: string[]
+  videos?: string[]
+  links?: string[]
   answers_count?: number
   likes_count?: number
   dislikes_count?: number
@@ -172,8 +281,9 @@ export interface SimilarQuestionItem {
   created_at: string
   answers_count: number
   likes_count: number
+  is_premium?: boolean
   author: QuestionPageUser & { balls?: number }
-  latest_likers: { id: number; avatar_url: string | null }[]
+  latest_likers: { id: number; avatar_url: string | null; avatar_url_2x?: string | null }[]
 }
 
 export interface SimilarQuestionsPage {

@@ -5,6 +5,10 @@ export interface UserAnswer extends Comment {
   questionTitle: string;
   questionSlug: string;
   questionAnswersCount: number;
+  /** Голос текущего пользователя (если вошёл) — с API профиля/списка */
+  user_vote?: 1 | -1 | null;
+  likesCount?: number;
+  dislikesCount?: number;
   isBlocked?: boolean;
   parentId?: number | null;
   role?: string;

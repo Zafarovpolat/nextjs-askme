@@ -1,12 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SearchResultCard from "@/components/SearchResultCard";
+import SharePopup from "@/components/SharePopup";
+import PremiumFilterCrownIcon from "@/components/PremiumFilterCrownIcon";
 import { getApiFullUrl } from "@/config/api";
+import { avatarImgProps } from "@/lib/avatar-srcset";
+import { api } from "@/lib/api-client";
+import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
 import type { ApiCategoryTree } from "@/lib/server-categories";
 import type { SearchLeaderQuestion } from "@/lib/server-search-leaders";
@@ -21,11 +26,13 @@ type ApiSearchQuestion = {
   created_at: string;
   answers_count: number;
   status: string;
+  is_premium?: boolean;
   category?: { name?: string; slug?: string; icon_key?: string } | null;
   author?: {
     id: number;
     full_name: string;
     avatar_url: string | null;
+    avatar_url_2x?: string | null;
     balls?: number;
   } | null;
 };
@@ -75,6 +82,22 @@ function mapStatus(
   return "opened";
 }
 
+type SimilarQuestionItem = {
+  id: number;
+  title: string;
+  likes_count: number;
+  is_premium?: boolean;
+  latest_likers: { id: number; avatar_url: string | null; avatar_url_2x?: string | null }[];
+};
+
+const SIMILAR_FILTERS = [
+  { label: "Все", value: "all" as const },
+  { label: "Открытые", value: "open" as const },
+  { label: "На голосовании", value: "voting" as const },
+  { label: "Решения", value: "solved" as const },
+  { label: "Премиум", value: "premium" as const },
+];
+
 function mapApiToQuestion(q: ApiSearchQuestion): Question {
   const created = q.created_at || new Date().toISOString();
   return {
@@ -88,6 +111,7 @@ function mapApiToQuestion(q: ApiSearchQuestion): Question {
       displayName: q.author?.full_name ?? "",
       email: "",
       avatar: q.author?.avatar_url || "/images/icons/avatar.svg",
+      avatar2x: q.author?.avatar_url_2x ?? undefined,
       bio: "",
       rating: q.author?.balls ?? 0,
       balance: 0,
@@ -114,6 +138,7 @@ function mapApiToQuestion(q: ApiSearchQuestion): Question {
     commentsCount: q.answers_count,
     createdAt: created,
     updatedAt: created,
+    is_premium: q.is_premium ?? false,
   };
 }
 
@@ -156,6 +181,25 @@ export default function SearchPageClient({
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [similarFilter, setSimilarFilter] = useState<
+    (typeof SIMILAR_FILTERS)[number]["value"]
+  >("all");
+  const [similarQuestions, setSimilarQuestions] = useState<
+    SimilarQuestionItem[]
+  >([]);
+  const [similarLoading, setSimilarLoading] = useState(false);
+  const [isSimilarShareOpen, setIsSimilarShareOpen] = useState(false);
+  const [similarShareData, setSimilarShareData] = useState({
+    title: "",
+    url: "",
+  });
+  const similarShareButtonRef = useRef<HTMLButtonElement | null>(null);
+  const {
+    toggleFavorite: toggleSimilarFavorite,
+    isFavorited: isSimilarFavorited,
+    isPending: isSimilarVotePending,
+  } = useFavoriteQuestion();
 
   const [openCategories, setOpenCategories] = useState<string[]>(() =>
     sidebarCategories.length ? [sidebarCategories[0].slug] : [],
@@ -279,6 +323,48 @@ export default function SearchPageClient({
       cancelled = true;
     };
   }, [searchParams, fetchPage]);
+
+  const qTrimmed = searchParams.get("q")?.trim() ?? "";
+
+  useEffect(() => {
+    if (!qTrimmed) {
+      setSimilarQuestions([]);
+      return;
+    }
+    let cancelled = false;
+    setSimilarLoading(true);
+    const params = new URLSearchParams({
+      q: qTrimmed,
+      page: "1",
+      per_page: "15",
+      filter: similarFilter,
+    });
+    void api
+      .get<{ questions: SimilarQuestionItem[] }>(
+        `v1/questions/similar?${params.toString()}`,
+      )
+      .then((data) => {
+        if (!cancelled) setSimilarQuestions(data.questions ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setSimilarQuestions([]);
+      })
+      .finally(() => {
+        if (!cancelled) setSimilarLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [qTrimmed, similarFilter]);
+
+  const handleSimilarShare = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>, title: string, id: number) => {
+      similarShareButtonRef.current = e.currentTarget;
+      setSimilarShareData({ title, url: `/question/${id}` });
+      setIsSimilarShareOpen(true);
+    },
+    [],
+  );
 
   const onSubmitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -434,7 +520,7 @@ export default function SearchPageClient({
                         }
                         alt=""
                       />
-                      <div>
+                      <div className="question_list_item_left__user_meta">
                         <p className="main_text">{user.full_name}</p>
                         <span>
                           {numWord(user.week_score ?? 0, [
@@ -465,7 +551,7 @@ export default function SearchPageClient({
                         }
                         alt=""
                       />
-                      <div>
+                      <div className="question_list_item_left__user_meta">
                         <p className="main_text">{user.full_name}</p>
                         <span>
                           {numWord(user.balls ?? 0, [
@@ -902,7 +988,7 @@ export default function SearchPageClient({
                         }
                         alt=""
                       />
-                      <div>
+                      <div className="question_list_item_left__user_meta">
                         <p className="main_text">
                           {q.author?.full_name ?? "—"}
                         </p>
@@ -931,7 +1017,168 @@ export default function SearchPageClient({
             </Link>
           </div>
         </div>
+
+        {qTrimmed ? (
+          <div className="similar_questions_block container">
+            <div className="blocks_title">
+              <h2>Похожие вопросы участников</h2>
+              <div className="questions_filter">
+                {SIMILAR_FILTERS.map((tab) => (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    className={`s_btn ${similarFilter === tab.value ? "s_btn_active" : ""} ${tab.value === "premium" ? "premium-filter-btn" : ""}`}
+                    onClick={() => setSimilarFilter(tab.value)}
+                  >
+                    {tab.value === "premium" ? (
+                      <>
+                        <PremiumFilterCrownIcon />
+                        {tab.label}
+                      </>
+                    ) : (
+                      tab.label
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {similarLoading ? (
+              <p
+                className="secondary_text"
+                style={{ padding: "24px 0", textAlign: "center" }}
+              >
+                Загрузка похожих…
+              </p>
+            ) : similarQuestions.length === 0 ? (
+              <p
+                className="secondary_text"
+                style={{ padding: "24px 0", textAlign: "center" }}
+              >
+                Нет похожих вопросов по этому запросу
+              </p>
+            ) : (
+              <div className="questions_list">
+                {similarQuestions.map((q) => (
+                  <div key={q.id} className={`question_list_item ${q.is_premium ? "premium-question" : ""}`}>
+                    <div className="question_item_top_data">
+                      <div className="question_item_top_data_left">
+                        <img
+                          {...avatarImgProps(
+                            q.latest_likers[0]?.avatar_url,
+                            q.latest_likers[0]?.avatar_url_2x,
+                          )}
+                          alt=""
+                        />
+                        <div>
+                          <p className="main_text">
+                            {q.title}
+                          </p>
+                          <span>{q.likes_count} лайков</span>
+                        </div>
+                      </div>
+                      <div className="question_item_top_data_right">
+                        <button
+                          type="button"
+                          className={`s_btn s_btn_icon btn-like ${isSimilarFavorited(q.id) ? "btn-like--active" : ""}`}
+                          onClick={() => toggleSimilarFavorite(q.id)}
+                          disabled={isSimilarVotePending(q.id)}
+                          title="Мне нравится"
+                        >
+                          <svg width="13.714355" height="12">
+                            <use xlinkHref="#like"></use>
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="s_btn s_btn_icon share-this"
+                          title="Поделиться"
+                          onClick={(e) =>
+                            handleSimilarShare(e, q.title, q.id)
+                          }
+                        >
+                          <svg width="14" height="14">
+                            <use xlinkHref="#share"></use>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    <Link href={`/question/${q.id}`}>
+                      <div className="question_list_item_left">
+                        <img
+                          {...avatarImgProps(
+                            q.latest_likers[0]?.avatar_url,
+                            q.latest_likers[0]?.avatar_url_2x,
+                          )}
+                          alt=""
+                        />
+                        <div className="question_list_item_left__user_meta">
+                          <p className="main_text">
+                            {q.title}
+                          </p>
+                          <span>{q.likes_count} лайков</span>
+                        </div>
+                      </div>
+                    </Link>
+                    <div className="question_list_item_right">
+                      <div className="question_list_item_users">
+                        {q.latest_likers.slice(0, 3).map((u) => (
+                          <img
+                            key={u.id}
+                            {...avatarImgProps(u.avatar_url, u.avatar_url_2x)}
+                            alt=""
+                          />
+                        ))}
+                        <p className="main_text">+{q.likes_count}</p>
+                      </div>
+                      <div className="question_list_item_right_actions">
+                        <button
+                          type="button"
+                          className={`s_btn s_btn_icon btn-like ${isSimilarFavorited(q.id) ? "btn-like--active" : ""}`}
+                          onClick={() => toggleSimilarFavorite(q.id)}
+                          disabled={isSimilarVotePending(q.id)}
+                          title="Мне нравится"
+                        >
+                          <svg width="13.714355" height="12">
+                            <use xlinkHref="#like"></use>
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          className="s_btn s_btn_icon share-this"
+                          title="Поделиться"
+                          onClick={(e) =>
+                            handleSimilarShare(e, q.title, q.id)
+                          }
+                        >
+                          <svg width="14" height="14">
+                            <use xlinkHref="#share"></use>
+                          </svg>
+                        </button>
+                        <Link href={`/question/${q.id}`} className="s_btn">
+                          Посмотреть
+                        </Link>
+                        <Link
+                          href={`/question/${q.id}#answer`}
+                          className="s_btn s_btn_active"
+                        >
+                          Ответить
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : null}
       </div>
+      <SharePopup
+        isOpen={isSimilarShareOpen}
+        onClose={() => setIsSimilarShareOpen(false)}
+        anchorRef={similarShareButtonRef}
+        title={similarShareData.title}
+        url={similarShareData.url}
+      />
       <Footer />
     </>
   );

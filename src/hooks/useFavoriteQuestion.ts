@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { api } from "@/lib/api-client";
+import { getApiErrorMessage } from "@/lib/api-error-message";
 import { useAuthStore } from "@/store/authStore";
+import { showSystemToast } from "@/store/systemToastStore";
 import { useFavoritesStore } from "@/store/favoritesStore";
 
 type ToggleResult = { favorited: boolean } | null;
@@ -37,7 +39,8 @@ export function useFavoriteQuestion() {
         const favorited = data.favorited;
         setQuestionFavorited(questionId, favorited);
         return { favorited };
-      } catch {
+      } catch (err) {
+        showSystemToast(getApiErrorMessage(err), "error");
         return null;
       } finally {
         setPendingId((prev) => (prev === questionId ? null : prev));

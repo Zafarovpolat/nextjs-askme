@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getApiFullUrl } from "@/config/api";
+import { fetchMainSidebarCategoriesCached } from "@/lib/server-main-sidebar-categories";
+import { fetchProfileWidgetsCached } from "@/lib/server-profile-widgets";
 import type { QuestionPageData } from "@/types";
 import QuestionPageContent from "./QuestionPageContent";
 
@@ -19,11 +21,22 @@ export default async function QuestionPage({
     Accept: "application/json",
     ...(token && { Authorization: `Bearer ${token}` }),
   };
-  const res = await fetch(url, { headers, next: { revalidate: 60 } });
+  const [res, sidebarCategories, widgets] = await Promise.all([
+    /* user_vote / auth_extra — персональные: нельзя кэшировать ответ с чужой страницы/без токена */
+    fetch(url, { headers, cache: "no-store" }),
+    fetchMainSidebarCategoriesCached(),
+    fetchProfileWidgetsCached(),
+  ]);
   if (!res.ok) {
     if (res.status === 404) notFound();
     notFound();
   }
   const data: QuestionPageData = await res.json();
-  return <QuestionPageContent initialQuestion={data} />;
+  return (
+    <QuestionPageContent
+      initialQuestion={data}
+      sidebarCategories={sidebarCategories}
+      widgets={widgets}
+    />
+  );
 }

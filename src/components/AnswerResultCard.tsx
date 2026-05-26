@@ -1,5 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { UserAnswer } from "@/data/mock-answers";
+import UserAvatar from "@/components/UserAvatar";
+import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
+import { useVoteAnswer } from "@/hooks/useVoteAnswer";
 
 interface AnswerResultCardProps {
   answer: UserAnswer;
@@ -7,6 +12,10 @@ interface AnswerResultCardProps {
   isOwnProfile?: boolean;
   /** Скрыть лайк/дизлайк (список на странице профиля — только просмотр). */
   hideVotes?: boolean;
+  /** Всегда показывать лайки/дизлайки, даже если это свой профиль. */
+  showVotes?: boolean;
+  /** Премиум-оформление аватара (например профиль VIP) */
+  isPremiumUser?: boolean;
 }
 
 // Склонение ответов
@@ -41,85 +50,164 @@ const formatTimeAgo = (dateStr: string): string => {
   return numWord(diffYears, ["год", "года", "лет"]) + " назад";
 };
 
+function ReadOnlyVoteBadges({ likes, dislikes }: { likes: number; dislikes: number }) {
+  return (
+    <>
+      <div className="like-badge" aria-hidden>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M0.875004 11.8667H2.12501C2.60751 11.8667 3.00001 11.448 3.00001 10.9333V4.8C3.00001 4.28533 2.60751 3.86667 2.12501 3.86667H0.875004C0.392502 3.86667 0 4.28533 0 4.8V10.9333C0 11.448 0.392502 11.8667 0.875004 11.8667Z"
+            fill="currentColor"
+          />
+          <path
+            d="M6.39053 0C5.89053 0 5.64053 0.266667 5.64053 1.6C5.64053 2.8672 4.49002 3.88693 3.75002 4.41227V11.0192C4.55052 11.4144 6.15303 12 8.64054 12H9.44054C10.4155 12 11.2456 11.2533 11.4106 10.2293L11.9706 6.76267C12.1806 5.456 11.2406 4.26667 10.0005 4.26667H7.64054C7.64054 4.26667 8.01554 3.46667 8.01554 2.13333C8.01554 0.533333 6.89053 0 6.39053 0Z"
+            fill="currentColor"
+          />
+        </svg>
+        <span>{likes || 0}</span>
+      </div>
+      <div className="dislike-badge" aria-hidden>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M11.125 0.133332L9.87499 0.133332C9.39249 0.133332 8.99999 0.552 8.99999 1.06667L8.99999 7.2C8.99999 7.71467 9.39249 8.13333 9.87499 8.13333L11.125 8.13333C11.6075 8.13333 12 7.71467 12 7.2L12 1.06667C12 0.552 11.6075 0.133332 11.125 0.133332Z"
+            fill="currentColor"
+          />
+          <path
+            d="M5.60947 12C6.10947 12 6.35947 11.7333 6.35947 10.4C6.35947 9.1328 7.50998 8.11307 8.24998 7.58773L8.24998 0.980799C7.44948 0.5856 5.84697 -5.37915e-07 3.35946 -7.5538e-07L2.55946 -8.25319e-07C1.58445 -9.10556e-07 0.754449 0.746665 0.589448 1.77067L0.0294434 5.23733C-0.180558 6.544 0.759447 7.73333 1.99945 7.73333L4.35946 7.73333C4.35946 7.73333 3.98446 8.53333 3.98446 9.86667C3.98446 11.4667 5.10947 12 5.60947 12Z"
+            fill="currentColor"
+          />
+        </svg>
+        <span>{dislikes || 0}</span>
+      </div>
+    </>
+  );
+}
+
+function InteractiveVoteBadges({
+  questionId,
+  answerId,
+  initialLikes,
+  initialDislikes,
+  initialUserVote,
+}: {
+  questionId: number;
+  answerId: number;
+  initialLikes: number;
+  initialDislikes: number;
+  initialUserVote: 1 | -1 | null;
+}) {
+  const { likes_count, dislikes_count, user_vote, vote, pending } = useVoteAnswer(
+    questionId,
+    answerId,
+    {
+      likes_count: initialLikes,
+      dislikes_count: initialDislikes,
+      user_vote: initialUserVote,
+    },
+  );
+
+  return (
+    <>
+      <button
+        className={`like-badge${user_vote === 1 ? " like-badge--active" : ""}`}
+        type="button"
+        title="Мне нравится"
+        disabled={pending}
+        onClick={() => vote(1)}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M0.875004 11.8667H2.12501C2.60751 11.8667 3.00001 11.448 3.00001 10.9333V4.8C3.00001 4.28533 2.60751 3.86667 2.12501 3.86667H0.875004C0.392502 3.86667 0 4.28533 0 4.8V10.9333C0 11.448 0.392502 11.8667 0.875004 11.8667Z"
+            fill="currentColor"
+          />
+          <path
+            d="M6.39053 0C5.89053 0 5.64053 0.266667 5.64053 1.6C5.64053 2.8672 4.49002 3.88693 3.75002 4.41227V11.0192C4.55052 11.4144 6.15303 12 8.64054 12H9.44054C10.4155 12 11.2456 11.2533 11.4106 10.2293L11.9706 6.76267C12.1806 5.456 11.2406 4.26667 10.0005 4.26667H7.64054C7.64054 4.26667 8.01554 3.46667 8.01554 2.13333C8.01554 0.533333 6.89053 0 6.39053 0Z"
+            fill="currentColor"
+          />
+        </svg>
+        <span>{likes_count || 0}</span>
+      </button>
+
+      <button
+        className={`dislike-badge${user_vote === -1 ? " dislike-badge--active" : ""}`}
+        type="button"
+        title="Мне не нравится"
+        disabled={pending}
+        onClick={() => vote(-1)}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M11.125 0.133332L9.87499 0.133332C9.39249 0.133332 8.99999 0.552 8.99999 1.06667L8.99999 7.2C8.99999 7.71467 9.39249 8.13333 9.87499 8.13333L11.125 8.13333C11.6075 8.13333 12 7.71467 12 7.2L12 1.06667C12 0.552 11.6075 0.133332 11.125 0.133332Z"
+            fill="currentColor"
+          />
+          <path
+            d="M5.60947 12C6.10947 12 6.35947 11.7333 6.35947 10.4C6.35947 9.1328 7.50998 8.11307 8.24998 7.58773L8.24998 0.980799C7.44948 0.5856 5.84697 -5.37915e-07 3.35946 -7.5538e-07L2.55946 -8.25319e-07C1.58445 -9.10556e-07 0.754449 0.746665 0.589448 1.77067L0.0294434 5.23733C-0.180558 6.544 0.759447 7.73333 1.99945 7.73333L4.35946 7.73333C4.35946 7.73333 3.98446 8.53333 3.98446 9.86667C3.98446 11.4667 5.10947 12 5.60947 12Z"
+            fill="currentColor"
+          />
+        </svg>
+        <span>{dislikes_count || 0}</span>
+      </button>
+    </>
+  );
+}
+
 export default function AnswerResultCard({
   answer,
-  isBestView,
+  isBestView: _isBestView,
   isOwnProfile,
   hideVotes,
+  showVotes,
+  isPremiumUser,
 }: AnswerResultCardProps) {
+  const shouldShowVotes = showVotes ?? (!isOwnProfile && !hideVotes);
+  const authorPremium = answer.author.premium_is_active ?? answer.author.is_premium ?? false;
+  const authorPremiumText = displayPremiumBadge(answer.author) ?? "Премиум";
+  const authorName = displayUserName(answer.author);
+  const isPremiumCard = isPremiumUser || authorPremium;
+  const canVote = shouldShowVotes && (answer.questionId ?? 0) > 0;
+
   return (
-    <div className="answer-result-card">
+    <div className={`answer-result-card ${isPremiumCard ? "premium-answer" : ""}`}>
       <Link
         href={`/profile/${answer.author.id ?? answer.author.username}`}
         className="answer-result-avatar-link"
       >
-        <img
-          src={answer.author.avatar || "/images/icons/avatar.svg"}
-          alt={answer.author.displayName}
-          className="answer-result-avatar"
+        <UserAvatar
+          src={answer.author.avatar}
+          src2x={answer.author.avatar2x}
+          alt={authorName}
+          premium={authorPremium}
+          premiumText={authorPremiumText}
+          size={51}
+          imgClassName="answer-result-avatar"
         />
       </Link>
       <div className="answer-result-content">
-        <Link
-          href={`/question/${answer.questionSlug}`}
-          className="answer-result-title"
-        >
+        <Link href={`/question/${answer.questionSlug}`} className="answer-result-title">
           {answer.questionTitle}
         </Link>
         <p className="answer-result-subtext">{answer.content}</p>
 
         <div className="answer-result-meta">
-          {!isOwnProfile && !hideVotes && (
-            <>
-              <button className="like-badge" type="button">
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M0.875004 11.8667H2.12501C2.60751 11.8667 3.00001 11.448 3.00001 10.9333V4.8C3.00001 4.28533 2.60751 3.86667 2.12501 3.86667H0.875004C0.392502 3.86667 0 4.28533 0 4.8V10.9333C0 11.448 0.392502 11.8667 0.875004 11.8667Z"
-                    fill="white"
-                  />
-                  <path
-                    d="M6.39053 0C5.89053 0 5.64053 0.266667 5.64053 1.6C5.64053 2.8672 4.49002 3.88693 3.75002 4.41227V11.0192C4.55052 11.4144 6.15303 12 8.64054 12H9.44054C10.4155 12 11.2456 11.2533 11.4106 10.2293L11.9706 6.76267C12.1806 5.456 11.2406 4.26667 10.0005 4.26667H7.64054C7.64054 4.26667 8.01554 3.46667 8.01554 2.13333C8.01554 0.533333 6.89053 0 6.39053 0Z"
-                    fill="white"
-                  />
-                </svg>
-                <span>{answer.likesCount || 0}</span>
-              </button>
+          {shouldShowVotes ? (
+            canVote ? (
+              <InteractiveVoteBadges
+                questionId={answer.questionId}
+                answerId={answer.id}
+                initialLikes={answer.likesCount ?? 0}
+                initialDislikes={answer.dislikesCount ?? 0}
+                initialUserVote={(answer.user_vote ?? null) as 1 | -1 | null}
+              />
+            ) : (
+              <ReadOnlyVoteBadges likes={answer.likesCount ?? 0} dislikes={answer.dislikesCount ?? 0} />
+            )
+          ) : null}
 
-              <button className="dislike-badge" type="button">
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M11.125 0.133332L9.87499 0.133332C9.39249 0.133332 8.99999 0.552 8.99999 1.06667L8.99999 7.2C8.99999 7.71467 9.39249 8.13333 9.87499 8.13333L11.125 8.13333C11.6075 8.13333 12 7.71467 12 7.2L12 1.06667C12 0.552 11.6075 0.133332 11.125 0.133332Z"
-                    fill="#5D67FF"
-                  />
-                  <path
-                    d="M5.60947 12C6.10947 12 6.35947 11.7333 6.35947 10.4C6.35947 9.1328 7.50998 8.11307 8.24998 7.58773L8.24998 0.980799C7.44948 0.5856 5.84697 -5.37915e-07 3.35946 -7.5538e-07L2.55946 -8.25319e-07C1.58445 -9.10556e-07 0.754449 0.746665 0.589448 1.77067L0.0294434 5.23733C-0.180558 6.544 0.759447 7.73333 1.99945 7.73333L4.35946 7.73333C4.35946 7.73333 3.98446 8.53333 3.98446 9.86667C3.98446 11.4667 5.10947 12 5.60947 12Z"
-                    fill="#5D67FF"
-                  />
-                </svg>
-                <span>{answer.dislikesCount || 0}</span>
-              </button>
-            </>
-          )}
-
-          <div className="search-result-date">
-            {formatTimeAgo(answer.createdAt)}
-          </div>
+          <div className="search-result-date">{formatTimeAgo(answer.createdAt)}</div>
 
           {!answer.parentId && (
             <>
-              <div className="search-result-separator"></div>
+              <div className="search-result-separator" />
               <div className="search-result-answers">
                 <svg
                   width="14"
