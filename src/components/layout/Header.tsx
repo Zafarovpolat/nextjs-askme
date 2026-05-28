@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useRef, Fragment } from "react";
 import styles from "./Header.module.css";
 import { useAuthStore } from "@/store/authStore";
@@ -338,6 +338,7 @@ const NotificationBtn = () => <NotificationBtnRealtime />;
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const isAuthorized = useAuthStore((s) => s.isAuthorized === 1);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -435,17 +436,25 @@ export default function Header() {
           </Link>
 
           <div className="nav_list">
-            <Link href="/categories">
-              <button className="m_btn category_btn">
-                <img
-                  src="/images/icons/category-icon.svg"
-                  alt=""
-                  width="18"
-                  height="18"
-                />
-                <span>Категории</span>
-              </button>
-            </Link>
+            {/* п.8 — toggle: если уже на /categories, возвращаемся назад */}
+            <button
+              className="m_btn category_btn"
+              onClick={() => {
+                if (pathname === "/categories") {
+                  router.back();
+                } else {
+                  router.push("/categories");
+                }
+              }}
+            >
+              <img
+                src="/images/icons/category-icon.svg"
+                alt=""
+                width="18"
+                height="18"
+              />
+              <span>Категории</span>
+            </button>
 
             <form
               className="search_input"
@@ -615,14 +624,23 @@ export default function Header() {
         </div>
 
         <div className="nav_mob_wrapper_list">
-          <Link href="/categories" onClick={() => setIsMenuOpen(false)}>
-            <button className="m_btn mob_category_btn">
-              <svg width="18" height="18">
-                <use xlinkHref="#all-categories"></use>
-              </svg>
-              Все категории
-            </button>
-          </Link>
+          {/* п.8 — toggle: мобилка */}
+          <button
+            className="m_btn mob_category_btn"
+            onClick={() => {
+              setIsMenuOpen(false);
+              if (pathname === "/categories") {
+                router.back();
+              } else {
+                router.push("/categories");
+              }
+            }}
+          >
+            <svg width="18" height="18">
+              <use xlinkHref="#all-categories"></use>
+            </svg>
+            Все категории
+          </button>
 
           <form
             className="search_input search_input_mob"
