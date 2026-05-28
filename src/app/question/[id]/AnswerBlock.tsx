@@ -81,12 +81,11 @@ export default function AnswerBlock({
           : undefined
       }
     >
+      {/* п.29 — исправлена вложенность: div > Link:inline вместо Link > div */}
       <div className="question_list_item-info">
         <div className="question_list_item_left">
-          <Link href={`/profile/${answer.user.id}`}>
-            <div
-              style={{ position: "relative", display: "inline-block" }}
-            >
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <Link href={`/profile/${answer.user.id}`} style={{ display: "inline-block" }}>
               <UserAvatar
                 src={answer.user.avatar_url}
                 src2x={answer.user.avatar_url_2x}
@@ -97,8 +96,8 @@ export default function AnswerBlock({
                 }
                 premiumText={premiumText}
               />
-            </div>
-          </Link>
+            </Link>
+          </div>
           <div className="answer_author_container question_list_item_left__user_meta">
             <div className="answer_author_info">
               <Link href={`/profile/${answer.user.id}`} className="main_text">

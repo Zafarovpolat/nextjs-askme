@@ -226,7 +226,27 @@ export default function QuestionPageContent({
     0,
     initialQuestion.answers_count ?? apiAnswers.length
   );
+  /* п.22 — 3 состояния: asc, desc, default */
   const [sortBy, setSortBy] = useState<"rating" | "date">("rating");
+  const [sortDir, setSortDir] = useState<"desc" | "asc" | null>("desc");
+
+  const cycleSortDir = (field: "rating" | "date") => {
+    if (sortBy !== field) {
+      setSortBy(field);
+      setSortDir("desc");
+    } else if (sortDir === "desc") {
+      setSortDir("asc");
+    } else if (sortDir === "asc") {
+      setSortDir(null); // default
+    } else {
+      setSortDir("desc");
+    }
+  };
+
+  const sortArrow = (field: "rating" | "date") => {
+    if (sortBy !== field || sortDir === null) return "";
+    return sortDir === "desc" ? " ▼" : " ▲";
+  };
   const [openCategories, setOpenCategories] = useState<string[]>([categorySlug]);
   const [complaintModal, setComplaintModal] = useState<{
     questionId?: number;
@@ -517,11 +537,15 @@ export default function QuestionPageContent({
 
   const regularAnswers = answersData;
 
-  const sortedAnswers = [...regularAnswers].sort((a, b) =>
-    sortBy === "rating"
-      ? (b.votes_score ?? 0) - (a.votes_score ?? 0)
-      : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  /* п.22 — сортировка с учётом направления */
+  const sortedAnswers = [...regularAnswers].sort((a, b) => {
+    if (sortDir === null) return 0; // default — порядок от API
+    const mul = sortDir === "asc" ? 1 : -1;
+    if (sortBy === "rating") {
+      return mul * ((a.votes_score ?? 0) - (b.votes_score ?? 0));
+    }
+    return mul * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  });
 
   const answerVotes = authExtra?.answer_votes ?? {};
   const loadMoreAnswers = useCallback(async () => {
@@ -914,17 +938,18 @@ export default function QuestionPageContent({
               <span className="answers_count_badge">+{totalAnswers}</span>
             </div>
             <div className="questions_filter">
+              {/* п.22 — кнопки сортировки с 3 состояниями и стрелками */}
               <button
                 className={`s_btn ${sortBy === "rating" ? "s_btn_active" : ""}`}
-                onClick={() => setSortBy("rating")}
+                onClick={() => cycleSortDir("rating")}
               >
-                <span>По рейтингу</span>
+                <span>По рейтингу{sortArrow("rating")}</span>
               </button>
               <button
                 className={`s_btn ${sortBy === "date" ? "s_btn_active" : ""}`}
-                onClick={() => setSortBy("date")}
+                onClick={() => cycleSortDir("date")}
               >
-                <span>По дате</span>
+                <span>По дате{sortArrow("date")}</span>
               </button>
             </div>
           </div>
@@ -984,17 +1009,23 @@ export default function QuestionPageContent({
             onSubmit={submitAnswer}
           >
             <div className="ask_form_item ask_form_item_block_actions">
+              {/* п.21 — auto-grow textarea */}
               <textarea
                 ref={answerRef}
                 name="message"
                 placeholder="Введите текст ответа"
                 disabled={answerSubmitPending}
                 value={answerFieldValue}
-                onChange={handleAnswerChange}
+                onChange={(e) => {
+                  handleAnswerChange(e);
+                  e.target.style.height = "auto";
+                  e.target.style.height = e.target.scrollHeight + "px";
+                }}
                 onKeyDown={handleAnswerKeyDown}
                 onSelect={clampSelectionPastPrefix}
                 onClick={clampSelectionPastPrefix}
                 autoComplete="off"
+                style={{ overflow: "hidden", resize: "none" }}
               />
               <div className="ask_form_item_actions">
                 <div

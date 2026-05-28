@@ -62,9 +62,19 @@ export default function QuestionListCard({
   const authorPremiumText = displayPremiumBadge(question.author) ?? "Премиум";
   const authorName = displayUserName(question.author);
 
+  /* п.25 — вся карточка кликабельна */
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Не переходим если клик по кнопке, ссылке или интерактивному элементу
+    const target = e.target as HTMLElement;
+    if (target.closest("a") || target.closest("button") || target.closest("svg")) return;
+    window.location.href = `/question/${question.id}`;
+  };
+
   return (
     <div
       className={`question_list_item ${question.is_premium ? "premium-question" : ""}`}
+      onClick={handleCardClick}
+      style={{ cursor: "pointer" }}
     >
       <div className="question_item_top_data">
         <div className="question_item_top_data_left">

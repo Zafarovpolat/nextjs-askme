@@ -1313,10 +1313,21 @@ footer .line {
     display: none !important;
   }
 
-  /* На мобиле скрываем кнопку уведомлений и темы */
-  .nav_list .notification-dropdown-wrapper,
-  .nav_list .mode_toggler {
+  /* п.27 — на мобиле оставляем кнопку темы видимой, скрываем только уведомления */
+  .nav_list .notification-dropdown-wrapper {
     display: none !important;
+  }
+
+  .nav_list .mode_toggler {
+    display: flex !important;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+  }
+
+  .nav_list .mode_toggler svg {
+    width: 40px !important;
+    height: 40px !important;
   }
 
   .nav_list button:last-child,
