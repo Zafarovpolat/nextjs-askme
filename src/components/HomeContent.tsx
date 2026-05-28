@@ -336,50 +336,48 @@ export default function HomeContent({
 
         <div className="tops_block_item">
           <div className="blocks_title"><h2>Самые обсуждаемые</h2></div>
+          {/* п.19 — вся область карточки кликабельна */}
           <div className="tops_block_item_top_subjects">
             {(initialData.most_discussed ?? []).map((q) => (
-              <div className="question_list_item" key={q.id}>
-                <Link href={`/question/${q.id}`}>
-                  <div className="question_list_item_left">
-                    <img src={q.latest_likers[0]?.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                    <div className="question_list_item_left__user_meta">
-                      <div className="main_text question_title_clamp">
-                        {q.title}
-                      </div>
+              <Link href={`/question/${q.id}`} key={q.id} className="question_list_item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
+                <div className="question_list_item_left">
+                  <img src={q.latest_likers[0]?.avatar_url || "/images/icons/avatar.svg"} alt="" />
+                  <div className="question_list_item_left__user_meta">
+                    <div className="main_text question_title_clamp">
+                      {q.title}
                     </div>
                   </div>
-                </Link>
+                </div>
                 <div className="question_list_item_users">
                   {(q.latest_likers ?? []).slice(0, 3).map((u, idx) => (
                     <img key={idx} src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />
                   ))}
                   <p className="main_text">+{q.likes_count}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
 
         <div className="tops_block_item">
           <div className="blocks_title"><h2>Популярные темы</h2></div>
+          {/* п.19 — вся область карточки кликабельна */}
           <div className="tops_block_item_top_subjects">
             {(initialData.popular_topics ?? []).map((topic) => (
-              <div className="question_list_item" key={topic.id}>
-                <Link href={topic.parent_slug && topic.slug ? `/categories/${topic.parent_slug}/${topic.slug}` : "/categories"}>
-                  <div className="question_list_item_left">
-                    <svg width="24" height="24" className="topic_icon">
-                      <use xlinkHref={`#${topic.parent_icon_key || "gaming"}`}></use>
-                    </svg>
-                    <div className="question_list_item_left__user_meta"><div className="main_text">{topic.name}</div></div>
-                  </div>
-                </Link>
+              <Link href={topic.parent_slug && topic.slug ? `/categories/${topic.parent_slug}/${topic.slug}` : "/categories"} key={topic.id} className="question_list_item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
+                <div className="question_list_item_left">
+                  <svg width="24" height="24" className="topic_icon">
+                    <use xlinkHref={`#${topic.parent_icon_key || "gaming"}`}></use>
+                  </svg>
+                  <div className="question_list_item_left__user_meta"><div className="main_text">{topic.name}</div></div>
+                </div>
                 <div className="question_list_item_users">
                   {(topic.latest_likers ?? []).slice(0, 3).map((u, idx) => (
                     <img key={idx} src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />
                   ))}
                   <p className="main_text">+{topic.total_likes}</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

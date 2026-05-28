@@ -499,8 +499,10 @@
   font-size: 15px;
 }
 
+/* п.24 — «Пожаловаться» не обрезается */
 .main_question_block_actions_right > .s_btn:nth-child(1) {
-  min-width: 128px;
+  min-width: fit-content;
+  white-space: nowrap;
   font-size: 15px;
 }
 

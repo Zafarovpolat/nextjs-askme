@@ -33,9 +33,46 @@
   padding: 10px 15px;
 }
 
+/* п.11 — стили для выпадающих списков */
 .super-select {
-  background-color: transparent;
-  border: 2px solid #ffffff;
+  background-color: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 10px;
+  padding: 10px 36px 10px 14px;
+  font-family: Nunito, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.super-select:hover {
+  border-color: rgba(255,255,255,0.7);
+  background-color: rgba(255,255,255,0.15);
+}
+
+.super-select:focus {
+  outline: none;
+  border-color: #616AFF;
+  box-shadow: 0 0 0 2px rgba(97,106,255,0.3);
+}
+
+.super-select option {
+  background: #1f2a3b;
+  color: #fff;
+  padding: 8px;
+}
+
+.dark_mode .super-select option {
+  background: #2a2067;
+  color: #fff;
 }
 
 .top_leaders_list {

@@ -76,8 +76,9 @@ export default function QuestionListCard({
             premiumText={authorPremiumText}
             size={40}
           />
+          {/* п.20 — имя как ссылка на профиль */}
           <div className="question_list_item_left__user_meta">
-            <p className="main_text">{authorName}</p>
+            <Link href={`/profile/${question.author.id}`} className="main_text" style={{ textDecoration: 'none', color: 'inherit' }}>{authorName}</Link>
             <span>{numWord(question.author.balls ?? 0, ["балл", "балла", "баллов"])}</span>
           </div>
         </div>

@@ -78,7 +78,8 @@ function ProfileHeaderStats({ ballsDisplay, kpdPercentDisplay }: { ballsDisplay:
             <div className="stat_value">{kpdPercentDisplay}</div>
             <div className="stat_label">
               КПД
-              <div className="kpd_tooltip_icon">?</div>
+              {/* п.33 — подсказка для КПД */}
+              <div className="kpd_tooltip_icon" title="КПД (коэффициент полезного действия) — показывает, какая доля ваших ответов была отмечена как лучший ответ. Чем выше КПД, тем больше баллов вы получаете за каждый ответ.">?</div>
             </div>
           </div>
         </div>

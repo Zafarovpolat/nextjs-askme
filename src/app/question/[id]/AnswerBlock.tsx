@@ -239,6 +239,17 @@ export default function AnswerBlock({
               <use xlinkHref="#like"></use>
             </svg>
           </button>
+          {/* п.26 — копирование ссылки с якорем */}
+          <button
+            className="s_btn s_btn_icon btn_action_outline"
+            title="Скопировать ссылку"
+            onClick={() => {
+              const url = `${window.location.origin}${window.location.pathname}#answer-${answer.id}`;
+              navigator.clipboard.writeText(url).catch(() => {});
+            }}
+          >
+            #
+          </button>
           <button
             className="s_btn s_btn_icon btn_action_outline"
             title="Поделиться"

@@ -347,6 +347,29 @@ a:has(.light_logo) {
 
 .subjects_list_wrapper {
   overflow-x: auto;
+  position: relative;
+}
+
+/* п.6 — индикатор прокрутки на мобилке */
+.subjects_list_wrapper::after {
+  content: "";
+  position: sticky;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  min-height: 100%;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent, var(--base-color-0, #fff) 80%);
+  z-index: 2;
+  flex-shrink: 0;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .subjects_list_wrapper::after {
+    display: block;
+  }
 }
 
 .subjects_list_wrapper {
