@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import LoginModal from "@/components/LoginModal"
@@ -110,10 +110,36 @@ export default function HomeContent({
   }, [isShareOpen])
 
   const scrollRef = useRef<HTMLDivElement>(null)
+  const scrollTrackRef = useRef<HTMLDivElement>(null)
+  const scrollThumbRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
   const startX = useRef(0)
   const scrollLeft = useRef(0)
   const hasDragged = useRef(false)
+
+  /* п.6 — кастомный скроллбар для мобилки */
+  useEffect(() => {
+    const el = scrollRef.current
+    const thumb = scrollThumbRef.current
+    if (!el || !thumb) return
+    const update = () => {
+      const ratio = el.scrollWidth > el.clientWidth
+        ? el.clientWidth / el.scrollWidth
+        : 1
+      const pos = el.scrollWidth - el.clientWidth > 0
+        ? el.scrollLeft / (el.scrollWidth - el.clientWidth)
+        : 0
+      thumb.style.width = `${Math.max(ratio * 100, 20)}%`
+      thumb.style.left = `${pos * (100 - Math.max(ratio * 100, 20))}%`
+    }
+    update()
+    el.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    return () => {
+      el.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     const el = scrollRef.current
@@ -199,6 +225,10 @@ export default function HomeContent({
               </div>
             ))}
           </div>
+        </div>
+        {/* п.6 — кастомный скроллбар, видим на мобилке */}
+        <div className="subjects_scroll_track" ref={scrollTrackRef}>
+          <div className="subjects_scroll_thumb" ref={scrollThumbRef} />
         </div>
       </div>
 
