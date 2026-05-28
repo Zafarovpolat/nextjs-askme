@@ -294,6 +294,28 @@
   gap: 20px;
 }
 
+/* п.11 — CustomSelect внутри leaders-фильтров: компактный размер */
+.top_leaders_list_wrapper .custom-select__trigger {
+  height: 42px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  border-color: #efeff6;
+}
+
+.top_leaders_list_wrapper .custom-select--open .custom-select__trigger {
+  border-radius: 10px 10px 0 0;
+}
+
+.top_leaders_list_wrapper .custom-select__dropdown {
+  border-radius: 0 0 10px 10px;
+}
+
+.top_leaders_list_wrapper .custom-select__value {
+  font-size: 15px;
+}
+
+/* Legacy super-select (unused but kept for safety) */
 .top_leaders_list_wrapper
   .top_leaders_filter
   .top_leaders_filter_item
@@ -414,6 +436,42 @@
 
 .leaders-tab.active {
   display: block;
+}
+
+/* п.11 — dark mode для CustomSelect в лидерах */
+.dark_mode .top_leaders_list_wrapper .custom-select__trigger {
+  background: rgba(64, 53, 134, 0.6);
+  border-color: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.dark_mode .top_leaders_list_wrapper .custom-select__value {
+  color: #fff;
+}
+
+.dark_mode .top_leaders_list_wrapper .custom-select__value--placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.dark_mode .top_leaders_list_wrapper .custom-select__arrow {
+  color: rgba(255,255,255,0.6);
+}
+
+.dark_mode .top_leaders_list_wrapper .custom-select__dropdown {
+  background: #2a2067;
+  border-color: #616AFF;
+}
+
+.dark_mode .top_leaders_list_wrapper .custom-select__option {
+  color: #fff;
+}
+
+.dark_mode .top_leaders_list_wrapper .custom-select__option:hover {
+  background: rgba(97, 106, 255, 0.3);
+}
+
+.dark_mode .top_leaders_list_wrapper .custom-select__option--selected {
+  background: rgba(97, 106, 255, 0.4);
 }
 
 .dark_mode

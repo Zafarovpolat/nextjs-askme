@@ -695,6 +695,10 @@
     box-shadow 0.2s ease;
 }
 
+.custom-select--no-icon .custom-select__trigger {
+  padding-left: 16px;
+}
+
 .custom-select__trigger:hover:not(:disabled) {
   border-color: rgb(98, 106, 255);
 }

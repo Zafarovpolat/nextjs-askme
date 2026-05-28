@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { api } from "@/lib/api-client";
 import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
+import CustomSelect from "@/components/CustomSelect";
 import type {
   LeaderCategory,
   LeaderUser,
@@ -189,77 +190,43 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
           <h2>Лидеры по активности</h2>
         </div>
 
-        {/* п.13 — Кнопка «Сбросить фильтры» + крестики в каждом select */}
+        {/* п.11+13 — Стилизованные CustomSelect вместо нативных <select> + кнопка «Сбросить фильтры» */}
         <div className="top_leaders_filter">
           <div className="top_leaders_filter_item">
-            <div className="select-with-clear">
-              <select
-                className="super-select"
-                value={periodFilter}
-                onChange={(e) => setPeriodFilter(e.target.value)}
-                disabled={filterLoading}
-              >
-                {PERIODS.map((p) => (
-                  <option key={p.value} value={p.value}>{p.label}</option>
-                ))}
-              </select>
-              {periodFilter !== "day" && (
-                <button type="button" className="select-clear-btn" onClick={() => setPeriodFilter("day")} aria-label="Сбросить">×</button>
-              )}
-            </div>
+            <CustomSelect
+              value={periodFilter}
+              onChange={setPeriodFilter}
+              placeholder="Период"
+              options={PERIODS.map((p) => ({ value: p.value, label: p.label }))}
+              disabled={filterLoading}
+            />
           </div>
           <div className="top_leaders_filter_item">
-            <div className="select-with-clear">
-              <select
-                className="super-select"
-                value={metricFilter}
-                onChange={(e) => handleMetricChange(e.target.value)}
-                disabled={filterLoading}
-              >
-                {METRICS.map((m) => (
-                  <option key={m.value} value={m.value}>{m.label}</option>
-                ))}
-              </select>
-              {metricFilter !== "answers" && (
-                <button type="button" className="select-clear-btn" onClick={() => handleMetricChange("answers")} aria-label="Сбросить">×</button>
-              )}
-            </div>
+            <CustomSelect
+              value={metricFilter}
+              onChange={handleMetricChange}
+              placeholder="Метрика"
+              options={METRICS.map((m) => ({ value: m.value, label: m.label }))}
+              disabled={filterLoading}
+            />
           </div>
           <div className="top_leaders_filter_item">
-            <div className="select-with-clear">
-              <select
-                className="super-select"
-                value={categoryFilter}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                disabled={filterLoading || categorySelectDisabled}
-              >
-                <option value="">Категория</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={String(cat.id)}>{cat.name}</option>
-                ))}
-              </select>
-              {categoryFilter && (
-                <button type="button" className="select-clear-btn" onClick={() => handleCategoryChange("")} aria-label="Сбросить">×</button>
-              )}
-            </div>
+            <CustomSelect
+              value={categoryFilter}
+              onChange={handleCategoryChange}
+              placeholder="Категория"
+              options={categories.map((cat) => ({ value: String(cat.id), label: cat.name }))}
+              disabled={filterLoading || categorySelectDisabled}
+            />
           </div>
           <div className="top_leaders_filter_item">
-            <div className="select-with-clear">
-              <select
-                className="super-select"
-                value={subcategoryFilter}
-                onChange={(e) => setSubcategoryFilter(e.target.value)}
-                disabled={filterLoading || categorySelectDisabled || !categoryFilter}
-              >
-                <option value="">Все подкатегории</option>
-                {subcategoryOptions.map((sub) => (
-                  <option key={sub.id} value={String(sub.id)}>{sub.name}</option>
-                ))}
-              </select>
-              {subcategoryFilter && (
-                <button type="button" className="select-clear-btn" onClick={() => setSubcategoryFilter("")} aria-label="Сбросить">×</button>
-              )}
-            </div>
+            <CustomSelect
+              value={subcategoryFilter}
+              onChange={setSubcategoryFilter}
+              placeholder="Все подкатегории"
+              options={subcategoryOptions.map((sub) => ({ value: String(sub.id), label: sub.name }))}
+              disabled={filterLoading || categorySelectDisabled || !categoryFilter}
+            />
           </div>
         </div>
         <button

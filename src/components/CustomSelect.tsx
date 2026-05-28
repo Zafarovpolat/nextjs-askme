@@ -65,6 +65,7 @@ export default function CustomSelect({
         'custom-select',
         isOpen ? 'custom-select--open' : '',
         disabled ? 'custom-select--disabled' : '',
+        !icon ? 'custom-select--no-icon' : '',
       ]
         .filter(Boolean)
         .join(' ')}
