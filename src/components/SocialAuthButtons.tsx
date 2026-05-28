@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getOAuthFullUrl } from "@/config/api";
 
 const LINKS = [
@@ -14,9 +14,11 @@ export default function SocialAuthButtons() {
   const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.replace(/^@/, "");
   const botId = process.env.NEXT_PUBLIC_TELEGRAM_BOT_ID?.trim();
 
-  const tgLoginUrl = useMemo(() => {
-    if (typeof window === "undefined") return null;
-    if (!botId) return null;
+  /* Строим URL только на клиенте, чтобы избежать hydration-mismatch
+     (на сервере window нет → URL null → рендерится <div>, а на клиенте <a>). */
+  const [tgLoginUrl, setTgLoginUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!botId) return;
     const origin = window.location.origin;
     const returnTo = `${origin}/auth/telegram/callback`;
     const u = new URL("https://oauth.telegram.org/auth");
@@ -24,7 +26,7 @@ export default function SocialAuthButtons() {
     u.searchParams.set("origin", origin);
     u.searchParams.set("request_access", "write");
     u.searchParams.set("return_to", returnTo);
-    return u.toString();
+    setTgLoginUrl(u.toString());
   }, [botId]);
 
   useEffect(() => {

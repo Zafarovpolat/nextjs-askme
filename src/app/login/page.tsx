@@ -25,6 +25,17 @@ export default function LoginPage() {
     }
   }, [isLoading, isAuthorized, router])
 
+  /* Пока проверяем авторизацию или уже залогинен — не показываем форму */
+  if (isLoading || isAuthorized) {
+    return (
+      <div className="auth_page_layout">
+        <Header />
+        <div className="login_container" style={{ minHeight: "60vh" }} />
+        <Footer />
+      </div>
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
