@@ -511,6 +511,21 @@ export default function QuestionPageContent({
         setFileAttachment(null);
         setVideoAttachment(null);
         setLinkAttachment(null);
+        /* п.30 — сразу подгружаем свежие ответы, чтобы новый ответ был виден без перезагрузки */
+        try {
+          const freshRes = await fetch(
+            getApiFullUrl(`v1/questions/${initialQuestion.id}/answers?page=1&per_page=100`),
+            { headers: { Accept: "application/json" } }
+          );
+          if (freshRes.ok) {
+            const freshData = (await freshRes.json()) as { answers?: typeof apiAnswers };
+            if (freshData.answers) {
+              setAnswersData(freshData.answers);
+            }
+          }
+        } catch {
+          /* fallback — хотя бы refresh */
+        }
         router.refresh();
       } catch (err) {
         const e = err as Error & {

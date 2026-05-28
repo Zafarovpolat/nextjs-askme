@@ -125,7 +125,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await get().fetchMe()
   },
 
+  /* п.3 — сброс кэша перед повторным логином через соцсеть */
   loginWithToken: async (token: string) => {
+    fetchMeInFlight = null
+    set({ user: null, isAuthorized: 0, notifications: [] })
+    useFavoritesStore.getState().clear()
     setToken(token)
     await get().fetchMe()
   },
