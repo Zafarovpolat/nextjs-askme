@@ -83,6 +83,26 @@
   color: #1f2a3b;
 }
 
+/* п.17 — кнопка «Скрыть все уведомления» */
+.notificationDismissAll {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #626aff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: Nunito, sans-serif;
+  cursor: pointer;
+  text-align: right;
+  padding: 0 0 8px;
+  transition: opacity 0.15s ease;
+}
+
+.notificationDismissAll:hover {
+  opacity: 0.7;
+}
+
 .notificationToggle {
   display: flex;
   justify-content: space-between;

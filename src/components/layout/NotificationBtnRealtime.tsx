@@ -553,6 +553,27 @@ export default function NotificationBtnRealtime() {
         <div className={styles.notificationDropdown}>
           <h3 className={styles.notificationTitle}>Уведомления</h3>
 
+          {/* п.17 — кнопка «Скрыть все» */}
+          {notifications.length > 0 && (
+            <button
+              type="button"
+              className={styles.notificationDismissAll}
+              onClick={async () => {
+                const unreadIds = notifications.filter((n) => !n.is_read).map((n) => n.id);
+                if (unreadIds.length > 0) {
+                  useAuthStore.getState().markNotificationsRead(unreadIds);
+                  try {
+                    await api.post("v1/notifications/mark-read", { ids: unreadIds });
+                  } catch { /* ignore */ }
+                }
+                setNotifications([]);
+                setIsOpen(false);
+              }}
+            >
+              Скрыть все уведомления
+            </button>
+          )}
+
           <div className={styles.notificationToggle}>
             <div className={styles.toggleLabel}>Всплывающие оповещения</div>
             <label className={styles.switch}>

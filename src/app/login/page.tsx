@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
@@ -13,8 +13,17 @@ import LoginTelegramHashHandler from "@/components/LoginTelegramHashHandler"
 export default function LoginPage() {
   const router = useRouter()
   const login = useAuthStore((s) => s.login)
+  const isAuthorized = useAuthStore((s) => s.isAuthorized)
+  const isLoading = useAuthStore((s) => s.isLoading)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  /* п.4 — если пользователь уже залогинен, редиректим на главную */
+  useEffect(() => {
+    if (!isLoading && isAuthorized) {
+      router.replace("/")
+    }
+  }, [isLoading, isAuthorized, router])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

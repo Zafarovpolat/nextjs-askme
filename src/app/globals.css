@@ -52,6 +52,14 @@ html {
   text-size-adjust: 100%;
 }
 
+/* п.10 — Sticky footer layout: footer всегда прибит к низу */
+.page-layout-sticky-footer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 /* Prefers-reduced-motion: отключение анимаций для пользователей с таким предпочтением */
 @media (prefers-reduced-motion: reduce) {
   *,

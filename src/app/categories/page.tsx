@@ -52,7 +52,8 @@ export default async function CategoriesPage() {
                   )}
                 </div>
 
-                <Link href={`/categories/${category.slug}`}>
+                {/* п.14 — title для длинных названий */}
+                <Link href={`/categories/${category.slug}`} title={category.name}>
                   <h3>{category.name}</h3>
                 </Link>
 
@@ -67,7 +68,7 @@ export default async function CategoriesPage() {
                           src="/images/icons/category-list-item.svg"
                           alt=""
                         />
-                        <p>{sub.name}</p>
+                        <p title={sub.name}>{sub.name}</p>
                       </div>
                     </Link>
                   ))}

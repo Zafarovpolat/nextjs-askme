@@ -174,7 +174,7 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
   };
 
   return (
-    <>
+    <div className="page-layout-sticky-footer">
       <Header />
       <div className="container">
         <div className="breadcrumbs">
@@ -189,58 +189,91 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
           <h2>Лидеры по активности</h2>
         </div>
 
+        {/* п.13 — Кнопка «Сбросить фильтры» + крестики в каждом select */}
         <div className="top_leaders_filter">
           <div className="top_leaders_filter_item">
-            <select
-              className="super-select"
-              value={periodFilter}
-              onChange={(e) => setPeriodFilter(e.target.value)}
-              disabled={filterLoading}
-            >
-              {PERIODS.map((p) => (
-                <option key={p.value} value={p.value}>{p.label}</option>
-              ))}
-            </select>
+            <div className="select-with-clear">
+              <select
+                className="super-select"
+                value={periodFilter}
+                onChange={(e) => setPeriodFilter(e.target.value)}
+                disabled={filterLoading}
+              >
+                {PERIODS.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+              {periodFilter !== "day" && (
+                <button type="button" className="select-clear-btn" onClick={() => setPeriodFilter("day")} aria-label="Сбросить">×</button>
+              )}
+            </div>
           </div>
           <div className="top_leaders_filter_item">
-            <select
-              className="super-select"
-              value={metricFilter}
-              onChange={(e) => handleMetricChange(e.target.value)}
-              disabled={filterLoading}
-            >
-              {METRICS.map((m) => (
-                <option key={m.value} value={m.value}>{m.label}</option>
-              ))}
-            </select>
+            <div className="select-with-clear">
+              <select
+                className="super-select"
+                value={metricFilter}
+                onChange={(e) => handleMetricChange(e.target.value)}
+                disabled={filterLoading}
+              >
+                {METRICS.map((m) => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </select>
+              {metricFilter !== "answers" && (
+                <button type="button" className="select-clear-btn" onClick={() => handleMetricChange("answers")} aria-label="Сбросить">×</button>
+              )}
+            </div>
           </div>
           <div className="top_leaders_filter_item">
-            <select
-              className="super-select"
-              value={categoryFilter}
-              onChange={(e) => handleCategoryChange(e.target.value)}
-              disabled={filterLoading || categorySelectDisabled}
-            >
-              <option value="">Категория</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={String(cat.id)}>{cat.name}</option>
-              ))}
-            </select>
+            <div className="select-with-clear">
+              <select
+                className="super-select"
+                value={categoryFilter}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                disabled={filterLoading || categorySelectDisabled}
+              >
+                <option value="">Категория</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={String(cat.id)}>{cat.name}</option>
+                ))}
+              </select>
+              {categoryFilter && (
+                <button type="button" className="select-clear-btn" onClick={() => handleCategoryChange("")} aria-label="Сбросить">×</button>
+              )}
+            </div>
           </div>
           <div className="top_leaders_filter_item">
-            <select
-              className="super-select"
-              value={subcategoryFilter}
-              onChange={(e) => setSubcategoryFilter(e.target.value)}
-              disabled={filterLoading || categorySelectDisabled || !categoryFilter}
-            >
-              <option value="">Все подкатегории</option>
-              {subcategoryOptions.map((sub) => (
-                <option key={sub.id} value={String(sub.id)}>{sub.name}</option>
-              ))}
-            </select>
+            <div className="select-with-clear">
+              <select
+                className="super-select"
+                value={subcategoryFilter}
+                onChange={(e) => setSubcategoryFilter(e.target.value)}
+                disabled={filterLoading || categorySelectDisabled || !categoryFilter}
+              >
+                <option value="">Все подкатегории</option>
+                {subcategoryOptions.map((sub) => (
+                  <option key={sub.id} value={String(sub.id)}>{sub.name}</option>
+                ))}
+              </select>
+              {subcategoryFilter && (
+                <button type="button" className="select-clear-btn" onClick={() => setSubcategoryFilter("")} aria-label="Сбросить">×</button>
+              )}
+            </div>
           </div>
         </div>
+        <button
+          type="button"
+          className="reset-filters-link"
+          onClick={() => {
+            setPeriodFilter("day");
+            setMetricFilter("answers");
+            setCategoryFilter("");
+            setSubcategoryFilter("");
+          }}
+        >
+          Сбросить фильтры
+        </button>
       </div>
 
       <div className="container">
@@ -278,7 +311,7 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
         </div>
       </div>
 
-      <div className="project_leaders_list container">
+      <div className="project_leaders_list container" style={{ flex: 1 }}>
         <div className="blocks_title">
           <h2>Лидеры проекта</h2>
           {total > 0 && (
@@ -342,6 +375,6 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
       </div>
 
       <Footer />
-    </>
+    </div>
   );
 }

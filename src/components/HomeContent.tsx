@@ -63,6 +63,8 @@ export default function HomeContent({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
   const [shareData, setShareData] = useState({ title: '', url: '' })
+  /* п.7+32 — текст из поля «Задайте свой вопрос» пробрасывается на /ask */
+  const [questionDraft, setQuestionDraft] = useState('')
   const shareButtonRef = useRef<HTMLButtonElement | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
@@ -234,14 +236,44 @@ export default function HomeContent({
           </div>
         </div>
 
+        {/* п.7+32 — поле принимает текст, кнопка редиректит на /ask с текстом */}
         <div className="questions_block_search">
           <img src="/images/icons/ask.svg" alt="" />
-          <input name="message" type="text" placeholder="Задайте свой вопрос здесь" readOnly />
-          <textarea name="message-full" placeholder="Задайте свой вопрос здесь" readOnly></textarea>
+          <input
+            name="message"
+            type="text"
+            placeholder="Задайте свой вопрос здесь"
+            value={questionDraft}
+            onChange={(e) => setQuestionDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                if (isAuthorized) {
+                  const q = questionDraft.trim()
+                  router.push(q ? `/ask?draft=${encodeURIComponent(q)}` : '/ask')
+                } else {
+                  setIsLoginModalOpen(true)
+                }
+              }
+            }}
+          />
+          <textarea
+            name="message-full"
+            placeholder="Задайте свой вопрос здесь"
+            value={questionDraft}
+            onChange={(e) => setQuestionDraft(e.target.value)}
+          ></textarea>
           <button
             type="button"
             className="s_btn s_btn_active"
-            onClick={() => (isAuthorized ? router.push("/ask") : setIsLoginModalOpen(true))}
+            onClick={() => {
+              if (isAuthorized) {
+                const q = questionDraft.trim()
+                router.push(q ? `/ask?draft=${encodeURIComponent(q)}` : '/ask')
+              } else {
+                setIsLoginModalOpen(true)
+              }
+            }}
           >
             Задать вопрос
           </button>
@@ -286,19 +318,18 @@ export default function HomeContent({
       <div className="tops_block">
         <div className="tops_block_item">
           <div className="blocks_title"><h2>Лидеры проекта</h2></div>
+          {/* п.19 — вся область карточки кликабельна */}
           <div className="tops_block_item_top_subjects">
             {(initialData.project_leaders ?? []).map((u) => (
-              <div className="question_list_item" key={u.id}>
-                <Link href={`/profile/${u.id}`}>
-                  <div className="question_list_item_left">
-                    <img src={u.avatar_url || "/images/icons/avatar.svg"} alt={u.first_name} />
-                    <div className="question_list_item_left__user_meta">
-                      <div className="main_text">{u.first_name} {u.last_name}</div>
-                      <span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span>
-                    </div>
+              <Link href={`/profile/${u.id}`} key={u.id} className="question_list_item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
+                <div className="question_list_item_left">
+                  <img src={u.avatar_url || "/images/icons/avatar.svg"} alt={u.first_name} />
+                  <div className="question_list_item_left__user_meta">
+                    <div className="main_text">{u.first_name} {u.last_name}</div>
+                    <span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span>
                   </div>
-                </Link>
-              </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>

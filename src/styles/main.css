@@ -2064,6 +2064,86 @@ footer .line {
   margin-right: 3px;
 }
 
+/* п.15 — текстовый логотип вместо SVG */
+.logo-text-otvet {
+  font-family: Nunito, sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #384B67;
+  line-height: 1;
+  margin-right: 2px;
+  text-transform: uppercase;
+}
+
+.logo-text-otvet--dark {
+  color: #ffffff;
+}
+
+.logo-text-ai {
+  font-family: Nunito, sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #616AFF;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* п.16 — неон-эффект на тексте «ai» (вместо SVG) */
+.logo-text-ai {
+  text-shadow: 0 0 5px rgba(150, 160, 255, 0.7),
+               0 0 10px rgba(130, 145, 255, 0.5),
+               0 0 15px rgba(110, 130, 255, 0.3);
+  animation: neon-text-flicker 5s ease-in-out infinite;
+  will-change: text-shadow, opacity;
+}
+
+@keyframes neon-text-flicker {
+  0%, 78%, 86%, 94%, 100% {
+    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9),
+                 0 0 12px rgba(130, 145, 255, 0.7),
+                 0 0 18px rgba(110, 130, 255, 0.5);
+    opacity: 1;
+  }
+  82% {
+    text-shadow: 0 0 2px rgba(150, 160, 255, 0.3),
+                 0 0 4px rgba(130, 145, 255, 0.2);
+    opacity: 0.85;
+  }
+  90% {
+    text-shadow: 0 0 3px rgba(150, 160, 255, 0.4),
+                 0 0 6px rgba(130, 145, 255, 0.3);
+    opacity: 0.9;
+  }
+}
+
+.dark_mode .logo-text-ai {
+  text-shadow: 0 0 10px rgba(97, 106, 255, 1),
+               0 0 20px rgba(97, 106, 255, 0.9),
+               0 0 30px rgba(97, 106, 255, 0.7);
+  animation: neon-text-flicker-dark 5s ease-in-out infinite;
+}
+
+@keyframes neon-text-flicker-dark {
+  0%, 78%, 86%, 94%, 100% {
+    text-shadow: 0 0 10px rgba(97, 106, 255, 1),
+                 0 0 20px rgba(97, 106, 255, 0.9),
+                 0 0 30px rgba(97, 106, 255, 0.7);
+    opacity: 1;
+  }
+  82% {
+    text-shadow: 0 0 4px rgba(97, 106, 255, 0.4),
+                 0 0 8px rgba(97, 106, 255, 0.3);
+    opacity: 0.85;
+  }
+  90% {
+    text-shadow: 0 0 6px rgba(97, 106, 255, 0.5),
+                 0 0 12px rgba(97, 106, 255, 0.4);
+    opacity: 0.9;
+  }
+}
+
 svg.logo-ai {
   filter: drop-shadow(0 0 5px rgba(150, 160, 255, 0.7))
           drop-shadow(0 0 10px rgba(130, 145, 255, 0.5))

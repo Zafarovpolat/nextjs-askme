@@ -154,7 +154,8 @@ export default function QuestionPageContent({
   const fetchMe = useAuthStore((s) => s.fetchMe);
   const canAddFileAttachment = canAddAttachment(user?.attachment_remaining?.file);
   const canAddVideoAttachment = canAddAttachment(user?.attachment_remaining?.video);
-  const categorySlug = initialQuestion.category?.slug ?? "voprosy";
+  /* п.9 — если категория отсутствует, ведём на /categories вместо /categories/voprosy (404) */
+  const categorySlug = initialQuestion.category?.slug ?? "";
   const categoryName = initialQuestion.category?.name ?? "Вопросы";
 
   const leftSidebarCats =
@@ -568,7 +569,7 @@ export default function QuestionPageContent({
           </Link>
           <span className="breadcrumbs__sep">•</span>
           <Link
-            href={`/categories/${categorySlug}`}
+            href={categorySlug ? `/categories/${categorySlug}` : "/categories"}
             className="breadcrumbs__link"
           >
             {categoryName}
@@ -598,7 +599,7 @@ export default function QuestionPageContent({
                     <svg width="18" height="18">
                       <use xlinkHref={`#${categorySidebarIcon(cat)}`}></use>
                     </svg>
-                    <p>{cat.name}</p>
+                    <p title={cat.name}>{cat.name}</p>
                   </div>
                   <svg
                     className="quest_catogory_arrow"

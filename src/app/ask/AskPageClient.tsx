@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
@@ -92,6 +92,7 @@ function formatPremiumAskButtonLabel(user: {
 
 export default function AskPageClient({ initialData }: { initialData: AskPageInitialData }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const isAuthorized = useAuthStore((s) => s.isAuthorized)
   const user = useAuthStore((s) => s.user)
   const fetchMe = useAuthStore((s) => s.fetchMe)
@@ -99,7 +100,8 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   const [selectedCategoryId, setSelectedCategoryId] = useState("")
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("")
   const [titleInput, setTitleInput] = useState("")
-  const [messageInput, setMessageInput] = useState("")
+  /* п.7+32 — подхватываем текст из ?draft= (со страницы «Задайте вопрос» на главной) */
+  const [messageInput, setMessageInput] = useState(() => searchParams.get("draft") ?? "")
   const [similarFilter, setSimilarFilter] = useState<typeof FILTERS[number]['value']>('all')
   const [similarQuestions, setSimilarQuestions] = useState<QuestionListItem[]>([])
   const [similarCurrentPage, setSimilarCurrentPage] = useState(1)
