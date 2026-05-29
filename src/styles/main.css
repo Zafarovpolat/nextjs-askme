@@ -1162,6 +1162,10 @@ footer .line {
   margin-bottom: 10px;
 }
 
+.nav_mob_wrapper_nav .logo-container {
+  gap: 0;
+}
+
 .nav_mob_wrapper_nav div {
   display: flex;
   align-items: center;
@@ -1181,6 +1185,14 @@ footer .line {
 
 .nav_mob_wrapper_nav div button svg {
   fill: rgb(98, 106, 255) !important;
+}
+
+.dark_mode .nav_mob_wrapper .m_btn.category_btn img {
+  filter: brightness(0) invert(1);
+}
+
+.nav_mob_wrapper .m_btn.category_btn:hover img {
+  filter: brightness(0) invert(1);
 }
 
 .mob_category_btn {
@@ -1244,11 +1256,11 @@ footer .line {
 }
 
 .mob-nav-logo .logo-container svg path {
-  fill: rgb(32, 35, 87);
+  fill: white;
 }
 
 .mob-nav-logo .neon-letter {
-  color: rgb(32, 35, 87) !important;
+  color: white !important;
   text-shadow: none !important;
   animation: none !important;
 }
@@ -1504,7 +1516,7 @@ footer .line {
 @media only screen and (max-width: 500px) {
   .light_logo,
   .dark_logo {
-    width: 142px;
+    width: 162px;
   }
 
   .pages_navigation {
