@@ -420,31 +420,11 @@
   max-height: 40px;
 }
 
-/* п.1-2 — фон карточки: покрывает всю высоту */
 .main_question_bg_wrapper {
   position: absolute;
   top: -25px;
   left: 0;
   right: 0;
-  bottom: 0;
-  overflow: hidden;
-  border-radius: 22px 22px 0 0;
-  pointer-events: none;
-}
-
-/* п.1-2 — полупрозрачный фон ниже декоративной полоски SVG */
-.main_question_bg_wrapper::after {
-  content: "";
-  position: absolute;
-  top: 26px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(96, 105, 255, 0.04);
-}
-
-.dark_mode .main_question_bg_wrapper::after {
-  background: rgba(96, 105, 255, 0.08);
 }
 
 .main_question_block.main_question_block_item .question_list_item_left {
@@ -917,7 +897,7 @@
 }
 
 /* Градиентный фон вверху блока вопроса */
-/* п.1-2 — фон карточки: верхняя полоска SVG обрезается по высоте контейнера */
+/* Градиентный фон вверху блока вопроса */
 .main_question_block_top_bg {
   position: relative;
   height: 26px;
@@ -928,18 +908,12 @@
 
 .main_question_block_top_bg img {
   position: absolute;
-  top: 0;
-  left: 0;
 }
 
 .top_bg_light,
 .top_bg_dark {
-  width: 100%;
-  max-width: 100%;
-  height: auto;
+  width: 400px;
   display: block;
-  object-fit: cover;
-  object-position: top left;
 }
 
 .top_bg_dark {
