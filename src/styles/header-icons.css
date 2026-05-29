@@ -10,6 +10,15 @@
   filter: brightness(0) invert(1);
 }
 
+/* Кнопка профиля — фон белый в светлой теме, иконка не инвертируется */
+.m_btn.category_btn.profile-header-btn img {
+  filter: none;
+}
+
+.m_btn.category_btn.profile-header-btn.profile-header-btn--open img {
+  filter: brightness(0) invert(1);
+}
+
 .m_btn.category_btn:hover img {
   filter: brightness(0) invert(1);
 }
