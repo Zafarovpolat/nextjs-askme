@@ -411,7 +411,7 @@ export default function Header() {
                 />
               </svg>
               <span className="logo-text-otvet">Otvet</span>
-              <span className="logo-text-ai">ai</span>
+              <span className="logo-text-ai"><span className="neon-letter neon-letter--a">a</span><span className="neon-letter neon-letter--i">i</span></span>
             </div>
             <div className="logo-container dark_logo">
               <svg
@@ -427,7 +427,7 @@ export default function Header() {
                 />
               </svg>
               <span className="logo-text-otvet logo-text-otvet--dark">Otvet</span>
-              <span className="logo-text-ai">ai</span>
+              <span className="logo-text-ai"><span className="neon-letter neon-letter--a">a</span><span className="neon-letter neon-letter--i">i</span></span>
             </div>
           </Link>
 

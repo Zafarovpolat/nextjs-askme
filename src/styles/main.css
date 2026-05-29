@@ -2202,58 +2202,112 @@ footer .line {
   text-transform: uppercase;
 }
 
-/* п.16 — неон-эффект на тексте «ai» (вместо SVG) */
+/* п.16 — неон-эффект мерцания букв «a» и «i» независимо */
 .logo-text-ai {
+  text-shadow: none;
+  animation: none;
+}
+
+.neon-letter {
+  display: inline-block;
+  will-change: opacity, text-shadow;
+}
+
+/* Буква «a» — цикл 4s, рваное мерцание */
+.neon-letter--a {
   text-shadow: 0 0 5px rgba(150, 160, 255, 0.7),
                0 0 10px rgba(130, 145, 255, 0.5),
                0 0 15px rgba(110, 130, 255, 0.3);
-  animation: neon-text-flicker 5s ease-in-out infinite;
-  will-change: text-shadow, opacity;
+  animation: neon-flicker-a 4s linear infinite;
 }
 
-@keyframes neon-text-flicker {
-  0%, 78%, 86%, 94%, 100% {
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9),
-                 0 0 12px rgba(130, 145, 255, 0.7),
-                 0 0 18px rgba(110, 130, 255, 0.5);
-    opacity: 1;
-  }
-  82% {
-    text-shadow: 0 0 2px rgba(150, 160, 255, 0.3),
-                 0 0 4px rgba(130, 145, 255, 0.2);
-    opacity: 0.85;
-  }
-  90% {
-    text-shadow: 0 0 3px rgba(150, 160, 255, 0.4),
-                 0 0 6px rgba(130, 145, 255, 0.3);
-    opacity: 0.9;
-  }
+/* Буква «i» — цикл 3.5s (не совпадает с «a» → выглядит случайно) */
+.neon-letter--i {
+  text-shadow: 0 0 5px rgba(150, 160, 255, 0.7),
+               0 0 10px rgba(130, 145, 255, 0.5),
+               0 0 15px rgba(110, 130, 255, 0.3);
+  animation: neon-flicker-i 3.5s linear infinite;
 }
 
-.dark_mode .logo-text-ai {
-  text-shadow: 0 0 10px rgba(97, 106, 255, 1),
-               0 0 20px rgba(97, 106, 255, 0.9),
-               0 0 30px rgba(97, 106, 255, 0.7);
-  animation: neon-text-flicker-dark 5s ease-in-out infinite;
+@keyframes neon-flicker-a {
+  0%   { opacity: 1; text-shadow: 0 0 6px rgba(150,160,255,.9), 0 0 14px rgba(130,145,255,.6); }
+  8%   { opacity: 1; }
+  9%   { opacity: 0.3; text-shadow: none; }
+  10%  { opacity: 1; text-shadow: 0 0 6px rgba(150,160,255,.9), 0 0 14px rgba(130,145,255,.6); }
+  11%  { opacity: 0.4; text-shadow: none; }
+  12%  { opacity: 1; text-shadow: 0 0 8px rgba(150,160,255,1), 0 0 16px rgba(130,145,255,.7); }
+  40%  { opacity: 1; }
+  42%  { opacity: 0.35; text-shadow: none; }
+  43%  { opacity: 1; text-shadow: 0 0 6px rgba(150,160,255,.9), 0 0 14px rgba(130,145,255,.6); }
+  70%  { opacity: 1; }
+  71%  { opacity: 0.25; text-shadow: none; }
+  72%  { opacity: 0.9; text-shadow: 0 0 4px rgba(150,160,255,.5); }
+  73%  { opacity: 0.3; text-shadow: none; }
+  74%  { opacity: 1; text-shadow: 0 0 6px rgba(150,160,255,.9), 0 0 14px rgba(130,145,255,.6); }
+  100% { opacity: 1; }
 }
 
-@keyframes neon-text-flicker-dark {
-  0%, 78%, 86%, 94%, 100% {
-    text-shadow: 0 0 10px rgba(97, 106, 255, 1),
-                 0 0 20px rgba(97, 106, 255, 0.9),
-                 0 0 30px rgba(97, 106, 255, 0.7);
-    opacity: 1;
-  }
-  82% {
-    text-shadow: 0 0 4px rgba(97, 106, 255, 0.4),
-                 0 0 8px rgba(97, 106, 255, 0.3);
-    opacity: 0.85;
-  }
-  90% {
-    text-shadow: 0 0 6px rgba(97, 106, 255, 0.5),
-                 0 0 12px rgba(97, 106, 255, 0.4);
-    opacity: 0.9;
-  }
+@keyframes neon-flicker-i {
+  0%   { opacity: 1; text-shadow: 0 0 6px rgba(150,160,255,.9), 0 0 14px rgba(130,145,255,.6); }
+  15%  { opacity: 1; }
+  16%  { opacity: 0.25; text-shadow: none; }
+  17%  { opacity: 1; text-shadow: 0 0 6px rgba(150,160,255,.9), 0 0 14px rgba(130,145,255,.6); }
+  50%  { opacity: 1; }
+  51%  { opacity: 0.3; text-shadow: none; }
+  52%  { opacity: 0.85; text-shadow: 0 0 3px rgba(150,160,255,.4); }
+  53%  { opacity: 0.2; text-shadow: none; }
+  54%  { opacity: 0.7; text-shadow: 0 0 4px rgba(150,160,255,.5); }
+  55%  { opacity: 1; text-shadow: 0 0 8px rgba(150,160,255,1), 0 0 16px rgba(130,145,255,.7); }
+  82%  { opacity: 1; }
+  83%  { opacity: 0.35; text-shadow: none; }
+  84%  { opacity: 1; text-shadow: 0 0 6px rgba(150,160,255,.9), 0 0 14px rgba(130,145,255,.6); }
+  100% { opacity: 1; }
+}
+
+/* Тёмная тема — ярче свечение */
+.dark_mode .neon-letter--a {
+  text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 20px rgba(97,106,255,.8), 0 0 30px rgba(97,106,255,.5);
+  animation-name: neon-flicker-a-dark;
+}
+
+.dark_mode .neon-letter--i {
+  text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 20px rgba(97,106,255,.8), 0 0 30px rgba(97,106,255,.5);
+  animation-name: neon-flicker-i-dark;
+}
+
+@keyframes neon-flicker-a-dark {
+  0%   { opacity: 1; text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5); }
+  8%   { opacity: 1; }
+  9%   { opacity: 0.3; text-shadow: none; }
+  10%  { opacity: 1; text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8); }
+  11%  { opacity: 0.4; text-shadow: none; }
+  12%  { opacity: 1; text-shadow: 0 0 12px rgba(97,106,255,1), 0 0 26px rgba(97,106,255,.9), 0 0 38px rgba(97,106,255,.6); }
+  40%  { opacity: 1; }
+  42%  { opacity: 0.35; text-shadow: none; }
+  43%  { opacity: 1; text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8); }
+  70%  { opacity: 1; }
+  71%  { opacity: 0.25; text-shadow: none; }
+  72%  { opacity: 0.9; text-shadow: 0 0 6px rgba(97,106,255,.5); }
+  73%  { opacity: 0.3; text-shadow: none; }
+  74%  { opacity: 1; text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5); }
+  100% { opacity: 1; }
+}
+
+@keyframes neon-flicker-i-dark {
+  0%   { opacity: 1; text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5); }
+  15%  { opacity: 1; }
+  16%  { opacity: 0.25; text-shadow: none; }
+  17%  { opacity: 1; text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8); }
+  50%  { opacity: 1; }
+  51%  { opacity: 0.3; text-shadow: none; }
+  52%  { opacity: 0.85; text-shadow: 0 0 5px rgba(97,106,255,.5); }
+  53%  { opacity: 0.2; text-shadow: none; }
+  54%  { opacity: 0.7; text-shadow: 0 0 6px rgba(97,106,255,.6); }
+  55%  { opacity: 1; text-shadow: 0 0 12px rgba(97,106,255,1), 0 0 26px rgba(97,106,255,.9), 0 0 38px rgba(97,106,255,.6); }
+  82%  { opacity: 1; }
+  83%  { opacity: 0.35; text-shadow: none; }
+  84%  { opacity: 1; text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5); }
+  100% { opacity: 1; }
 }
 
 svg.logo-ai {
