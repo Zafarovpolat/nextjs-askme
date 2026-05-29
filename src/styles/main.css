@@ -1224,7 +1224,20 @@ footer .line {
 
 .dark_mode .nav_mob_wrapper_nav div button {
   border-radius: 12px;
-  background: rgb(255, 255, 255);
+  background: rgb(96, 105, 255);
+}
+
+.dark_mode .nav_mob_wrapper_nav div button img {
+  filter: brightness(0) invert(1);
+}
+
+.dark_mode .nav_mob_wrapper_nav div button svg {
+  fill: #fff !important;
+}
+
+.mob-nav-logo .logo-container svg:nth-child(1) {
+  width: 30px;
+  height: 34px;
 }
 
 .nav_mob_wrapper_nav .mode_toggler svg {
