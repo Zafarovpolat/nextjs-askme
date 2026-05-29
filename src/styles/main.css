@@ -206,11 +206,7 @@ nav.nav--hidden {
 }
 
 .dark_mode .profile-header-btn {
-  background: rgba(64, 53, 134, 0.8) !important;
-}
-
-.dark_mode .profile-header-btn--open {
-  background: #6069FF !important;
+  background: rgb(96, 105, 255) !important;
 }
 
 .dark_mode .profile-header-btn img {
@@ -223,7 +219,11 @@ nav.nav--hidden {
 }
 
 .dark_mode .notif-bell-bg {
-  fill: rgba(64, 53, 134, 0.8);
+  fill: rgb(96, 105, 255);
+}
+
+.dark_mode .mode_toggler .notif-bell-bg ~ g path {
+  fill: #fff;
 }
 
 .category_btn {
