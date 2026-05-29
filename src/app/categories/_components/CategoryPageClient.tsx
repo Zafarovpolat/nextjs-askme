@@ -66,6 +66,7 @@ export default function CategoryPageClient({
   const [lastPage, setLastPage] = useState(initialQuestions.last_page ?? 1)
   const [loadingList, setLoadingList] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [questionDraft, setQuestionDraft] = useState('')
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
   const [shareData, setShareData] = useState({ title: '', url: '' })
@@ -199,12 +200,43 @@ export default function CategoryPageClient({
 
         <div className="questions_block_search">
           <img src="/images/icons/ask.svg" alt="" />
-          <input name="message" type="text" placeholder="Задайте свой вопрос здесь" readOnly />
-          <textarea name="message-full" placeholder="Задайте свой вопрос здесь" readOnly></textarea>
+          <input
+            name="message"
+            type="text"
+            placeholder="Задайте свой вопрос здесь"
+            value={questionDraft}
+            onChange={(e) => setQuestionDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                if (!isAuthorized) { setIsLoginModalOpen(true); return }
+                const q = questionDraft.trim()
+                router.push(q ? `/ask?draft=${encodeURIComponent(q)}` : '/ask')
+              }
+            }}
+          />
+          <textarea
+            name="message-full"
+            placeholder="Задайте свой вопрос здесь"
+            value={questionDraft}
+            onChange={(e) => setQuestionDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                if (!isAuthorized) { setIsLoginModalOpen(true); return }
+                const q = questionDraft.trim()
+                router.push(q ? `/ask?draft=${encodeURIComponent(q)}` : '/ask')
+              }
+            }}
+          />
           <button
             type="button"
             className="s_btn s_btn_active"
-            onClick={() => (isAuthorized ? router.push("/ask") : setIsLoginModalOpen(true))}
+            onClick={() => {
+              if (!isAuthorized) { setIsLoginModalOpen(true); return }
+              const q = questionDraft.trim()
+              router.push(q ? `/ask?draft=${encodeURIComponent(q)}` : '/ask')
+            }}
           >
             Задать вопрос
           </button>
