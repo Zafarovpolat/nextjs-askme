@@ -1087,8 +1087,9 @@ footer .line {
   padding-bottom: 16px;
 }
 
-.footer_wrapper img {
-  width: 145px;
+.footer__logo .logo-container svg:nth-child(1) {
+  width: 34px;
+  height: 38px;
 }
 
 .footer_wrapper p {
