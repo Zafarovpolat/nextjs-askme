@@ -70,6 +70,22 @@
   box-shadow: 0 0 0 3px rgba(98, 106, 255, 0.12);
 }
 
+/* Внутри block_actions фокус подсвечивает весь контейнер, а не textarea */
+.ask_form_item_block_actions textarea:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.ask_form_item_block_actions:focus-within {
+  border-color: rgb(98, 106, 255);
+  box-shadow: 0 0 0 3px rgba(98, 106, 255, 0.12);
+}
+
+.dark_mode .ask_form_item_block_actions:focus-within {
+  border-color: rgb(130, 138, 255);
+  box-shadow: 0 0 0 3px rgba(130, 138, 255, 0.2);
+}
+
 .dark_mode .ask_form_item textarea {
   color: #fff;
   background: transparent;
@@ -87,6 +103,7 @@
   border: 1px solid rgb(255, 255, 255);
   background: rgb(255, 255, 255);
   padding-bottom: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dark_mode .ask_form_item_block_actions {
