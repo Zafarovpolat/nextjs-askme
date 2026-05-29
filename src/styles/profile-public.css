@@ -374,11 +374,11 @@
 .kpd_tooltip_icon:hover::after {
   content: attr(data-tooltip);
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
-  background: #1f2a3b;
-  color: #fff;
+  background: #fff;
+  color: rgb(32, 35, 87);
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 12px;
@@ -394,11 +394,11 @@
 .kpd_tooltip_icon:hover::before {
   content: "";
   position: absolute;
-  bottom: calc(100% + 2px);
+  top: calc(100% + 2px);
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #1f2a3b;
+  border-bottom-color: #fff;
   z-index: 100;
   pointer-events: none;
 }
@@ -409,12 +409,12 @@
 }
 
 .dark_mode .kpd_tooltip_icon:hover::after {
-  background: #fff;
-  color: #1f2a3b;
+  background: rgb(96, 105, 255);
+  color: #fff;
 }
 
 .dark_mode .kpd_tooltip_icon:hover::before {
-  border-top-color: #fff;
+  border-bottom-color: rgb(96, 105, 255);
 }
 
 .dark_mode .profile_stats_item.active {
