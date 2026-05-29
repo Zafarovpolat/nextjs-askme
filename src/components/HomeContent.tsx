@@ -203,12 +203,12 @@ export default function HomeContent({
                     <use xlinkHref={`#${category.icon_key || "gaming"}`}></use>
                   </svg>
                 </div>
-                <Link href={`/categories/${category.slug}`}>
+                <Link href={`/categories/${category.slug}`} title={category.name}>
                   <h3>{category.name}</h3>
                 </Link>
                 <div className="subject_item_list">
                   {(category.subcategories ?? []).slice(0, 4).map((subcat) => (
-                    <Link href={`/categories/${category.slug}/${subcat.slug}`} key={subcat.id}>
+                    <Link href={`/categories/${category.slug}/${subcat.slug}`} key={subcat.id} title={subcat.name}>
                       <div className="subject_item_list_item">
                         <img src="/images/icons/category-list-item.svg" alt="" />
                         <p>{subcat.name}</p>
@@ -399,7 +399,7 @@ export default function HomeContent({
                   <svg width="24" height="24" className="topic_icon">
                     <use xlinkHref={`#${topic.parent_icon_key || "gaming"}`}></use>
                   </svg>
-                  <div className="question_list_item_left__user_meta"><div className="main_text">{topic.name}</div></div>
+                  <div className="question_list_item_left__user_meta"><div className="main_text" title={topic.name}>{topic.name}</div></div>
                 </div>
                 <div className="question_list_item_users">
                   {(topic.latest_likers ?? []).slice(0, 3).map((u, idx) => (
