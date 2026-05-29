@@ -1391,21 +1391,18 @@ footer .line {
     display: none !important;
   }
 
-  /* п.27 — на мобиле оставляем кнопку темы видимой, скрываем только уведомления */
-  .nav_list .notification-dropdown-wrapper {
+  /* Скрываем кнопку «Категории» (прямой button в nav_list) */
+  .nav_list > button.category_btn:not(.desc_mob_btn) {
     display: none !important;
   }
 
+  /* Скрываем кнопку темы и уведомлений */
   .nav_list .mode_toggler {
-    display: flex !important;
-    width: 40px;
-    height: 40px;
-    padding: 0;
+    display: none !important;
   }
 
-  .nav_list .mode_toggler svg {
-    width: 40px !important;
-    height: 40px !important;
+  .nav_list .notification-dropdown-wrapper {
+    display: none !important;
   }
 
   .nav_list button:last-child,
