@@ -243,9 +243,33 @@ export default function QuestionPageContent({
     }
   };
 
+  const SortChevron = ({ direction }: { direction: "desc" | "asc" }) => (
+    <svg
+      width="10"
+      height="6"
+      viewBox="0 0 10 6"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{
+        marginLeft: 4,
+        verticalAlign: "middle",
+        transform: direction === "asc" ? "rotate(180deg)" : "none",
+        transition: "transform 0.2s ease",
+      }}
+    >
+      <path
+        d="M1 1L5 5L9 1"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+
   const sortArrow = (field: "rating" | "date") => {
-    if (sortBy !== field || sortDir === null) return "";
-    return sortDir === "desc" ? " ▼" : " ▲";
+    if (sortBy !== field || sortDir === null) return null;
+    return <SortChevron direction={sortDir} />;
   };
   const [openCategories, setOpenCategories] = useState<string[]>([categorySlug]);
   const [complaintModal, setComplaintModal] = useState<{
@@ -958,13 +982,13 @@ export default function QuestionPageContent({
                 className={`s_btn ${sortBy === "rating" ? "s_btn_active" : ""}`}
                 onClick={() => cycleSortDir("rating")}
               >
-                <span>По рейтингу{sortArrow("rating")}</span>
+                <span>По рейтингу</span>{sortArrow("rating")}
               </button>
               <button
                 className={`s_btn ${sortBy === "date" ? "s_btn_active" : ""}`}
                 onClick={() => cycleSortDir("date")}
               >
-                <span>По дате{sortArrow("date")}</span>
+                <span>По дате</span>{sortArrow("date")}
               </button>
             </div>
           </div>
