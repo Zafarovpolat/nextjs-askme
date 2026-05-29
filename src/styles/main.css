@@ -195,6 +195,37 @@ nav.nav--hidden {
   justify-content: center;
 }
 
+/* Кнопка профиля в шапке — по умолчанию белый фон, в тёмной теме — тёмный */
+.profile-header-btn {
+  background: white !important;
+  transition: background-color 0.3s;
+}
+
+.profile-header-btn--open {
+  background: #6069FF !important;
+}
+
+.dark_mode .profile-header-btn {
+  background: rgba(64, 53, 134, 0.8) !important;
+}
+
+.dark_mode .profile-header-btn--open {
+  background: #6069FF !important;
+}
+
+.dark_mode .profile-header-btn img {
+  filter: brightness(0) invert(1);
+}
+
+/* Колокольчик уведомлений — фон SVG rect */
+.notif-bell-bg {
+  fill: white;
+}
+
+.dark_mode .notif-bell-bg {
+  fill: rgba(64, 53, 134, 0.8);
+}
+
 .category_btn {
   border-radius: 12px;
   text-transform: uppercase;

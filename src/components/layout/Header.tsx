@@ -248,13 +248,9 @@ const ProfileDropdown = () => {
   return (
     <div ref={wrapperRef} className={styles.notificationWrapper}>
       <button
-        className="m_btn m_btn_icon category_btn"
+        className={`m_btn m_btn_icon category_btn profile-header-btn${isOpen ? " profile-header-btn--open" : ""}`}
         title="Личный кабинет"
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          backgroundColor: isOpen ? "#6069FF" : "white",
-          transition: "background-color 0.3s",
-        }}
       >
         <img
           src="/images/icons/user.svg"
