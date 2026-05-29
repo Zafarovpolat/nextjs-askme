@@ -257,7 +257,7 @@ const ProfileDropdown = () => {
           alt=""
           width="16"
           height="20"
-          style={{ filter: isOpen ? "brightness(0) invert(1)" : "none" }}
+          style={isOpen ? { filter: "brightness(0) invert(1)" } : undefined}
         />
       </button>
 
