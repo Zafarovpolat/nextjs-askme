@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import LoginModal from "@/components/LoginModal"
 import SharePopup from "@/components/SharePopup"
 import QuestionListCard from "@/components/QuestionListCard"
+import CategoryItemBg from "@/components/CategoryItemBg"
 import { api } from "@/lib/api-client"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import { useAuthStore } from "@/store/authStore"
@@ -155,13 +156,15 @@ export default function CategoryPageClient({
         <span className="breadcrumbs__sep">•</span>
         <Link href="/categories" className="breadcrumbs__link">Категории вопросов</Link>
         <span className="breadcrumbs__sep">•</span>
-        <Link href={`/categories/${category.slug}`} className="breadcrumbs__link">{category.name}</Link>
         {subcategory ? (
           <>
+            <Link href={`/categories/${category.slug}`} className="breadcrumbs__link">{category.name}</Link>
             <span className="breadcrumbs__sep">•</span>
             <span className="breadcrumbs__current">{subcategory.name}</span>
           </>
-        ) : null}
+        ) : (
+          <span className="breadcrumbs__current">{category.name}</span>
+        )}
       </div>
 
       <div className="section populars_block">
@@ -247,7 +250,7 @@ export default function CategoryPageClient({
         >
           <div className="subjects_list">
             {(shared.popular_categories ?? []).map((c) => (
-              <div className="subject_item" key={c.id}>
+              <CategoryItemBg key={c.id}>
                 <div className="subject_item_icon">
                   <svg width="24" height="24" className="category_icon">
                     <use xlinkHref={`#${c.icon_key || "gaming"}`}></use>
@@ -270,7 +273,7 @@ export default function CategoryPageClient({
                     <img src="/images/icons/more-s-icon.svg" alt="" className="subject_item_more_arrow" />
                   </div>
                 </Link>
-              </div>
+              </CategoryItemBg>
             ))}
           </div>
         </div>

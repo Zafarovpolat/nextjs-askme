@@ -4,6 +4,7 @@ import { useEffect, useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api-client'
 import { useAuthStore } from '@/store/authStore'
+import CustomSelect from '@/components/CustomSelect'
 
 interface ComplaintModalProps {
   isOpen: boolean
@@ -132,22 +133,13 @@ export default function ComplaintModal({
               onSubmit={handleSubmit}
             >
               <div className="login_input">
-                <select
-                  className="super-select"
+                <CustomSelect
                   value={topicKey}
-                  onChange={(e) => setTopicKey(e.target.value)}
+                  onChange={setTopicKey}
+                  options={TOPIC_OPTIONS as unknown as { value: string; label: string }[]}
+                  placeholder="Выберите причину"
                   disabled={pending}
-                  required
-                >
-                  <option value="" disabled>
-                    Выберите причину
-                  </option>
-                  {TOPIC_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
               <div className="login_input">
                 <textarea

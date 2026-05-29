@@ -815,6 +815,8 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
       <div className="container">
         {/* Хлебные крошки */}
         <div className="breadcrumbs">
+          <Link href="/" className="breadcrumbs__link">Главная</Link>
+          <span className="breadcrumbs__sep">•</span>
           <span className="breadcrumbs__current">Профиль</span>
         </div>
 

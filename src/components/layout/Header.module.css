@@ -103,6 +103,10 @@
   opacity: 0.7;
 }
 
+.dark_mode .notificationDismissAll{
+  color: #fff;
+}
+
 .notificationToggle {
   display: flex;
   justify-content: space-between;

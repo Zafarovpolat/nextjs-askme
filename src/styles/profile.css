@@ -828,6 +828,7 @@
 }
 
 .play_sound_btn {
+  padding-left: 2px;
   width: 17px;
   height: 17px;
   min-width: 17px;

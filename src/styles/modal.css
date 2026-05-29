@@ -158,6 +158,71 @@ body:has(.modal--active) {
 /* Complaint modal */
 #modal__complaint .login_block {
   padding: 0;
+  border-radius: 0;
+}
+
+#modal__complaint .custom-select {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+#modal__complaint .custom-select__trigger {
+  width: 100%;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 28px;
+  color: #4c5b72;
+  background: #fff;
+  border: 2px solid rgb(239, 239, 246);
+  border-radius: 12px;
+  text-align: left;
+}
+
+#modal__complaint .custom-select__value--placeholder {
+  color: #4c5b72;
+}
+
+#modal__complaint .custom-select--open .custom-select__trigger {
+  border-color: #5b67ff;
+}
+
+#modal__complaint .custom-select__dropdown {
+  width: 100%;
+  border-radius: 12px;
+  border: 2px solid rgb(239, 239, 246);
+  background: #fff;
+  box-shadow: 0 4px 24px rgba(91, 103, 255, 0.12);
+  z-index: 100;
+}
+
+/* ── Dark mode ── */
+.dark_mode #modal__complaint .custom-select__trigger {
+  color: #fff;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.dark_mode #modal__complaint .custom-select--open .custom-select__trigger {
+  border-color: #5b67ff;
+}
+
+.dark_mode #modal__complaint .custom-select__dropdown {
+  background: #1e2150;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark_mode #modal__complaint .custom-select__option {
+  color: #c8ceff;
+}
+
+.dark_mode #modal__complaint .custom-select__option:hover {
+  background: rgba(91, 103, 255, 0.15);
+  color: #fff;
+}
+
+.dark_mode #modal__complaint .custom-select__option--selected {
+  background: rgba(91, 103, 255, 0.25);
+  color: #fff;
 }
 
 #modal__complaint .login_block_bg {

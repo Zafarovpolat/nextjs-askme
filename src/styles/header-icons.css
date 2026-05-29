@@ -10,16 +10,20 @@
   filter: brightness(0) invert(1);
 }
 
+.nav_mob_wrapper .m_btn.category_btn img {
+  filter: none;
+}
+
 /* Кнопка профиля — фон белый в светлой теме, иконка не инвертируется */
 .m_btn.category_btn.profile-header-btn img {
   filter: none;
 }
 
-.m_btn.category_btn.profile-header-btn.profile-header-btn--open img {
+.dark_mode .m_btn.category_btn.profile-header-btn img {
   filter: brightness(0) invert(1);
 }
 
-.m_btn.category_btn:hover img {
+.m_btn.category_btn.profile-header-btn.profile-header-btn--open img {
   filter: brightness(0) invert(1);
 }
 

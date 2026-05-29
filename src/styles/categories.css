@@ -6,12 +6,10 @@
 
 .categories_list .subject_item {
   height: auto;
-  width: auto;
-  background: url(/images/category-bg.svg);
-  background-repeat: no-repeat;
-  background-position: top;
-  background-size: 100% 100%;
+  width: 100%;
+  /* фон рендерится через <CategoryItemBg> (инлайновый SVG) */
   position: relative;
+  padding: 22px;
 }
 
 .categories_list .subject_item_list {
@@ -22,12 +20,7 @@
   padding-left: 30px;
 }
 
-.dark_mode .categories_list .subject_item {
-  background: url(/images/category-bg-d.svg);
-  background-repeat: no-repeat;
-  background-position: top;
-  background-size: 100% 100%;
-}
+/* dark_mode фон для .categories_list .subject_item — управляется в CategoryItemBg через prop darkMode */
 
 /* Хлебные крошки */
 .breadcrumbs {
@@ -248,7 +241,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
   }
 
   .categories_list .subject_item {
@@ -258,16 +251,9 @@
     background-size: cover;
   }
 
-  .categories_list .subject_item_icon {
-    top: 0px;
-  }
 }
 
 @media only screen and (max-width: 440px) {
-  .categories_list .subject_item_icon {
-    top: -6px;
-    right: 6px;
-  }
 
   .categories_list {
     gap: 16px;

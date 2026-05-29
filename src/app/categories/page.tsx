@@ -2,6 +2,7 @@ import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { getApiFullUrl } from "@/config/api"
+import CategoryItemBg from "@/components/CategoryItemBg"
 
 type Subcategory = { id: number; name: string; slug: string; icon_key: string | null }
 type CategoryItem = { id: number; name: string; slug: string; icon_key: string | null; subcategories: Subcategory[] }
@@ -41,7 +42,7 @@ export default async function CategoriesPage() {
 
           <div className="categories_list">
             {categories.map((category) => (
-              <div className="subject_item" key={category.id}>
+              <CategoryItemBg key={category.id}>
                 <div className="subject_item_icon">
                   {category.icon_key ? (
                     <svg width="24" height="24" className="category_icon">
@@ -73,7 +74,7 @@ export default async function CategoriesPage() {
                     </Link>
                   ))}
                 </div>
-              </div>
+              </CategoryItemBg>
             ))}
           </div>
         </div>

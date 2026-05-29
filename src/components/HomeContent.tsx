@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import LoginModal from "@/components/LoginModal"
 import SharePopup from "@/components/SharePopup"
 import QuestionListCard from "@/components/QuestionListCard"
+import CategoryItemBg from "@/components/CategoryItemBg"
 import { api } from "@/lib/api-client"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import { useAuthStore } from "@/store/authStore"
@@ -197,7 +198,7 @@ export default function HomeContent({
         >
           <div className="subjects_list">
             {(initialData.categories ?? []).map((category) => (
-              <div className="subject_item" key={category.id}>
+              <CategoryItemBg key={category.id}>
                 <div className="subject_item_icon">
                   <svg width="24" height="24" className="category_icon">
                     <use xlinkHref={`#${category.icon_key || "gaming"}`}></use>
@@ -222,7 +223,7 @@ export default function HomeContent({
                     <img src="/images/icons/more-s-icon.svg" alt="" className="subject_item_more_arrow" />
                   </div>
                 </Link>
-              </div>
+              </CategoryItemBg>
             ))}
           </div>
         </div>
