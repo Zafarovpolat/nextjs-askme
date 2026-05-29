@@ -1091,6 +1091,37 @@ footer .line {
   width: 145px;
 }
 
+.footer_wrapper a {
+  height: 50px;
+  padding: 0 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(255, 255, 255);
+  color: rgb(31, 42, 59);
+  font-family: Nunito;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+  transition: all 0.2s ease;
+}
+
+.footer_wrapper a:hover {
+  background: rgb(84, 91, 222);
+  color: #fff;
+}
+
+.dark_mode .footer_wrapper a {
+  background: rgba(96, 105, 255, 0.15);
+  color: rgb(204, 221, 248);
+}
+
+.dark_mode .footer_wrapper a:hover {
+  background: rgb(84, 91, 222);
+  color: #fff;
+}
+
 .footer_wrapper p {
   color: rgb(139, 148, 161);
   font-family: Nunito;
@@ -1102,10 +1133,6 @@ footer .line {
 
 .dark_mode .footer_wrapper p {
   color: rgb(204, 221, 248);
-}
-
-.footer_wrapper a:hover p {
-  text-decoration: underline;
 }
 
 .questions_block_search textarea {
@@ -1452,6 +1479,7 @@ footer .line {
 @media only screen and (max-width: 940px) {
   .footer_wrapper {
     flex-direction: column;
+    gap: 10px;
   }
 }
 
