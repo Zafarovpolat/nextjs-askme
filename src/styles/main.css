@@ -578,7 +578,8 @@ a:has(.light_logo) {
   fill: #fff;
 }
 
-.subject_item_list_item p {
+.subject_item_list_item p,
+.subject_item_list_item > span {
   color: rgb(76, 91, 114);
   font-family: Nunito;
   font-size: 15px;
@@ -589,11 +590,13 @@ a:has(.light_logo) {
 }
 
 .dark_mode .subject_item_list_item p,
+.dark_mode .subject_item_list_item > span,
 .dark_mode .subject_item_more p {
   color: rgb(204, 221, 248);
 }
 
-.subject_item_list_item p:hover {
+.subject_item_list_item p:hover,
+.subject_item_list_item > span:hover {
   text-decoration: underline;
 }
 

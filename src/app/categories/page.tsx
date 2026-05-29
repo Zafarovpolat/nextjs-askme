@@ -64,13 +64,13 @@ export default async function CategoriesPage() {
                       href={`/categories/${category.slug}/${sub.slug}`}
                       key={sub.id}
                     >
-                      <div className="subject_item_list_item">
+                      <span className="subject_item_list_item">
                         <img
                           src="/images/icons/category-list-item.svg"
                           alt=""
                         />
-                        <p title={sub.name}>{sub.name}</p>
-                      </div>
+                        <span title={sub.name}>{sub.name}</span>
+                      </span>
                     </Link>
                   ))}
                 </div>

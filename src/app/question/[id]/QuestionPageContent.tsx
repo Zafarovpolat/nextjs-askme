@@ -688,13 +688,13 @@ export default function QuestionPageContent({
                           : idx;
                       return (
                         <Link href={href} key={key}>
-                          <div className="subject_item_list_item">
+                          <span className="subject_item_list_item">
                             <img
                               src="/images/icons/category-list-item.svg"
                               alt=""
                             />
-                            <p>{label}</p>
-                          </div>
+                            <span>{label}</span>
+                          </span>
                         </Link>
                       );
                     })}

@@ -491,13 +491,13 @@ export default function SearchPageClient({
                           href={`/categories/${cat.slug}/${sub.slug}`}
                           key={sub.id}
                         >
-                          <div className="subject_item_list_item">
+                          <span className="subject_item_list_item">
                             <img
                               src="/images/icons/category-list-item.svg"
                               alt=""
                             />
-                            <p>{sub.name}</p>
-                          </div>
+                            <span>{sub.name}</span>
+                          </span>
                         </Link>
                       ))}
                     </div>

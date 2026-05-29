@@ -210,10 +210,10 @@ export default function HomeContent({
                 <div className="subject_item_list">
                   {(category.subcategories ?? []).slice(0, 4).map((subcat) => (
                     <Link href={`/categories/${category.slug}/${subcat.slug}`} key={subcat.id} title={subcat.name}>
-                      <div className="subject_item_list_item">
+                      <span className="subject_item_list_item">
                         <img src="/images/icons/category-list-item.svg" alt="" />
-                        <p>{subcat.name}</p>
-                      </div>
+                        <span>{subcat.name}</span>
+                      </span>
                     </Link>
                   ))}
                 </div>

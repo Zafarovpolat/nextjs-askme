@@ -260,10 +260,10 @@ export default function CategoryPageClient({
                 <div className="subject_item_list">
                   {(c.subcategories ?? []).slice(0, 4).map((s) => (
                     <Link href={`/categories/${c.slug}/${s.slug}`} key={s.id}>
-                      <div className="subject_item_list_item">
+                      <span className="subject_item_list_item">
                         <img src="/images/icons/category-list-item.svg" alt="" />
-                        <p>{s.name}</p>
-                      </div>
+                        <span>{s.name}</span>
+                      </span>
                     </Link>
                   ))}
                 </div>
