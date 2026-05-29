@@ -1240,6 +1240,24 @@ footer .line {
   height: 34px;
 }
 
+.mob-nav-logo .logo-container svg path {
+  fill: rgb(32, 35, 87);
+}
+
+.mob-nav-logo .neon-letter {
+  color: rgb(32, 35, 87) !important;
+  text-shadow: none !important;
+  animation: none !important;
+}
+
+.dark_mode .mob-nav-logo .logo-container svg path {
+  fill: #616AFF;
+}
+
+.dark_mode .mob-nav-logo .neon-letter {
+  color: inherit !important;
+}
+
 .nav_mob_wrapper_nav .mode_toggler svg {
   fill: rgb(98, 106, 255) !important;
 }
