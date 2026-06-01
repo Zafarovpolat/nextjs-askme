@@ -258,6 +258,7 @@ export interface QuestionPageData {
   is_premium?: boolean
   allow_answer_comments?: boolean
   category?: { slug: string; name: string }
+  subcategory?: { slug: string; name: string }
   files?: string[]
   videos?: string[]
   links?: string[]
@@ -272,6 +273,24 @@ export interface QuestionPageData {
     user_vote?: 1 | -1 | null
     answer_votes?: Record<number, 1 | -1>
   }
+  anchor_meta?: AnswerAnchorMeta
+  answers_loaded_page?: number
+}
+
+export interface AnswerAnchorMeta {
+  answer_id: number
+  root_answer_id: number
+  direct_answers_page: number
+  ancestor_ids: number[]
+  comment_steps: AnswerAnchorCommentStep[]
+  is_best_answer: boolean
+  is_direct: boolean
+}
+
+export interface AnswerAnchorCommentStep {
+  parent_id: number
+  child_id: number
+  page: number
 }
 
 /** GET /v1/questions/{id}/similar — элемент списка «похожие вопросы» на странице вопроса */

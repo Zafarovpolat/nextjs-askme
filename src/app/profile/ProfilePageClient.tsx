@@ -27,6 +27,7 @@ import type { SubscriptionPackage } from "@/types";
 import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
 import { showSystemToast } from "@/store/systemToastStore";
 import { getApiErrorMessage } from "@/lib/api-error-message";
+import { playNotificationSound } from "@/lib/notification-sound";
 
 type ProfileQuestionItem = {
   id: number;
@@ -1656,6 +1657,9 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         className="play_sound_btn"
                         type="button"
                         title="Прослушать звук"
+                        onClick={() => {
+                          void playNotificationSound();
+                        }}
                       >
                         <svg width="11" height="14">
                           <use xlinkHref="#play-sound"></use>

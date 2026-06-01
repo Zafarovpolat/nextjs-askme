@@ -2,6 +2,7 @@
 
 import { create } from 'zustand'
 import { api } from '@/lib/api-client'
+import { clearOAuthCallbackGuard } from '@/lib/auth-constants'
 import { getToken, removeToken, setToken } from '@/lib/cookies'
 import type { ApiUser } from '@/types'
 import { useFavoritesStore } from './favoritesStore'
@@ -34,6 +35,8 @@ type AuthState = {
   patchUser: (patch: Partial<ApiUser>) => void
   /** Синхронизировать с БД после mark-read (сид из /me иначе остаётся со старым is_read). */
   markNotificationsRead: (ids: number[]) => void
+  /** Все уведомления в сторе — прочитаны (после mark-all-read). */
+  markAllNotificationsRead: () => void
   /** Заполнить стор из ответа /me без сети (например после SSR профиля). */
   hydrateFromMe: (data: MeHydratePayload) => void
   fetchMe: () => Promise<void>
@@ -45,6 +48,13 @@ type AuthState = {
 
 /** Один параллельный /me на клиенте (React Strict Mode и двойные эффекты). */
 let fetchMeInFlight: Promise<void> | null = null
+/** Смена epoch при logout/loginWithToken — игнорируем ответы устаревших запросов /me. */
+let authEpoch = 0
+
+function bumpAuthEpoch(): void {
+  authEpoch += 1
+  fetchMeInFlight = null
+}
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -67,6 +77,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }))
   },
 
+  markAllNotificationsRead: () => {
+    set((state) => ({
+      notifications: state.notifications.map((n) =>
+        n.is_read ? n : { ...n, is_read: true },
+      ),
+    }))
+  },
+
   hydrateFromMe: (data) => {
     set({ user: data.user, isAuthorized: 1, isLoading: false, notifications: data.notifications ?? [] })
     useFavoritesStore.getState().setFromMe({
@@ -78,13 +96,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   fetchMe: async () => {
+    const epoch = authEpoch
+
     if (fetchMeInFlight) {
       await fetchMeInFlight
+      if (epoch !== authEpoch) {
+        return get().fetchMe()
+      }
+      // Параллельный /me мог завершиться без записи в стор (смена authEpoch).
+      if (getToken() && get().isAuthorized === 0) {
+        return get().fetchMe()
+      }
       return
     }
+
     fetchMeInFlight = (async () => {
       const token = getToken()
       if (!token) {
+        if (epoch !== authEpoch) return
         set({ user: null, isAuthorized: 0, isLoading: false, notifications: [] })
         useFavoritesStore.getState().clear()
         return
@@ -98,6 +127,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           subscribed_question_ids: number[]
           notifications?: AuthNotification[]
         }>('v1/me')
+        if (epoch !== authEpoch) return
         set({ user: data.user, isAuthorized: 1, isLoading: false, notifications: data.notifications ?? [] })
         useFavoritesStore.getState().setFromMe({
           favorite_question_ids: data.favorite_question_ids ?? [],
@@ -106,6 +136,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           subscribed_question_ids: data.subscribed_question_ids ?? [],
         })
       } catch {
+        if (epoch !== authEpoch) return
         removeToken()
         set({ user: null, isAuthorized: 0, isLoading: false, notifications: [] })
         useFavoritesStore.getState().clear()
@@ -125,12 +156,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await get().fetchMe()
   },
 
-  /* п.3 — сброс кэша перед повторным логином через соцсеть */
   loginWithToken: async (token: string) => {
-    fetchMeInFlight = null
-    set({ user: null, isAuthorized: 0, notifications: [] })
-    useFavoritesStore.getState().clear()
+    bumpAuthEpoch()
     setToken(token)
+    set({ isLoading: true })
+    useFavoritesStore.getState().clear()
     await get().fetchMe()
   },
 
@@ -146,12 +176,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: () => {
+    bumpAuthEpoch()
+    clearOAuthCallbackGuard()
     const token = getToken()
     if (token) {
       api.post('v1/auth/logout').catch(() => {})
     }
     removeToken()
     useFavoritesStore.getState().clear()
-    set({ user: null, isAuthorized: 0, notifications: [] })
+    set({ user: null, isAuthorized: 0, isLoading: false, notifications: [] })
   },
 }))

@@ -24,7 +24,11 @@ export function removeToken(): void {
 }
 
 export function getNotificationPopupsEnabled(): boolean {
-  return Cookies.get(NOTIFICATION_POPUPS_COOKIE_KEY) === '1'
+  const value = Cookies.get(NOTIFICATION_POPUPS_COOKIE_KEY)
+  if (value === undefined) {
+    return true
+  }
+  return value === '1'
 }
 
 export function setNotificationPopupsEnabled(enabled: boolean): void {

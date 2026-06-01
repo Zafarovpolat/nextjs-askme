@@ -83,12 +83,16 @@ export default function NotificationsPage() {
   }, [currentPage, lastPage]);
 
   const markAllRead = useCallback(async () => {
-    const unreadIds = notifications.filter((n) => !n.is_read).map((n) => n.id);
-    if (unreadIds.length === 0) return;
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    useAuthStore.getState().markNotificationsRead(unreadIds);
+    if (!notifications.some((n) => !n.is_read)) return;
     try {
-      await api.post("v1/notifications/mark-read", { ids: unreadIds });
+      await api.post("v1/notifications/mark-all-read");
+      useAuthStore.getState().markAllNotificationsRead();
+      const data = await api.get<NotificationsPageResponse>(
+        `v1/notifications?page=1&per_page=${PAGE_SIZE}`,
+      );
+      setNotifications(data.notifications ?? []);
+      setCurrentPage(data.current_page ?? 1);
+      setLastPage(data.last_page ?? 1);
     } catch { /* ignore */ }
   }, [notifications]);
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
+import QuestionLikerAvatars from "@/components/QuestionLikerAvatars";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
 
@@ -78,17 +79,30 @@ export default function QuestionListCard({
     >
       <div className="question_item_top_data">
         <div className="question_item_top_data_left">
-          <UserAvatar
-            src={question.author.avatar_url}
-            src2x={question.author.avatar_url_2x}
-            alt={authorName}
-            premium={authorPremium}
-            premiumText={authorPremiumText}
-            size={40}
-          />
-          {/* п.20 — имя как ссылка на профиль */}
+          <Link
+            href={`/profile/${question.author.id}`}
+            className="question_list_item_avatar_link"
+            title="Профиль пользователя"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <UserAvatar
+              src={question.author.avatar_url}
+              src2x={question.author.avatar_url_2x}
+              alt={authorName}
+              premium={authorPremium}
+              premiumText={authorPremiumText}
+              size={40}
+            />
+          </Link>
           <div className="question_list_item_left__user_meta">
-            <Link href={`/profile/${question.author.id}`} className="main_text" style={{ textDecoration: 'none', color: 'inherit' }}>{authorName}</Link>
+            <Link
+              href={`/profile/${question.author.id}`}
+              className="main_text"
+              style={{ textDecoration: "none", color: "inherit" }}
+              onClick={(event) => event.stopPropagation()}
+            >
+              {authorName}
+            </Link>
             <span>{numWord(question.author.balls ?? 0, ["балл", "балла", "баллов"])}</span>
           </div>
         </div>
@@ -117,8 +131,13 @@ export default function QuestionListCard({
         </div>
       </div>
 
-      <Link href={`/question/${question.id}`}>
-        <div className="question_list_item_left">
+      <div className="question_list_item_left">
+        <Link
+          href={`/profile/${question.author.id}`}
+          className="question_list_item_avatar_link"
+          title="Профиль пользователя"
+          onClick={(event) => event.stopPropagation()}
+        >
           <UserAvatar
             src={question.author.avatar_url}
             src2x={question.author.avatar_url_2x}
@@ -127,26 +146,22 @@ export default function QuestionListCard({
             premiumText={authorPremiumText}
             size={40}
           />
-          <div className="question_list_item_left__user_meta">
-            <p className="main_text">{question.title}</p>
-            <span>{formatTimeAgo(question.created_at)}</span>
-          </div>
-        </div>
-      </Link>
+        </Link>
+        <Link
+          href={`/question/${question.id}`}
+          className="question_list_item_left__user_meta question_list_item_title_link"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <p className="main_text">{question.title}</p>
+          <span>{formatTimeAgo(question.created_at)}</span>
+        </Link>
+      </div>
 
       <div className="question_list_item_right">
-        <div className="question_list_item_users">
-          {(question.latest_likers ?? []).slice(0, 3).map((user) => (
-            <UserAvatar
-              key={user.id}
-              src={user.avatar_url}
-              src2x={user.avatar_url_2x}
-              alt=""
-              size={30}
-            />
-          ))}
-          <p className="main_text">+{question.answers_count}</p>
-        </div>
+        <QuestionLikerAvatars
+          likers={question.latest_likers ?? []}
+          countLabel={`+${question.answers_count}`}
+        />
         <div className="question_list_item_right_actions">
           <button
             title="Мне нравится"

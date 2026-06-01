@@ -846,3 +846,21 @@ a.share_icon_btn {
   fill: none !important;
   stroke: #fff !important;
 }
+
+.profile_share_popup--icons-only {
+  width: auto;
+  padding: 10px 14px;
+}
+
+.profile_share_popup--icons-only .share_icon_btn {
+  width: 42px;
+  height: 42px;
+}
+
+.profile_share_popup--anchored {
+  position: absolute;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  transform: translateX(-50%);
+}

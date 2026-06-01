@@ -2,6 +2,11 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  clearOAuthCallbackGuard,
+  markOAuthCallbackStarted,
+  shouldSkipOAuthCallback,
+} from "@/lib/auth-constants";
 import { useAuthStore } from "@/store/authStore";
 
 function CallbackBody() {
@@ -15,15 +20,28 @@ function CallbackBody() {
       setMessage("Нет данных авторизации.");
       return;
     }
+    if (shouldSkipOAuthCallback(token)) {
+      return;
+    }
+    markOAuthCallbackStarted(token);
+
+    let cancelled = false;
     useAuthStore
       .getState()
       .loginWithToken(token)
       .then(() => {
+        if (cancelled) return;
         router.replace("/");
       })
       .catch(() => {
+        if (cancelled) return;
+        clearOAuthCallbackGuard();
         setMessage("Не удалось завершить вход.");
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, [searchParams, router]);
 
   return (

@@ -14,6 +14,7 @@ import {
   displayUserName,
   displayUserSubtitle,
 } from "@/lib/ai-user-display";
+import type { MouseEvent } from "react";
 
 export interface AnswerBlockProps {
   answer: QuestionPageAnswer;
@@ -30,6 +31,7 @@ export interface AnswerBlockProps {
   onStartReplyToAnswer?: (answerId: number, userFullName: string) => void;
   allowAnswerComments?: boolean;
   answerVotes?: Record<number, 1 | -1>;
+  onShareClick?: (e: MouseEvent<HTMLButtonElement>, answerId: number) => void;
 }
 
 export default function AnswerBlock({
@@ -46,6 +48,7 @@ export default function AnswerBlock({
   onStartReplyToAnswer,
   allowAnswerComments = true,
   answerVotes = {},
+  onShareClick,
 }: AnswerBlockProps) {
   const answerVote = answerVotes[answer.id] ?? null;
   const {
@@ -264,8 +267,10 @@ export default function AnswerBlock({
             </svg>
           </button>
           <button
+            type="button"
             className="s_btn s_btn_icon btn_action_outline"
             title="Поделиться"
+            onClick={(e) => onShareClick?.(e, answer.id)}
           >
             <svg width="14" height="14">
               <use xlinkHref="#share"></use>

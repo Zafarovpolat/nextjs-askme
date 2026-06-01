@@ -1,0 +1,39 @@
+import Link from "next/link";
+import QuestionLikerAvatars, { type LikerUser } from "@/components/QuestionLikerAvatars";
+
+export type PopularTopicItem = {
+  id: number;
+  name: string;
+  slug: string | null;
+  parent_slug: string | null;
+  parent_icon_key?: string | null;
+  total_likes: number;
+  latest_likers?: LikerUser[];
+};
+
+export default function PopularTopicListItem({ topic }: { topic: PopularTopicItem }) {
+  const href =
+    topic.parent_slug && topic.slug
+      ? `/categories/${topic.parent_slug}/${topic.slug}`
+      : "/categories";
+
+  return (
+    <div className="question_list_item">
+      <Link href={href} className="question_list_item_left question_list_item_title_link">
+        <svg width="24" height="24" className="topic_icon">
+          <use xlinkHref={`#${topic.parent_icon_key || "gaming"}`}></use>
+        </svg>
+        <div className="question_list_item_left__user_meta">
+          <div className="main_text" title={topic.name}>
+            {topic.name}
+          </div>
+        </div>
+      </Link>
+      <QuestionLikerAvatars
+        likers={topic.latest_likers ?? []}
+        countLabel={`+${topic.total_likes}`}
+        usePlainImg
+      />
+    </div>
+  );
+}

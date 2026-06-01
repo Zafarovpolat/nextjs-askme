@@ -83,30 +83,6 @@
   color: #1f2a3b;
 }
 
-/* п.17 — кнопка «Скрыть все уведомления» */
-.notificationDismissAll {
-  display: block;
-  width: 100%;
-  background: none;
-  border: none;
-  color: #626aff;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: Nunito, sans-serif;
-  cursor: pointer;
-  text-align: right;
-  padding: 0 0 8px;
-  transition: opacity 0.15s ease;
-}
-
-.notificationDismissAll:hover {
-  opacity: 0.7;
-}
-
-.dark_mode .notificationDismissAll{
-  color: #fff;
-}
-
 .notificationToggle {
   display: flex;
   justify-content: space-between;
@@ -177,6 +153,45 @@
   font-weight: 600;
   color: #acacac;
   margin-bottom: 12px !important;
+}
+
+.notificationSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.notificationSectionHeader .sectionTitle {
+  margin-bottom: 0 !important;
+}
+
+.markAllReadBtn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #626aff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: Nunito, sans-serif;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.markAllReadBtn:hover {
+  opacity: 0.7;
+}
+
+.markAllReadBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.dark_mode .markAllReadBtn {
+  color: #fff;
 }
 
 .notificationItem {

@@ -10,11 +10,19 @@ const TOKEN_KEY = "otvetai_token";
 
 export default async function QuestionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ answer?: string }>;
 }) {
   const { id } = await params;
-  const url = getApiFullUrl(`v1/questions/${id}`);
+  const { answer } = await searchParams;
+  const anchorId = answer && /^\d+$/.test(answer) ? answer : null;
+  const url = getApiFullUrl(
+    `v1/questions/${id}?sort_by=rating&sort_dir=desc${
+      anchorId ? `&anchor_answer_id=${anchorId}` : ""
+    }`
+  );
   const cookieStore = await cookies();
   const token = cookieStore.get(TOKEN_KEY)?.value;
   const headers: HeadersInit = {
@@ -35,6 +43,7 @@ export default async function QuestionPage({
   return (
     <QuestionPageContent
       initialQuestion={data}
+      initialAnchorAnswerId={anchorId ? Number(anchorId) : undefined}
       sidebarCategories={sidebarCategories}
       widgets={widgets}
     />

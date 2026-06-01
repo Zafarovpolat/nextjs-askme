@@ -10,6 +10,7 @@ import {
   type ChangeEvent,
   type KeyboardEvent,
   type SyntheticEvent,
+  type MouseEvent,
 } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
@@ -20,6 +21,7 @@ import { formatTimeAgo } from "@/lib/time-ago";
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import { useVoteQuestion } from "@/hooks/useVoteQuestion";
 import ComplaintModal from "@/components/ComplaintModal";
+import ShareIconsPopup from "@/components/ShareIconsPopup";
 import AnswerBlock, { AnswerWithReplies } from "./AnswerBlock";
 import SimilarQuestionsBlock from "./SimilarQuestionsBlock";
 import QuestionLeadersSidebar from "./QuestionLeadersSidebar";
@@ -32,9 +34,14 @@ import { displayPremiumBadge, displayUserName, displayUserSubtitle } from "@/lib
 import AnswerLinkUrl from "@/components/AnswerLinkUrl";
 import type { ApiCategoryTree } from "@/lib/server-categories";
 import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
-import type { QuestionPageData } from "@/types";
+import type { AnswerAnchorMeta, QuestionPageData } from "@/types";
 import { getApiFullUrl } from "@/config/api";
 import LinkInputModal from "@/components/LinkInputModal";
+import {
+  highlightAnswerElement,
+  loadCommentPagesForStep,
+  parseAnswerAnchorHash,
+} from "@/lib/question-answer-tree";
 
 /** Сайдбар, если API категорий недоступен */
 const FALLBACK_SIDEBAR_CATEGORIES = [
@@ -137,10 +144,12 @@ function canAddAttachment(remaining: number | null | undefined): boolean {
 
 export default function QuestionPageContent({
   initialQuestion,
+  initialAnchorAnswerId,
   sidebarCategories = [],
   widgets = { weekly_balls_leaders: [], weekly_active_authors: [] },
 }: {
   initialQuestion: QuestionPageData;
+  initialAnchorAnswerId?: number;
   sidebarCategories?: ApiCategoryTree[];
   widgets?: ProfileWidgetsPayload;
 }) {
@@ -157,6 +166,8 @@ export default function QuestionPageContent({
   /* п.9 — если категория отсутствует, ведём на /categories вместо /categories/voprosy (404) */
   const categorySlug = initialQuestion.category?.slug ?? "";
   const categoryName = initialQuestion.category?.name ?? "Вопросы";
+  const subcategorySlug = initialQuestion.subcategory?.slug ?? "";
+  const subcategoryName = initialQuestion.subcategory?.name ?? "";
 
   const leftSidebarCats =
     sidebarCategories.length > 0
@@ -226,20 +237,15 @@ export default function QuestionPageContent({
     0,
     initialQuestion.answers_count ?? apiAnswers.length
   );
-  /* п.22 — 3 состояния: asc, desc, default */
   const [sortBy, setSortBy] = useState<"rating" | "date">("rating");
-  const [sortDir, setSortDir] = useState<"desc" | "asc" | null>("desc");
+  const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
 
   const cycleSortDir = (field: "rating" | "date") => {
     if (sortBy !== field) {
       setSortBy(field);
       setSortDir("desc");
-    } else if (sortDir === "desc") {
-      setSortDir("asc");
-    } else if (sortDir === "asc") {
-      setSortDir(null); // default
     } else {
-      setSortDir("desc");
+      setSortDir((d) => (d === "desc" ? "asc" : "desc"));
     }
   };
 
@@ -268,7 +274,7 @@ export default function QuestionPageContent({
   );
 
   const sortArrow = (field: "rating" | "date") => {
-    if (sortBy !== field || sortDir === null) return null;
+    if (sortBy !== field) return null;
     return <SortChevron direction={sortDir} />;
   };
   const [openCategories, setOpenCategories] = useState<string[]>([categorySlug]);
@@ -288,12 +294,17 @@ export default function QuestionPageContent({
     null
   );
   const [answerSubmitPending, setAnswerSubmitPending] = useState(false);
-  const [answersPage, setAnswersPage] = useState(1);
+  const [answersPage, setAnswersPage] = useState(
+    initialQuestion.answers_loaded_page ?? 1
+  );
   const [answersLastPage, setAnswersLastPage] = useState(
     Math.max(1, Math.ceil(totalAnswers / perPage))
   );
   const [answersLoadingMore, setAnswersLoadingMore] = useState(false);
   const [answersData, setAnswersData] = useState(apiAnswers);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [shareData, setShareData] = useState({ title: "", url: "" });
+  const shareButtonRef = useRef<HTMLButtonElement | null>(null);
   /** Только вводимый текст (без «Имя,»); на сервер уходит только он */
   const [answerText, setAnswerText] = useState("");
   const [fileAttachment, setFileAttachment] = useState<{
@@ -308,6 +319,22 @@ export default function QuestionPageContent({
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
+  const answersDataRef = useRef(answersData);
+  const answersPageRef = useRef(answersPage);
+  const answersLastPageRef = useRef(answersLastPage);
+  const anchorHandledRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    answersDataRef.current = answersData;
+  }, [answersData]);
+
+  useEffect(() => {
+    answersPageRef.current = answersPage;
+  }, [answersPage]);
+
+  useEffect(() => {
+    answersLastPageRef.current = answersLastPage;
+  }, [answersLastPage]);
 
   useEffect(() => {
     if (!allowAnswerComments && replyTarget) {
@@ -538,7 +565,9 @@ export default function QuestionPageContent({
         /* п.30 — сразу подгружаем свежие ответы, чтобы новый ответ был виден без перезагрузки */
         try {
           const freshRes = await fetch(
-            getApiFullUrl(`v1/questions/${initialQuestion.id}/answers?page=1&per_page=100`),
+            getApiFullUrl(
+              `v1/questions/${initialQuestion.id}/answers?page=1&per_page=100&sort_by=${sortBy}&sort_dir=${sortDir}`
+            ),
             { headers: { Accept: "application/json" } }
           );
           if (freshRes.ok) {
@@ -571,20 +600,39 @@ export default function QuestionPageContent({
       fileAttachment,
       videoAttachment,
       linkAttachment,
+      sortBy,
+      sortDir,
     ]
   );
 
   const regularAnswers = answersData;
+  const answersSortQuery = `sort_by=${sortBy}&sort_dir=${sortDir}`;
+  const sortInitialRef = useRef(true);
 
-  /* п.22 — сортировка с учётом направления */
-  const sortedAnswers = [...regularAnswers].sort((a, b) => {
-    if (sortDir === null) return 0; // default — порядок от API
-    const mul = sortDir === "asc" ? 1 : -1;
-    if (sortBy === "rating") {
-      return mul * ((a.votes_score ?? 0) - (b.votes_score ?? 0));
+  useEffect(() => {
+    if (sortInitialRef.current) {
+      sortInitialRef.current = false;
+      return;
     }
-    return mul * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-  });
+    const reloadSorted = async () => {
+      setAnswersLoadingMore(true);
+      try {
+        const data = await api.get<{
+          answers: NonNullable<QuestionPageData["answers"]>;
+          current_page: number;
+          last_page: number;
+        }>(
+          `v1/questions/${initialQuestion.id}/answers?page=1&per_page=${perPage}&${answersSortQuery}`
+        );
+        setAnswersData(data.answers ?? []);
+        setAnswersPage(1);
+        setAnswersLastPage(data.last_page ?? 1);
+      } finally {
+        setAnswersLoadingMore(false);
+      }
+    };
+    void reloadSorted();
+  }, [sortBy, sortDir, initialQuestion.id, perPage, answersSortQuery]);
 
   const answerVotes = authExtra?.answer_votes ?? {};
   const loadMoreAnswers = useCallback(async () => {
@@ -597,7 +645,7 @@ export default function QuestionPageContent({
         current_page: number;
         last_page: number;
       }>(
-        `v1/questions/${initialQuestion.id}/answers?page=${nextPage}&per_page=${perPage}`
+        `v1/questions/${initialQuestion.id}/answers?page=${nextPage}&per_page=${perPage}&${answersSortQuery}`
       );
       setAnswersData((prev) => [...prev, ...(data.answers ?? [])]);
       setAnswersPage(data.current_page ?? nextPage);
@@ -609,9 +657,142 @@ export default function QuestionPageContent({
     answersLoadingMore,
     answersLastPage,
     answersPage,
+    answersSortQuery,
     initialQuestion.id,
     perPage,
   ]);
+  const handleShareClick = useCallback(
+    (e: MouseEvent<HTMLButtonElement>, title: string, url: string) => {
+      const btn = e.currentTarget;
+      if (shareButtonRef.current === btn && isShareOpen) {
+        setIsShareOpen(false);
+        return;
+      }
+      shareButtonRef.current = btn;
+      setShareData({ title, url });
+      setIsShareOpen(true);
+    },
+    [isShareOpen]
+  );
+
+  const handleShareQuestion = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      handleShareClick(
+        e,
+        initialQuestion.title,
+        `${typeof window !== "undefined" ? window.location.origin : ""}/question/${initialQuestion.id}`
+      );
+    },
+    [handleShareClick, initialQuestion.id, initialQuestion.title]
+  );
+
+  const handleShareAnswer = useCallback(
+    (e: MouseEvent<HTMLButtonElement>, answerId: number) => {
+      handleShareClick(
+        e,
+        initialQuestion.title,
+        `${typeof window !== "undefined" ? window.location.origin : ""}/question/${initialQuestion.id}#answer-${answerId}`
+      );
+    },
+    [handleShareClick, initialQuestion.id, initialQuestion.title]
+  );
+
+  const navigateToAnswerAnchor = useCallback(
+    async (answerId: number) => {
+      if (anchorHandledRef.current === answerId) return;
+
+      if (await highlightAnswerElement(answerId)) {
+        anchorHandledRef.current = answerId;
+        return;
+      }
+
+      setAnswersLoadingMore(true);
+      try {
+        let meta: AnswerAnchorMeta | null =
+          initialQuestion.anchor_meta?.answer_id === answerId
+            ? initialQuestion.anchor_meta
+            : null;
+
+        if (!meta) {
+          meta = await api.get<AnswerAnchorMeta>(
+            `v1/questions/${initialQuestion.id}/answers/anchor?answer_id=${answerId}&per_page=${perPage}&sort_by=${sortBy}&sort_dir=${sortDir}`
+          );
+        }
+
+        let merged = [...answersDataRef.current];
+        let page = answersPageRef.current;
+        let lastPage = answersLastPageRef.current;
+
+        while (page < meta.direct_answers_page) {
+          page += 1;
+          const data = await api.get<{
+            answers: NonNullable<QuestionPageData["answers"]>;
+            last_page: number;
+          }>(
+            `v1/questions/${initialQuestion.id}/answers?page=${page}&per_page=${perPage}&sort_by=${sortBy}&sort_dir=${sortDir}`
+          );
+          const existingIds = new Set(merged.map((a) => a.id));
+          const nextAnswers = (data.answers ?? []).filter((a) => !existingIds.has(a.id));
+          merged = [...merged, ...nextAnswers];
+          lastPage = data.last_page ?? lastPage;
+        }
+
+        const commentSteps = meta.comment_steps ?? [];
+        const fetchCommentPage = async (parentId: number, commentPage: number) => {
+          const data = await api.get<{
+            answers: NonNullable<QuestionPageData["answers"]>;
+          }>(
+            `v1/questions/${initialQuestion.id}/answers?answer_id=${parentId}&page=${commentPage}&per_page=${perPage}`
+          );
+          return data.answers ?? [];
+        };
+
+        for (const step of commentSteps) {
+          merged = await loadCommentPagesForStep(merged, step, perPage, fetchCommentPage);
+        }
+
+        setAnswersData(merged);
+        setAnswersPage(page);
+        setAnswersLastPage(lastPage);
+
+        await new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        });
+
+        let attempts = 0;
+        const tryHighlight = async () => {
+          if (await highlightAnswerElement(answerId)) {
+            anchorHandledRef.current = answerId;
+            return;
+          }
+          if (attempts >= 15) return;
+          attempts += 1;
+          window.setTimeout(() => void tryHighlight(), 50);
+        };
+        void tryHighlight();
+      } finally {
+        setAnswersLoadingMore(false);
+      }
+    },
+    [initialQuestion.anchor_meta, initialQuestion.id, perPage, sortBy, sortDir]
+  );
+
+  useEffect(() => {
+    const run = (answerId: number | null) => {
+      if (!answerId) return;
+      void navigateToAnswerAnchor(answerId);
+    };
+
+    run(initialAnchorAnswerId ?? parseAnswerAnchorHash(window.location.hash));
+
+    const onHashChange = () => {
+      anchorHandledRef.current = null;
+      run(parseAnswerAnchorHash(window.location.hash));
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, [initialAnchorAnswerId, navigateToAnswerAnchor]);
+
   const toggleCategory = (slug: string) => {
     setOpenCategories((prev) =>
       prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
@@ -637,6 +818,17 @@ export default function QuestionPageContent({
           >
             {categoryName}
           </Link>
+          {subcategorySlug ? (
+            <>
+              <span className="breadcrumbs__sep">•</span>
+              <Link
+                href={`/categories/${categorySlug}/${subcategorySlug}`}
+                className="breadcrumbs__link"
+              >
+                {subcategoryName}
+              </Link>
+            </>
+          ) : null}
           <span className="breadcrumbs__sep">•</span>
           <span className="breadcrumbs__current">{initialQuestion.title}</span>
         </div>
@@ -939,8 +1131,10 @@ export default function QuestionPageContent({
                   </svg>
                 </button>
                 <button
+                  type="button"
                   className="s_btn s_btn_icon btn_action_outline"
                   title="Поделиться"
+                  onClick={handleShareQuestion}
                 >
                   <svg width="14" height="14">
                     <use xlinkHref="#share"></use>
@@ -966,6 +1160,7 @@ export default function QuestionPageContent({
                 onStartReplyToAnswer={beginReplyToAnswer}
                 allowAnswerComments={allowAnswerComments}
                 answerVotes={answerVotes}
+                onShareClick={handleShareAnswer}
               />
             </div>
           )}
@@ -994,7 +1189,7 @@ export default function QuestionPageContent({
           </div>
 
           {/* Список ответов: дерево как раньше — корень + комментарии отдельными карточками со сдвигом */}
-          {sortedAnswers.map((answer) => (
+          {regularAnswers.map((answer) => (
             <div key={answer.id}>
               <AnswerWithReplies
                 answer={answer}
@@ -1008,6 +1203,7 @@ export default function QuestionPageContent({
                 onStartReplyToAnswer={beginReplyToAnswer}
                 allowAnswerComments={allowAnswerComments}
                 answerVotes={answerVotes}
+                onShareClick={handleShareAnswer}
               />
             </div>
           ))}
@@ -1236,6 +1432,13 @@ export default function QuestionPageContent({
         initialValue={linkAttachment}
         onClose={() => setIsLinkModalOpen(false)}
         onSubmit={(url) => setLinkAttachment(url)}
+      />
+      <ShareIconsPopup
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        anchorRef={shareButtonRef}
+        title={shareData.title}
+        url={shareData.url}
       />
     </>
   );

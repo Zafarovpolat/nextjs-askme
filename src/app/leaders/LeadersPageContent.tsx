@@ -18,10 +18,10 @@ type LeadersPageContentProps = {
 };
 
 const PERIODS = [
-  { value: "year", label: "За год" },
-  { value: "month", label: "За месяц" },
-  { value: "week", label: "За неделю" },
   { value: "day", label: "За день" },
+  { value: "week", label: "За неделю" },
+  { value: "month", label: "За месяц" },
+  { value: "year", label: "За год" },
 ] as const;
 
 const METRICS = [
@@ -190,57 +190,56 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
           <h2>Лидеры по активности</h2>
         </div>
 
-        {/* п.11+13 — Стилизованные CustomSelect вместо нативных <select> + кнопка «Сбросить фильтры» */}
         <div className="top_leaders_filter">
           <div className="top_leaders_filter_item">
             <CustomSelect
+              className="custom-select--leaders-filter"
               value={periodFilter}
               onChange={setPeriodFilter}
               placeholder="Период"
               options={PERIODS.map((p) => ({ value: p.value, label: p.label }))}
               disabled={filterLoading}
+              clearable
+              defaultClearValue="day"
             />
           </div>
           <div className="top_leaders_filter_item">
             <CustomSelect
+              className="custom-select--leaders-filter"
               value={metricFilter}
               onChange={handleMetricChange}
               placeholder="Метрика"
               options={METRICS.map((m) => ({ value: m.value, label: m.label }))}
               disabled={filterLoading}
+              clearable
+              defaultClearValue="answers"
             />
           </div>
           <div className="top_leaders_filter_item">
             <CustomSelect
+              className="custom-select--leaders-filter"
               value={categoryFilter}
               onChange={handleCategoryChange}
               placeholder="Категория"
               options={categories.map((cat) => ({ value: String(cat.id), label: cat.name }))}
               disabled={filterLoading || categorySelectDisabled}
+              clearable
+              defaultClearValue=""
             />
           </div>
           <div className="top_leaders_filter_item">
             <CustomSelect
+              className="custom-select--leaders-filter"
               value={subcategoryFilter}
               onChange={setSubcategoryFilter}
               placeholder="Все подкатегории"
               options={subcategoryOptions.map((sub) => ({ value: String(sub.id), label: sub.name }))}
               disabled={filterLoading || categorySelectDisabled || !categoryFilter}
+              clearable
+              defaultClearValue=""
             />
           </div>
         </div>
-        <button
-          type="button"
-          className="reset-filters-link"
-          onClick={() => {
-            setPeriodFilter("day");
-            setMetricFilter("answers");
-            setCategoryFilter("");
-            setSubcategoryFilter("");
-          }}
-        >
-          Сбросить фильтры
-        </button>
       </div>
 
       <div className="container">

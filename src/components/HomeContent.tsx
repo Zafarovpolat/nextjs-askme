@@ -2,6 +2,8 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import Link from "next/link"
+import MostDiscussedListItem from "@/components/MostDiscussedListItem"
+import PopularTopicListItem from "@/components/PopularTopicListItem"
 import { useRouter } from "next/navigation"
 import LoginModal from "@/components/LoginModal"
 import SharePopup from "@/components/SharePopup"
@@ -25,8 +27,8 @@ type HomeQuestionItem = {
 type HomeInitialData = {
   categories: CategoryTop[]
   project_leaders: { id: number; first_name: string; last_name: string; avatar_url?: string | null; balls: number }[]
-  most_discussed: { id: number; title: string; likes_count: number; latest_likers: { avatar_url?: string | null }[] }[]
-  popular_topics: { id: number; name: string; slug: string | null; parent_slug: string | null; parent_icon_key?: string | null; total_likes: number; latest_likers: { avatar_url?: string | null }[] }[]
+  most_discussed: { id: number; title: string; likes_count: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
+  popular_topics: { id: number; name: string; slug: string | null; parent_slug: string | null; parent_icon_key?: string | null; total_likes: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
 }
 type HomeQuestionsPage = { questions: HomeQuestionItem[]; current_page: number; last_page: number; per_page: number; total: number }
 
@@ -370,22 +372,7 @@ export default function HomeContent({
           {/* п.19 — вся область карточки кликабельна */}
           <div className="tops_block_item_top_subjects">
             {(initialData.most_discussed ?? []).map((q) => (
-              <Link href={`/question/${q.id}`} key={q.id} className="question_list_item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
-                <div className="question_list_item_left">
-                  <img src={q.latest_likers[0]?.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                  <div className="question_list_item_left__user_meta">
-                    <div className="main_text question_title_clamp">
-                      {q.title}
-                    </div>
-                  </div>
-                </div>
-                <div className="question_list_item_users">
-                  {(q.latest_likers ?? []).slice(0, 3).map((u, idx) => (
-                    <img key={idx} src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                  ))}
-                  <p className="main_text">+{q.likes_count}</p>
-                </div>
-              </Link>
+              <MostDiscussedListItem key={q.id} question={q} />
             ))}
           </div>
         </div>
@@ -395,20 +382,7 @@ export default function HomeContent({
           {/* п.19 — вся область карточки кликабельна */}
           <div className="tops_block_item_top_subjects">
             {(initialData.popular_topics ?? []).map((topic) => (
-              <Link href={topic.parent_slug && topic.slug ? `/categories/${topic.parent_slug}/${topic.slug}` : "/categories"} key={topic.id} className="question_list_item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
-                <div className="question_list_item_left">
-                  <svg width="24" height="24" className="topic_icon">
-                    <use xlinkHref={`#${topic.parent_icon_key || "gaming"}`}></use>
-                  </svg>
-                  <div className="question_list_item_left__user_meta"><div className="main_text" title={topic.name}>{topic.name}</div></div>
-                </div>
-                <div className="question_list_item_users">
-                  {(topic.latest_likers ?? []).slice(0, 3).map((u, idx) => (
-                    <img key={idx} src={u.avatar_url || "/images/icons/avatar.svg"} alt="" />
-                  ))}
-                  <p className="main_text">+{topic.total_likes}</p>
-                </div>
-              </Link>
+              <PopularTopicListItem key={topic.id} topic={topic} />
             ))}
           </div>
         </div>

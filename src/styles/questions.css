@@ -342,6 +342,15 @@
   margin-bottom: 5px;
 }
 
+.main_question_block.answer-anchor-highlight {
+  box-shadow: 0 0 0 2px #5764ff;
+  transition: box-shadow 0.15s ease;
+}
+
+.dark_mode .main_question_block.answer-anchor-highlight {
+  box-shadow: 0 0 0 2px #8b93ff;
+}
+
 .dark_mode .main_question_block {
   background-color: #403586;
 }

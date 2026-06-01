@@ -14,6 +14,14 @@ interface CustomSelectProps {
   placeholder: string
   disabled?: boolean
   icon?: React.ReactNode
+  /** Доп. класс корневого контейнера (например custom-select--leaders-filter). */
+  className?: string
+  /** Показать крестик сброса, если value !== defaultClearValue */
+  clearable?: boolean
+  /** Значение по умолчанию (крестик скрыт, пока выбрано оно) */
+  defaultClearValue?: string
+  /** Свой обработчик сброса вместо onChange(defaultClearValue) */
+  onClear?: () => void
 }
 
 export default function CustomSelect({
@@ -23,6 +31,10 @@ export default function CustomSelect({
   placeholder,
   disabled = false,
   icon,
+  className,
+  clearable = false,
+  defaultClearValue = '',
+  onClear,
 }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -58,6 +70,19 @@ export default function CustomSelect({
     setIsOpen(false)
   }
 
+  const showClear = clearable && !disabled && value !== defaultClearValue
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsOpen(false)
+    if (onClear) {
+      onClear()
+    } else {
+      onChange(defaultClearValue)
+    }
+  }
+
   return (
     <div
       ref={containerRef}
@@ -66,6 +91,8 @@ export default function CustomSelect({
         isOpen ? 'custom-select--open' : '',
         disabled ? 'custom-select--disabled' : '',
         !icon ? 'custom-select--no-icon' : '',
+        showClear ? 'custom-select--has-clear' : '',
+        className ?? '',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -105,6 +132,31 @@ export default function CustomSelect({
           />
         </svg>
       </button>
+
+      {showClear && (
+        <button
+          type="button"
+          className="custom-select__clear"
+          aria-label="Сбросить"
+          onClick={handleClear}
+        >
+          <svg
+            className="custom-select__clear-icon"
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            fill="none"
+            aria-hidden
+          >
+            <path
+              d="M1.5 1.5L8.5 8.5M8.5 1.5L1.5 8.5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      )}
 
       {/* Выпадающий список */}
       {isOpen && (

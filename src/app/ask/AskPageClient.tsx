@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
+import MostDiscussedListItem from "@/components/MostDiscussedListItem"
+import PopularTopicListItem from "@/components/PopularTopicListItem"
 import LoginModal from "@/components/LoginModal"
 import QuestionModal from "@/components/QuestionModal"
 import SharePopup from "@/components/SharePopup"
@@ -30,8 +32,8 @@ type QuestionListItem = {
   latest_likers: { id: number; avatar_url: string }[]
 }
 type ProjectLeader = { id: number; first_name: string; last_name: string; avatar_url: string; balls: number }
-type MostDiscussedItem = { id: number; title: string; likes_count: number; latest_likers: { avatar_url: string }[] }
-type PopularTopic = { id: number; name: string; slug: string; parent_slug: string | null; total_likes: number; latest_likers: { avatar_url: string }[] }
+type MostDiscussedItem = { id: number; title: string; likes_count: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }
+type PopularTopic = { id: number; name: string; slug: string; parent_slug: string | null; parent_icon_key?: string | null; total_likes: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }
 
 export type AskPageInitialData = {
   project_leaders: ProjectLeader[]
@@ -99,9 +101,9 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   const categories = initialData.categories ?? []
   const [selectedCategoryId, setSelectedCategoryId] = useState("")
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("")
-  const [titleInput, setTitleInput] = useState("")
-  /* п.7+32 — подхватываем текст из ?draft= (со страницы «Задайте вопрос» на главной) */
-  const [messageInput, setMessageInput] = useState(() => searchParams.get("draft") ?? "")
+  /* ?draft= — текст с главной / категорий; подставляем в тему и сразу ищем похожие */
+  const [titleInput, setTitleInput] = useState(() => searchParams.get("draft") ?? "")
+  const [messageInput, setMessageInput] = useState("")
   const [similarFilter, setSimilarFilter] = useState<typeof FILTERS[number]['value']>('all')
   const [similarQuestions, setSimilarQuestions] = useState<QuestionListItem[]>([])
   const [similarCurrentPage, setSimilarCurrentPage] = useState(1)
@@ -124,6 +126,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   const shareButtonRef = useRef<HTMLButtonElement | null>(null)
   const fetchSimilarAbortRef = useRef<AbortController | null>(null)
   const similarFilterRef = useRef(similarFilter)
+  const skipNextSimilarDebounceRef = useRef(Boolean(searchParams.get("draft")?.trim()))
   similarFilterRef.current = similarFilter
 
   const currentCategory = categories.find((c) => String(c.id) === selectedCategoryId)
@@ -195,11 +198,20 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   )
 
   useEffect(() => {
+    const draft = searchParams.get("draft")?.trim()
+    if (!draft) return
+    setTitleInput(draft)
+    skipNextSimilarDebounceRef.current = true
+  }, [searchParams])
+
+  useEffect(() => {
     const trimmed = titleInput.trim()
     if (!trimmed) return
+    const delay = skipNextSimilarDebounceRef.current ? 0 : SIMILAR_DEBOUNCE_MS
+    skipNextSimilarDebounceRef.current = false
     const timer = setTimeout(() => {
       fetchSimilar(trimmed, 1, false, similarFilterRef.current)
-    }, SIMILAR_DEBOUNCE_MS)
+    }, delay)
     return () => clearTimeout(timer)
   }, [titleInput, fetchSimilar])
 
@@ -362,7 +374,9 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">Главная</Link>
           <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">Категории вопросов</span>
+          <Link href="/categories" className="breadcrumbs__link">Категории вопросов</Link>
+          <span className="breadcrumbs__sep">•</span>
+          <span className="breadcrumbs__current">Задать вопрос</span>
         </div>
 
         <div className="section ask_form_wrapper">
@@ -731,22 +745,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
             <div className="blocks_title"><h2>Самые обсуждаемые</h2></div>
             <div className="tops_block_item_top_subjects">
               {(initialData.most_discussed ?? []).map((q) => (
-                <div className="question_list_item" key={q.id}>
-                  <Link href={`/question/${q.id}`}>
-                    <div className="question_list_item_left">
-                      <img src={q.latest_likers[0]?.avatar_url ?? "/images/icons/avatar.svg"} alt="" />
-                      <div className="question_list_item_left__user_meta">
-                        <div className="main_text question_title_clamp">{q.title}</div>
-                      </div>
-                    </div>
-                  </Link>
-                  <div className="question_list_item_users">
-                    {q.latest_likers.slice(0, 3).map((a, i) => (
-                      <img key={i} src={a.avatar_url} alt="" />
-                    ))}
-                    <p className="main_text">+{q.likes_count}</p>
-                  </div>
-                </div>
+                <MostDiscussedListItem key={q.id} question={q} />
               ))}
             </div>
           </div>
@@ -754,22 +753,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
             <div className="blocks_title"><h2>Популярные темы</h2></div>
             <div className="tops_block_item_top_subjects">
               {(initialData.popular_topics ?? []).map((t) => (
-                <div className="question_list_item" key={t.id}>
-                  <Link href={t.parent_slug ? `/categories/${t.parent_slug}/${t.slug}` : `/categories`}>
-                    <div className="question_list_item_left">
-                      <img src="/images/icons/avatar.svg" alt="" />
-                      <div className="question_list_item_left__user_meta">
-                        <div className="main_text">{t.name}</div>
-                      </div>
-                    </div>
-                  </Link>
-                  <div className="question_list_item_users">
-                    {t.latest_likers.slice(0, 3).map((a, i) => (
-                      <img key={i} src={a.avatar_url} alt="" />
-                    ))}
-                    <p className="main_text">+{t.total_likes}</p>
-                  </div>
-                </div>
+                <PopularTopicListItem key={t.id} topic={t} />
               ))}
             </div>
           </div>

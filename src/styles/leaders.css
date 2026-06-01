@@ -23,56 +23,176 @@
 .top_leaders_filter_item {
   width: 25%;
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+
+.top_leaders_filter_item:has(.custom-select--open) {
+  z-index: 20;
 }
 
 .top_leaders_select.super-select {
   padding: 10px 15px;
 }
 
-/* п.11 — стили для выпадающих списков */
-.super-select {
-  background-color: rgba(255,255,255,0.1);
-  border: 2px solid rgba(255,255,255,0.4);
-  border-radius: 10px;
-  padding: 10px 36px 10px 14px;
+/* super-select — как в dont-toch-test / leaders */
+.top_leaders_list_wrapper .super-select {
+  width: 100%;
+  border-radius: 12px;
+  background:
+    url(/images/icons/more-s-icon.svg) right 14px center no-repeat,
+    #e7e9f6;
+  border: 2px solid #ffffff;
+  color: #4c5b72;
   font-family: Nunito, sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: left;
+  outline: 0;
+  padding: 10px 36px 10px 14px;
   appearance: none;
   -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.top_leaders_list_wrapper .super-select:hover:not(:disabled) {
+  border-color: rgb(98, 106, 255);
+}
+
+.top_leaders_list_wrapper .super-select:focus {
+  border-color: rgb(98, 106, 255);
+  box-shadow: 0 0 0 2px rgba(98, 106, 255, 0.12);
+}
+
+.top_leaders_list_wrapper .super-select[disabled] {
+  color: #b9bbc5;
+  cursor: default;
+  opacity: 0.85;
+}
+
+/* CustomSelect на /leaders — фон как у страницы (#e7e9f6), рамка белая (dont-toch-test) */
+.custom-select--leaders-filter .custom-select__trigger {
+  height: 42px;
+  min-height: 42px;
+  padding: 0 36px 0 14px;
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+  background-color: #e7e9f6;
+  background-image: url(/images/icons/more-s-icon.svg);
   background-repeat: no-repeat;
-  background-position: right 12px center;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  background-position: right 14px center;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: none;
 }
 
-.super-select:hover {
-  border-color: rgba(255,255,255,0.7);
-  background-color: rgba(255,255,255,0.15);
+.custom-select--leaders-filter .custom-select__trigger:hover:not(:disabled) {
+  border-color: rgb(98, 106, 255);
+  background-color: #e7e9f6;
 }
 
-.super-select:focus {
-  outline: none;
-  border-color: #616AFF;
-  box-shadow: 0 0 0 2px rgba(97,106,255,0.3);
+.custom-select--leaders-filter.custom-select--open .custom-select__trigger {
+  border-color: rgb(98, 106, 255);
+  border-radius: 10px;
+  border-bottom-color: #ffffff;
+  background-color: #e7e9f6;
+  box-shadow: none;
 }
 
-.super-select option {
-  background: #1f2a3b;
-  color: #fff;
-  padding: 8px;
+.custom-select--leaders-filter .custom-select__value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #4c5b72;
 }
 
-.dark_mode .super-select option {
-  background: #2a2067;
-  color: #fff;
+.custom-select--leaders-filter .custom-select__value--placeholder {
+  color: #899ab5;
+  font-weight: 700;
+}
+
+.custom-select--leaders-filter .custom-select__arrow {
+  display: none;
+}
+
+.custom-select--leaders-filter.custom-select--has-clear .custom-select__trigger {
+  padding-right: 56px;
+}
+
+.custom-select--leaders-filter .custom-select__clear {
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: rgba(95, 105, 255, 0.15);
+  color: #626aff;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 3;
+  transition: background 0.15s ease;
+}
+
+.custom-select--leaders-filter .custom-select__clear-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.custom-select--leaders-filter .custom-select__clear:hover {
+  background: rgba(95, 105, 255, 0.3);
+}
+
+.custom-select--leaders-filter .custom-select__dropdown {
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px 0;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  background: #e7e9f6;
+  box-shadow: 0 8px 24px rgba(31, 42, 59, 0.08);
+  max-height: 240px;
+}
+
+.custom-select--leaders-filter .custom-select__option {
+  margin: 0 12px;
+  width: calc(100% - 24px);
+  padding: 10px 4px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #4c5b72;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 0;
+}
+
+.custom-select--leaders-filter .custom-select__option:last-child {
+  border-bottom: none;
+}
+
+.custom-select--leaders-filter .custom-select__option:hover {
+  background: transparent;
+  color: rgb(98, 106, 255);
+}
+
+.custom-select--leaders-filter .custom-select__option--selected {
+  background: transparent;
+  color: rgb(98, 106, 255);
+  font-weight: 800;
+}
+
+.custom-select--leaders-filter .custom-select__option--selected:hover {
+  background: transparent;
+  color: rgb(98, 106, 255);
 }
 
 .top_leaders_list {
@@ -225,10 +345,6 @@
   display: block !important;
 }
 
-.top_leaders_filter_item {
-  position: relative;
-}
-
 .main_text {
   transition: all 0.2s ease;
 }
@@ -294,43 +410,63 @@
   gap: 20px;
 }
 
-/* п.11 — CustomSelect внутри leaders-фильтров: компактный размер */
-.top_leaders_list_wrapper .custom-select__trigger {
-  height: 42px;
-  font-size: 15px;
-  font-weight: 700;
-  border-radius: 10px;
-  border-color: #efeff6;
+/* dark mode — фильтры и список на /leaders */
+.dark_mode .custom-select--leaders-filter .custom-select__trigger {
+  background-color: rgb(64, 53, 134);
+  background-image: url(/images/icons/more-s-icon.svg);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
-.top_leaders_list_wrapper .custom-select--open .custom-select__trigger {
-  border-radius: 10px 10px 0 0;
+.dark_mode .custom-select--leaders-filter .custom-select__value {
+  color: #fff;
 }
 
-.top_leaders_list_wrapper .custom-select__dropdown {
-  border-radius: 0 0 10px 10px;
+.dark_mode .custom-select--leaders-filter .custom-select__value--placeholder {
+  color: rgba(255, 255, 255, 0.55);
 }
 
-.top_leaders_list_wrapper .custom-select__value {
-  font-size: 15px;
+.dark_mode .custom-select--leaders-filter .custom-select__dropdown {
+  background: rgb(35, 38, 91);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-/* Legacy super-select (unused but kept for safety) */
-.top_leaders_list_wrapper
-  .top_leaders_filter
-  .top_leaders_filter_item
-  .super-select {
-  color: #4c5b72;
-  font-weight: 700;
-  font-size: 15px;
-  background-size: 7px;
+.dark_mode .custom-select--leaders-filter .custom-select__option {
+  color: rgb(204, 221, 248);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
 }
 
-.top_leaders_list_wrapper
-  .top_leaders_filter
-  .top_leaders_filter_item
-  .super-select[disabled] {
-  color: #b9bbc5;
+.dark_mode .custom-select--leaders-filter .custom-select__option--selected,
+.dark_mode .custom-select--leaders-filter .custom-select__option:hover {
+  background: transparent;
+  color: #fff;
+}
+
+.dark_mode .top_leaders_list_wrapper .super-select {
+  border-color: rgb(96, 105, 255);
+  background:
+    url(/images/icons/more-s-icon.svg) right 14px center no-repeat,
+    transparent;
+  color: #fff;
+}
+
+.dark_mode .project_leaders_list .question_list_item {
+  background: rgb(64, 53, 134);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark_mode .project_leaders_list .question_list_item:hover {
+  background: rgb(64, 53, 134);
+  border-color: rgb(98, 106, 255);
+  box-shadow: 0 4px 16px rgba(98, 106, 255, 0.15);
+}
+
+.dark_mode .project_leaders_list .question_list_item:hover .main_text {
+  color: #fff;
+}
+
+.dark_mode .project_leaders_list .question_list_item:hover .leader_number {
+  color: #fff;
 }
 
 /* п.13 — select с крестиком сброса */
@@ -370,27 +506,13 @@
   background: rgba(95, 105, 255, 0.3);
 }
 
-.reset-filters-link {
-  background: none;
-  border: none;
-  border-bottom: 1px solid #626aff;
-  color: #626aff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  margin-top: 8px;
-  font-family: Nunito, sans-serif;
-  transition: opacity 0.15s ease;
-}
-
-.reset-filters-link:hover {
-  opacity: 0.7;
-}
-
-.dark_mode .reset-filters-link {
+.dark_mode .custom-select--leaders-filter .custom-select__clear {
+  background: rgba(139, 159, 255, 0.2);
   color: #8b9fff;
-  border-bottom-color: #8b9fff;
+}
+
+.dark_mode .custom-select--leaders-filter .custom-select__clear:hover {
+  background: rgba(139, 159, 255, 0.35);
 }
 
 .dark_mode .select-clear-btn {
@@ -414,20 +536,46 @@
   color: #ccddf8;
 }
 
+/* Список лидеров проекта — белые карточки на фоне #e7e9f6 */
+.project_leaders_list .question_list_item {
+  margin: 0;
+  align-items: center;
+  padding: 12px 20px 12px 18px;
+  background: #ffffff;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  min-height: 62px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.project_leaders_list .question_list_item:hover {
+  background: rgb(255, 255, 255);
+  border-color: rgb(98, 106, 255);
+  box-shadow: 0 4px 16px rgba(98, 106, 255, 0.08);
+}
+
+.project_leaders_list .question_list_item:hover .main_text {
+  color: rgb(98, 106, 255);
+}
+
+.project_leaders_list .question_list_item:hover .question_list_item_left span {
+  color: #899ab5;
+}
+
+.project_leaders_list .question_list_item:hover .leader_number {
+  color: rgb(98, 106, 255);
+}
+
 .project_leaders_grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 5px 20px;
+  gap: 8px 20px;
 }
 
 .project_leaders_grid .question_list_item {
-  margin: 0px;
-  align-items: center;
-  padding: 12px 25px 12px 23px;
-}
-
-.project_leaders_grid .question_list_item:hover .leader_number {
-  color: white;
+  margin: 0;
 }
 
 .leaders-tab {
@@ -436,50 +584,6 @@
 
 .leaders-tab.active {
   display: block;
-}
-
-/* п.11 — dark mode для CustomSelect в лидерах */
-.dark_mode .top_leaders_list_wrapper .custom-select__trigger {
-  background: rgba(64, 53, 134, 0.6);
-  border-color: rgba(255,255,255,0.2);
-  color: #fff;
-}
-
-.dark_mode .top_leaders_list_wrapper .custom-select__value {
-  color: #fff;
-}
-
-.dark_mode .top_leaders_list_wrapper .custom-select__value--placeholder {
-  color: rgba(255,255,255,0.5);
-}
-
-.dark_mode .top_leaders_list_wrapper .custom-select__arrow {
-  color: rgba(255,255,255,0.6);
-}
-
-.dark_mode .top_leaders_list_wrapper .custom-select__dropdown {
-  background: #2a2067;
-  border-color: #616AFF;
-}
-
-.dark_mode .top_leaders_list_wrapper .custom-select__option {
-  color: #fff;
-}
-
-.dark_mode .top_leaders_list_wrapper .custom-select__option:hover {
-  background: rgba(97, 106, 255, 0.3);
-}
-
-.dark_mode .top_leaders_list_wrapper .custom-select__option--selected {
-  background: rgba(97, 106, 255, 0.4);
-}
-
-.dark_mode
-  .top_leaders_list_wrapper
-  .top_leaders_filter
-  .top_leaders_filter_item
-  .super-select {
-  color: white;
 }
 
 @media only screen and (max-width: 1280px) {

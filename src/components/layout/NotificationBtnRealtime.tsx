@@ -11,6 +11,15 @@ import {
   setNotificationPopupsEnabled,
 } from "@/lib/cookies";
 import { formatTimeAgo } from "@/lib/time-ago";
+import { isNotificationSoundEnabled, playNotificationSound } from "@/lib/notification-sound";
+import {
+  createNotificationEcho,
+  disconnectNotificationEcho,
+} from "@/lib/notification-echo";
+import {
+  isNotificationCreatedEvent,
+  parseNotificationCreatedPayload,
+} from "@/lib/notification-realtime";
 import { useAuthStore, type AuthNotification } from "@/store/authStore";
 
 type NotificationItem = {
@@ -159,6 +168,7 @@ function NotificationCard({
 export default function NotificationBtnRealtime() {
   const router = useRouter();
   const userId = useAuthStore((s) => s.user?.id ?? null);
+  const userSettings = useAuthStore((s) => s.user?.settings);
   const meNotifications = useAuthStore((s) => s.notifications);
   const isMeReady = useAuthStore((s) => s.isAuthorized === 1 && !s.isLoading);
   const [isOpen, setIsOpen] = useState(false);
@@ -169,6 +179,7 @@ export default function NotificationBtnRealtime() {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [markingAllRead, setMarkingAllRead] = useState(false);
   const [popups, setPopups] = useState<NotificationItem[]>([]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -180,6 +191,7 @@ export default function NotificationBtnRealtime() {
   const lastPageRef = useRef(Number.POSITIVE_INFINITY);
   const popupTimersRef = useRef<Map<number, number>>(new Map());
   const notificationsEnabledRef = useRef(notificationsEnabled);
+  const soundEnabledRef = useRef(isNotificationSoundEnabled(userSettings));
   const seededFromMeRef = useRef(false);
 
   const clearPopupTimers = useCallback(() => {
@@ -188,14 +200,8 @@ export default function NotificationBtnRealtime() {
   }, []);
 
   const disconnectEcho = useCallback(() => {
-    if (echoRef.current) {
-      try {
-        echoRef.current.disconnect();
-      } catch {
-        // noop
-      }
-      echoRef.current = null;
-    }
+    disconnectNotificationEcho();
+    echoRef.current = null;
   }, []);
 
   const resetState = useCallback(() => {
@@ -213,6 +219,10 @@ export default function NotificationBtnRealtime() {
     notificationsEnabledRef.current = notificationsEnabled;
     setNotificationPopupsEnabled(notificationsEnabled);
   }, [notificationsEnabled]);
+
+  useEffect(() => {
+    soundEnabledRef.current = isNotificationSoundEnabled(userSettings);
+  }, [userSettings]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -297,6 +307,51 @@ export default function NotificationBtnRealtime() {
     }
   }, []);
 
+  const reloadNotificationsFirstPage = useCallback(async () => {
+    if (loadingRef.current) {
+      return;
+    }
+
+    loadingRef.current = true;
+    setLoadingMore(true);
+
+    try {
+      const data = await api.get<NotificationsPageResponse>(
+        `v1/notifications?page=1&per_page=${PAGE_SIZE}`,
+      );
+
+      const nextItems = (data.notifications ?? []).map(normalizeNotification);
+      setNotifications(sortNotifications(nextItems));
+      pageRef.current = data.current_page ?? 1;
+      lastPageRef.current = data.last_page ?? 1;
+      setCurrentPage(pageRef.current);
+      setLastPage(lastPageRef.current);
+    } finally {
+      loadingRef.current = false;
+      setLoadingMore(false);
+    }
+  }, []);
+
+  const markAllAsRead = useCallback(async () => {
+    if (markingAllRead || !notifications.some((item) => !item.is_read)) {
+      return;
+    }
+
+    setMarkingAllRead(true);
+
+    try {
+      await api.post("v1/notifications/mark-all-read");
+      useAuthStore.getState().markAllNotificationsRead();
+      clearPopupTimers();
+      setPopups([]);
+      await reloadNotificationsFirstPage();
+    } catch {
+      // ошибка сети — список не трогаем
+    } finally {
+      setMarkingAllRead(false);
+    }
+  }, [clearPopupTimers, markingAllRead, notifications, reloadNotificationsFirstPage]);
+
   const openNotification = useCallback(
     (notification: NotificationItem) => {
       if (!notification.is_read) {
@@ -322,19 +377,49 @@ export default function NotificationBtnRealtime() {
   const pushIncomingNotification = useCallback(
     (notification: NotificationItem) => {
       const next = normalizeNotification(notification);
-      let isNew = false;
 
-      setNotifications((prev) => {
-        const exists = prev.some((item) => item.id === next.id);
-        isNew = !exists;
-        return sortNotifications([...prev.filter((item) => item.id !== next.id), next]);
-      });
+      setNotifications((prev) =>
+        sortNotifications([...prev.filter((item) => item.id !== next.id), next]),
+      );
 
-      if (isNew && !next.is_read && notificationsEnabledRef.current) {
-        addPopup(next);
+      if (!next.is_read) {
+        if (notificationsEnabledRef.current) {
+          addPopup(next);
+        }
+        if (soundEnabledRef.current) {
+          void playNotificationSound();
+        }
       }
     },
     [addPopup],
+  );
+
+  const pushIncomingNotificationRef = useRef(pushIncomingNotification);
+  useEffect(() => {
+    pushIncomingNotificationRef.current = pushIncomingNotification;
+  }, [pushIncomingNotification]);
+
+  const handleRealtimeNotificationEvent = useCallback(
+    (eventName: string, payload: unknown) => {
+      if (!isNotificationCreatedEvent(eventName)) {
+        return;
+      }
+
+      const notification = parseNotificationCreatedPayload(payload);
+      if (!notification) {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[notifications] Не удалось разобрать payload:", payload);
+        }
+        return;
+      }
+
+      if (process.env.NODE_ENV === "development") {
+        console.debug("[notifications] Realtime уведомление:", notification);
+      }
+
+      pushIncomingNotificationRef.current(notification);
+    },
+    [],
   );
 
   const loadNotifications = useCallback(async (pageToLoad = 1) => {
@@ -395,53 +480,35 @@ export default function NotificationBtnRealtime() {
           return;
         }
 
-        const [{ default: Pusher }, { default: Echo }] = await Promise.all([
-          import("pusher-js"),
-          import("laravel-echo"),
-        ]);
+        disconnectEcho();
 
+        const echo = await createNotificationEcho(userId, token, realtime);
         if (cancelled) {
           return;
         }
 
-        if (typeof window !== "undefined" && !(window as Window & { Pusher?: unknown }).Pusher) {
-          (window as Window & { Pusher?: unknown }).Pusher = Pusher;
-        }
+        echoRef.current = echo;
 
-        disconnectEcho();
+        const channel = echo.private(realtime.channel);
 
-        const forceTLS =
-          realtime.websocket.scheme === "https" ||
-          realtime.websocket.scheme === "wss";
-
-        echoRef.current = new Echo({
-          broadcaster: "pusher",
-          key: realtime.key,
-          wsHost: realtime.websocket.host,
-          wsPort: realtime.websocket.port,
-          wssPort: realtime.websocket.port,
-          forceTLS,
-          encrypted: forceTLS,
-          enabledTransports: ["ws", "wss"],
-          disableStats: true,
-          authEndpoint: realtime.auth_endpoint,
-          auth: {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          },
+        channel.listen(".notification.created", (payload: unknown) => {
+          handleRealtimeNotificationEvent("notification.created", payload);
         });
 
-        echoRef.current
-          .private(realtime.channel)
-          .listen(".notification.created", (payload: { notification?: NotificationItem }) => {
-            if (payload?.notification) {
-              pushIncomingNotification(payload.notification);
-            }
+        channel.error((error: unknown) => {
+          console.warn("[notifications] Ошибка подписки на канал:", error);
+        });
+
+        if (process.env.NODE_ENV === "development") {
+          echo.connector.pusher.connection.bind("state_change", (states: { current: string }) => {
+            console.debug("[notifications] WebSocket:", states.current);
           });
-      } catch {
-        // realtime optional: если сервер не поднят, UI продолжит работать через API
+          echo.connector.pusher.connection.bind("error", (error: unknown) => {
+            console.warn("[notifications] WebSocket error:", error);
+          });
+        }
+      } catch (error) {
+        console.warn("[notifications] Не удалось подключить realtime:", error);
       }
     };
 
@@ -451,7 +518,15 @@ export default function NotificationBtnRealtime() {
       cancelled = true;
       disconnectEcho();
     };
-  }, [disconnectEcho, pushIncomingNotification, resetState, userId]);
+  }, [disconnectEcho, handleRealtimeNotificationEvent, resetState, userId]);
+
+  useEffect(() => {
+    if (!isOpen || !userId) {
+      return;
+    }
+
+    void reloadNotificationsFirstPage();
+  }, [isOpen, reloadNotificationsFirstPage, userId]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -553,27 +628,6 @@ export default function NotificationBtnRealtime() {
         <div className={styles.notificationDropdown}>
           <h3 className={styles.notificationTitle}>Уведомления</h3>
 
-          {/* п.17 — кнопка «Скрыть все» */}
-          {notifications.length > 0 && (
-            <button
-              type="button"
-              className={styles.notificationDismissAll}
-              onClick={async () => {
-                const unreadIds = notifications.filter((n) => !n.is_read).map((n) => n.id);
-                if (unreadIds.length > 0) {
-                  useAuthStore.getState().markNotificationsRead(unreadIds);
-                  try {
-                    await api.post("v1/notifications/mark-read", { ids: unreadIds });
-                  } catch { /* ignore */ }
-                }
-                setNotifications([]);
-                setIsOpen(false);
-              }}
-            >
-              Скрыть все уведомления
-            </button>
-          )}
-
           <div className={styles.notificationToggle}>
             <div className={styles.toggleLabel}>Всплывающие оповещения</div>
             <label className={styles.switch}>
@@ -598,7 +652,19 @@ export default function NotificationBtnRealtime() {
           >
             {unreadNotifications.length > 0 ? (
               <section className={styles.notificationSection}>
-                <h4 className={styles.sectionTitle}>Новые</h4>
+                <div className={styles.notificationSectionHeader}>
+                  <h4 className={styles.sectionTitle}>Новые</h4>
+                  <button
+                    type="button"
+                    className={styles.markAllReadBtn}
+                    disabled={markingAllRead}
+                    onClick={() => {
+                      void markAllAsRead();
+                    }}
+                  >
+                    {markingAllRead ? "Обновление…" : "Отметить все прочитанными"}
+                  </button>
+                </div>
                 {unreadNotifications.map((notification) => (
                   <NotificationCard
                     key={notification.id}

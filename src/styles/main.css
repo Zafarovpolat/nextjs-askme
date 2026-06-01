@@ -946,6 +946,91 @@ a:has(.light_logo) {
   position: relative;
 }
 
+.question_list_item_users__avatar-link {
+  display: inline-flex;
+  flex-shrink: 0;
+  position: relative;
+  margin-left: -23px;
+  border-radius: 360px;
+  line-height: 0;
+}
+
+.question_list_item_users__avatar-link:first-child {
+  margin-left: 0;
+}
+
+.question_list_item_users__avatar-link img {
+  width: 30px;
+  height: 30px;
+  margin-left: 0;
+  border-radius: 360px;
+  display: block;
+  border: 1px solid #fff;
+}
+
+.question_list_item_users__avatar-link .site-user-avatar {
+  margin-left: 0;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.question_list_item_users__avatar-link .site-user-avatar img {
+  margin-left: 0;
+  border: 1px solid #fff;
+}
+
+.dark_mode .question_list_item_users__avatar-link img,
+.dark_mode .question_list_item_users__avatar-link .site-user-avatar img {
+  border-color: rgb(98, 106, 255);
+}
+
+.question_list_item_users__avatar-link:hover {
+  z-index: 10 !important;
+}
+
+.question_list_item_users > .question_list_item_users__avatar-link:nth-child(1) {
+  z-index: 4;
+}
+
+.question_list_item_users > .question_list_item_users__avatar-link:nth-child(2) {
+  z-index: 3;
+}
+
+.question_list_item_users > .question_list_item_users__avatar-link:nth-child(3) {
+  z-index: 2;
+}
+
+.question_list_item_avatar_link {
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 50%;
+  line-height: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.question_list_item_avatar_link:hover {
+  z-index: 2;
+}
+
+.question_list_item_title_link {
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+a.question_list_item_left.question_list_item_title_link {
+  flex: 1;
+  min-width: 0;
+}
+
+.question_list_item_title_link:hover .main_text {
+  color: inherit;
+}
+
 .question_list_item_users > .site-user-avatar {
   width: 30px;
   height: 30px;

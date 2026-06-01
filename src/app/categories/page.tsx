@@ -33,6 +33,12 @@ export default async function CategoriesPage() {
     <>
       <Header />
       <div className="container">
+        <div className="breadcrumbs">
+          <Link href="/" className="breadcrumbs__link">Главная</Link>
+          <span className="breadcrumbs__sep">•</span>
+          <span className="breadcrumbs__current">Категории вопросов</span>
+        </div>
+
         <div className="section">
           <div className="blocks_title">
             <h2>Категории</h2>
