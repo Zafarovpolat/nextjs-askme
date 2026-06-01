@@ -1169,6 +1169,11 @@ a.question_list_item_left.question_list_item_title_link {
   padding: 12px 25px 13px 23px;
 }
 
+.tops_block_item_top_subjects .question_list_item .question_list_item_left {
+  flex: 1;
+  min-width: 0;
+}
+
 .tops_block_item_top_subjects .question_list_item:hover svg {
   fill: #fff;
 }

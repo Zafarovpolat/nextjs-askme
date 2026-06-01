@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import QuestionLikerAvatars, { type LikerUser } from "@/components/QuestionLikerAvatars";
 
@@ -18,14 +20,25 @@ export default function MostDiscussedListItem({
   const likers = question.latest_likers ?? [];
   const firstLiker = likers[0];
 
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("a") || target.closest("button")) return;
+    window.location.href = `/question/${question.id}`;
+  };
+
   return (
-    <div className="question_list_item">
+    <div
+      className="question_list_item"
+      onClick={handleCardClick}
+      style={{ cursor: "pointer" }}
+    >
       <div className="question_list_item_left">
         {firstLiker?.id ? (
           <Link
             href={`/profile/${firstLiker.id}`}
             className="question_list_item_avatar_link"
             title="Профиль пользователя"
+            onClick={(event) => event.stopPropagation()}
           >
             <img
               src={firstLiker.avatar_url || DEFAULT_AVATAR}
@@ -40,12 +53,9 @@ export default function MostDiscussedListItem({
         ) : (
           <img src={firstLiker?.avatar_url || DEFAULT_AVATAR} alt="" />
         )}
-        <Link
-          href={`/question/${question.id}`}
-          className="question_list_item_left__user_meta question_list_item_title_link"
-        >
+        <div className="question_list_item_left__user_meta question_list_item_title_link">
           <div className="main_text question_title_clamp">{question.title}</div>
-        </Link>
+        </div>
       </div>
       <QuestionLikerAvatars
         likers={likers}

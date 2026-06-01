@@ -1,4 +1,5 @@
-import Link from "next/link";
+"use client";
+
 import QuestionLikerAvatars, { type LikerUser } from "@/components/QuestionLikerAvatars";
 
 export type PopularTopicItem = {
@@ -17,10 +18,20 @@ export default function PopularTopicListItem({ topic }: { topic: PopularTopicIte
       ? `/categories/${topic.parent_slug}/${topic.slug}`
       : "/categories";
 
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("a") || target.closest("button")) return;
+    window.location.href = href;
+  };
+
   return (
-    <div className="question_list_item">
-      <Link href={href} className="question_list_item_left question_list_item_title_link">
-        <svg width="24" height="24" className="topic_icon">
+    <div
+      className="question_list_item"
+      onClick={handleCardClick}
+      style={{ cursor: "pointer" }}
+    >
+      <div className="question_list_item_left question_list_item_title_link">
+        <svg width="24" height="24" className="topic_icon" aria-hidden>
           <use xlinkHref={`#${topic.parent_icon_key || "gaming"}`}></use>
         </svg>
         <div className="question_list_item_left__user_meta">
@@ -28,7 +39,7 @@ export default function PopularTopicListItem({ topic }: { topic: PopularTopicIte
             {topic.name}
           </div>
         </div>
-      </Link>
+      </div>
       <QuestionLikerAvatars
         likers={topic.latest_likers ?? []}
         countLabel={`+${topic.total_likes}`}
