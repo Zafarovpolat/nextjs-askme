@@ -5,6 +5,7 @@ import {
   useRef,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   type FormEvent,
   type ChangeEvent,
@@ -38,9 +39,15 @@ import type { AnswerAnchorMeta, QuestionPageData } from "@/types";
 import { getApiFullUrl } from "@/config/api";
 import LinkInputModal from "@/components/LinkInputModal";
 import {
+  anchorRefKey,
+  buildAnswerAnchorHash,
+  ensureRootInAnswersList,
+  findAnswerInTree,
   highlightAnswerElement,
   loadCommentPagesForStep,
+  mergeChildrenIntoTree,
   parseAnswerAnchorHash,
+  type AnswerAnchorRef,
 } from "@/lib/question-answer-tree";
 
 /** Сайдбар, если API категорий недоступен */
@@ -144,12 +151,12 @@ function canAddAttachment(remaining: number | null | undefined): boolean {
 
 export default function QuestionPageContent({
   initialQuestion,
-  initialAnchorAnswerId,
+  initialAnchor,
   sidebarCategories = [],
   widgets = { weekly_balls_leaders: [], weekly_active_authors: [] },
 }: {
   initialQuestion: QuestionPageData;
-  initialAnchorAnswerId?: number;
+  initialAnchor?: AnswerAnchorRef;
   sidebarCategories?: ApiCategoryTree[];
   widgets?: ProfileWidgetsPayload;
 }) {
@@ -301,6 +308,7 @@ export default function QuestionPageContent({
     Math.max(1, Math.ceil(totalAnswers / perPage))
   );
   const [answersLoadingMore, setAnswersLoadingMore] = useState(false);
+  const [commentsLoadingMore, setCommentsLoadingMore] = useState<Record<number, boolean>>({});
   const [answersData, setAnswersData] = useState(apiAnswers);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [shareData, setShareData] = useState({ title: "", url: "" });
@@ -322,7 +330,14 @@ export default function QuestionPageContent({
   const answersDataRef = useRef(answersData);
   const answersPageRef = useRef(answersPage);
   const answersLastPageRef = useRef(answersLastPage);
-  const anchorHandledRef = useRef<number | null>(null);
+  const anchorHandledRef = useRef<string | null>(null);
+  const anchorNavInFlightRef = useRef(false);
+  const sortByRef = useRef(sortBy);
+  const sortDirRef = useRef(sortDir);
+  const bestAnswerRef = useRef(bestAnswer);
+  sortByRef.current = sortBy;
+  sortDirRef.current = sortDir;
+  bestAnswerRef.current = bestAnswer;
 
   useEffect(() => {
     answersDataRef.current = answersData;
@@ -661,6 +676,37 @@ export default function QuestionPageContent({
     initialQuestion.id,
     perPage,
   ]);
+
+  const loadMoreComments = useCallback(
+    async (parentAnswerId: number) => {
+      if (commentsLoadingMore[parentAnswerId]) return;
+
+      const parent = findAnswerInTree(answersDataRef.current, parentAnswerId);
+      const loadedCount = parent?.answers?.length ?? 0;
+      const nextPage = Math.floor(loadedCount / perPage) + 1;
+
+      setCommentsLoadingMore((prev) => ({ ...prev, [parentAnswerId]: true }));
+      try {
+        const data = await api.get<{
+          answers: NonNullable<QuestionPageData["answers"]>;
+          current_page: number;
+          last_page: number;
+        }>(
+          `v1/questions/${initialQuestion.id}/answers?answer_id=${parentAnswerId}&page=${nextPage}&per_page=${perPage}`
+        );
+        setAnswersData((prev) =>
+          mergeChildrenIntoTree(prev, parentAnswerId, data.answers ?? [])
+        );
+      } finally {
+        setCommentsLoadingMore((prev) => {
+          const next = { ...prev };
+          delete next[parentAnswerId];
+          return next;
+        });
+      }
+    },
+    [commentsLoadingMore, initialQuestion.id, perPage]
+  );
   const handleShareClick = useCallback(
     (e: MouseEvent<HTMLButtonElement>, title: string, url: string) => {
       const btn = e.currentTarget;
@@ -687,69 +733,89 @@ export default function QuestionPageContent({
   );
 
   const handleShareAnswer = useCallback(
-    (e: MouseEvent<HTMLButtonElement>, answerId: number) => {
+    (e: MouseEvent<HTMLButtonElement>, anchor: AnswerAnchorRef) => {
       handleShareClick(
         e,
         initialQuestion.title,
-        `${typeof window !== "undefined" ? window.location.origin : ""}/question/${initialQuestion.id}#answer-${answerId}`
+        `${typeof window !== "undefined" ? window.location.origin : ""}/question/${initialQuestion.id}${buildAnswerAnchorHash(anchor)}`
       );
     },
     [handleShareClick, initialQuestion.id, initialQuestion.title]
   );
 
   const navigateToAnswerAnchor = useCallback(
-    async (answerId: number) => {
-      if (anchorHandledRef.current === answerId) return;
+    async (ref: AnswerAnchorRef) => {
+      const key = anchorRefKey(ref);
+      if (anchorHandledRef.current === key || anchorNavInFlightRef.current) return;
 
-      if (await highlightAnswerElement(answerId)) {
-        anchorHandledRef.current = answerId;
-        return;
-      }
+      anchorNavInFlightRef.current = true;
+      const { targetId } = ref;
+      const sortByCur = sortByRef.current;
+      const sortDirCur = sortDirRef.current;
+      const best = bestAnswerRef.current;
 
-      setAnswersLoadingMore(true);
       try {
+        if (findAnswerInTree(answersDataRef.current, targetId)) {
+          if (await highlightAnswerElement(targetId)) {
+            anchorHandledRef.current = key;
+            return;
+          }
+        }
+
+        setAnswersLoadingMore(true);
+
         let meta: AnswerAnchorMeta | null =
-          initialQuestion.anchor_meta?.answer_id === answerId
+          initialQuestion.anchor_meta?.answer_id === targetId
             ? initialQuestion.anchor_meta
             : null;
 
         if (!meta) {
           meta = await api.get<AnswerAnchorMeta>(
-            `v1/questions/${initialQuestion.id}/answers/anchor?answer_id=${answerId}&per_page=${perPage}&sort_by=${sortBy}&sort_dir=${sortDir}`
+            `v1/questions/${initialQuestion.id}/answers/anchor?answer_id=${targetId}&per_page=${perPage}&sort_by=${sortByCur}&sort_dir=${sortDirCur}`
           );
         }
 
-        let merged = [...answersDataRef.current];
+        const rootId = ref.rootAnswerId ?? meta.root_answer_id;
+
+        let merged = ensureRootInAnswersList(
+          [...answersDataRef.current],
+          rootId,
+          best
+        );
         let page = answersPageRef.current;
         let lastPage = answersLastPageRef.current;
 
-        while (page < meta.direct_answers_page) {
-          page += 1;
+        const fetchDirectPage = async (p: number) => {
           const data = await api.get<{
             answers: NonNullable<QuestionPageData["answers"]>;
             last_page: number;
           }>(
-            `v1/questions/${initialQuestion.id}/answers?page=${page}&per_page=${perPage}&sort_by=${sortBy}&sort_dir=${sortDir}`
+            `v1/questions/${initialQuestion.id}/answers?page=${p}&per_page=${perPage}&sort_by=${sortByCur}&sort_dir=${sortDirCur}`
           );
+          return data;
+        };
+
+        const appendDirectPage = (data: {
+          answers?: NonNullable<QuestionPageData["answers"]>;
+          last_page?: number;
+        }) => {
           const existingIds = new Set(merged.map((a) => a.id));
           const nextAnswers = (data.answers ?? []).filter((a) => !existingIds.has(a.id));
           merged = [...merged, ...nextAnswers];
-          lastPage = data.last_page ?? lastPage;
-        }
-
-        const commentSteps = meta.comment_steps ?? [];
-        const fetchCommentPage = async (parentId: number, commentPage: number) => {
-          const data = await api.get<{
-            answers: NonNullable<QuestionPageData["answers"]>;
-          }>(
-            `v1/questions/${initialQuestion.id}/answers?answer_id=${parentId}&page=${commentPage}&per_page=${perPage}`
-          );
-          return data.answers ?? [];
+          if (data.last_page != null) lastPage = data.last_page;
         };
 
-        for (const step of commentSteps) {
-          merged = await loadCommentPagesForStep(merged, step, perPage, fetchCommentPage);
+        // Этап 1: только до страницы с корневым ответом (из anchor API)
+        const needPage = meta.direct_answers_page;
+        if (!findAnswerInTree(merged, rootId)) {
+          for (let p = page + 1; p <= needPage && p <= lastPage; p++) {
+            appendDirectPage(await fetchDirectPage(p));
+            page = p;
+            if (findAnswerInTree(merged, rootId)) break;
+          }
         }
+
+        merged = ensureRootInAnswersList(merged, rootId, best);
 
         setAnswersData(merged);
         setAnswersPage(page);
@@ -759,39 +825,79 @@ export default function QuestionPageContent({
           requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
         });
 
+        // Этап 2: комментарии (цель — не корневой ответ)
+        if (targetId !== rootId) {
+          merged = ensureRootInAnswersList(merged, rootId, best);
+
+          const commentSteps = meta.comment_steps ?? [];
+          const fetchCommentPage = async (parentId: number, commentPage: number) => {
+            const data = await api.get<{
+              answers: NonNullable<QuestionPageData["answers"]>;
+            }>(
+              `v1/questions/${initialQuestion.id}/answers?answer_id=${parentId}&page=${commentPage}&per_page=${perPage}`
+            );
+            return data.answers ?? [];
+          };
+
+          for (const step of commentSteps) {
+            merged = await loadCommentPagesForStep(merged, step, perPage, fetchCommentPage);
+          }
+
+          setAnswersData(merged);
+
+          await new Promise<void>((resolve) => {
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+          });
+        }
+
         let attempts = 0;
         const tryHighlight = async () => {
-          if (await highlightAnswerElement(answerId)) {
-            anchorHandledRef.current = answerId;
+          if (await highlightAnswerElement(targetId)) {
+            anchorHandledRef.current = key;
             return;
           }
-          if (attempts >= 15) return;
+          if (attempts >= 20) return;
           attempts += 1;
-          window.setTimeout(() => void tryHighlight(), 50);
+          window.setTimeout(() => void tryHighlight(), 80);
         };
-        void tryHighlight();
+        await tryHighlight();
+      } catch (err) {
+        console.error("anchor navigation failed", err);
       } finally {
         setAnswersLoadingMore(false);
+        anchorNavInFlightRef.current = false;
       }
     },
-    [initialQuestion.anchor_meta, initialQuestion.id, perPage, sortBy, sortDir]
+    [initialQuestion.anchor_meta, initialQuestion.id, perPage]
   );
 
-  useEffect(() => {
-    const run = (answerId: number | null) => {
-      if (!answerId) return;
-      void navigateToAnswerAnchor(answerId);
+  useLayoutEffect(() => {
+    const resolveAnchor = (): AnswerAnchorRef | null =>
+      initialAnchor ?? parseAnswerAnchorHash(window.location.hash);
+
+    const run = (anchor: AnswerAnchorRef | null) => {
+      if (!anchor) return;
+      void navigateToAnswerAnchor(anchor);
     };
 
-    run(initialAnchorAnswerId ?? parseAnswerAnchorHash(window.location.hash));
+    run(resolveAnchor());
+
+    const retryTimer = window.setTimeout(() => {
+      if (anchorHandledRef.current) return;
+      run(resolveAnchor());
+    }, 200);
 
     const onHashChange = () => {
       anchorHandledRef.current = null;
       run(parseAnswerAnchorHash(window.location.hash));
     };
     window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
-  }, [initialAnchorAnswerId, navigateToAnswerAnchor]);
+
+    return () => {
+      window.clearTimeout(retryTimer);
+      window.removeEventListener("hashchange", onHashChange);
+    };
+  }, [initialAnchor, navigateToAnswerAnchor]);
 
   const toggleCategory = (slug: string) => {
     setOpenCategories((prev) =>
@@ -1150,17 +1256,19 @@ export default function QuestionPageContent({
               <div className="blocks_title mt_25px">
                 <h2>Лучший ответ</h2>
               </div>
-              <AnswerBlock
-                answer={{ ...bestAnswer, answers: [] }}
+              <AnswerWithReplies
+                answer={bestAnswer}
                 questionId={initialQuestion.id}
                 questionTitle={initialQuestion.title}
-                isBest
+                isBestRoot
                 onComplaint={(id) => setComplaintModal({ answerId: id })}
                 onScrollToAnswer={scrollToAnswer}
                 onStartReplyToAnswer={beginReplyToAnswer}
                 allowAnswerComments={allowAnswerComments}
                 answerVotes={answerVotes}
                 onShareClick={handleShareAnswer}
+                onLoadMoreComments={loadMoreComments}
+                commentsLoadingMore={commentsLoadingMore}
               />
             </div>
           )}
@@ -1204,6 +1312,8 @@ export default function QuestionPageContent({
                 allowAnswerComments={allowAnswerComments}
                 answerVotes={answerVotes}
                 onShareClick={handleShareAnswer}
+                onLoadMoreComments={loadMoreComments}
+                commentsLoadingMore={commentsLoadingMore}
               />
             </div>
           ))}

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getApiFullUrl } from "@/config/api";
 import { fetchMainSidebarCategoriesCached } from "@/lib/server-main-sidebar-categories";
 import { fetchProfileWidgetsCached } from "@/lib/server-profile-widgets";
+import type { AnswerAnchorRef } from "@/lib/question-answer-tree";
 import type { QuestionPageData } from "@/types";
 import QuestionPageContent from "./QuestionPageContent";
 
@@ -13,14 +14,28 @@ export default async function QuestionPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ answer?: string }>;
+  searchParams: Promise<{ answer?: string; coment?: string }>;
 }) {
   const { id } = await params;
-  const { answer } = await searchParams;
-  const anchorId = answer && /^\d+$/.test(answer) ? answer : null;
+  const { answer, coment } = await searchParams;
+
+  let initialAnchor: AnswerAnchorRef | undefined;
+  let anchorTargetId: string | null = null;
+
+  if (coment && /^\d+$/.test(coment) && answer && /^\d+$/.test(answer)) {
+    initialAnchor = {
+      rootAnswerId: Number(answer),
+      targetId: Number(coment),
+    };
+    anchorTargetId = coment;
+  } else if (answer && /^\d+$/.test(answer)) {
+    initialAnchor = { targetId: Number(answer) };
+    anchorTargetId = answer;
+  }
+
   const url = getApiFullUrl(
     `v1/questions/${id}?sort_by=rating&sort_dir=desc${
-      anchorId ? `&anchor_answer_id=${anchorId}` : ""
+      anchorTargetId ? `&anchor_answer_id=${anchorTargetId}` : ""
     }`
   );
   const cookieStore = await cookies();
@@ -43,7 +58,7 @@ export default async function QuestionPage({
   return (
     <QuestionPageContent
       initialQuestion={data}
-      initialAnchorAnswerId={anchorId ? Number(anchorId) : undefined}
+      initialAnchor={initialAnchor}
       sidebarCategories={sidebarCategories}
       widgets={widgets}
     />

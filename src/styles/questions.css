@@ -351,6 +351,18 @@
   box-shadow: 0 0 0 2px #8b93ff;
 }
 
+/* Кнопка догрузки комментариев — ближе к комментариям, отступ до след. ответа */
+.answer-comments-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+  margin-bottom: 18px;
+}
+
+.answer-comments-load-more .show_more_btn {
+  margin: 0 auto;
+}
+
 .dark_mode .main_question_block {
   background-color: #403586;
 }
@@ -434,6 +446,7 @@
   top: -25px;
   left: 0;
   right: 0;
+  pointer-events: none;
 }
 
 .main_question_block.main_question_block_item .question_list_item_left {
@@ -1561,25 +1574,6 @@ button.answer_media_item {
 
   .main_question_block.main_question_block_item {
     padding: 13px 17px 24px 17px;
-    position: relative;
-  }
-
-  .main_question_block.main_question_block_item::after {
-    content: "";
-    display: block;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    font-size: 12px;
-    height: calc(100% - 100px);
-    background-color: white ;
-    z-index: -1;
-    border-radius: 22px;
-  }
-
-  .main_question_block.main_question_block_item.premium-question::after {
-    background-color: #6069ff;
   }
 
   .main_question_block_item .question_list_item_left span {
@@ -1745,6 +1739,19 @@ button.answer_media_item {
     z-index: -1;
   }
 
+  .main_question_block.main_question_block_item .main_question_bg_wrapper {
+    z-index: 0;
+  }
+
+  .main_question_block.main_question_block_item .main_question_block_title,
+  .main_question_block.main_question_block_item .main_question_block_text,
+  .main_question_block.main_question_block_item .main_question_block_actions,
+  .main_question_block.main_question_block_item .question_leader_badge,
+  .main_question_block.main_question_block_item .leader_quest {
+    position: relative;
+    z-index: 1;
+  }
+
   .main_question_block.main_question_block_item {
     background: url(/images/subject-bg-m.svg) no-repeat top center;
     background-size: 100% auto;
@@ -1862,9 +1869,3 @@ button.answer_media_item {
   opacity: 0.8;
 }
 
-@media only screen and (max-width: 600px) {
-    .main_question_block.main_question_block_item {
-        background: url(/images/subject-bg-m.svg) no-repeat top center;
-        background-size: 100% auto;
-    }
-}

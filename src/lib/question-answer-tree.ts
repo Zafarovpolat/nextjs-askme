@@ -1,10 +1,42 @@
 import type { AnswerAnchorCommentStep, QuestionPageAnswer } from "@/types";
 
-export function parseAnswerAnchorHash(hash: string): number | null {
-  const match = hash.match(/^#answer-(\d+)$/);
-  if (!match) return null;
-  const id = Number.parseInt(match[1], 10);
-  return Number.isFinite(id) && id > 0 ? id : null;
+/** Якорь: прямой ответ или комментарий (с id корневого ответа на вопрос) */
+export interface AnswerAnchorRef {
+  targetId: number;
+  rootAnswerId?: number;
+}
+
+export function buildAnswerAnchorHash(ref: AnswerAnchorRef): string {
+  if (ref.rootAnswerId != null && ref.targetId !== ref.rootAnswerId) {
+    return `#answer-${ref.rootAnswerId}-coment-${ref.targetId}`;
+  }
+  return `#answer-${ref.targetId}`;
+}
+
+export function parseAnswerAnchorHash(hash: string): AnswerAnchorRef | null {
+  const commentMatch = hash.match(/^#answer-(\d+)-coment-(\d+)$/i);
+  if (commentMatch) {
+    const rootAnswerId = Number.parseInt(commentMatch[1], 10);
+    const targetId = Number.parseInt(commentMatch[2], 10);
+    if (rootAnswerId > 0 && targetId > 0) {
+      return { rootAnswerId, targetId };
+    }
+    return null;
+  }
+
+  const answerMatch = hash.match(/^#answer-(\d+)$/);
+  if (answerMatch) {
+    const targetId = Number.parseInt(answerMatch[1], 10);
+    if (targetId > 0) return { targetId };
+  }
+
+  return null;
+}
+
+export function anchorRefKey(ref: AnswerAnchorRef): string {
+  return ref.rootAnswerId != null
+    ? `${ref.rootAnswerId}-coment-${ref.targetId}`
+    : String(ref.targetId);
 }
 
 export function findAnswerInTree(
@@ -19,6 +51,19 @@ export function findAnswerInTree(
     }
   }
   return null;
+}
+
+export function ensureRootInAnswersList(
+  answers: QuestionPageAnswer[],
+  rootId: number,
+  bestAnswer?: QuestionPageAnswer | null
+): QuestionPageAnswer[] {
+  if (findAnswerInTree(answers, rootId)) return answers;
+  if (bestAnswer?.id === rootId) {
+    const rest = answers.filter((a) => a.id !== rootId);
+    return [{ ...bestAnswer, answers: bestAnswer.answers ?? [] }, ...rest];
+  }
+  return answers;
 }
 
 export function mergeChildrenIntoTree(
@@ -72,16 +117,7 @@ export async function loadCommentPagesForStep(
     const pageAnswers = await fetchPage(step.parent_id, loadedPages);
     if (pageAnswers.length === 0) break;
     merged = mergeChildrenIntoTree(merged, step.parent_id, pageAnswers);
-  }
-
-  if (!findAnswerInTree(merged, step.child_id)) {
-    while (true) {
-      loadedPages += 1;
-      const pageAnswers = await fetchPage(step.parent_id, loadedPages);
-      if (pageAnswers.length === 0) break;
-      merged = mergeChildrenIntoTree(merged, step.parent_id, pageAnswers);
-      if (findAnswerInTree(merged, step.child_id)) break;
-    }
+    if (findAnswerInTree(merged, step.child_id)) return merged;
   }
 
   return merged;

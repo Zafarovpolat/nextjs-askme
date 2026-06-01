@@ -877,11 +877,12 @@ a:has(.light_logo) {
 
 .question_list_item_left div {
   display: flex;
-  flex-direction: row;
-  align-items: start;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.question_list_item_left div.question_list_item_left__user_meta {
+.question_list_item_left .question_list_item_left__user_meta {
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
@@ -1020,6 +1021,13 @@ a:has(.light_logo) {
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+/* Заголовок + дата в карточке вопроса (<a>, не div) */
+.question_list_item_title_link.question_list_item_left__user_meta {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 a.question_list_item_left.question_list_item_title_link {
@@ -1646,7 +1654,12 @@ footer .line {
 
   .questions_list .question_list_item_left {
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .questions_list .question_list_item_left .question_list_item_title_link {
+    width: 100%;
   }
 
   .main_question_block_item .question_list_item_left span {
@@ -1729,6 +1742,16 @@ footer .line {
   }
 
   .questions_list .question_list_item_left img {
+    display: none;
+  }
+
+  /* Автор в .question_item_top_data; слева — дубль (UserAvatar с inline display на img) */
+  .question_list_item:has(.question_item_top_data)
+    .question_list_item_left
+    > .question_list_item_avatar_link,
+  .question_list_item:has(.question_item_top_data)
+    .question_list_item_left
+    > .site-user-avatar {
     display: none;
   }
 

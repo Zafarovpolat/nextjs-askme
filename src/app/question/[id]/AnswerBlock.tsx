@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, type MouseEvent } from "react";
 import UserAvatar from "@/components/UserAvatar";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { useVoteAnswer } from "@/hooks/useVoteAnswer";
@@ -14,7 +14,8 @@ import {
   displayUserName,
   displayUserSubtitle,
 } from "@/lib/ai-user-display";
-import type { MouseEvent } from "react";
+import type { AnswerAnchorRef } from "@/lib/question-answer-tree";
+import { buildAnswerAnchorHash } from "@/lib/question-answer-tree";
 
 export interface AnswerBlockProps {
   answer: QuestionPageAnswer;
@@ -31,7 +32,11 @@ export interface AnswerBlockProps {
   onStartReplyToAnswer?: (answerId: number, userFullName: string) => void;
   allowAnswerComments?: boolean;
   answerVotes?: Record<number, 1 | -1>;
-  onShareClick?: (e: MouseEvent<HTMLButtonElement>, answerId: number) => void;
+  /** Прямой ответ на вопрос (для якоря #answer-{root}-coment-{id}) */
+  rootAnswerId?: number;
+  onShareClick?: (e: MouseEvent<HTMLButtonElement>, anchor: AnswerAnchorRef) => void;
+  onLoadMoreComments?: (parentAnswerId: number) => void;
+  commentsLoadingMore?: Record<number, boolean>;
 }
 
 export default function AnswerBlock({
@@ -48,6 +53,7 @@ export default function AnswerBlock({
   onStartReplyToAnswer,
   allowAnswerComments = true,
   answerVotes = {},
+  rootAnswerId,
   onShareClick,
 }: AnswerBlockProps) {
   const answerVote = answerVotes[answer.id] ?? null;
@@ -65,6 +71,11 @@ export default function AnswerBlock({
   });
 
   const { toggleFavorite, isFavorited, isPending } = useFavoriteAnswer();
+
+  const anchorRef: AnswerAnchorRef =
+    rootAnswerId != null && answer.id !== rootAnswerId
+      ? { targetId: answer.id, rootAnswerId }
+      : { targetId: answer.id };
 
   const isNegative = (dislikes_count ?? 0) > (likes_count ?? 0);
   const parentUser = answer.parent_user;
@@ -251,7 +262,7 @@ export default function AnswerBlock({
             className="s_btn s_btn_icon btn_action_outline"
             title="Скопировать ссылку"
             onClick={() => {
-              const url = `${window.location.origin}${window.location.pathname}#answer-${answer.id}`;
+              const url = `${window.location.origin}${window.location.pathname}${buildAnswerAnchorHash(anchorRef)}`;
               navigator.clipboard.writeText(url).catch(() => {});
             }}
           >
@@ -270,7 +281,7 @@ export default function AnswerBlock({
             type="button"
             className="s_btn s_btn_icon btn_action_outline"
             title="Поделиться"
-            onClick={(e) => onShareClick?.(e, answer.id)}
+            onClick={(e) => onShareClick?.(e, anchorRef)}
           >
             <svg width="14" height="14">
               <use xlinkHref="#share"></use>
@@ -292,12 +303,26 @@ export function AnswerWithReplies({
   answer,
   isNested = false,
   isBestRoot = false,
+  rootAnswerId: rootAnswerIdProp,
+  allowAnswerComments = true,
+  onLoadMoreComments,
+  commentsLoadingMore,
   ...shared
 }: SharedAnswerProps & {
   answer: QuestionPageAnswer;
   isNested?: boolean;
   isBestRoot?: boolean;
+  rootAnswerId?: number;
 }) {
+  const rootAnswerId = rootAnswerIdProp ?? answer.id;
+  const loadedComments = answer.answers?.length ?? 0;
+  const totalComments = answer.answers_count ?? 0;
+  const hasMoreComments =
+    allowAnswerComments &&
+    totalComments > loadedComments &&
+    onLoadMoreComments != null;
+  const commentsLoading = Boolean(commentsLoadingMore?.[answer.id]);
+
   return (
     <Fragment>
       <AnswerBlock
@@ -305,6 +330,7 @@ export function AnswerWithReplies({
         answer={answer}
         isNested={isNested}
         isBest={isBestRoot}
+        rootAnswerId={rootAnswerId}
       />
       {answer.answers?.map((child) => (
         <AnswerWithReplies
@@ -313,8 +339,27 @@ export function AnswerWithReplies({
           answer={child}
           isNested
           isBestRoot={false}
+          rootAnswerId={rootAnswerId}
         />
       ))}
+      {hasMoreComments ? (
+        <div
+          className="show_more_btn_wrapper answer-comments-load-more"
+          style={{ marginLeft: isNested ? 40 : 0 }}
+        >
+          <button
+            className="show_more_btn"
+            type="button"
+            onClick={() => onLoadMoreComments?.(answer.id)}
+            disabled={commentsLoading}
+          >
+            <svg width="22" height="22">
+              <use xlinkHref="#sync"></use>
+            </svg>
+            <span>{commentsLoading ? "Загрузка..." : "Загрузить еще"}</span>
+          </button>
+        </div>
+      ) : null}
     </Fragment>
   );
 }
