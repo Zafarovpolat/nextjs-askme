@@ -3,6 +3,7 @@
 .main_question_block.main_question_block_item.profile_question_block {
   padding: 0 28px 24px;
   position: relative;
+  overflow: visible;
 }
 
 /*
@@ -122,6 +123,7 @@
   align-items: center !important;
   gap: 30px !important;
   width: 100%;
+  overflow: visible;
 }
 
 .user_profile_block_content_profile {
@@ -270,6 +272,7 @@
   margin-right: 40px;
   align-items: center;
   gap: 30px;
+  overflow: visible;
 }
 
 .stats_divider {
@@ -306,6 +309,8 @@
   font-size: 18px;
   font-weight: 700;
   color: #5C6676;
+  overflow: visible;
+  position: relative;
 }
 
 .dark_mode .stat_label {
@@ -374,9 +379,10 @@
 .kpd_tooltip_icon:hover::after {
   content: attr(data-tooltip);
   position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  transform: none;
   background: #fff;
   color: rgb(32, 35, 87);
   padding: 8px 12px;
@@ -385,21 +391,23 @@
   font-weight: 400;
   line-height: 1.4;
   white-space: normal;
-  width: 240px;
-  z-index: 100;
+  width: min(240px, calc(100vw - 32px));
+  max-width: 240px;
+  z-index: 200;
   pointer-events: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .kpd_tooltip_icon:hover::before {
   content: "";
   position: absolute;
-  top: calc(100% + 2px);
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: calc(100% + 2px);
+  right: 3px;
+  left: auto;
+  transform: none;
   border: 5px solid transparent;
-  border-bottom-color: #fff;
-  z-index: 100;
+  border-top-color: #fff;
+  z-index: 200;
   pointer-events: none;
 }
 
@@ -414,7 +422,8 @@
 }
 
 .dark_mode .kpd_tooltip_icon:hover::before {
-  border-bottom-color: rgb(96, 105, 255);
+  border-top-color: rgb(96, 105, 255);
+  border-bottom-color: transparent;
 }
 
 .dark_mode .profile_stats_item.active {

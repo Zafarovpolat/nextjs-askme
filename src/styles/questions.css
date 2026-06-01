@@ -8,6 +8,10 @@
   width: 63%;
 }
 
+.questions_page_list:has(.profile_question_block) {
+  overflow: visible;
+}
+
 .question_wrapper {
   display: flex;
   align-items: start;

@@ -314,6 +314,11 @@
   margin-top: 38px;
 }
 
+/* п.33 — подсказка КПД не обрезается overflow:hidden шапки */
+.user_profile_block:has(.kpd_tooltip_icon) {
+  overflow: visible;
+}
+
 /* п.12 — корректный размер и положение SVG фона профиля */
 .user_profile_block_bg,
 .user_profile_block_bg_dark {
