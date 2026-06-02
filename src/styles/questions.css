@@ -748,6 +748,10 @@
   font-size: 28px;
 }
 
+.blocks_title.questions_page_list_title .main_text {
+  max-width: 170px;
+}
+
 .main_question_block_item
   .main_question_block_actions_left
   .btn-like--active:hover {
@@ -802,6 +806,15 @@
   display: none;
 }
 
+.question_list_item_left div .main_text:not(.question_title_clamp) {
+  font-size: 17px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  max-width: 170px;
+}
+
 .main_question_block.main_question_block_item
   .question_list_item-info
   .question_list_item_left
@@ -812,6 +825,7 @@
   white-space: nowrap;
   font-weight: 700;
   color: #2c3545;
+  max-width: 170px;
 }
 
 .answer_author_info {
@@ -841,6 +855,10 @@
   font-weight: 700;
   line-height: 22px;
   text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 170px;
 }
 
 .answer_author_info .reply_to_text:hover {

@@ -1855,7 +1855,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                 )}
                 <div className="limits_help">
                   {/* п.18 — ссылка на поддержку */}
-                  <Link href="/support" className="limits_help_link">Нужна помощь?</Link>
+                  <Link href="/faq" className="limits_help_link">Нужна помощь?</Link>
                 </div>
               </div>
             </>
