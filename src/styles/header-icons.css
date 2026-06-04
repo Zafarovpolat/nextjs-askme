@@ -79,7 +79,6 @@
 
 .footer_wrapper a:hover {
   color: rgb(96, 105, 255);
-  text-decoration: underline;
 }
 
 .dark_mode .footer_wrapper a {

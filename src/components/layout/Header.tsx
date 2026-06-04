@@ -603,14 +603,14 @@ export default function Header() {
               </Link>
             ) : (
               <>
-                <Link href="/profile">
+                <Link href="/profile" className="burger-profile-link">
                   <button type="button" className="m_btn">
                     <img src="/images/icons/user.svg" alt="" />
                   </button>
                 </Link>
                 <button
                   type="button"
-                  className="m_btn m_btn_icon category_btn"
+                  className="m_btn m_btn_icon category_btn burger-logout-btn"
                   title="Выход"
                   onClick={() => {
                     logout();

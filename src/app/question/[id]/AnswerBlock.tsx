@@ -94,6 +94,7 @@ export default function AnswerBlock({
           ? { width: "calc(100% - 40px)", marginLeft: "40px" }
           : undefined
       }
+      data-nested={isNested ? "true" : undefined}
     >
       {/* п.29 — исправлена вложенность: div > Link:inline вместо Link > div */}
       <div className="question_list_item-info">

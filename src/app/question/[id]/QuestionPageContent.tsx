@@ -28,6 +28,7 @@ import SimilarQuestionsBlock from "./SimilarQuestionsBlock";
 import QuestionLeadersSidebar from "./QuestionLeadersSidebar";
 import TextWithLinks from "@/components/TextWithLinks";
 import BodyAttachments from "@/components/BodyAttachments";
+import QuestionCardBg from "@/components/QuestionCardBg";
 import { api } from "@/lib/api-client";
 import { getToken } from "@/lib/cookies";
 import { useAuthStore } from "@/store/authStore";
@@ -1088,6 +1089,7 @@ export default function QuestionPageContent({
           <div
             className={`main_question_block main_question_block_item ${isPremiumQuestion ? "premium-question" : ""} ${(initialQuestion.dislikes_count ?? 0) > (initialQuestion.likes_count ?? 0) ? "blocked_question_block" : ""}`}
           >
+            <QuestionCardBg isPremium={isPremiumQuestion} />
             {isPremiumQuestion ? (
               <div className="premium_crown_floating" aria-hidden>
                 <svg width="38" height="31">
@@ -1097,20 +1099,6 @@ export default function QuestionPageContent({
             ) : null}
             <div className="main_question_bg_wrapper">
               <div className="main_question_block_top_bg">
-                <img
-                  src={
-                    isPremiumQuestion
-                      ? "/images/top-leader-bg-d-2.svg"
-                      : "/images/top-leader-bg.svg"
-                  }
-                  className="top_bg_light"
-                  alt=""
-                />
-                <img
-                  src="/images/top-leader-bg-d-2.svg"
-                  className="top_bg_dark"
-                  alt=""
-                />
                 <img
                   src={
                     isPremiumQuestion
