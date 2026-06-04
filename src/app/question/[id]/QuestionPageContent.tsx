@@ -30,6 +30,7 @@ import TextWithLinks from "@/components/TextWithLinks";
 import BodyAttachments from "@/components/BodyAttachments";
 import { api } from "@/lib/api-client";
 import { getToken } from "@/lib/cookies";
+import { resizeTextarea } from "@/lib/resize-textarea";
 import { useAuthStore } from "@/store/authStore";
 import { displayPremiumBadge, displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
 import AnswerLinkUrl from "@/components/AnswerLinkUrl";
@@ -481,6 +482,10 @@ export default function QuestionPageContent({
     },
     [replyTarget, replyPrefix, clearReplyTarget]
   );
+
+  useLayoutEffect(() => {
+    resizeTextarea(answerRef.current);
+  }, [answerFieldValue, replyTarget]);
 
   const clampSelectionPastPrefix = useCallback(
     (e: SyntheticEvent<HTMLTextAreaElement>) => {
@@ -1363,14 +1368,13 @@ export default function QuestionPageContent({
                 value={answerFieldValue}
                 onChange={(e) => {
                   handleAnswerChange(e);
-                  e.target.style.height = "auto";
-                  e.target.style.height = e.target.scrollHeight + "px";
+                  resizeTextarea(e.target);
                 }}
                 onKeyDown={handleAnswerKeyDown}
                 onSelect={clampSelectionPastPrefix}
                 onClick={clampSelectionPastPrefix}
                 autoComplete="off"
-                style={{ overflow: "hidden", resize: "none" }}
+                style={{ resize: "none" }}
               />
               <div className="ask_form_item_actions">
                 <div

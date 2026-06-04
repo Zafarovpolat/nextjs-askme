@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
+import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
@@ -19,6 +19,7 @@ import { useAuthStore } from "@/store/authStore"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import AnswerLinkUrl from "@/components/AnswerLinkUrl"
 import { getApiFullUrl } from "@/config/api"
+import { resizeTextarea } from "@/lib/resize-textarea"
 import LinkInputModal from "@/components/LinkInputModal"
 import type { ApiUser } from "@/types"
 
@@ -121,6 +122,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   const [videoAttachment, setVideoAttachment] = useState<{ file: File; previewUrl: string } | null>(null)
   const [linkAttachment, setLinkAttachment] = useState<string | null>(null)
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
+  const messageRef = useRef<HTMLTextAreaElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const videoInputRef = useRef<HTMLInputElement | null>(null)
   const shareButtonRef = useRef<HTMLButtonElement | null>(null)
@@ -143,6 +145,10 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
     setSelectedCategoryId(value)
     setSelectedSubcategoryId("")
   }
+
+  useLayoutEffect(() => {
+    resizeTextarea(messageRef.current)
+  }, [messageInput])
 
   const fetchSimilar = useCallback(
     async (q: string, page: number, append: boolean, filter: string) => {
@@ -397,11 +403,15 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
             </div>
             <div className="ask_form_item ask_form_item_block_actions">
               <textarea
+                ref={messageRef}
                 name="message"
                 placeholder="Как можно подробнее опишите свой вопрос"
                 required
                 value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
+                onChange={(e) => {
+                  setMessageInput(e.target.value)
+                  resizeTextarea(e.target)
+                }}
               />
               <div className="ask_form_item_actions">
                 <div

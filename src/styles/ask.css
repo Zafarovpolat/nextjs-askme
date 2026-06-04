@@ -151,6 +151,10 @@
   max-width: 100%;
 }
 
+.form_attachment_link_wrap a {
+  margin: 0;
+}
+
 .form_attachment_link_wrap .answer_link_url {
   flex: 0 1 auto;
   min-width: 0;

@@ -23,7 +23,7 @@ async function fetchCustomHtmlPageUncached(
       headers: { Accept: "application/json" },
       next: { revalidate: REVALIDATE_SEC },
     });
-    if (!res.ok) {
+    if (res.status === 404 || !res.ok) {
       return null;
     }
     const ct = res.headers.get("content-type") ?? "";

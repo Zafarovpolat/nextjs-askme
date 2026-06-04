@@ -1761,8 +1761,20 @@ button.answer_media_item {
     z-index: -1;
   }
 
+  .main_question_block.main_question_block_item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 45px;
+    bottom: 0;
+    background: #ffffff;
+    z-index: -1;
+    border-radius: 25px;
+  }
+
   .main_question_block.main_question_block_item .main_question_bg_wrapper {
-    z-index: 0;
+    z-index: -1;
   }
 
   .main_question_block.main_question_block_item .main_question_block_title,

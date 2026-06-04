@@ -148,6 +148,13 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
     setSubcategoryFilter("");
   };
 
+  const resetFilters = () => {
+    setPeriodFilter("day");
+    setMetricFilter("answers");
+    setCategoryFilter("");
+    setSubcategoryFilter("");
+  };
+
   const loadMore = async () => {
     if (!hasMore || loadingMore || filterLoading) return;
     const nextPage = currentPage + 1;
@@ -188,6 +195,13 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
       <div className="top_leaders_list_wrapper container">
         <div className="blocks_title">
           <h2>Лидеры по активности</h2>
+          <button
+            type="button"
+            className="top_leaders_filter_reset"
+            onClick={resetFilters}
+          >
+            Сбросить фильтр
+          </button>
         </div>
 
         <div className="top_leaders_filter">
@@ -280,26 +294,26 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
       <div className="project_leaders_list container" style={{ flex: 1 }}>
         <div className="blocks_title">
           <h2>Лидеры проекта</h2>
-          {total > 0 && (
-            <p className="secondary_text">Всего в выборке: {total}</p>
-          )}
         </div>
 
         {tableLeaders.length > 0 ? (
           <div className="project_leaders_grid">
             {tableLeaders.map((user) => (
-              <div className="question_list_item" key={user.id}>
+              <Link
+                key={user.id}
+                href={`/profile/${user.id}`}
+                className="question_list_item"
+                aria-label={`Профиль: ${displayUserName(user)}`}
+              >
                 <div className="question_list_item-left">
                   <span className="leader_number">{user.rank}</span>
-                  <Link href={`/profile/${user.id}`}>
-                    <div className="question_list_item_left">
-                      <img src={user.avatar_url || "/images/icons/avatar.svg"} alt={displayUserName(user)} />
-                      <div className="question_list_item_left__user_meta">
-                        <p className="main_text">{displayUserName(user)}</p>
-                        <span>{formatMetricLine(metricFilter, user.metric_value)}</span>
-                      </div>
+                  <div className="question_list_item_left">
+                    <img src={user.avatar_url || "/images/icons/avatar.svg"} alt={displayUserName(user)} />
+                    <div className="question_list_item_left__user_meta">
+                      <p className="main_text">{displayUserName(user)}</p>
+                      <span>{formatMetricLine(metricFilter, user.metric_value)}</span>
                     </div>
-                  </Link>
+                  </div>
                 </div>
                 {(user.subscribers_count ?? 0) > 0 ? (
                   <div className="question_list_item_users">
@@ -319,7 +333,7 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                     </p>
                   </div>
                 ) : null}
-              </div>
+              </Link>
             ))}
           </div>
         ) : topLeaders.length === 0 && tableLeaders.length === 0 && !filterLoading ? (

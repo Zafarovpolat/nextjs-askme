@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { fetchCustomHtmlPage } from "@/lib/fetch-custom-html-page";
 
 export async function metadataForLegalFooterSlug(
@@ -6,7 +7,7 @@ export async function metadataForLegalFooterSlug(
 ): Promise<Metadata> {
   const page = await fetchCustomHtmlPage(slug);
   if (!page) {
-    return { title: "Страница не найдена" };
+    notFound();
   }
   const title = page.title?.trim() || slug;
   const description = page.description?.trim() || undefined;

@@ -1,9 +1,44 @@
 .top_leaders_filter {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 6px;
-  width: 79%;
+  flex: 1;
+  min-width: 0;
+}
+
+.top_leaders_filter_reset {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  font-family: Nunito, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: rgb(98, 106, 255);
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-decoration-color: rgb(98, 106, 255);
+  text-underline-offset: 3px;
+  transition:
+    color 0.15s ease,
+    text-decoration-color 0.15s ease;
+}
+
+.top_leaders_filter_reset:hover {
+  color: rgb(76, 84, 220);
+  text-decoration-color: rgb(76, 84, 220);
+}
+
+.dark_mode .top_leaders_filter_reset {
+  color: rgb(139, 159, 255);
+  text-decoration-color: rgb(139, 159, 255);
+}
+
+.dark_mode .top_leaders_filter_reset:hover {
+  color: #fff;
+  text-decoration-color: #fff;
 }
 
 .top_leaders_list_wrapper {
@@ -17,11 +52,17 @@
 }
 
 .top_leaders_list_wrapper .blocks_title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   margin-bottom: 0;
+  flex-shrink: 0;
 }
 
 .top_leaders_filter_item {
-  width: 25%;
+  flex: 1 1 0;
+  min-width: 0;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
@@ -392,16 +433,15 @@
   color: rgb(98, 106, 255);
 }
 
-.top_leaders_list_wrapper .blocks_title {
-  gap: 15px;
-}
 
 .top_leaders_list_wrapper .top_leaders_filter {
   width: 100%;
 }
 
 .top_leaders_list_wrapper .top_leaders_filter .top_leaders_filter_item {
-  width: 25%;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
 }
 
 .question_list_item-left {
@@ -537,6 +577,13 @@
 }
 
 /* Список лидеров проекта — белые карточки на фоне #e7e9f6 */
+.project_leaders_list a.question_list_item {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
 .project_leaders_list .question_list_item {
   margin: 0;
   align-items: center;
@@ -641,7 +688,8 @@
   }
 
   .top_leaders_list_wrapper .top_leaders_filter .top_leaders_filter_item {
-    width: 48%;
+    flex: 1 1 calc(50% - 6px);
+    width: calc(50% - 6px);
   }
 
   .project_leaders_list .question_list_item {
@@ -658,12 +706,14 @@
 @media only screen and (max-width: 700px) {
   .top_leaders_filter {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .top_leaders_filter_item,
   .top_leaders_list_wrapper .top_leaders_filter .top_leaders_filter_item,
   .project_leaders_grid {
     width: 100%;
+    flex: none;
   }
 
   .project_leaders_grid {
