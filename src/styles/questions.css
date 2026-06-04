@@ -1771,6 +1771,10 @@ button.answer_media_item {
     background: #ffffff;
     z-index: -1;
     border-radius: 25px;
+
+  }
+  .main_question_block.main_question_block_item.premium-question::after {
+    background: #6069ff;
   }
 
   .main_question_block.main_question_block_item .main_question_bg_wrapper {
