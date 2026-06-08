@@ -159,8 +159,8 @@ nav.nav--hidden {
 
 .m_btn:hover {
   transition: all 0.2s ease;
-  background: rgb(84, 91, 222);
-  border-color: rgb(84, 91, 222);
+  background: rgb(96, 105, 255);
+  border-color: rgb(96, 105, 255);
   color: #fff;
 }
 
@@ -311,6 +311,10 @@ a:has(.light_logo) {
   border: 1px solid rgb(96, 105, 255);
   background: transparent;
   color: #fff;
+}
+
+.dark_mode .nav_mob_wrapper .search_input input {
+  border: none;
 }
 
 .search_input img {
@@ -686,7 +690,7 @@ a:has(.light_logo) {
 
 .questions_filter .s_btn:hover {
   color: #fff;
-  background: rgb(100, 107, 255);
+  background: rgb(96, 105, 255);
   border: 2px solid transparent;
 }
 
@@ -697,7 +701,7 @@ a:has(.light_logo) {
 }
 
 .s_btn_active {
-  background: rgb(100, 107, 255) !important;
+  background: rgb(96, 105, 255) !important;
   border: 2px solid transparent !important;
   color: #fff;
   transition: all 0.2s ease;
@@ -1035,9 +1039,6 @@ a.question_list_item_left.question_list_item_title_link {
   min-width: 0;
 }
 
-.question_list_item_title_link:hover .main_text {
-  color: inherit;
-}
 
 .question_list_item_users > .site-user-avatar {
   width: 30px;
@@ -2791,6 +2792,12 @@ svg.logo-ai {
 
   .profile-link-mobile {
     display: flex;
+  }
+}
+
+@media only screen and (max-width: 430px) {
+  .burger-logout-btn {
+    display: none !important;
   }
 }
 

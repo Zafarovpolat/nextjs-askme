@@ -1096,6 +1096,7 @@ body {
   max-width: 210px;
   width: 100%;
   display: block;
+  text-decoration: none;
 }
 
 .footer__logo img {
