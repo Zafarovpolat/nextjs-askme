@@ -157,7 +157,7 @@
 }
 
 .profile_stats_item.active {
-  background: #5D67FF;
+  background: #5d67ff;
 }
 
 .profile_stats_item.active .main_text {
@@ -171,7 +171,7 @@
 .profile_stats_item .stats_badge {
   border-radius: 12px;
   height: 28px;
-  background: #5764FF;
+  background: #5764ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -188,7 +188,7 @@
 }
 
 .profile_stats_item.active .stats_badge .main_text {
-  color: #5D67FF !important;
+  color: #5d67ff !important;
 }
 
 .profile_stats_item p {
@@ -218,12 +218,12 @@
 }
 
 .limits_badge {
-  background: #E8E8F5 !important;
+  background: #e8e8f5 !important;
   min-width: 52px !important;
 }
 
 .stats_badge.limits_badge .main_text {
-  color: #5D67FF !important;
+  color: #5d67ff !important;
 }
 
 .dark_mode .stats_badge.limits_badge .main_text {
@@ -231,7 +231,7 @@
 }
 
 .limits_badge .main_text {
-  color: #5E68FF !important;
+  color: #5e68ff !important;
   font-weight: 800 !important;
 }
 
@@ -241,7 +241,7 @@
 }
 
 .limits_help_link {
-  color: #5E68FF;
+  color: #5e68ff;
   font-weight: 700;
   text-decoration: underline;
   font-size: 16px;
@@ -256,7 +256,6 @@
 .dark_mode .profile_stats_limits_list {
   background-color: #2c2b67;
 }
-
 
 .profile_stats_action {
   background-color: rgba(255, 255, 255, 0.5) !important;
@@ -278,11 +277,11 @@
 }
 
 .profile_stats_action svg {
-  color: #5D67FF !important;
+  color: #5d67ff !important;
 }
 
 .profile_stats_action svg path {
-  fill: #5D67FF !important;
+  fill: #5d67ff !important;
 }
 
 .dark_mode .profile_stats_action {
@@ -330,6 +329,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center top;
+  border-radius: 25px;
 }
 
 .user_profile_block_bg_dark {
@@ -587,11 +587,16 @@
   color: rgb(255, 255, 255);
 }
 
-.user_profile_block.premium-profile .user_profile_block_content_profile_desc .quest_user_title {
+.user_profile_block.premium-profile
+  .user_profile_block_content_profile_desc
+  .quest_user_title {
   background: #ffffff !important;
 }
 
-.user_profile_block.premium-profile .user_profile_block_content_profile_desc .quest_user_title p {
+.user_profile_block.premium-profile
+  .user_profile_block_content_profile_desc
+  .quest_user_title
+  p {
   color: #6069ff !important;
 }
 
@@ -1002,7 +1007,8 @@
   border: none !important;
 }
 
-.levels_card_left, .levels_card_right {
+.levels_card_left,
+.levels_card_right {
   flex-shrink: 0;
 }
 
@@ -1042,7 +1048,7 @@
   border-radius: 10px;
   position: relative;
   width: 100%;
-  border: 3px solid #EFEFF6;
+  border: 3px solid #efeff6;
 }
 
 .dark_mode .levels_progress_bar {
@@ -1051,7 +1057,7 @@
 
 .levels_progress_value {
   height: 100%;
-  background: #5E68FF;
+  background: #5e68ff;
   border-radius: 4px;
 }
 
@@ -1061,10 +1067,10 @@
   transform: translate(-50%, -50%);
   width: 18px;
   height: 18px;
-  background: #5E68FF;
-  border: 3px solid #3E47D1;
+  background: #5e68ff;
+  border: 3px solid #3e47d1;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 2;
 }
 
@@ -1094,7 +1100,7 @@
 }
 
 .vip_buy_btn_new {
-  background: #5D67FF;
+  background: #5d67ff;
   color: #fff !important;
   font-weight: 700;
   padding: 12px 24px;
@@ -1164,7 +1170,7 @@
 }
 
 .dark_mode .rules_text_bold_new {
-  color: #CCDDF8;
+  color: #ccddf8;
 }
 
 .profile_rules_list {
@@ -1191,11 +1197,11 @@
 .profile_rules_list li span {
   font-size: 14px;
   line-height: 22px;
-  color: #4A4D7E;
+  color: #4a4d7e;
 }
 
 .dark_mode .profile_rules_list li span {
-  color: #CCDDF8;
+  color: #ccddf8;
 }
 
 .stats_badge.limits_badge {
@@ -1789,7 +1795,7 @@
 }
 
 .rules_text_bold_new {
-  color: #5C6676;
+  color: #5c6676;
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 12px !important;
@@ -1810,7 +1816,7 @@
 
 .questions_list_profile .search-result-card,
 .answers_list_profile .answer-result-card {
-  background-color: #E8E8F5;
+  background-color: #e8e8f5;
 }
 
 .dark_mode .questions_list_profile .search-result-card,
@@ -1823,18 +1829,18 @@
 }
 
 .search-result-subtext {
-  color: #5C6676;
+  color: #5c6676;
 }
 
 .dark_mode .search-result-subtext {
-  color: #CCDDF8;
+  color: #ccddf8;
 }
 
 .user-follow-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #F4F5F8;
+  background-color: #f4f5f8;
   border-radius: 12px;
   padding: 11px 16px;
   margin-bottom: 8px;
@@ -1868,7 +1874,7 @@
 .user-follow-name {
   font-weight: 700;
   font-size: 16px;
-  color: #1F2A3B;
+  color: #1f2a3b;
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
@@ -1882,11 +1888,11 @@
 
 .user-follow-time {
   font-size: 14px;
-  color: #8B94A1;
+  color: #8b94a1;
 }
 
 .dark_mode .user-follow-time {
-  color: #CCDDF8;
+  color: #ccddf8;
 }
 
 .user-follow-stats {
@@ -1904,7 +1910,7 @@
 }
 
 .user-follow-stat-bold {
-  color: #1F2A3B;
+  color: #1f2a3b;
   font-weight: 800;
 }
 
@@ -1913,17 +1919,17 @@
 }
 
 .user-follow-stat-gray {
-  color: #5C6676;
+  color: #5c6676;
 }
 
 .dark_mode .user-follow-stat-gray {
-  color: #CCDDF8;
+  color: #ccddf8;
 }
 
 .user-follow-separator {
   width: 1px;
   height: 38px;
-  background-color: #E2E4EB;
+  background-color: #e2e4eb;
 }
 
 .dark_mode .user-follow-separator {
@@ -1942,36 +1948,32 @@
   font-weight: 600;
   cursor: pointer;
   outline: none;
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
   white-space: nowrap;
 }
 
 .subscribed-btn {
   background-color: transparent;
-  border: 1px solid #6069FF;
-  color: #1F2A3B;
+  border: 1px solid #6069ff;
+  color: #1f2a3b;
   font-weight: 800;
 }
 
 .dark_mode .subscribed-btn {
-  border: 1px solid #8B91FF;
+  border: 1px solid #8b91ff;
   color: #fff;
 }
 
 .subscribe-btn {
-  background-color: #6069FF;
-  border: 1px solid #6069FF;
+  background-color: #6069ff;
+  border: 1px solid #6069ff;
   color: white;
 }
 
 .dark_mode .subscribe-btn {
-  background-color: #5D67FF;
-  border-color: #5D67FF;
+  background-color: #5d67ff;
+  border-color: #5d67ff;
 }
-
-
-
-
 
 @media only screen and (max-width: 1440px) {
   .profile_page .user_profile_block_content {
@@ -1995,9 +1997,6 @@
     gap: 8px;
   }
 
-
-
-
   .user-follow-card {
     gap: 10px;
   }
@@ -2015,9 +2014,6 @@
   .user-follow-left + .user-follow-separator {
     display: none;
   }
-
-
-
 
   .profile_page .user_profile_block_content {
     gap: 0;
@@ -2084,6 +2080,14 @@
     top: 15%;
   }
 
+  .dark_mode .tabs_list_m .active_menu {
+    background: rgb(96, 105, 255) !important;
+  }
+
+  .dark_mode .tabs_list_m .active_menu svg {
+    fill: #fff;
+  }
+
   .user_profile_block {
     padding-top: 0;
   }
@@ -2125,18 +2129,30 @@
     padding-right: 0;
   }
 
-  .profile_menu_list_mob.tabs_list_m {
+  .user_profile_block::after {
+    content: " ";
     background-color: white;
+    border-radius: 0 0 25px 25px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    top: calc(0% + 80px);
+    z-index: -1;
+  }
+
+  .dark_mode .user_profile_block::after {
+    background-color: rgb(51, 46, 113);
+  }
+
+  .profile_menu_list_mob.tabs_list_m {
+    background-color: none;
     border-radius: 0 0 22px 22px;
     padding-bottom: 15px;
   }
 
-  .dark_mode .profile_menu_list_mob.tabs_list_m {
-    background-color: rgb(51, 46, 113);
-  }
-
   .user_profile_block_content {
-    padding: 10px 24px;
+    padding: 20px 24px 10px 24px;
   }
 
   .user_profile_block {
@@ -2160,7 +2176,7 @@
     top: 15px;
   }
 
-   .profile_page .user_public_stats {
+  .profile_page .user_public_stats {
     margin-right: 150px;
     padding-top: 0;
   }
@@ -2210,7 +2226,7 @@
 
   .user-follow-card {
     display: grid;
-    grid-template-columns: auto auto auto ;
+    grid-template-columns: auto auto auto;
   }
 
   .user-follow-right {
@@ -2220,7 +2236,6 @@
   .user-follow-card {
     gap: 0;
   }
-
 }
 
 @media only screen and (max-width: 768px) {
@@ -2368,14 +2383,14 @@
     padding-left: 0;
     margin-left: 0;
   }
+
+  .profile_page .user_profile_block_content {
+    padding-top: 18px !important;
+  }
 }
 
 @media only screen and (max-width: 550px) {
   .user_profile_page_content .question_list_item_left img {
-    display: none;
-  }
-
-  .user_profile_block::after {
     display: none;
   }
 
@@ -2406,14 +2421,6 @@
 
   .profile_menu_item {
     margin: 0;
-  }
-
-  .dark_mode .tabs_list_m .active_menu {
-    background: rgb(96, 105, 255) !important;
-  }
-
-  .dark_mode .tabs_list_m .active_menu svg {
-    fill: #fff;
   }
 
   .user_profile_page_content_wrapper p br {
@@ -2592,6 +2599,11 @@
   .user-follow-name {
     max-width: 110px;
   }
+
+  .profile_menu_list_mob.tabs_list_m {
+    flex-wrap: wrap;
+    padding: 0 15px 15px;
+  }
 }
 
 @media only screen and (max-width: 400px) {
@@ -2610,5 +2622,9 @@
   .profile-edit-tab .category_btn.m_btn,
   .profile-edit-tab .cancel_btn {
     width: 100%;
+  }
+
+  .user_profile_block::after {
+    top: calc(0 + 60px);
   }
 }

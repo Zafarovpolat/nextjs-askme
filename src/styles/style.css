@@ -1850,6 +1850,11 @@ body:not(.dark-mode) .header__dark-mode-toggler__icon--dark {
     flex: 100% !important;
     max-width: 100% !important;
   }
+
+  .footer_wrapper a,
+  .footer_wrapper p {
+    font-size: 14px;
+  }
 }
 
 body.no-transition,
@@ -1963,4 +1968,3 @@ body.dark_mode .theme-toggle-btn .svg-dark {
     height: 45px !important;
   }
 }
-  

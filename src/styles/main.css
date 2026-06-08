@@ -45,7 +45,9 @@ nav {
   top: 0;
   z-index: 200;
   background: #e7e9f6;
-  transition: transform 0.3s ease, background 0.2s ease;
+  transition:
+    transform 0.3s ease,
+    background 0.2s ease;
 }
 
 .dark_mode nav {
@@ -55,7 +57,6 @@ nav {
 nav.nav--hidden {
   transform: translateY(-110%);
 }
-
 
 .secondary_text {
   color: rgb(139, 148, 161);
@@ -202,7 +203,7 @@ nav.nav--hidden {
 }
 
 .profile-header-btn--open {
-  background: #6069FF !important;
+  background: #6069ff !important;
 }
 
 .dark_mode .profile-header-btn {
@@ -397,7 +398,11 @@ a:has(.light_logo) {
   width: 40px;
   min-height: 100%;
   pointer-events: none;
-  background: linear-gradient(to right, transparent, var(--base-color-0, #fff) 80%);
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--base-color-0, #fff) 80%
+  );
   z-index: 2;
   flex-shrink: 0;
   display: none;
@@ -452,7 +457,7 @@ a:has(.light_logo) {
   border-radius: 44px;
   background: rgb(250, 250, 252);
   margin-top: 4px;
-  display: none;          /* скрыт на десктопе, там работает webkit-scrollbar */
+  display: none; /* скрыт на десктопе, там работает webkit-scrollbar */
 }
 
 .dark_mode .subjects_scroll_track {
@@ -515,10 +520,6 @@ a:has(.light_logo) {
 .subjects_list .subject_item {
   padding: 22px;
 }
-
-
-
-
 
 .subject_item h3 {
   color: rgb(31, 42, 59);
@@ -993,15 +994,18 @@ a:has(.light_logo) {
   z-index: 10 !important;
 }
 
-.question_list_item_users > .question_list_item_users__avatar-link:nth-child(1) {
+.question_list_item_users
+  > .question_list_item_users__avatar-link:nth-child(1) {
   z-index: 4;
 }
 
-.question_list_item_users > .question_list_item_users__avatar-link:nth-child(2) {
+.question_list_item_users
+  > .question_list_item_users__avatar-link:nth-child(2) {
   z-index: 3;
 }
 
-.question_list_item_users > .question_list_item_users__avatar-link:nth-child(3) {
+.question_list_item_users
+  > .question_list_item_users__avatar-link:nth-child(3) {
   z-index: 2;
 }
 
@@ -1038,7 +1042,6 @@ a.question_list_item_left.question_list_item_title_link {
   flex: 1;
   min-width: 0;
 }
-
 
 .question_list_item_users > .site-user-avatar {
   width: 30px;
@@ -1365,7 +1368,7 @@ footer .line {
 }
 
 .dark_mode .mob-nav-logo .logo-container svg path {
-  fill: #616AFF;
+  fill: #616aff;
 }
 
 .dark_mode .mob-nav-logo .neon-letter {
@@ -1598,6 +1601,11 @@ footer .line {
 @media only screen and (max-width: 940px) {
   .footer_wrapper {
     flex-direction: column;
+  }
+
+  .footer__logo {
+    width: 180px;
+    /* width: auto; */
   }
 }
 
@@ -2262,14 +2270,14 @@ footer .line {
 .premium-crown-icon {
   width: 16px;
   height: 14px;
-  color: #6069FF;
+  color: #6069ff;
   transition: color 0.3s ease;
   margin-top: -3px;
 }
 
 /* Light theme */
 .premium-filter-btn .premium-crown-icon {
-  color: #6069FF;
+  color: #6069ff;
 }
 
 .premium-filter-btn:hover .premium-crown-icon {
@@ -2295,7 +2303,7 @@ footer .line {
 
 /* Dark theme для кнопки уведомлений в Header */
 .dark_mode .notification-dropdown-wrapper .theme-toggle-btn svg rect {
-  fill: #6069FF !important;
+  fill: #6069ff !important;
 }
 
 .dark_mode .notification-dropdown-wrapper .theme-toggle-btn svg path {
@@ -2340,7 +2348,7 @@ footer .line {
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: #384B67;
+  color: #384b67;
   line-height: 1;
   margin-right: 2px;
   text-transform: uppercase;
@@ -2355,7 +2363,7 @@ footer .line {
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: #616AFF;
+  color: #616aff;
   line-height: 1;
   text-transform: uppercase;
   display: flex;
@@ -2374,247 +2382,361 @@ footer .line {
 
 /* Буква «a» — цикл 24s, органические случайные мерцания (1 раз в фазе) */
 .neon-letter--a {
-  text-shadow: 0 0 6px rgba(150, 160, 255, 0.9),
-               0 0 14px rgba(130, 145, 255, 0.6),
-               0 0 20px rgba(110, 130, 255, 0.4);
+  text-shadow:
+    0 0 6px rgba(150, 160, 255, 0.9),
+    0 0 14px rgba(130, 145, 255, 0.6),
+    0 0 20px rgba(110, 130, 255, 0.4);
   animation: neon-flicker-a 24s infinite;
 }
 
 /* Буква «i» — цикл 24s, органические двойные мерцания со смещением во времени (2 раза в фазе) */
 .neon-letter--i {
-  text-shadow: 0 0 6px rgba(150, 160, 255, 0.9),
-               0 0 14px rgba(130, 145, 255, 0.6),
-               0 0 20px rgba(110, 130, 255, 0.4);
+  text-shadow:
+    0 0 6px rgba(150, 160, 255, 0.9),
+    0 0 14px rgba(130, 145, 255, 0.6),
+    0 0 20px rgba(110, 130, 255, 0.4);
   animation: neon-flicker-i 24s infinite;
 }
 
 @keyframes neon-flicker-a {
-  0%, 13% {
+  0%,
+  13% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
-  13.33%, 13.73% {
+  13.33%,
+  13.73% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  14.07%, 47% {
+  14.07%,
+  47% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
-  47.5%, 47.9% {
+  47.5%,
+  47.9% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  48.3%, 94.5% {
+  48.3%,
+  94.5% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
-  95%, 95.4% {
+  95%,
+  95.4% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  95.8%, 100% {
+  95.8%,
+  100% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
 }
 
 @keyframes neon-flicker-i {
-  0%, 25% {
+  0%,
+  25% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
-  25.42%, 25.82% {
+  25.42%,
+  25.82% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  26.22%, 27.5% {
+  26.22%,
+  27.5% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
-  27.92%, 28.32% {
+  27.92%,
+  28.32% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  28.72%, 63.3% {
+  28.72%,
+  63.3% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
-  63.75%, 64.15% {
+  63.75%,
+  64.15% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  64.55%, 65.8% {
+  64.55%,
+  65.8% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
-  66.25%, 66.65% {
+  66.25%,
+  66.65% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  67.05%, 76.6% {
+  67.05%,
+  76.6% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
-  77.08%, 77.48% {
+  77.08%,
+  77.48% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  77.88%, 79.1% {
+  77.88%,
+  79.1% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
-  79.58%, 79.98% {
+  79.58%,
+  79.98% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  80.38%, 100% {
+  80.38%,
+  100% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 6px rgba(150, 160, 255, 0.9), 0 0 14px rgba(130, 145, 255, 0.6), 0 0 20px rgba(110, 130, 255, 0.4);
+    color: #616aff;
+    text-shadow:
+      0 0 6px rgba(150, 160, 255, 0.9),
+      0 0 14px rgba(130, 145, 255, 0.6),
+      0 0 20px rgba(110, 130, 255, 0.4);
   }
 }
 
 /* Тёмная тема — ярче свечение */
 .dark_mode .neon-letter--a {
-  text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+  text-shadow:
+    0 0 10px rgba(97, 106, 255, 1),
+    0 0 22px rgba(97, 106, 255, 0.8),
+    0 0 34px rgba(97, 106, 255, 0.5);
   animation-name: neon-flicker-a-dark;
 }
 
 .dark_mode .neon-letter--i {
-  text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+  text-shadow:
+    0 0 10px rgba(97, 106, 255, 1),
+    0 0 22px rgba(97, 106, 255, 0.8),
+    0 0 34px rgba(97, 106, 255, 0.5);
   animation-name: neon-flicker-i-dark;
 }
 
 @keyframes neon-flicker-a-dark {
-  0%, 13% {
+  0%,
+  13% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
-  13.33%, 13.73% {
+  13.33%,
+  13.73% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  14.07%, 47% {
+  14.07%,
+  47% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
-  47.5%, 47.9% {
+  47.5%,
+  47.9% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  48.3%, 94.5% {
+  48.3%,
+  94.5% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
-  95%, 95.4% {
+  95%,
+  95.4% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  95.8%, 100% {
+  95.8%,
+  100% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
 }
 
 @keyframes neon-flicker-i-dark {
-  0%, 25% {
+  0%,
+  25% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
-  25.42%, 25.82% {
+  25.42%,
+  25.82% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  26.22%, 27.5% {
+  26.22%,
+  27.5% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
-  27.92%, 28.32% {
+  27.92%,
+  28.32% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  28.72%, 63.3% {
+  28.72%,
+  63.3% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
-  63.75%, 64.15% {
+  63.75%,
+  64.15% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  64.55%, 65.8% {
+  64.55%,
+  65.8% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
-  66.25%, 66.65% {
+  66.25%,
+  66.65% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  67.05%, 76.6% {
+  67.05%,
+  76.6% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
-  77.08%, 77.48% {
+  77.08%,
+  77.48% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  77.88%, 79.1% {
+  77.88%,
+  79.1% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
-  79.58%, 79.98% {
+  79.58%,
+  79.98% {
     opacity: 0.15;
-    color: #616AFF;
+    color: #616aff;
     text-shadow: none;
   }
-  80.38%, 100% {
+  80.38%,
+  100% {
     opacity: 1;
-    color: #616AFF;
-    text-shadow: 0 0 10px rgba(97,106,255,1), 0 0 22px rgba(97,106,255,.8), 0 0 34px rgba(97,106,255,.5);
+    color: #616aff;
+    text-shadow:
+      0 0 10px rgba(97, 106, 255, 1),
+      0 0 22px rgba(97, 106, 255, 0.8),
+      0 0 34px rgba(97, 106, 255, 0.5);
   }
 }
 
 svg.logo-ai {
   filter: drop-shadow(0 0 5px rgba(150, 160, 255, 0.7))
-          drop-shadow(0 0 10px rgba(130, 145, 255, 0.5))
-          drop-shadow(0 0 15px rgba(110, 130, 255, 0.3));
+    drop-shadow(0 0 10px rgba(130, 145, 255, 0.5))
+    drop-shadow(0 0 15px rgba(110, 130, 255, 0.3));
   animation: neon-flicker 5s ease-in-out infinite !important;
   animation-play-state: running !important;
   will-change: filter, opacity;
@@ -2626,50 +2748,50 @@ svg.logo-ai {
 @keyframes neon-flicker {
   0% {
     filter: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
-            drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
-            drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
+      drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
+      drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
     opacity: 1;
   }
   78% {
     filter: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
-            drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
-            drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
+      drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
+      drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
     opacity: 1;
   }
   82% {
     filter: drop-shadow(0 0 2px rgba(150, 160, 255, 0.3))
-            drop-shadow(0 0 4px rgba(130, 145, 255, 0.2));
+      drop-shadow(0 0 4px rgba(130, 145, 255, 0.2));
     opacity: 0.85;
   }
   86% {
     filter: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
-            drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
-            drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
+      drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
+      drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
     opacity: 1;
   }
   90% {
     filter: drop-shadow(0 0 3px rgba(150, 160, 255, 0.4))
-            drop-shadow(0 0 6px rgba(130, 145, 255, 0.3));
+      drop-shadow(0 0 6px rgba(130, 145, 255, 0.3));
     opacity: 0.9;
   }
   94% {
     filter: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
-            drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
-            drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
+      drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
+      drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
     opacity: 1;
   }
   100% {
     filter: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
-            drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
-            drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
+      drop-shadow(0 0 12px rgba(130, 145, 255, 0.7))
+      drop-shadow(0 0 18px rgba(110, 130, 255, 0.5));
     opacity: 1;
   }
 }
 
 .dark_mode svg.logo-ai {
   filter: drop-shadow(0 0 10px rgba(97, 106, 255, 1))
-          drop-shadow(0 0 20px rgba(97, 106, 255, 0.9))
-          drop-shadow(0 0 30px rgba(97, 106, 255, 0.7));
+    drop-shadow(0 0 20px rgba(97, 106, 255, 0.9))
+    drop-shadow(0 0 30px rgba(97, 106, 255, 0.7));
   animation: neon-flicker-dark 5s ease-in-out infinite !important;
   animation-play-state: running !important;
   will-change: filter, opacity;
@@ -2681,54 +2803,53 @@ svg.logo-ai {
 @keyframes neon-flicker-dark {
   0% {
     filter: drop-shadow(0 0 15px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 30px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
+      drop-shadow(0 0 30px rgba(97, 106, 255, 1))
+      drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
     opacity: 1;
   }
   78% {
     filter: drop-shadow(0 0 15px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 30px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
+      drop-shadow(0 0 30px rgba(97, 106, 255, 1))
+      drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
     opacity: 1;
   }
   82% {
     filter: drop-shadow(0 0 4px rgba(97, 106, 255, 0.5))
-            drop-shadow(0 0 8px rgba(97, 106, 255, 0.3));
+      drop-shadow(0 0 8px rgba(97, 106, 255, 0.3));
     opacity: 0.85;
   }
   86% {
     filter: drop-shadow(0 0 15px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 30px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
+      drop-shadow(0 0 30px rgba(97, 106, 255, 1))
+      drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
     opacity: 1;
   }
   90% {
     filter: drop-shadow(0 0 6px rgba(97, 106, 255, 0.6))
-            drop-shadow(0 0 12px rgba(97, 106, 255, 0.4));
+      drop-shadow(0 0 12px rgba(97, 106, 255, 0.4));
     opacity: 0.9;
   }
   94% {
     filter: drop-shadow(0 0 15px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 30px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
+      drop-shadow(0 0 30px rgba(97, 106, 255, 1))
+      drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
     opacity: 1;
   }
   100% {
     filter: drop-shadow(0 0 15px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 30px rgba(97, 106, 255, 1))
-            drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
+      drop-shadow(0 0 30px rgba(97, 106, 255, 1))
+      drop-shadow(0 0 45px rgba(97, 106, 255, 0.8));
     opacity: 1;
   }
 }
 
-
 /* Mobile menu premium and notifications */
 .premium-btn-mob {
-  color: #616AFF !important;
+  color: #616aff !important;
 }
 
 .premium-btn-mob svg {
-  fill: #616AFF !important;
+  fill: #616aff !important;
 }
 
 .dark_mode .premium-btn-mob {
@@ -2742,7 +2863,7 @@ svg.logo-ai {
 /* Notification icon in mobile menu */
 .notification-btn-mob svg,
 .notification-btn-mob svg path {
-  fill: #616AFF !important;
+  fill: #616aff !important;
 }
 
 .dark_mode .notification-btn-mob svg,
@@ -2800,4 +2921,3 @@ svg.logo-ai {
     display: none !important;
   }
 }
-
