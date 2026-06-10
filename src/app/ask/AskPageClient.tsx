@@ -5,8 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
-import MostDiscussedListItem from "@/components/MostDiscussedListItem"
-import PopularTopicListItem from "@/components/PopularTopicListItem"
+import TopsBlock from "@/components/TopsBlock"
 import LoginModal from "@/components/LoginModal"
 import QuestionModal from "@/components/QuestionModal"
 import SharePopup from "@/components/SharePopup"
@@ -22,6 +21,16 @@ import { getApiFullUrl } from "@/config/api"
 import { resizeTextarea } from "@/lib/resize-textarea"
 import LinkInputModal from "@/components/LinkInputModal"
 import type { ApiUser } from "@/types"
+import {
+  compactCountTitle,
+  formatCompactCountPlus,
+  formatCompactNumWord,
+} from "@/lib/format-compact-count"
+import {
+  containsSpamUnicode,
+  PLAIN_TEXT_SPAM_MESSAGE,
+  sanitizePlainTextInput,
+} from "@/lib/plain-text-spam-guard"
 
 type Subcategory = { id: number; name: string; slug: string; icon_key: string | null }
 type CategoryItem = { id: number; name: string; slug: string; icon_key: string | null; subcategories: Subcategory[] }
@@ -102,9 +111,9 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   const categories = initialData.categories ?? []
   const [selectedCategoryId, setSelectedCategoryId] = useState("")
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState("")
-  /* ?draft= — текст с главной / категорий; подставляем в тему и сразу ищем похожие */
-  const [titleInput, setTitleInput] = useState(() => searchParams.get("draft") ?? "")
-  const [messageInput, setMessageInput] = useState("")
+  /* ?draft= — текст с главной / категорий; подставляем в описание и сразу ищем похожие */
+  const [titleInput, setTitleInput] = useState("")
+  const [messageInput, setMessageInput] = useState(() => searchParams.get("draft") ?? "")
   const [similarFilter, setSimilarFilter] = useState<typeof FILTERS[number]['value']>('all')
   const [similarQuestions, setSimilarQuestions] = useState<QuestionListItem[]>([])
   const [similarCurrentPage, setSimilarCurrentPage] = useState(1)
@@ -206,12 +215,12 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   useEffect(() => {
     const draft = searchParams.get("draft")?.trim()
     if (!draft) return
-    setTitleInput(draft)
+    setMessageInput(draft)
     skipNextSimilarDebounceRef.current = true
   }, [searchParams])
 
   useEffect(() => {
-    const trimmed = titleInput.trim()
+    const trimmed = titleInput.trim() || messageInput.trim()
     if (!trimmed) return
     const delay = skipNextSimilarDebounceRef.current ? 0 : SIMILAR_DEBOUNCE_MS
     skipNextSimilarDebounceRef.current = false
@@ -219,7 +228,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
       fetchSimilar(trimmed, 1, false, similarFilterRef.current)
     }, delay)
     return () => clearTimeout(timer)
-  }, [titleInput, fetchSimilar])
+  }, [titleInput, messageInput, fetchSimilar])
 
   useEffect(() => {
     if (isAuthorized === 1) {
@@ -320,6 +329,10 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
       setSubmitError("Заполните тему и текст вопроса.")
       return
     }
+    if (containsSpamUnicode(title) || containsSpamUnicode(description)) {
+      setSubmitError(PLAIN_TEXT_SPAM_MESSAGE)
+      return
+    }
     const category_id = selectedCategoryId ? Number(selectedCategoryId) : 0
     const subcategory_id = selectedSubcategoryId ? Number(selectedSubcategoryId) : 0
     if (!category_id || !subcategory_id) {
@@ -359,6 +372,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
         const first =
           data?.errors?.is_premium?.[0] ??
           data?.errors?.title?.[0] ??
+          data?.errors?.description?.[0] ??
           data?.errors?.category_id?.[0] ??
           data?.errors?.subcategory_id?.[0] ??
           data?.message
@@ -398,7 +412,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                 placeholder="Тема вопроса"
                 required
                 value={titleInput}
-                onChange={(e) => setTitleInput(e.target.value)}
+                onChange={(e) => setTitleInput(sanitizePlainTextInput(e.target.value))}
               />
             </div>
             <div className="ask_form_item ask_form_item_block_actions">
@@ -409,7 +423,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                 required
                 value={messageInput}
                 onChange={(e) => {
-                  setMessageInput(e.target.value)
+                  setMessageInput(sanitizePlainTextInput(e.target.value))
                   resizeTextarea(e.target)
                 }}
               />
@@ -655,8 +669,10 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                   <div className="question_item_top_data_left">
                     <img src={q.latest_likers[0]?.avatar_url ?? "/images/icons/avatar.svg"} alt="" />
                     <div className="question_list_item_left__user_meta">
-                      <p className="main_text">{q.title}</p>
-                      <span>{q.likes_count} лайков</span>
+                      <p className="main_text" title={q.title}>{q.title}</p>
+                      <span title={compactCountTitle(q.likes_count)}>
+                        {formatCompactNumWord(q.likes_count, ["лайк", "лайка", "лайков"])}
+                      </span>
                     </div>
                   </div>
                   <div className="question_item_top_data_right">
@@ -678,8 +694,10 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                   <div className="question_list_item_left">
                     <img src={q.latest_likers[0]?.avatar_url ?? "/images/icons/avatar.svg"} alt="" />
                     <div className="question_list_item_left__user_meta">
-                      <p className="main_text">{q.title}</p>
-                      <span>{q.likes_count} лайков</span>
+                      <p className="main_text" title={q.title}>{q.title}</p>
+                      <span title={compactCountTitle(q.likes_count)}>
+                        {formatCompactNumWord(q.likes_count, ["лайк", "лайка", "лайков"])}
+                      </span>
                     </div>
                   </div>
                 </Link>
@@ -688,7 +706,9 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                     {q.latest_likers.slice(0, 3).map((u) => (
                       <img key={u.id} src={u.avatar_url} alt="" />
                     ))}
-                    <p className="main_text">+{q.likes_count}</p>
+                    <p className="main_text" title={compactCountTitle(q.likes_count)}>
+                      {formatCompactCountPlus(q.likes_count)}
+                    </p>
                   </div>
                   <div className="question_list_item_right_actions">
                     <button
@@ -729,45 +749,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
 
         <div className="line" />
 
-        <div className="tops_block">
-          <div className="tops_block_item">
-            <div className="blocks_title"><h2>Лидеры проекта</h2></div>
-            <div className="tops_block_item_top_subjects">
-              {(initialData.project_leaders ?? []).map((u) => (
-                <div className="question_list_item" key={u.id}>
-                  <Link href={`/profile/${u.id}`}>
-                    <div className="question_list_item_left">
-                      <img src={u.avatar_url} alt={u.first_name} />
-                      <div className="question_list_item_left__user_meta">
-                        <div className="main_text">{u.first_name} {u.last_name}</div>
-                        <span>{u.balls} баллов</span>
-                      </div>
-                    </div>
-                  </Link>
-                  <div className="question_list_item_users">
-                    <p className="main_text">—</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="tops_block_item">
-            <div className="blocks_title"><h2>Самые обсуждаемые</h2></div>
-            <div className="tops_block_item_top_subjects">
-              {(initialData.most_discussed ?? []).map((q) => (
-                <MostDiscussedListItem key={q.id} question={q} />
-              ))}
-            </div>
-          </div>
-          <div className="tops_block_item">
-            <div className="blocks_title"><h2>Популярные темы</h2></div>
-            <div className="tops_block_item_top_subjects">
-              {(initialData.popular_topics ?? []).map((t) => (
-                <PopularTopicListItem key={t.id} topic={t} />
-              ))}
-            </div>
-          </div>
-        </div>
+        <TopsBlock data={initialData} />
 
         <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
         <QuestionModal isOpen={isQuestionModalOpen} onClose={() => setIsQuestionModalOpen(false)} />

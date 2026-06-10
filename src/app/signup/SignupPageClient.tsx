@@ -7,6 +7,11 @@ import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { useAuthStore } from "@/store/authStore"
 import SocialAuthButtons from "@/components/SocialAuthButtons"
+import {
+  sanitizeUserFirstNameInput,
+  USER_FIRST_NAME_MAX_LENGTH,
+  validateUserFirstName,
+} from "@/lib/user-first-name"
 
 export default function SignupPageClient() {
   const router = useRouter()
@@ -26,8 +31,13 @@ export default function SignupPageClient() {
     const genderRaw = fd.get("gender") as string
     const gender = genderRaw === "female" ? 2 : genderRaw === "male" ? 1 : 0
 
-    if (!first_name || !email || !password) {
-      setError("Заполните имя, email и пароль.")
+    const nameError = validateUserFirstName(first_name ?? "")
+    if (nameError) {
+      setError(nameError)
+      return
+    }
+    if (!email || !password) {
+      setError("Заполните email и пароль.")
       return
     }
     if (password.length < 8) {
@@ -75,7 +85,17 @@ export default function SignupPageClient() {
             <div className="auth_page_wrapper">
               <div className="auth_form">
                 <div className="login_input">
-                  <input type="text" placeholder="Имя" name="first_name" required autoComplete="given-name" />
+                  <input
+                    type="text"
+                    placeholder="Имя"
+                    name="first_name"
+                    required
+                    autoComplete="given-name"
+                    maxLength={USER_FIRST_NAME_MAX_LENGTH}
+                    onChange={(e) => {
+                      e.currentTarget.value = sanitizeUserFirstNameInput(e.currentTarget.value)
+                    }}
+                  />
                 </div>
                 <div className="login_input">
                   <input type="email" placeholder="Ваш почтовый ящик" name="email" required autoComplete="email" />

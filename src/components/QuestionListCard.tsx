@@ -5,6 +5,11 @@ import UserAvatar from "@/components/UserAvatar";
 import QuestionLikerAvatars from "@/components/QuestionLikerAvatars";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
+import {
+  compactCountTitle,
+  formatCompactCountPlus,
+  formatCompactNumWord,
+} from "@/lib/format-compact-count";
 
 export type QuestionListAuthor = {
   id: number;
@@ -41,13 +46,8 @@ type QuestionListCardProps = {
   onShare: (e: React.MouseEvent<HTMLButtonElement>, title: string, id: number) => void;
 };
 
-const numWord = (value: number, words: [string, string, string]): string => {
-  const abs = Math.abs(value);
-  const cases = [2, 0, 1, 1, 1, 2];
-  const index =
-    abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)];
-  return `${value} ${words[index]}`;
-};
+const numWord = (value: number, words: [string, string, string]): string =>
+  formatCompactNumWord(value, words);
 
 export default function QuestionListCard({
   question,
@@ -99,6 +99,7 @@ export default function QuestionListCard({
               href={`/profile/${question.author.id}`}
               className="main_text"
               style={{ textDecoration: "none", color: "inherit" }}
+              title={authorName}
               onClick={(event) => event.stopPropagation()}
             >
               {authorName}
@@ -150,9 +151,10 @@ export default function QuestionListCard({
         <Link
           href={`/question/${question.id}`}
           className="question_list_item_left__user_meta question_list_item_title_link"
+          title={question.title}
           onClick={(event) => event.stopPropagation()}
         >
-          <p className="main_text">{question.title}</p>
+          <p className="main_text" title={question.title}>{question.title}</p>
           <span>{formatTimeAgo(question.created_at)}</span>
         </Link>
       </div>
@@ -160,7 +162,8 @@ export default function QuestionListCard({
       <div className="question_list_item_right">
         <QuestionLikerAvatars
           likers={question.latest_likers ?? []}
-          countLabel={`+${question.answers_count}`}
+          countLabel={formatCompactCountPlus(question.answers_count)}
+          countTitle={compactCountTitle(question.answers_count)}
         />
         <div className="question_list_item_right_actions">
           <button

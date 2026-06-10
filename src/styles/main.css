@@ -383,6 +383,7 @@ a:has(.light_logo) {
 
 .subjects_list_wrapper {
   overflow-x: auto;
+  overflow-y: hidden;
   position: relative;
 }
 
@@ -414,36 +415,33 @@ a:has(.light_logo) {
   }
 }
 
-.subjects_list_wrapper {
+.subjects_list_wrapper.is-scrollable {
   scrollbar-width: thin; /* Firefox */
-  scrollbar-color: rgb(96, 105, 255) rgb(250, 250, 252); /* Firefox */
-  /* Принудительный скроллбар на всех устройствах */
-  overflow-x: scroll !important;
+  scrollbar-color: rgb(96, 105, 255) rgb(250, 250, 252);
 }
 
-.dark_mode .subjects_list_wrapper {
-  scrollbar-color: rgb(96, 105, 255) rgb(23, 26, 63); /* Firefox dark */
+.dark_mode .subjects_list_wrapper.is-scrollable {
+  scrollbar-color: rgb(96, 105, 255) rgb(23, 26, 63);
 }
 
-/* Кастомный webkit-скроллбар (десктоп + мобильная эмуляция Chrome) */
-.subjects_list_wrapper::-webkit-scrollbar {
-  width: 100%;
+/* Горизонтальный скроллбар — только когда контент не помещается */
+.subjects_list_wrapper.is-scrollable::-webkit-scrollbar {
+  width: 0;
   height: 6px;
   -webkit-appearance: none;
-  display: block !important;
 }
 
-.subjects_list_wrapper::-webkit-scrollbar-track {
+.subjects_list_wrapper.is-scrollable::-webkit-scrollbar-track {
   border-radius: 44px;
   background: rgb(250, 250, 252);
 }
 
-.dark_mode .subjects_list_wrapper::-webkit-scrollbar-track {
+.dark_mode .subjects_list_wrapper.is-scrollable::-webkit-scrollbar-track {
   border-radius: 44px;
   background: rgb(23, 26, 63);
 }
 
-.subjects_list_wrapper::-webkit-scrollbar-thumb {
+.subjects_list_wrapper.is-scrollable::-webkit-scrollbar-thumb {
   border-radius: 44px;
   background: rgb(96, 105, 255);
   min-width: 40px;
@@ -476,14 +474,14 @@ a:has(.light_logo) {
 
 @media (max-width: 768px) {
   /* на мобилке прячем нативный и показываем кастомный */
-  .subjects_list_wrapper::-webkit-scrollbar {
+  .subjects_list_wrapper.is-scrollable::-webkit-scrollbar {
     display: none !important;
     height: 0;
   }
-  .subjects_list_wrapper {
+  .subjects_list_wrapper.is-scrollable {
     scrollbar-width: none; /* Firefox mobile */
   }
-  .subjects_scroll_track {
+  .subjects_scroll_track.is-visible {
     display: block;
   }
 }
@@ -878,6 +876,7 @@ a:has(.light_logo) {
   display: flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
 }
 
 .question_list_item_left div {
@@ -890,6 +889,44 @@ a:has(.light_logo) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.questions_list .question_list_item_left .question_list_item_left__user_meta {
+  flex: 1;
+  overflow: hidden;
+}
+
+.main_question_block .question_list_item_left .question_list_item_left__user_meta:not(.answer_author_container) {
+  flex: 0 1 auto;
+  overflow: visible;
+}
+
+.main_question_block .question_list_item_left .answer_author_container {
+  flex: 1 1 0%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.question_list_item_left > .quest_user_title {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  max-width: none;
+  overflow: visible;
+}
+
+.question_list_item_left__user_meta > .main_text:not(.question_title_clamp),
+.question_list_item_left__user_meta > a.main_text,
+.question_list_item_left__user_meta > p.main_text,
+.question_list_item_left__user_meta > div.main_text:not(.question_title_clamp),
+.question_list_item_left > div > .main_text:not(.question_title_clamp),
+.question_list_item_left > div > .main_text > a {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .question_list_item_left img {
@@ -1170,12 +1207,59 @@ a.question_list_item_left.question_list_item_title_link {
 }
 
 .tops_block_item_top_subjects .question_list_item {
-  padding: 12px 25px 13px 23px;
+  padding: 8px 25px 8px 23px;
+  min-height: 62px;
+  height: 62px;
+  max-height: 62px;
+  box-sizing: border-box;
 }
 
 .tops_block_item_top_subjects .question_list_item .question_list_item_left {
   flex: 1;
   min-width: 0;
+}
+
+/* Слот под текст: фиксированная высота, контент по центру по вертикали */
+.tops_block_item_top_subjects .question_list_item_left__user_meta {
+  justify-content: center;
+  min-height: 38px;
+}
+
+/* Заголовок/тема: до 2 строк, при 1 строке — по центру слота */
+.tops_block_item_top_subjects
+  .question_list_item_left__user_meta
+  > .main_text.question_title_clamp,
+.tops_block_item_top_subjects
+  .question_list_item_left__user_meta
+  > .main_text:only-child {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 19px;
+  max-height: 38px;
+}
+
+/* Лидеры проекта: имя + баллы — компактнее, без лишних отступов */
+.tops_block_item_top_subjects .question_list_item_left__user_meta:has(span) {
+  gap: 2px;
+}
+
+.tops_block_item_top_subjects
+  .question_list_item_left__user_meta
+  > .main_text:not(:only-child) {
+  line-height: 17px;
+  font-size: 16px;
+}
+
+.tops_block_item_top_subjects
+  .question_list_item_left__user_meta
+  > .main_text:not(:only-child)
+  + span {
+  line-height: 14px;
+  font-size: 14px;
 }
 
 .tops_block_item_top_subjects .question_list_item:hover svg {
@@ -1656,10 +1740,13 @@ footer .line {
     padding: 20px;
   }
 
-  .tops_block_item .question_list_item {
-    padding: 12px 19px;
+  .tops_block_item_top_subjects .question_list_item {
+    padding: 8px 19px;
     flex-direction: row;
     align-items: center;
+    height: 62px;
+    min-height: 62px;
+    max-height: 62px;
   }
 
   .question_list_item_right_actions .s_btn_icon {
@@ -1674,6 +1761,18 @@ footer .line {
 
   .questions_list .question_list_item_left .question_list_item_title_link {
     width: 100%;
+  }
+
+  .question_list_item_title_link.question_list_item_left__user_meta {
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .question_list_item_title_link.question_list_item_left__user_meta > p.main_text {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    word-break: break-word;
   }
 
   .main_question_block_item .question_list_item_left span {
@@ -1744,7 +1843,9 @@ footer .line {
   }
 
   .tops_block .tops_block_item_top_subjects .question_list_item {
-    height: 65px;
+    height: 62px;
+    min-height: 62px;
+    max-height: 62px;
   }
 
   .line {
@@ -1774,27 +1875,53 @@ footer .line {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    gap: 8px;
+    min-width: 0;
   }
 
   .question_item_top_data_left {
     display: flex;
     align-items: center;
     gap: 9px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .question_item_top_data_left .question_list_item_avatar_link,
+  .question_item_top_data_left .site-user-avatar {
+    flex-shrink: 0;
   }
 
   .question_item_top_data_right {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
   }
 
-  .question_item_top_data_left div {
+  .question_item_top_data_left .question_list_item_left__user_meta {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 2px;
     min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .question_item_top_data_left .question_list_item_left__user_meta > a.main_text {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 8px;
+    box-sizing: border-box;
   }
 
   .question_item_top_data_left span {
@@ -1808,6 +1935,39 @@ footer .line {
 
   .question_list_item:hover .question_item_top_data_left span {
     color: rgba(255, 255, 255, 1);
+  }
+}
+
+/* >500px: заголовок вопроса в списках обрезается — кнопки в отдельном блоке справа */
+@media only screen and (min-width: 501px) {
+  .questions_list .question_list_item_left {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .questions_list .question_list_item_left > .question_list_item_avatar_link,
+  .questions_list .question_list_item_left > .site-user-avatar {
+    flex-shrink: 0;
+  }
+
+  .questions_list .question_list_item_right {
+    flex-shrink: 0;
+  }
+
+  .questions_list .question_list_item_title_link.question_list_item_left__user_meta {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .questions_list .question_list_item_title_link.question_list_item_left__user_meta > p.main_text {
+    width: 100%;
+    min-width: 0;
+    padding-right: 0;
+    box-sizing: border-box;
   }
 }
 

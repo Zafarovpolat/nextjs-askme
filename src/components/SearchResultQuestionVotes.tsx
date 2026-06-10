@@ -1,6 +1,7 @@
 "use client";
 
 import { useVoteQuestion } from "@/hooks/useVoteQuestion";
+import { formatCompactCount, voteCountTitle } from "@/lib/format-compact-count";
 
 type Props = {
   questionId: number;
@@ -37,7 +38,9 @@ export default function SearchResultQuestionVotes({
           <svg width="18" height="18">
             <use xlinkHref="#thumb-up"></use>
           </svg>
-          <span className="vote_count">{likes_count}</span>
+          <span className="vote_count" title={voteCountTitle(likes_count)}>
+            {formatCompactCount(likes_count)}
+          </span>
         </button>
         <button
           type="button"
@@ -49,7 +52,9 @@ export default function SearchResultQuestionVotes({
           <svg width="18" height="18">
             <use xlinkHref="#thumb-down"></use>
           </svg>
-          <span className="vote_count">{dislikes_count}</span>
+          <span className="vote_count" title={voteCountTitle(dislikes_count)}>
+            {formatCompactCount(dislikes_count)}
+          </span>
         </button>
       </div>
     </div>

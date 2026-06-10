@@ -189,7 +189,7 @@
 }
 
 .faq-item--open .faq-item-answer {
-  max-height: 600px;
+  max-height: fit-content;
 }
 
 .faq-item-answer-inner {

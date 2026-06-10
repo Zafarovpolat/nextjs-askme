@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { mockUsers } from '@/data/mock-users'
 import { mockCategories } from '@/data/mock-categories'
+import { compactCountTitle, formatCompactNumWord } from '@/lib/format-compact-count'
 
 export default function SidebarRight() {
   // Топ 3 пользователя
@@ -22,8 +23,10 @@ export default function SidebarRight() {
                 <div className="question_list_item_left">
                   <img src={user.avatar || '/images/avatar.png'} alt={user.displayName} />
                   <div className="question_list_item_left__user_meta">
-                    <div className="main_text">{user.displayName}</div>
-                    <span>{user.rating} баллов</span>
+                    <div className="main_text" title={user.displayName}>{user.displayName}</div>
+                    <span title={compactCountTitle(user.rating)}>
+                      {formatCompactNumWord(user.rating, ["балл", "балла", "баллов"])}
+                    </span>
                   </div>
                 </div>
                 <div className="question_list_item_right">
@@ -64,7 +67,9 @@ export default function SidebarRight() {
                   </div>
                   <div className="question_list_item_left__user_meta">
                     <div className="main_text">{category.name}</div>
-                    <span>{category.questionsCount} вопросов</span>
+                    <span title={compactCountTitle(category.questionsCount)}>
+                      {formatCompactNumWord(category.questionsCount, ["вопрос", "вопроса", "вопросов"])}
+                    </span>
                   </div>
                 </div>
                 <div className="question_list_item_right">

@@ -14,16 +14,16 @@ import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import { api } from "@/lib/api-client";
 import SharePopup from "@/components/SharePopup";
 import type { SimilarQuestionItem, SimilarQuestionsPage } from "@/types";
+import {
+  compactCountTitle,
+  formatCompactCountPlus,
+  formatCompactNumWord,
+} from "@/lib/format-compact-count";
+
+const numWord = (value: number, words: [string, string, string]): string =>
+  formatCompactNumWord(value, words);
 
 const PER_PAGE = 12;
-
-const numWord = (value: number, words: [string, string, string]): string => {
-  const abs = Math.abs(value);
-  const cases = [2, 0, 1, 1, 1, 2];
-  const index =
-    abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)];
-  return `${value} ${words[index]}`;
-};
 
 export default function ProfileRelatedQuestionsBlock({
   profileUserId,
@@ -141,7 +141,7 @@ export default function ProfileRelatedQuestionsBlock({
                   </Link>
                   <div>
                     <p className="main_text">
-                      <Link href={`/profile/${q.author.id}`}>
+                      <Link href={`/profile/${q.author.id}`} title={q.author.full_name}>
                         {q.author.full_name}
                       </Link>
                     </p>
@@ -184,7 +184,7 @@ export default function ProfileRelatedQuestionsBlock({
                     premiumText={authorPremiumText}
                   />
                   <div className="question_list_item_left__user_meta">
-                    <p className="main_text">{q.title}</p>
+                    <p className="main_text" title={q.title}>{q.title}</p>
                     <span>{formatTimeAgo(q.created_at)}</span>
                   </div>
                 </div>
@@ -200,7 +200,9 @@ export default function ProfileRelatedQuestionsBlock({
                       size={30}
                     />
                   ))}
-                  <p className="main_text">+{q.answers_count}</p>
+                  <p className="main_text" title={compactCountTitle(q.answers_count)}>
+                    {formatCompactCountPlus(q.answers_count)}
+                  </p>
                 </div>
                 <div className="question_list_item_right_actions">
                   <button

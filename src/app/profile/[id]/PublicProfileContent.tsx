@@ -16,6 +16,10 @@ import { getToken } from "@/lib/cookies";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { useAuthStore } from "@/store/authStore";
 import ProfileHeaderBlock from "@/components/profile/ProfileHeaderBlock";
+import {
+  compactCountTitle,
+  formatCompactCount,
+} from "@/lib/format-compact-count";
 import ProfileSharePopup from "@/components/profile/ProfileSharePopup";
 import type { PublicProfileUser } from "@/types";
 import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
@@ -239,7 +243,9 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
   const registeredInService = registeredAgo.replace(/\s+назад$/, "");
   const isOwnProfile = authUser?.id === profile.id;
   const isBanned = Boolean(profile.is_blocked);
-  const ballsDisplay = isAiUser ? "∞" : (profile.balls ?? 0).toLocaleString();
+  const ballsRaw = profile.balls ?? 0;
+  const ballsDisplay = isAiUser ? "∞" : formatCompactCount(ballsRaw);
+  const ballsTitle = isAiUser ? undefined : compactCountTitle(ballsRaw);
 
   const profileQuestionStatus = (q: ProfileQuestionItem): "opened" | "voting" | "closed" => {
     if (q.status === "voting") return "voting";
@@ -408,7 +414,9 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
         >
           <p className="main_text">Вопросы</p>
           <div className="stats_badge">
-            <p className="main_text">{profile.questions_count}</p>
+            <p className="main_text" title={compactCountTitle(profile.questions_count)}>
+              {formatCompactCount(profile.questions_count)}
+            </p>
           </div>
         </div>
         <div
@@ -418,7 +426,9 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
         >
           <p className="main_text">Ответы</p>
           <div className="stats_badge">
-            <p className="main_text">{profile.answers_count}</p>
+            <p className="main_text" title={compactCountTitle(profile.answers_count)}>
+              {formatCompactCount(profile.answers_count)}
+            </p>
           </div>
         </div>
         {!isOwnProfile && !isBanned && (
@@ -539,6 +549,7 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
             avatarUrl={avatarUrl}
             avatarUrl2x={avatarUrl2x}
             ballsDisplay={ballsDisplay}
+            ballsTitle={ballsTitle}
             kpdPercentDisplay={`${kpdPercent}%`}
           />
 

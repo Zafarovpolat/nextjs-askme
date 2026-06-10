@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Fragment, type MouseEvent } from "react";
 import UserAvatar from "@/components/UserAvatar";
 import { formatTimeAgo } from "@/lib/time-ago";
+import { formatCompactCount, voteCountTitle } from "@/lib/format-compact-count";
 import { useVoteAnswer } from "@/hooks/useVoteAnswer";
 import { useFavoriteAnswer } from "@/hooks/useFavoriteAnswer";
 import type { QuestionPageAnswer } from "@/types";
@@ -120,7 +121,11 @@ export default function AnswerBlock({
           </div>
           <div className="answer_author_container question_list_item_left__user_meta">
             <div className="answer_author_info">
-              <Link href={`/profile/${answer.user.id}`} className="main_text">
+              <Link
+                href={`/profile/${answer.user.id}`}
+                className="main_text"
+                title={displayUserName(answer.user)}
+              >
                 {displayUserName(answer.user)}
               </Link>
               {parentUser && (
@@ -129,6 +134,7 @@ export default function AnswerBlock({
                   <Link
                     href={`/profile/${parentUser.id}`}
                     className="reply_to_text"
+                    title={parentUser.full_name}
                   >
                     {parentUser.full_name}
                   </Link>
@@ -225,7 +231,9 @@ export default function AnswerBlock({
               <svg width="18" height="18">
                 <use xlinkHref="#thumb-up"></use>
               </svg>
-              <span className="vote_count">{likes_count}</span>
+              <span className="vote_count" title={voteCountTitle(likes_count)}>
+                {formatCompactCount(likes_count)}
+              </span>
             </button>
             <button
               className={`vote_btn dislike_btn ${user_vote === -1 ? "vote_btn--active" : ""}`}
@@ -236,7 +244,9 @@ export default function AnswerBlock({
               <svg width="18" height="18">
                 <use xlinkHref="#thumb-down"></use>
               </svg>
-              <span className="vote_count">{dislikes_count}</span>
+              <span className="vote_count" title={voteCountTitle(dislikes_count)}>
+                {formatCompactCount(dislikes_count)}
+              </span>
             </button>
           </div>
         </div>

@@ -12,6 +12,7 @@ const DEFAULT_AVATAR = "/images/icons/avatar.svg";
 type QuestionLikerAvatarsProps = {
   likers: LikerUser[];
   countLabel: string;
+  countTitle?: string;
   /** 30 — стопка справа; без UserAvatar — plain img (tops block) */
   avatarSize?: number;
   usePlainImg?: boolean;
@@ -20,6 +21,7 @@ type QuestionLikerAvatarsProps = {
 export default function QuestionLikerAvatars({
   likers,
   countLabel,
+  countTitle,
   avatarSize = 30,
   usePlainImg = false,
 }: QuestionLikerAvatarsProps) {
@@ -65,7 +67,9 @@ export default function QuestionLikerAvatars({
           </Link>
         );
       })}
-      <p className="main_text">{countLabel}</p>
+      <p className="main_text" title={countTitle}>
+        {countLabel}
+      </p>
     </div>
   );
 }

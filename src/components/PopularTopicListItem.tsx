@@ -1,6 +1,7 @@
 "use client";
 
 import QuestionLikerAvatars, { type LikerUser } from "@/components/QuestionLikerAvatars";
+import { compactCountTitle, formatCompactCountPlus } from "@/lib/format-compact-count";
 
 export type PopularTopicItem = {
   id: number;
@@ -35,14 +36,15 @@ export default function PopularTopicListItem({ topic }: { topic: PopularTopicIte
           <use xlinkHref={`#${topic.parent_icon_key || "gaming"}`}></use>
         </svg>
         <div className="question_list_item_left__user_meta">
-          <div className="main_text" title={topic.name}>
+          <div className="main_text question_title_clamp" title={topic.name}>
             {topic.name}
           </div>
         </div>
       </div>
       <QuestionLikerAvatars
         likers={topic.latest_likers ?? []}
-        countLabel={`+${topic.total_likes}`}
+        countLabel={formatCompactCountPlus(topic.total_likes)}
+        countTitle={compactCountTitle(topic.total_likes)}
         usePlainImg
       />
     </div>

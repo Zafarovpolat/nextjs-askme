@@ -323,6 +323,11 @@
 
 .top_leader_card_desc {
   margin-top: 15px;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .top_leader_card_desc h3 {
@@ -334,6 +339,10 @@
   letter-spacing: 0;
   text-align: center;
   margin: 0px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .top_leader_card_desc h4 {
@@ -448,13 +457,32 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 /* dark mode — фильтры и список на /leaders */
 .dark_mode .custom-select--leaders-filter .custom-select__trigger {
-  background-color: rgb(64, 53, 134);
-  background-image: url(/images/icons/more-s-icon.svg);
+  background:
+    url(/images/icons/more-s-icon.svg) right 14px center no-repeat,
+    rgb(64, 53, 134);
   border-color: rgba(255, 255, 255, 0.35);
+}
+
+.dark_mode .custom-select--leaders-filter .custom-select__trigger:hover:not(:disabled) {
+  background:
+    url(/images/icons/more-s-icon.svg) right 14px center no-repeat,
+    rgb(64, 53, 134);
+  border-color: rgb(98, 106, 255);
+}
+
+.dark_mode .custom-select--leaders-filter.custom-select--open .custom-select__trigger {
+  background:
+    url(/images/icons/more-s-icon.svg) right 14px center no-repeat,
+    rgb(64, 53, 134);
+  border-color: rgb(98, 106, 255);
+  border-bottom-color: rgba(255, 255, 255, 0.35);
 }
 
 .dark_mode .custom-select--leaders-filter .custom-select__value {
@@ -617,12 +645,46 @@
 
 .project_leaders_grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px 20px;
 }
 
 .project_leaders_grid .question_list_item {
   margin: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.project_leaders_list .question_list_item-left {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.project_leaders_list .question_list_item_left {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.project_leaders_list .question_list_item_left__user_meta {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.project_leaders_list .question_list_item_left__user_meta .main_text {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project_leaders_list .question_list_item_users {
+  flex-shrink: 0;
 }
 
 .leaders-tab {

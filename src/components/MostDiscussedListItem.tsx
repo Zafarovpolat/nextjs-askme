@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import QuestionLikerAvatars, { type LikerUser } from "@/components/QuestionLikerAvatars";
+import { compactCountTitle, formatCompactCountPlus } from "@/lib/format-compact-count";
 
 export type MostDiscussedQuestion = {
   id: number;
@@ -54,12 +55,13 @@ export default function MostDiscussedListItem({
           <img src={firstLiker?.avatar_url || DEFAULT_AVATAR} alt="" />
         )}
         <div className="question_list_item_left__user_meta question_list_item_title_link">
-          <div className="main_text question_title_clamp">{question.title}</div>
+          <div className="main_text question_title_clamp" title={question.title}>{question.title}</div>
         </div>
       </div>
       <QuestionLikerAvatars
         likers={likers}
-        countLabel={`+${question.likes_count}`}
+        countLabel={formatCompactCountPlus(question.likes_count)}
+        countTitle={compactCountTitle(question.likes_count)}
         usePlainImg
       />
     </div>

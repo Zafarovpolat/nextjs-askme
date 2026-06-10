@@ -19,6 +19,12 @@ import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
 import { formatTimeAgo } from "@/lib/time-ago";
+import {
+  compactCountTitle,
+  formatCompactCount,
+  formatCompactCountPlus,
+  voteCountTitle,
+} from "@/lib/format-compact-count";
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import { useVoteQuestion } from "@/hooks/useVoteQuestion";
 import ComplaintModal from "@/components/ComplaintModal";
@@ -26,6 +32,7 @@ import ShareIconsPopup from "@/components/ShareIconsPopup";
 import AnswerBlock, { AnswerWithReplies } from "./AnswerBlock";
 import SimilarQuestionsBlock from "./SimilarQuestionsBlock";
 import QuestionLeadersSidebar from "./QuestionLeadersSidebar";
+import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
 import TextWithLinks from "@/components/TextWithLinks";
 import BodyAttachments from "@/components/BodyAttachments";
 import QuestionCardBg from "@/components/QuestionCardBg";
@@ -40,6 +47,11 @@ import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
 import type { AnswerAnchorMeta, QuestionPageData } from "@/types";
 import { getApiFullUrl } from "@/config/api";
 import LinkInputModal from "@/components/LinkInputModal";
+import {
+  containsSpamUnicode,
+  PLAIN_TEXT_SPAM_MESSAGE,
+  sanitizePlainTextInput,
+} from "@/lib/plain-text-spam-guard";
 import {
   anchorRefKey,
   buildAnswerAnchorHash,
@@ -138,14 +150,6 @@ function categorySidebarIcon(
 /** Как префикс «имя,» в цепочке ответов (AnswerBlock) */
 const REPLY_NAME_COLOR = "#6069ff";
 
-const numWord = (value: number, words: [string, string, string]): string => {
-  const abs = Math.abs(value);
-  const cases = [2, 0, 1, 1, 1, 2];
-  const index =
-    abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)];
-  return `${value} ${words[index]}`;
-};
-
 function canAddAttachment(remaining: number | null | undefined): boolean {
   if (remaining === null || remaining === undefined) return true;
   return remaining > 0;
@@ -182,8 +186,6 @@ export default function QuestionPageContent({
     sidebarCategories.length > 0
       ? sidebarCategories
       : FALLBACK_SIDEBAR_CATEGORIES;
-  const weeklyBalls = widgets.weekly_balls_leaders ?? [];
-  const weeklyAuthors = widgets.weekly_active_authors ?? [];
   const isPremiumQuestion = Boolean(initialQuestion.is_premium);
   const isPremiumAuthor = Boolean(
     initialQuestion.author.premium_is_active ??
@@ -471,15 +473,15 @@ export default function QuestionPageContent({
     (e: ChangeEvent<HTMLTextAreaElement>) => {
       const v = e.target.value;
       if (!replyTarget) {
-        setAnswerText(v);
+        setAnswerText(sanitizePlainTextInput(v));
         return;
       }
       if (!v.startsWith(replyPrefix)) {
         clearReplyTarget();
-        setAnswerText(v);
+        setAnswerText(sanitizePlainTextInput(v));
         return;
       }
-      setAnswerText(v.slice(replyPrefix.length));
+      setAnswerText(sanitizePlainTextInput(v.slice(replyPrefix.length)));
     },
     [replyTarget, replyPrefix, clearReplyTarget]
   );
@@ -540,6 +542,10 @@ export default function QuestionPageContent({
       }
       const raw = answerText.trim();
       if (!raw) return;
+      if (containsSpamUnicode(raw)) {
+        setAnswerSubmitError(PLAIN_TEXT_SPAM_MESSAGE);
+        return;
+      }
       if (replyTarget && !allowAnswerComments) {
         setAnswerSubmitError("Комментарии к ответам отключены автором вопроса.");
         return;
@@ -1008,80 +1014,7 @@ export default function QuestionPageContent({
             ))}
           </div>
 
-          {/* Лидеры проекта */}
-          <div className="question_leaders">
-            <div className="blocks_title">
-              <h2>Лидеры проекта</h2>
-            </div>
-            {weeklyBalls.map((user) => {
-              const p = user.premium_is_active ?? user.is_premium ?? false;
-              const pt = user.premium_is_permanent
-                ? "Постоянный"
-                : user.premium_package_name?.trim() || "Премиум";
-              return (
-              <Link href={`/profile/${user.id}`} key={user.id}>
-                <div className="question_list_item">
-                  <div className="question_list_item_left">
-                    <UserAvatar
-                      src={user.avatar_url}
-                      src2x={user.avatar_url_2x}
-                      alt=""
-                      size={40}
-                      premium={p}
-                      premiumText={pt}
-                    />
-                    <div className="question_list_item_left__user_meta">
-                      <p className="main_text">{user.full_name}</p>
-                      <span>
-                        {numWord(user.week_score ?? 0, [
-                          "балл",
-                          "балла",
-                          "баллов",
-                        ])}{" "}
-                        за неделю
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            );
-            })}
-          </div>
-
-          {/* Самые активные авторы */}
-          <div className="question_leaders">
-            <div className="blocks_title">
-              <h2>Самые активные авторы</h2>
-            </div>
-            {weeklyAuthors.map((user) => {
-              const p = user.premium_is_active ?? user.is_premium ?? false;
-              const pt = user.premium_is_permanent
-                ? "Постоянный"
-                : user.premium_package_name?.trim() || "Премиум";
-              return (
-              <Link href={`/profile/${user.id}`} key={user.id}>
-                <div className="question_list_item">
-                  <div className="question_list_item_left">
-                    <UserAvatar
-                      src={user.avatar_url}
-                      src2x={user.avatar_url_2x}
-                      alt=""
-                      size={40}
-                      premium={p}
-                      premiumText={pt}
-                    />
-                    <div className="question_list_item_left__user_meta">
-                      <p className="main_text">{user.full_name}</p>
-                      <span>
-                        {numWord(user.balls ?? 0, ["балл", "балла", "баллов"])}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            );
-            })}
-          </div>
+          <ProfileWeeklyLeadersSidebar initialWidgets={widgets} />
         </div>
 
         {/* Основной контент */}
@@ -1092,7 +1025,7 @@ export default function QuestionPageContent({
 
           {/* Блок вопроса (данные из API) */}
           <div
-            className={`main_question_block main_question_block_item ${isPremiumQuestion ? "premium-question" : ""} ${(initialQuestion.dislikes_count ?? 0) > (initialQuestion.likes_count ?? 0) ? "blocked_question_block" : ""}`}
+            className={`main_question_block main_question_block_item ${isPremiumQuestion ? "premium-question" : ""}`}
           >
             <QuestionCardBg isPremium={isPremiumQuestion} />
             {isPremiumQuestion ? (
@@ -1140,6 +1073,7 @@ export default function QuestionPageContent({
                   <Link
                     href={`/profile/${initialQuestion.author.id}`}
                     className="main_text"
+                    title={displayUserName(initialQuestion.author)}
                   >
                     {displayUserName(initialQuestion.author)}
                   </Link>
@@ -1194,7 +1128,9 @@ export default function QuestionPageContent({
                     <svg width="18" height="18">
                       <use xlinkHref="#thumb-up"></use>
                     </svg>
-                    <span className="vote_count">{likes_count}</span>
+                    <span className="vote_count" title={voteCountTitle(likes_count)}>
+                      {formatCompactCount(likes_count)}
+                    </span>
                   </button>
                   <button
                     className={`vote_btn dislike_btn ${user_vote === -1 ? "vote_btn--active" : ""}`}
@@ -1205,7 +1141,9 @@ export default function QuestionPageContent({
                     <svg width="18" height="18">
                       <use xlinkHref="#thumb-down"></use>
                     </svg>
-                    <span className="vote_count">{dislikes_count}</span>
+                    <span className="vote_count" title={voteCountTitle(dislikes_count)}>
+                      {formatCompactCount(dislikes_count)}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -1270,7 +1208,9 @@ export default function QuestionPageContent({
           <div className="blocks_title mt_25px all-questions">
             <div className="blocks_title-inner">
               <h2>Посмотрите все ответы</h2>
-              <span className="answers_count_badge">+{totalAnswers}</span>
+              <span className="answers_count_badge" title={compactCountTitle(totalAnswers)}>
+                {formatCompactCountPlus(totalAnswers)}
+              </span>
             </div>
             <div className="questions_filter">
               {/* п.22 — кнопки сортировки с 3 состояниями и стрелками */}

@@ -21,12 +21,22 @@ import ProfileHeaderBlock from "@/components/profile/ProfileHeaderBlock";
 import UserAvatar from "@/components/UserAvatar";
 import { ProfileLevelsMenuInner, ProfileRulesMenuInner } from "./ProfileLevelsRulesContent";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
+import {
+  compactCountTitle,
+  formatCompactCount,
+  formatCompactNumWord,
+} from "@/lib/format-compact-count";
 import { CheckIcon } from "@/components/AboutIcons";
 import { useSearchParams } from "next/navigation";
 import type { SubscriptionPackage } from "@/types";
 import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
 import { showSystemToast } from "@/store/systemToastStore";
 import { getApiErrorMessage } from "@/lib/api-error-message";
+import {
+  sanitizeUserFirstNameInput,
+  USER_FIRST_NAME_MAX_LENGTH,
+  validateUserFirstName,
+} from "@/lib/user-first-name";
 import { playNotificationSound } from "@/lib/notification-sound";
 
 type ProfileQuestionItem = {
@@ -205,8 +215,10 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
   const rankLabel = displayUserSubtitle(meUser);
   const avatarUrl = meUser.avatar_url || user.avatar;
   const avatarUrl2x = meUser.avatar_url_2x ?? null;
-  const balls = isAiUser ? 0 : (meUser.balls ?? user.rating);
-  const ballsDisplay = isAiUser ? "∞" : String(meUser.balls ?? user.rating);
+  const ballsRaw = meUser.balls ?? user.rating;
+  const balls = isAiUser ? 0 : ballsRaw;
+  const ballsDisplay = isAiUser ? "∞" : formatCompactCount(ballsRaw);
+  const ballsTitle = isAiUser ? undefined : compactCountTitle(ballsRaw);
   const kpdPercent = Math.round((meUser.kpd ?? 0) * 100);
   const nextLevelBalls = meUser.next_level_balls ?? 1000;
   const registeredAt = meUser.created_at ?? user.createdAt;
@@ -341,20 +353,26 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profileName.trim()) return;
+    const nameError = validateUserFirstName(profileName);
+    if (nameError) {
+      showSystemToast(nameError, "error");
+      return;
+    }
+    const trimmedName = profileName.trim();
     setProfileSaving(true);
     try {
       await api.post<{ user?: { first_name?: string; description?: string | null } }>(
         "v1/me/profile",
         {
-          first_name: profileName.trim(),
+          first_name: trimmedName,
           description: profileDescription.trim() || null,
         },
       );
       patchUser({
-        first_name: profileName.trim(),
+        first_name: trimmedName,
         description: profileDescription.trim() || null,
       });
+      setProfileName(trimmedName);
       showSystemToast("Профиль сохранён", "success");
     } catch (err) {
       showSystemToast(getApiErrorMessage(err), "error");
@@ -711,7 +729,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     const tenure = u.created_at ? formatTimeAgo(u.created_at).replace(/\s+назад$/, "") : "недавно";
     const qCount = u.questions_count ?? 0;
     const aCount = u.answers_count ?? 0;
-    const ballsLine = `${u.balls ?? 0} ${["балл", "балла", "баллов"][(u.balls ?? 0) % 10 === 1 && (u.balls ?? 0) % 100 !== 11 ? 0 : (u.balls ?? 0) % 10 >= 2 && (u.balls ?? 0) % 10 <= 4 && !((u.balls ?? 0) % 100 >= 12 && (u.balls ?? 0) % 100 <= 14) ? 1 : 2]}`;
+    const ballsLine = formatCompactNumWord(u.balls ?? 0, ["балл", "балла", "баллов"]);
     const showSubscribe = isSubscriberView && !u.subscribed_by_me;
     const followPremium = u.premium_is_active ?? u.is_premium ?? false;
     const followPremiumText = u.premium_is_permanent
@@ -732,7 +750,11 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
             />
           </Link>
           <div className="user-follow-info">
-            <Link href={`/profile/${u.id}`} className="user-follow-name">
+            <Link
+              href={`/profile/${u.id}`}
+              className="user-follow-name"
+              title={u.full_name || undefined}
+            >
               {u.full_name || "Пользователь"}
             </Link>
             <span className="user-follow-time">В сервисе {tenure}</span>
@@ -752,7 +774,9 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                 fill="#5E68FF"
               />
             </svg>
-            <span className="user-follow-stat-bold">{ballsLine}</span>
+            <span className="user-follow-stat-bold" title={compactCountTitle(u.balls ?? 0)}>
+              {ballsLine}
+            </span>
           </div>
           <div className="user-follow-separator" aria-hidden />
           <div className="user-follow-stat">
@@ -763,7 +787,9 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
               />
             </svg>
             <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
-              <span className="user-follow-stat-gray">{qCount.toLocaleString("ru-RU")}</span>
+              <span className="user-follow-stat-gray" title={compactCountTitle(qCount)}>
+                {formatCompactCount(qCount)}
+              </span>
               <span className="user-follow-stat-gray">вопросов</span>
             </div>
           </div>
@@ -776,7 +802,9 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
               />
             </svg>
             <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
-              <span className="user-follow-stat-gray">{aCount.toLocaleString("ru-RU")}</span>
+              <span className="user-follow-stat-gray" title={compactCountTitle(aCount)}>
+                {formatCompactCount(aCount)}
+              </span>
               <span className="user-follow-stat-gray">ответов</span>
             </div>
           </div>
@@ -888,7 +916,9 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     tabIndex={0}
                     onKeyDown={(e) => e.key === 'Enter' && handleLogout()}
                   >
-                    <img src="/images/icons/logout.svg" alt="" width="20" height="20" />
+                    <svg width="20" height="20" aria-hidden>
+                      <use xlinkHref="#logout-profile" />
+                    </svg>
                     <p className="main_text">Выход</p>
                   </div>
                 </>
@@ -912,6 +942,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
               avatarUrl={avatarUrl || "/images/icons/avatar.svg"}
               avatarUrl2x={avatarUrl2x}
               ballsDisplay={ballsDisplay}
+              ballsTitle={ballsTitle}
               kpdPercentDisplay={`${kpdPercent}%`}
               editableAvatar
               avatarInputRef={avatarInputRef}
@@ -970,7 +1001,9 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     role="button"
                     title="Выход"
                   >
-                    <img src="/images/icons/logout.svg" alt="" width="20" height="20" />
+                    <svg width="20" height="20" aria-hidden>
+                      <use xlinkHref="#logout-profile" />
+                    </svg>
                   </div>
                 </div>
               }
@@ -1337,7 +1370,8 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                           type="text"
                           placeholder="Ваше имя"
                           value={profileName}
-                          onChange={(e) => setProfileName(e.target.value)}
+                          onChange={(e) => setProfileName(sanitizeUserFirstNameInput(e.target.value))}
+                          maxLength={USER_FIRST_NAME_MAX_LENGTH}
                           name="name"
                         />
                       </div>
@@ -1812,25 +1846,33 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
               <div className={`profile_stats_item ${activeTab === "menu1" ? "active" : ""}`} onClick={() => handleTabClick("menu1")} style={{ cursor: "pointer" }}>
                 <p className="main_text">Вопросы</p>
                 <div className="stats_badge">
-                  <p className="main_text">{meUser.questions_count ?? user.questionsCount}</p>
+                  <p className="main_text" title={compactCountTitle(meUser.questions_count ?? user.questionsCount)}>
+                    {formatCompactCount(meUser.questions_count ?? user.questionsCount)}
+                  </p>
                 </div>
               </div>
               <div className={`profile_stats_item ${activeTab === "menu_answers" ? "active" : ""}`} onClick={() => handleTabClick("menu_answers")} style={{ cursor: "pointer" }}>
                 <p className="main_text">Ответы</p>
                 <div className="stats_badge">
-                  <p className="main_text">{meUser.answers_count ?? user.answersCount}</p>
+                  <p className="main_text" title={compactCountTitle(meUser.answers_count ?? user.answersCount)}>
+                    {formatCompactCount(meUser.answers_count ?? user.answersCount)}
+                  </p>
                 </div>
               </div>
               <div className={`profile_stats_item ${activeTab === "menu_subscriptions" ? "active" : ""}`} onClick={() => handleTabClick("menu_subscriptions")} style={{ cursor: "pointer" }}>
                 <p className="main_text">Подписки</p>
                 <div className="stats_badge">
-                  <p className="main_text">{meUser.subscriptions_count ?? subscriptions.length}</p>
+                  <p className="main_text" title={compactCountTitle(meUser.subscriptions_count ?? subscriptions.length)}>
+                    {formatCompactCount(meUser.subscriptions_count ?? subscriptions.length)}
+                  </p>
                 </div>
               </div>
               <div className={`profile_stats_item ${activeTab === "menu_subscribers" ? "active" : ""}`} onClick={() => handleTabClick("menu_subscribers")} style={{ cursor: "pointer" }}>
                 <p className="main_text">Подписчики</p>
                 <div className="stats_badge">
-                  <p className="main_text">{meUser.subscribers_count ?? subscribers.length}</p>
+                  <p className="main_text" title={compactCountTitle(meUser.subscribers_count ?? subscribers.length)}>
+                    {formatCompactCount(meUser.subscribers_count ?? subscribers.length)}
+                  </p>
                 </div>
               </div>
             </div>

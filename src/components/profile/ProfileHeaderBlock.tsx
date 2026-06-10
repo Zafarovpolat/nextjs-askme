@@ -18,6 +18,7 @@ type ProfileHeaderBlockProps = {
   /** URL @2x с API — для чёткого аватара на Retina */
   avatarUrl2x?: string | null;
   ballsDisplay: string;
+  ballsTitle?: string;
   kpdPercentDisplay: string;
   editableAvatar?: boolean;
   avatarInputRef?: MutableRefObject<HTMLInputElement | null>;
@@ -28,7 +29,15 @@ type ProfileHeaderBlockProps = {
   cabinetFooter?: ReactNode;
 };
 
-function ProfileHeaderStats({ ballsDisplay, kpdPercentDisplay }: { ballsDisplay: string; kpdPercentDisplay: string }) {
+function ProfileHeaderStats({
+  ballsDisplay,
+  ballsTitle,
+  kpdPercentDisplay,
+}: {
+  ballsDisplay: string;
+  ballsTitle?: string;
+  kpdPercentDisplay: string;
+}) {
   return (
     <div className="user_public_stats">
       <div className="stat_item">
@@ -44,7 +53,7 @@ function ProfileHeaderStats({ ballsDisplay, kpdPercentDisplay }: { ballsDisplay:
             />
           </svg>
           <div className="stat_info">
-            <div className="stat_value">{ballsDisplay}</div>
+            <div className="stat_value" title={ballsTitle}>{ballsDisplay}</div>
             <div className="stat_label">Балл</div>
           </div>
         </div>
@@ -98,6 +107,7 @@ export default function ProfileHeaderBlock({
   avatarUrl,
   avatarUrl2x,
   ballsDisplay,
+  ballsTitle,
   kpdPercentDisplay,
   editableAvatar = false,
   avatarInputRef,
@@ -150,8 +160,8 @@ export default function ProfileHeaderBlock({
         ) : null}
       </div>
       <div className="user_profile_block_content_profile_desc">
-        <h4 style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-          <span>{displayName}</span>
+        <h4 className="profile-display-name" title={displayName}>
+          {displayName}
         </h4>
         {rankLabel ? (
           <div className="quest_user_title" style={{ display: "inline-block" }}>
@@ -163,7 +173,13 @@ export default function ProfileHeaderBlock({
     </div>
   );
 
-  const stats = <ProfileHeaderStats ballsDisplay={ballsDisplay} kpdPercentDisplay={kpdPercentDisplay} />;
+  const stats = (
+    <ProfileHeaderStats
+      ballsDisplay={ballsDisplay}
+      ballsTitle={ballsTitle}
+      kpdPercentDisplay={kpdPercentDisplay}
+    />
+  );
 
   const contentWrapStyle =
     variant === "public" ? ({ justifyContent: "space-between", padding: 0 } as const) : undefined;
