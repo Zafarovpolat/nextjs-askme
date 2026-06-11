@@ -1677,7 +1677,7 @@ footer .line {
     padding: 0;
   }
 
-  .nav_list .mode_toggler {
+  .nav_list > [class*="notificationWrapper"] {
     display: none;
   }
 
@@ -3097,12 +3097,6 @@ svg.logo-ai {
 
 .mob_sec_item {
   position: relative;
-}
-
-/* Theme toggle button in mobile menu */
-.nav_mob_wrapper_nav .theme-toggle-btn svg {
-  width: 45px !important;
-  height: 45px !important;
 }
 
 /* Профиль: дропдаун на десктопе, прямая ссылка на мобиле */

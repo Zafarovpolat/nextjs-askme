@@ -1959,6 +1959,17 @@ body.dark_mode .theme-toggle-btn .svg-dark {
 }
 
 @media (max-width: 1000px) {
+  .nav_mob_wrapper_nav .theme-toggle-btn {
+    width: 45px !important;
+    height: 45px !important;
+  }
+  .nav_mob_wrapper_nav .theme-toggle-btn svg {
+    width: 45px !important;
+    height: 45px !important;
+  }
+}
+
+@media (max-width: 768px) {
   .theme-toggle-btn {
     width: 45px !important;
     height: 45px !important;
