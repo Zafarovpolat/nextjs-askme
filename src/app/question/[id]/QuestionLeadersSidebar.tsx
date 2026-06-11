@@ -82,14 +82,14 @@ export default function QuestionLeadersSidebar({
                   premiumText={authorPremiumText}
                 />
                 <div className="question_list_item_left__user_meta">
-                  <p className="main_text">
+                  <p className="main_text" title={q.author.full_name}>
                     {q.author.full_name}
                   </p>
                   <span>{formatTimeAgo(q.created_at)}</span>
                 </div>
               </div>
               <div className="question_text">
-                <p>
+                <p title={q.title}>
                   {q.title}
                 </p>
               </div>

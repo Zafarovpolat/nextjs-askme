@@ -276,7 +276,10 @@ const ProfileDropdown = () => {
               />
             </div>
             <div className={styles.profileUserDetail}>
-              <div className={styles.profileName}>
+              <div
+                className={styles.profileName}
+                title={user?.first_name?.trim() || undefined}
+              >
                 {user?.first_name?.trim() || "Профиль"}
               </div>
               <div className={styles.roleBadge}>

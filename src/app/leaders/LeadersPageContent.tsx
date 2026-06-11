@@ -12,6 +12,7 @@ import type {
   LeaderUser,
   LeadersPageResponse,
 } from "./page";
+import { formatCompactNumWord } from "@/lib/format-compact-count";
 
 type LeadersPageContentProps = {
   initialData: LeadersPageResponse;
@@ -30,20 +31,16 @@ const METRICS = [
   { value: "questions", label: "По количеству вопросов" },
 ] as const;
 
-const numWord = (value: number, words: [string, string, string]): string => {
-  const abs = Math.abs(value);
-  const cases = [2, 0, 1, 1, 1, 2];
-  const index = abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)];
-  return `${value} ${words[index]}`;
-};
+const numWord = (value: number, words: [string, string, string]): string =>
+  formatCompactNumWord(value, words);
 
 function formatMetricLine(metric: string, metricValue: number): string {
   if (metric === "rating") {
     const abs = Math.abs(metricValue);
-    const tail = numWord(abs, ["балл", "балла", "баллов"]).replace(/^\d+\s+/, "");
-    if (metricValue > 0) return `+${abs} ${tail} за период`;
-    if (metricValue < 0) return `-${abs} ${tail} за период`;
-    return `0 ${tail} за период`;
+    const body = formatCompactNumWord(abs, ["балл", "балла", "баллов"]);
+    if (metricValue > 0) return `+${body} за период`;
+    if (metricValue < 0) return `-${body} за период`;
+    return `${body} за период`;
   }
   if (metric === "questions") {
     return numWord(metricValue, ["вопрос", "вопроса", "вопросов"]);
@@ -281,7 +278,7 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                   <img className="top_leader_place" src={topPlaceIcons[index]} alt="" />
                 </div>
                 <div className="top_leader_card_desc">
-                  <h3>{displayUserName(user)}</h3>
+                  <h3 title={displayUserName(user)}>{displayUserName(user)}</h3>
                   <h4>{displayUserSubtitle(user)}</h4>
                   <p>{formatMetricLine(metricFilter, user.metric_value)}</p>
                 </div>
@@ -310,7 +307,7 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                   <div className="question_list_item_left">
                     <img src={user.avatar_url || "/images/icons/avatar.svg"} alt={displayUserName(user)} />
                     <div className="question_list_item_left__user_meta">
-                      <p className="main_text">{displayUserName(user)}</p>
+                      <p className="main_text" title={displayUserName(user)}>{displayUserName(user)}</p>
                       <span>{formatMetricLine(metricFilter, user.metric_value)}</span>
                     </div>
                   </div>

@@ -1,34 +1,106 @@
 "use client";
 
-import { useId, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 interface QuestionCardBgProps {
   isPremium?: boolean;
 }
 
+const DESKTOP_MQ = "(min-width: 601px)";
+const SHELF_ANCHOR_RATIO = 0.6;
+const SHELF_DECOR_GAP = 80;
+const SHELF_CURVE_INSET = 20;
+
+function measureNaturalTextWidth(el: HTMLElement | null | undefined): number {
+  if (!el) return 0;
+  const prev = el.style.maxWidth;
+  el.style.maxWidth = "none";
+  const width = el.scrollWidth;
+  el.style.maxWidth = prev;
+  return width;
+}
+
 export default function QuestionCardBg({ isPremium = false }: QuestionCardBgProps) {
   const anchorRef = useRef<HTMLSpanElement>(null);
-  const uid = useId().replace(/:/g, "-");
   const [dims, setDims] = useState({ w: 0, h: 0 });
-  const [infoWidth, setInfoWidth] = useState(0);
 
   useLayoutEffect(() => {
     const parent = anchorRef.current?.parentElement;
     if (!parent) return;
 
+    const mqDesktop = window.matchMedia(DESKTOP_MQ);
+
     const measure = () => {
       const w = parent.offsetWidth;
       const h = parent.offsetHeight;
+      const contentW = parent.clientWidth;
       if (w > 0 && h > 0) setDims({ w, h });
 
-      const info = parent.querySelector<HTMLElement>(".question_list_item-info");
-      if (info) setInfoWidth(info.offsetWidth);
+      const leftRow = parent.querySelector<HTMLElement>(".question_list_item_left");
+      const userMeta = leftRow?.querySelector<HTMLElement>(
+        ".question_list_item_left__user_meta:not(.answer_author_container)",
+      );
+      const rankOutside = leftRow?.querySelector<HTMLElement>(":scope > .quest_user_title");
+      const rankInside = userMeta?.querySelector<HTMLElement>(".quest_user_title");
+      const avatarEl = leftRow?.querySelector<HTMLElement>(":scope > a, :scope > div");
+      const nameEl = userMeta?.querySelector<HTMLElement>(".main_text");
+
+      const avatarW = avatarEl?.offsetWidth ?? 40;
+      const rankOutsideW = rankOutside?.offsetWidth ?? 0;
+      const rankInsideW = rankInside?.offsetWidth ?? 0;
+      const rowGap = leftRow
+        ? parseFloat(getComputedStyle(leftRow).gap || "14") || 14
+        : 14;
+      const nameNaturalW = measureNaturalTextWidth(nameEl);
+
+      let nameMax = 0;
+      let metaMax = 0;
+
+      if (mqDesktop.matches) {
+        const flexGaps = rowGap * 2;
+        const shelfEnd = contentW * SHELF_ANCHOR_RATIO;
+        const contentBudget = Math.max(
+          avatarW + rankOutsideW + flexGaps + 48,
+          shelfEnd - SHELF_CURVE_INSET,
+        );
+
+        nameMax = Math.max(48, contentBudget - avatarW - rankOutsideW - flexGaps);
+      } else {
+        const metaNaturalW = Math.max(nameNaturalW, rankInsideW);
+        const naturalContentW = avatarW + rowGap + metaNaturalW;
+        const stepStart = Math.min(
+          naturalContentW > 0 ? naturalContentW + SHELF_DECOR_GAP : 288,
+          contentW * SHELF_ANCHOR_RATIO,
+        );
+        const contentBudget = Math.max(
+          avatarW + rowGap + 48,
+          stepStart - SHELF_CURVE_INSET,
+        );
+
+        metaMax = Math.max(48, contentBudget - avatarW - rowGap);
+        nameMax = metaMax;
+      }
+
+      parent.style.setProperty("--mqb-name-max-width", `${nameMax}px`);
+      parent.style.setProperty("--mqb-meta-max-width", `${metaMax || nameMax}px`);
     };
 
     measure();
+
     const ro = new ResizeObserver(measure);
     ro.observe(parent);
-    return () => ro.disconnect();
+
+    const leftRow = parent.querySelector<HTMLElement>(".question_list_item_left");
+    if (leftRow) ro.observe(leftRow);
+
+    mqDesktop.addEventListener("change", measure);
+
+    return () => {
+      ro.disconnect();
+      mqDesktop.removeEventListener("change", measure);
+      parent.style.removeProperty("--mqb-name-max-width");
+      parent.style.removeProperty("--mqb-meta-max-width");
+    };
   }, []);
 
   const { w, h } = dims;
@@ -37,9 +109,7 @@ export default function QuestionCardBg({ isPremium = false }: QuestionCardBgProp
   const nr = 9.84974;
   const stripH = 43;
 
-  const gap = 80;
-  const stepStartRaw = infoWidth > 0 ? infoWidth + gap : 288;
-  const stepStart = Math.min(stepStartRaw, w * 0.6);
+  const stepStart = w * SHELF_ANCHOR_RATIO;
   const stepEnd = Math.min(stepStart + 48.644, w - r - 4);
 
   const path =
@@ -65,7 +135,6 @@ export default function QuestionCardBg({ isPremium = false }: QuestionCardBgProp
 
   return (
     <>
-      {/* anchor всегда в DOM — через него получаем parentElement */}
       <span
         ref={anchorRef}
         aria-hidden="true"

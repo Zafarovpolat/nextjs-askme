@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import Link from "next/link"
-import MostDiscussedListItem from "@/components/MostDiscussedListItem"
-import PopularTopicListItem from "@/components/PopularTopicListItem"
+import TopsBlock from "@/components/TopsBlock"
 import { useRouter } from "next/navigation"
 import LoginModal from "@/components/LoginModal"
 import SharePopup from "@/components/SharePopup"
@@ -38,13 +37,6 @@ const tabs = [
   { id: "best", label: "Лучшие" },
 ] as const
 type Filter = typeof tabs[number]["id"]
-
-const numWord = (value: number, words: [string, string, string]): string => {
-  const abs = Math.abs(value)
-  const cases = [2, 0, 1, 1, 1, 2]
-  const index = abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)]
-  return `${value} ${words[index]}`
-}
 
 export default function CategoryPageClient({
   category,
@@ -151,6 +143,24 @@ export default function CategoryPageClient({
       hasDragged.current = false
     }
   }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const update = () => {
+      el.classList.toggle('is-scrollable', el.scrollWidth > el.clientWidth + 1)
+    }
+    update()
+    window.addEventListener('resize', update)
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
+    const inner = el.querySelector('.subjects_list')
+    ro?.observe(el)
+    if (inner) ro?.observe(inner)
+    return () => {
+      window.removeEventListener('resize', update)
+      ro?.disconnect()
+    }
+  }, [shared.popular_categories])
 
   return (
     <div className="container">
@@ -315,41 +325,7 @@ export default function CategoryPageClient({
 
       <div className="line"></div>
 
-      <div className="tops_block">
-        <div className="tops_block_item">
-          <div className="blocks_title"><h2>Лидеры проекта</h2></div>
-          <div className="tops_block_item_top_subjects">
-            {(shared.project_leaders ?? []).map((u) => (
-              <div className="question_list_item" key={u.id}>
-                <Link href={`/profile/${u.id}`}>
-                  <div className="question_list_item_left">
-                    <img src={u.avatar_url || "/images/icons/avatar.svg"} alt={u.first_name} />
-                    <div className="question_list_item_left__user_meta"><div className="main_text">{u.first_name} {u.last_name}</div><span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span></div>
-                  </div>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="tops_block_item">
-          <div className="blocks_title"><h2>Самые обсуждаемые</h2></div>
-          <div className="tops_block_item_top_subjects">
-            {(shared.most_discussed ?? []).map((q) => (
-              <MostDiscussedListItem key={q.id} question={q} />
-            ))}
-          </div>
-        </div>
-
-        <div className="tops_block_item">
-          <div className="blocks_title"><h2>Популярные темы</h2></div>
-          <div className="tops_block_item_top_subjects">
-            {(shared.popular_topics ?? []).map((topic) => (
-              <PopularTopicListItem key={topic.id} topic={topic} />
-            ))}
-          </div>
-        </div>
-      </div>
+      <TopsBlock data={shared} />
 
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
       <SharePopup isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} anchorRef={shareButtonRef} title={shareData.title} url={shareData.url} />

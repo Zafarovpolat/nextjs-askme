@@ -3,13 +3,10 @@
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
 import type { ProfileWidgetsPayload, ProfileWidgetUser } from "@/lib/server-profile-widgets";
+import { formatCompactNumWord } from "@/lib/format-compact-count";
 
-function numWord(value: number, words: [string, string, string]): string {
-  const abs = Math.abs(value);
-  const cases = [2, 0, 1, 1, 1, 2];
-  const index = abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)];
-  return `${value} ${words[index]}`;
-}
+const numWord = (value: number, words: [string, string, string]): string =>
+  formatCompactNumWord(value, words);
 
 type Props = {
   /** Данные с сервера (SSR); без клиентского запроса к v1/profile/widgets. */
@@ -32,7 +29,7 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
         </div>
         {weeklyBallsLeaders.length === 0 ? (
           <p className="secondary_text" style={{ padding: "8px 0 12px", fontSize: "13px" }}>
-            Рейтинг за неделю появится после фонового обновления данных.
+            Пока нет лидеров с лучшими ответами.
           </p>
         ) : (
           weeklyBallsLeaders.map((u) => {
@@ -53,8 +50,8 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
                     premiumText={pt}
                   />
                   <div className="question_list_item_left__user_meta">
-                    <p className="main_text">{u.full_name}</p>
-                    <span>{numWord(u.week_score ?? 0, ["балл", "балла", "баллов"])} за неделю</span>
+                    <p className="main_text" title={u.full_name}>{u.full_name}</p>
+                    <span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span>
                   </div>
                 </div>
               </div>
@@ -70,7 +67,7 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
         </div>
         {weeklyActiveAuthors.length === 0 ? (
           <p className="secondary_text" style={{ padding: "8px 0 12px", fontSize: "13px" }}>
-            Топ авторов по вопросам за неделю появится после фонового обновления данных.
+            Пока нет активных авторов.
           </p>
         ) : (
           weeklyActiveAuthors.map((u) => {
@@ -91,7 +88,7 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
                     premiumText={pt}
                   />
                   <div className="question_list_item_left__user_meta">
-                    <p className="main_text">{u.full_name}</p>
+                    <p className="main_text" title={u.full_name}>{u.full_name}</p>
                     <span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span>
                   </div>
                 </div>

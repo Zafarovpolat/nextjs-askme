@@ -2,8 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react'
 import Link from "next/link"
-import MostDiscussedListItem from "@/components/MostDiscussedListItem"
-import PopularTopicListItem from "@/components/PopularTopicListItem"
+import TopsBlock from "@/components/TopsBlock"
 import { useRouter } from "next/navigation"
 import LoginModal from "@/components/LoginModal"
 import SharePopup from "@/components/SharePopup"
@@ -39,13 +38,6 @@ const tabs = [
   { id: "premium", label: "Премиум" },
 ] as const
 type HomeFilter = typeof tabs[number]["id"]
-
-const numWord = (value: number, words: [string, string, string]): string => {
-  const abs = Math.abs(value)
-  const cases = [2, 0, 1, 1, 1, 2]
-  const index = abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)]
-  return `${value} ${words[index]}`
-}
 
 export default function HomeContent({
   initialData,
@@ -120,29 +112,39 @@ export default function HomeContent({
   const scrollLeft = useRef(0)
   const hasDragged = useRef(false)
 
-  /* п.6 — кастомный скроллбар для мобилки */
+  /* п.6 — кастомный скроллбар для мобилки; скрываем, если горизонтальный скролл не нужен */
   useEffect(() => {
     const el = scrollRef.current
     const thumb = scrollThumbRef.current
+    const track = scrollTrackRef.current
     if (!el || !thumb) return
     const update = () => {
-      const ratio = el.scrollWidth > el.clientWidth
-        ? el.clientWidth / el.scrollWidth
-        : 1
-      const pos = el.scrollWidth - el.clientWidth > 0
-        ? el.scrollLeft / (el.scrollWidth - el.clientWidth)
-        : 0
+      const scrollable = el.scrollWidth > el.clientWidth + 1
+      el.classList.toggle('is-scrollable', scrollable)
+      track?.classList.toggle('is-visible', scrollable)
+      if (!scrollable) {
+        thumb.style.width = '0'
+        thumb.style.left = '0'
+        return
+      }
+      const ratio = el.clientWidth / el.scrollWidth
+      const pos = el.scrollLeft / (el.scrollWidth - el.clientWidth)
       thumb.style.width = `${Math.max(ratio * 100, 20)}%`
       thumb.style.left = `${pos * (100 - Math.max(ratio * 100, 20))}%`
     }
     update()
     el.addEventListener('scroll', update, { passive: true })
     window.addEventListener('resize', update)
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
+    const inner = el.querySelector('.subjects_list')
+    ro?.observe(el)
+    if (inner) ro?.observe(inner)
     return () => {
       el.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
+      ro?.disconnect()
     }
-  }, [])
+  }, [initialData.categories])
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     const el = scrollRef.current
@@ -348,45 +350,7 @@ export default function HomeContent({
 
       <div className="line"></div>
 
-      <div className="tops_block">
-        <div className="tops_block_item">
-          <div className="blocks_title"><h2>Лидеры проекта</h2></div>
-          {/* п.19 — вся область карточки кликабельна */}
-          <div className="tops_block_item_top_subjects">
-            {(initialData.project_leaders ?? []).map((u) => (
-              <Link href={`/profile/${u.id}`} key={u.id} className="question_list_item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
-                <div className="question_list_item_left">
-                  <img src={u.avatar_url || "/images/icons/avatar.svg"} alt={u.first_name} />
-                  <div className="question_list_item_left__user_meta">
-                    <div className="main_text">{u.first_name} {u.last_name}</div>
-                    <span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className="tops_block_item">
-          <div className="blocks_title"><h2>Самые обсуждаемые</h2></div>
-          {/* п.19 — вся область карточки кликабельна */}
-          <div className="tops_block_item_top_subjects">
-            {(initialData.most_discussed ?? []).map((q) => (
-              <MostDiscussedListItem key={q.id} question={q} />
-            ))}
-          </div>
-        </div>
-
-        <div className="tops_block_item">
-          <div className="blocks_title"><h2>Популярные темы</h2></div>
-          {/* п.19 — вся область карточки кликабельна */}
-          <div className="tops_block_item_top_subjects">
-            {(initialData.popular_topics ?? []).map((topic) => (
-              <PopularTopicListItem key={topic.id} topic={topic} />
-            ))}
-          </div>
-        </div>
-      </div>
+      <TopsBlock data={initialData} />
 
       <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
 

@@ -1,13 +1,24 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getApiFullUrl } from "@/config/api";
 import { fetchMainSidebarCategoriesCached } from "@/lib/server-main-sidebar-categories";
 import { fetchProfileWidgetsCached } from "@/lib/server-profile-widgets";
+import { metadataForQuestionPage } from "@/lib/question-page-metadata";
 import type { AnswerAnchorRef } from "@/lib/question-answer-tree";
 import type { QuestionPageData } from "@/types";
 import QuestionPageContent from "./QuestionPageContent";
 
 const TOKEN_KEY = "otvetai_token";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  return metadataForQuestionPage(id);
+}
 
 export default async function QuestionPage({
   params,

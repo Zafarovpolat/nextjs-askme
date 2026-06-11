@@ -7,8 +7,8 @@ export type ProfileWidgetUser = {
   avatar_url?: string | null;
   avatar_url_2x?: string | null;
   level_name?: string | null;
+  /** @deprecated раньше — баллы за неделю; API теперь отдаёт balls в weekly_balls_leaders */
   week_score?: number;
-  /** Текущие баллы (виджет «Самые активные авторы» — отбор по вопросам за неделю). */
   balls?: number;
   is_premium?: boolean;
   premium_is_active?: boolean;

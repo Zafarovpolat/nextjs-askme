@@ -1,8 +1,19 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import { getApiFullUrl } from "@/config/api"
+import { metadataForCategorySlug } from "@/lib/category-page-metadata"
 import CategoryPageClient from "../_components/CategoryPageClient"
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  return metadataForCategorySlug(slug)
+}
 
 async function fetchJson(url: string) {
   const res = await fetch(url, { headers: { Accept: "application/json" }, next: { revalidate: 60 } })

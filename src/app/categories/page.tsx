@@ -1,8 +1,12 @@
+import type { Metadata } from "next"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { getApiFullUrl } from "@/config/api"
 import CategoryItemBg from "@/components/CategoryItemBg"
+import { metadataForCategoriesIndex } from "@/lib/category-page-metadata"
+
+export const metadata: Metadata = metadataForCategoriesIndex()
 
 type Subcategory = { id: number; name: string; slug: string; icon_key: string | null }
 type CategoryItem = { id: number; name: string; slug: string; icon_key: string | null; subcategories: Subcategory[] }

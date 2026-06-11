@@ -4,6 +4,7 @@ import Link from "next/link";
 import { UserAnswer } from "@/data/mock-answers";
 import UserAvatar from "@/components/UserAvatar";
 import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
+import { formatCompactCount, formatCompactNumWord, voteCountTitle } from "@/lib/format-compact-count";
 import { useVoteAnswer } from "@/hooks/useVoteAnswer";
 
 interface AnswerResultCardProps {
@@ -64,7 +65,7 @@ function ReadOnlyVoteBadges({ likes, dislikes }: { likes: number; dislikes: numb
             fill="currentColor"
           />
         </svg>
-        <span>{likes || 0}</span>
+        <span title={voteCountTitle(likes)}>{formatCompactCount(likes)}</span>
       </div>
       <div className="dislike-badge" aria-hidden>
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -77,7 +78,7 @@ function ReadOnlyVoteBadges({ likes, dislikes }: { likes: number; dislikes: numb
             fill="currentColor"
           />
         </svg>
-        <span>{dislikes || 0}</span>
+        <span title={voteCountTitle(dislikes)}>{formatCompactCount(dislikes)}</span>
       </div>
     </>
   );
@@ -125,7 +126,7 @@ function InteractiveVoteBadges({
             fill="currentColor"
           />
         </svg>
-        <span>{likes_count || 0}</span>
+        <span title={voteCountTitle(likes_count)}>{formatCompactCount(likes_count)}</span>
       </button>
 
       <button
@@ -145,7 +146,7 @@ function InteractiveVoteBadges({
             fill="currentColor"
           />
         </svg>
-        <span>{dislikes_count || 0}</span>
+        <span title={voteCountTitle(dislikes_count)}>{formatCompactCount(dislikes_count)}</span>
       </button>
     </>
   );
@@ -221,7 +222,7 @@ export default function AnswerResultCard({
                     fill="#6069FF"
                   />
                 </svg>
-                {numWord(answer.questionAnswersCount, [
+                {formatCompactNumWord(answer.questionAnswersCount, [
                   "комментарий",
                   "комментария",
                   "комментариев",

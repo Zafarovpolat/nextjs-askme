@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SearchResultCard from "@/components/SearchResultCard";
+import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
 import SharePopup from "@/components/SharePopup";
 import PremiumFilterCrownIcon from "@/components/PremiumFilterCrownIcon";
 import { getApiFullUrl } from "@/config/api";
@@ -16,6 +17,12 @@ import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
 import type { ApiCategoryTree } from "@/lib/server-categories";
 import type { SearchLeaderQuestion } from "@/lib/server-search-leaders";
 import type { Question } from "@/types";
+import {
+  compactCountTitle,
+  formatCompactCount,
+  formatCompactCountPlus,
+  formatCompactNumWord,
+} from "@/lib/format-compact-count";
 
 type SortMode = "date" | "relevance";
 
@@ -48,13 +55,16 @@ type SearchPageClientProps = {
 
 const SEARCH_PER_PAGE = 10;
 
-const numWord = (value: number, words: [string, string, string]): string => {
+const timeWord = (value: number, words: [string, string, string]): string => {
   const abs = Math.abs(value);
   const cases = [2, 0, 1, 1, 1, 2];
   const index =
     abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)];
   return `${value} ${words[index]}`;
 };
+
+const metricWord = (value: number, words: [string, string, string]): string =>
+  formatCompactNumWord(value, words);
 
 const formatTimeAgo = (dateStr: string): string => {
   const now = new Date();
@@ -63,15 +73,15 @@ const formatTimeAgo = (dateStr: string): string => {
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   if (diffDays < 1) return "сегодня";
   if (diffDays < 7)
-    return numWord(diffDays, ["день", "дня", "дней"]) + " назад";
+    return timeWord(diffDays, ["день", "дня", "дней"]) + " назад";
   const diffWeeks = Math.floor(diffDays / 7);
   if (diffWeeks < 4)
-    return numWord(diffWeeks, ["неделю", "недели", "недель"]) + " назад";
+    return timeWord(diffWeeks, ["неделю", "недели", "недель"]) + " назад";
   const diffMonths = Math.floor(diffDays / 30);
   if (diffMonths < 12)
-    return numWord(diffMonths, ["месяц", "месяца", "месяцев"]) + " назад";
+    return timeWord(diffMonths, ["месяц", "месяца", "месяцев"]) + " назад";
   const diffYears = Math.floor(diffDays / 365);
-  return numWord(diffYears, ["год", "года", "лет"]) + " назад";
+  return timeWord(diffYears, ["год", "года", "лет"]) + " назад";
 };
 
 function mapStatus(
@@ -424,9 +434,6 @@ export default function SearchPageClient({
     );
   };
 
-  const weeklyBalls = widgets.weekly_balls_leaders ?? [];
-  const weeklyAuthors = widgets.weekly_active_authors ?? [];
-
   return (
     <>
       <Header />
@@ -506,65 +513,8 @@ export default function SearchPageClient({
               ))}
             </div>
 
-            <div className="question_leaders">
-              <div className="blocks_title">
-                <h2>Лидеры проекта</h2>
-              </div>
-              {weeklyBalls.map((user) => (
-                <Link href={`/profile/${user.id}`} key={user.id}>
-                  <div className="question_list_item">
-                    <div className="question_list_item_left">
-                      <img
-                        src={
-                          user.avatar_url || "/images/icons/avatar.svg"
-                        }
-                        alt=""
-                      />
-                      <div className="question_list_item_left__user_meta">
-                        <p className="main_text">{user.full_name}</p>
-                        <span>
-                          {numWord(user.week_score ?? 0, [
-                            "балл",
-                            "балла",
-                            "баллов",
-                          ])}{" "}
-                          за неделю
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            <div className="question_leaders" style={{ marginBottom: "0" }}>
-              <div className="blocks_title">
-                <h2>Самые активные авторы</h2>
-              </div>
-              {weeklyAuthors.map((user) => (
-                <Link href={`/profile/${user.id}`} key={user.id}>
-                  <div className="question_list_item">
-                    <div className="question_list_item_left">
-                      <img
-                        src={
-                          user.avatar_url || "/images/icons/avatar.svg"
-                        }
-                        alt=""
-                      />
-                      <div className="question_list_item_left__user_meta">
-                        <p className="main_text">{user.full_name}</p>
-                        <span>
-                          {numWord(user.balls ?? 0, [
-                            "балл",
-                            "балла",
-                            "баллов",
-                          ])}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+            <div style={{ marginBottom: 0 }}>
+              <ProfileWeeklyLeadersSidebar initialWidgets={widgets} />
             </div>
           </div>
 
@@ -821,7 +771,7 @@ export default function SearchPageClient({
                   {searchParams.get("q")?.trim()
                     ? loading
                       ? "Поиск…"
-                      : numWord(total, [
+                      : metricWord(total, [
                           "совпадение",
                           "совпадения",
                           "совпадений",
@@ -989,7 +939,7 @@ export default function SearchPageClient({
                         alt=""
                       />
                       <div className="question_list_item_left__user_meta">
-                        <p className="main_text">
+                        <p className="main_text" title={q.author?.full_name ?? undefined}>
                           {q.author?.full_name ?? "—"}
                         </p>
                         <span>
@@ -1073,7 +1023,9 @@ export default function SearchPageClient({
                           <p className="main_text">
                             {q.title}
                           </p>
-                          <span>{q.likes_count} лайков</span>
+                          <span title={compactCountTitle(q.likes_count)}>
+                            {formatCompactNumWord(q.likes_count, ["лайк", "лайка", "лайков"])}
+                          </span>
                         </div>
                       </div>
                       <div className="question_item_top_data_right">
@@ -1115,7 +1067,9 @@ export default function SearchPageClient({
                           <p className="main_text">
                             {q.title}
                           </p>
-                          <span>{q.likes_count} лайков</span>
+                          <span title={compactCountTitle(q.likes_count)}>
+                            {formatCompactNumWord(q.likes_count, ["лайк", "лайка", "лайков"])}
+                          </span>
                         </div>
                       </div>
                     </Link>
@@ -1128,7 +1082,9 @@ export default function SearchPageClient({
                             alt=""
                           />
                         ))}
-                        <p className="main_text">+{q.likes_count}</p>
+                        <p className="main_text" title={compactCountTitle(q.likes_count)}>
+                          {formatCompactCountPlus(q.likes_count)}
+                        </p>
                       </div>
                       <div className="question_list_item_right_actions">
                         <button

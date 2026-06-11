@@ -4,6 +4,11 @@ import SearchResultQuestionVotes from "@/components/SearchResultQuestionVotes";
 import UserAvatar from "@/components/UserAvatar";
 import PremiumQuestionCardBadge from "@/components/PremiumQuestionCardBadge";
 import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
+import {
+  compactCountTitle,
+  formatCompactCount,
+  formatCompactNumWord,
+} from "@/lib/format-compact-count";
 
 interface SearchResultCardProps {
   question: Question;
@@ -20,8 +25,12 @@ interface SearchResultCardProps {
   userVote?: 1 | -1 | null;
 }
 
-// Склонение ответов
-const numWord = (value: number, words: [string, string, string]): string => {
+// Склонение ответов (компактное для больших чисел)
+const answerWord = (value: number): string =>
+  formatCompactNumWord(value, ["ответ", "ответа", "ответов"]);
+
+// Форматирование даты (дни/недели — без сокращения)
+const timeWord = (value: number, words: [string, string, string]): string => {
   const abs = Math.abs(value);
   const cases = [2, 0, 1, 1, 1, 2];
   const index =
@@ -29,7 +38,6 @@ const numWord = (value: number, words: [string, string, string]): string => {
   return `${value} ${words[index]}`;
 };
 
-// Форматирование даты
 const formatTimeAgo = (dateStr: string): string => {
   const now = new Date();
   const date = new Date(dateStr);
@@ -38,18 +46,18 @@ const formatTimeAgo = (dateStr: string): string => {
 
   if (diffDays < 1) return "сегодня";
   if (diffDays < 7)
-    return numWord(diffDays, ["день", "дня", "дней"]) + " назад";
+    return timeWord(diffDays, ["день", "дня", "дней"]) + " назад";
 
   const diffWeeks = Math.floor(diffDays / 7);
   if (diffWeeks < 4)
-    return numWord(diffWeeks, ["неделю", "недели", "недель"]) + " назад";
+    return timeWord(diffWeeks, ["неделю", "недели", "недель"]) + " назад";
 
   const diffMonths = Math.floor(diffDays / 30);
   if (diffMonths < 12)
-    return numWord(diffMonths, ["месяц", "месяца", "месяцев"]) + " назад";
+    return timeWord(diffMonths, ["месяц", "месяца", "месяцев"]) + " назад";
 
   const diffYears = Math.floor(diffDays / 365);
-  return numWord(diffYears, ["год", "года", "лет"]) + " назад";
+  return timeWord(diffYears, ["год", "года", "лет"]) + " назад";
 };
 
 export default function SearchResultCard({
@@ -168,7 +176,7 @@ export default function SearchResultCard({
                   fill="#6069FF"
                 ></path>
               </svg>
-              {numWord(answersCount, ["ответ", "ответа", "ответов"])}
+              {answerWord(answersCount)}
             </div>
             {isProfilePage && status === "closed" && (
               <>
@@ -228,7 +236,9 @@ export default function SearchResultCard({
                   </svg>
                   <span>
                     Проголосовало{" "}
-                    <span style={{ color: "#6069FF" }}>{votesCount}</span>{" "}
+                    <span style={{ color: "#6069FF" }} title={compactCountTitle(votesCount)}>
+                      {formatCompactCount(votesCount)}
+                    </span>{" "}
                     человека
                   </span>
                 </div>
