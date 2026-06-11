@@ -434,7 +434,7 @@ export default function Header() {
           <div className="nav_list">
             {/* п.8 — toggle: если уже на /categories, возвращаемся назад */}
             <button
-              className="m_btn category_btn"
+              className="m_btn category_btn nav-cat-btn"
               onClick={() => {
                 if (pathname === "/categories") {
                   router.back();
@@ -449,7 +449,7 @@ export default function Header() {
                 width="18"
                 height="18"
               />
-              <span>Категории</span>
+              <span className="nav-btn-label">Категории</span>
             </button>
 
             <form
@@ -471,16 +471,16 @@ export default function Header() {
               />
             </form>
 
-            <a href="/ask">
+            <a href="/ask" className="nav-ask-btn">
               <button className="m_btn">
                 <svg width="20" height="20">
                   <use xlinkHref="#ask"></use>
                 </svg>
-                Спросить
+                <span className="nav-btn-label">Спросить</span>
               </button>
             </a>
 
-            <Link href={isAuthorized ? "/profile?tab=vip" : "/login"}>
+            <Link href={isAuthorized ? "/profile?tab=vip" : "/login"} className="nav-premium-btn">
               <button className="m_btn m_btn_icon category_btn">
                 <svg
                   width="20"
@@ -506,16 +506,16 @@ export default function Header() {
                     fill="white"
                   />
                 </svg>
-                <span className={styles.premiumText}>Премиум</span>
+                <span className={`${styles.premiumText} nav-btn-label`}>Премиум</span>
               </button>
             </Link>
 
-            <a href="/leaders">
+            <a href="/leaders" className="nav-leaders-btn">
               <button className="m_btn">
                 <svg width="20" height="20">
                   <use xlinkHref="#leaders"></use>
                 </svg>
-                Лидеры
+                <span className="nav-btn-label">Лидеры</span>
               </button>
             </a>
 

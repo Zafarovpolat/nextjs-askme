@@ -2,7 +2,6 @@
 
 import {
   useEffect,
-  useId,
   useLayoutEffect,
   useRef,
   useState,
@@ -27,7 +26,6 @@ export default function CategoryItemBg({
   className = "",
 }: CategoryItemBgProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const uid = useId().replace(/:/g, "-");
   const [dims, setDims] = useState({ w: 0, h: 0 });
   const [darkMode, setDarkMode] = useState(false);
 
@@ -112,9 +110,7 @@ export default function CategoryItemBg({
         ].join(" ")
       : "";
 
-  const gradId    = `catGrad${uid}`;
-  const gradStart = darkMode ? "rgba(50,54,118,1)"  : "rgba(255,255,255,1)";
-  const gradEnd   = darkMode ? "rgba(30,33,80,0.7)" : "rgba(255,255,255,0.5)";
+  const fillColor = darkMode ? "rgba(50,54,118,1)" : "rgba(255,255,255,1)";
 
   return (
     <div ref={containerRef} className={`subject_item ${className}`}>
@@ -133,20 +129,7 @@ export default function CategoryItemBg({
             zIndex: 0,
           }}
         >
-          <path d={path} fill={`url(#${gradId})`} />
-          <defs>
-            <linearGradient
-              id={gradId}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-              gradientUnits="objectBoundingBox"
-            >
-              <stop stopColor={gradStart} />
-              <stop offset="1" stopColor={gradEnd} />
-            </linearGradient>
-          </defs>
+          <path d={path} fill={fillColor} />
         </svg>
       )}
 

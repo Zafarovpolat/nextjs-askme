@@ -283,7 +283,9 @@ a:has(.light_logo) {
 
 .search_input {
   width: 100%;
-  max-width: 629px;
+  /* max-width: 629px; */
+  flex: 1 1 0%;
+  min-width: 0;
   display: flex;
   align-items: center;
   position: relative;
@@ -291,6 +293,7 @@ a:has(.light_logo) {
 
 .search_input input {
   width: 100%;
+  min-width: 0;
   height: 50px;
   border-radius: 12px;
   border: none;
@@ -411,6 +414,44 @@ a:has(.light_logo) {
 @media (max-width: 768px) {
   .subjects_list_wrapper::after {
     display: block;
+  }
+
+  .nav_list {
+    width: auto;
+  }
+
+  .nav_list .search_input {
+    display: none;
+  }
+
+  /* Возвращаем кнопки темы и профиля на мобиле */
+  .nav_list .mode_toggler {
+    display: flex !important;
+  }
+
+  .profile-dropdown-desktop {
+    display: flex !important;
+  }
+}
+
+/* Скрываем текст логотипа когда не хватает места — остаётся только иконка */
+@media (max-width: 400px) {
+  .header__logo .logo-text-otvet,
+  .header__logo .logo-text-ai {
+    display: none;
+  }
+
+  .header__logo .logo-container {
+    width: auto;
+  }
+
+  .header__logo .logo-container {
+    gap: 0;
+  }
+
+  a:has(.dark_logo),
+  a:has(.light_logo) {
+    height: 44px;
   }
 }
 
@@ -1494,6 +1535,87 @@ footer .line {
   }
 }
 
+/* Этап 1 — поэтапно убираем текст у кнопок, остаются только иконки */
+@media only screen and (max-width: 1620px) {
+  .nav-cat-btn .nav-btn-label {
+    display: none;
+  }
+
+  .nav-cat-btn {
+    padding: 0 17px;
+    gap: 0;
+  }
+}
+
+@media only screen and (max-width: 1520px) {
+  .nav-ask-btn .nav-btn-label {
+    display: none;
+  }
+
+  .nav-ask-btn .m_btn {
+    padding: 0 17px;
+    gap: 0;
+  }
+}
+
+@media only screen and (max-width: 1420px) {
+  .nav-leaders-btn .nav-btn-label {
+    display: none;
+  }
+
+  .nav-leaders-btn .m_btn {
+    padding: 0 17px;
+    gap: 0;
+  }
+}
+
+@media only screen and (max-width: 1320px) {
+  .nav-premium-btn .nav-btn-label {
+    display: none;
+  }
+
+  .nav-premium-btn .m_btn {
+    padding: 0 17px;
+    gap: 0;
+  }
+}
+
+/* Этап 2 — когда иконок уже недостаточно, скрываем кнопки целиком и показываем бургер */
+@media only screen and (max-width: 1220px) {
+  .desc_mob_btn {
+    display: flex;
+    width: 50px;
+    height: 50px;
+    padding: 0;
+  }
+
+  .nav_list .mode_toggler {
+    display: none;
+  }
+
+  .nav-leaders-btn {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 1100px) {
+  .nav-premium-btn {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 980px) {
+  .nav-cat-btn {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 860px) {
+  .nav-ask-btn {
+    display: none;
+  }
+}
+
 @media only screen and (max-width: 1280px) {
   a:has(.dark_logo),
   a:has(.light_logo) {
@@ -1524,56 +1646,8 @@ footer .line {
     color: #fff;
   }
 
-  .nav_list .search_input {
-    display: none;
-  }
-
-  .nav_list a {
-    display: none;
-  }
-
-  .nav_list .mode_toggler {
-    display: none;
-  }
-
   .nav_list .logout-btn {
     display: none !important;
-  }
-
-  /* Скрываем кнопку «Категории» (прямой button в nav_list) */
-  .nav_list > button.category_btn:not(.desc_mob_btn) {
-    display: none !important;
-  }
-
-  /* Скрываем кнопку темы и уведомлений */
-  .nav_list .mode_toggler {
-    display: none !important;
-  }
-
-  .nav_list .notification-dropdown-wrapper {
-    display: none !important;
-  }
-
-  .nav_list button:last-child,
-  .nav_list a:nth-child(6) {
-    display: flex;
-    width: 45px;
-    height: 45px;
-    padding: 0;
-  }
-
-  .nav_list .mode_toggler svg {
-    width: 45px !important;
-    height: 45px !important;
-  }
-
-  .nav_list a:nth-child(6) button {
-    width: 45px;
-    height: 45px;
-  }
-
-  .nav_list {
-    width: auto;
   }
 
   .question_list_item {
@@ -2913,6 +2987,12 @@ svg.logo-ai {
 
   .profile-link-mobile {
     display: flex;
+  }
+
+  .desc_mob_btn,
+  .category_btn {
+    width: 45px;
+    height: 45px;
   }
 }
 

@@ -895,8 +895,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
               )}
             </div>
           </div>
-
-          <div className="profile_menu_weekly">
+                    <div className="profile_menu_weekly">
             <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
           </div>
           </div>
