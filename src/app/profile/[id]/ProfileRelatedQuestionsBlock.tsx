@@ -7,23 +7,42 @@ import {
   useEffect,
   type MouseEvent,
 } from "react";
-import Link from "next/link";
-import UserAvatar from "@/components/UserAvatar";
-import { formatTimeAgo } from "@/lib/time-ago";
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import { api } from "@/lib/api-client";
 import SharePopup from "@/components/SharePopup";
+import QuestionListCard, {
+  type QuestionListItem,
+} from "@/components/QuestionListCard";
 import type { SimilarQuestionItem, SimilarQuestionsPage } from "@/types";
-import {
-  compactCountTitle,
-  formatCompactCountPlus,
-  formatCompactNumWord,
-} from "@/lib/format-compact-count";
-
-const numWord = (value: number, words: [string, string, string]): string =>
-  formatCompactNumWord(value, words);
 
 const PER_PAGE = 12;
+
+function toQuestionListItem(q: SimilarQuestionItem): QuestionListItem {
+  return {
+    id: q.id,
+    title: q.title,
+    created_at: q.created_at,
+    answers_count: q.answers_count,
+    likes_count: q.likes_count,
+    is_premium: q.is_premium,
+    author: {
+      id: q.author.id,
+      full_name: q.author.full_name,
+      avatar_url: q.author.avatar_url,
+      avatar_url_2x: q.author.avatar_url_2x,
+      balls: q.author.balls,
+      is_premium: q.author.is_premium,
+      premium_is_active: q.author.premium_is_active,
+      premium_is_permanent: q.author.premium_is_permanent,
+      premium_package_name: q.author.premium_package_name,
+    },
+    latest_likers: q.latest_likers.map((u) => ({
+      id: u.id,
+      avatar_url: u.avatar_url,
+      avatar_url_2x: u.avatar_url_2x,
+    })),
+  };
+}
 
 export default function ProfileRelatedQuestionsBlock({
   profileUserId,
@@ -120,123 +139,16 @@ export default function ProfileRelatedQuestionsBlock({
         </p>
       ) : (
         <>
-          {items.map((q) => {
-            const authorPremium =
-              q.author.premium_is_active ?? q.author.is_premium ?? false;
-            const authorPremiumText = q.author.premium_is_permanent
-              ? "Постоянный"
-              : q.author.premium_package_name?.trim() || "Премиум";
-            return (
-            <div className="question_list_item" key={q.id}>
-              <div className="question_item_top_data">
-                <div className="question_item_top_data_left">
-                  <Link href={`/profile/${q.author.id}`}>
-                    <UserAvatar
-                      src={q.author.avatar_url}
-                      src2x={q.author.avatar_url_2x}
-                      alt=""
-                      premium={authorPremium}
-                      premiumText={authorPremiumText}
-                    />
-                  </Link>
-                  <div>
-                    <p className="main_text">
-                      <Link href={`/profile/${q.author.id}`} title={q.author.full_name}>
-                        {q.author.full_name}
-                      </Link>
-                    </p>
-                    <span>
-                      {numWord(q.author.balls ?? 0, ["балл", "балла", "баллов"])}
-                    </span>
-                  </div>
-                </div>
-                <div className="question_item_top_data_right">
-                  <button
-                    type="button"
-                    title="Мне нравится"
-                    className={`s_btn s_btn_icon btn-like ${isFavorited(q.id) ? "btn-like--active" : ""}`}
-                    onClick={() => toggleFavorite(q.id)}
-                    disabled={isPending(q.id)}
-                  >
-                    <svg width="13.71" height="12">
-                      <use xlinkHref="#like"></use>
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    className="s_btn s_btn_icon share-this"
-                    title="Поделиться"
-                    onClick={(e) => handleShareClick(e, q.title, q.id)}
-                  >
-                    <svg width="14" height="14">
-                      <use xlinkHref="#share"></use>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <Link href={`/question/${q.id}`}>
-                <div className="question_list_item_left">
-                  <UserAvatar
-                    src={q.author.avatar_url}
-                    src2x={q.author.avatar_url_2x}
-                    alt=""
-                    premium={authorPremium}
-                    premiumText={authorPremiumText}
-                  />
-                  <div className="question_list_item_left__user_meta">
-                    <p className="main_text" title={q.title}>{q.title}</p>
-                    <span>{formatTimeAgo(q.created_at)}</span>
-                  </div>
-                </div>
-              </Link>
-              <div className="question_list_item_right">
-                <div className="question_list_item_users">
-                  {q.latest_likers.slice(0, 3).map((u) => (
-                    <UserAvatar
-                      key={u.id}
-                      src={u.avatar_url}
-                      src2x={u.avatar_url_2x}
-                      alt=""
-                      size={30}
-                    />
-                  ))}
-                  <p className="main_text" title={compactCountTitle(q.answers_count)}>
-                    {formatCompactCountPlus(q.answers_count)}
-                  </p>
-                </div>
-                <div className="question_list_item_right_actions">
-                  <button
-                    type="button"
-                    title="Мне нравится"
-                    className={`s_btn s_btn_icon btn-like ${isFavorited(q.id) ? "btn-like--active" : ""}`}
-                    onClick={() => toggleFavorite(q.id)}
-                    disabled={isPending(q.id)}
-                  >
-                    <svg width="13.71" height="12">
-                      <use xlinkHref="#like"></use>
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    className="s_btn s_btn_icon share-this"
-                    title="Поделиться"
-                    onClick={(e) => handleShareClick(e, q.title, q.id)}
-                  >
-                    <svg width="14" height="14">
-                      <use xlinkHref="#share"></use>
-                    </svg>
-                  </button>
-                  <Link className="s_btn" href={`/question/${q.id}`}>
-                    Посмотреть
-                  </Link>
-                  <Link className="s_btn s_btn_active" href={`/question/${q.id}#answer`}>
-                    Ответить
-                  </Link>
-                </div>
-              </div>
-            </div>
-            );
-          })}
+          {items.map((q) => (
+            <QuestionListCard
+              key={q.id}
+              question={toQuestionListItem(q)}
+              isFavorited={isFavorited}
+              isPending={isPending}
+              onToggleFavorite={toggleFavorite}
+              onShare={handleShareClick}
+            />
+          ))}
 
           {page < lastPage ? (
             <div

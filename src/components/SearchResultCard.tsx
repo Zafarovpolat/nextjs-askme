@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Question } from "@/types";
 import SearchResultQuestionVotes from "@/components/SearchResultQuestionVotes";
 import UserAvatar from "@/components/UserAvatar";
@@ -72,6 +75,7 @@ export default function SearchResultCard({
   dislikesCount = 0,
   userVote = null,
 }: SearchResultCardProps) {
+  const router = useRouter();
   const answersCount = answersCountOverride ?? question.commentsCount ?? 0;
   const q = question as Question & { isPremium?: boolean; is_premium?: boolean };
   /** Только флаг вопроса: премиум-оформление не зависит от премиума автора/профиля */
@@ -87,7 +91,7 @@ export default function SearchResultCard({
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target.closest("a") || target.closest("button")) return;
-    window.location.href = questionHref;
+    router.push(questionHref);
   };
 
   return (
@@ -97,7 +101,7 @@ export default function SearchResultCard({
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          window.location.href = questionHref;
+          router.push(questionHref);
         }
       }}
       role="link"

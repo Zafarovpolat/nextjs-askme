@@ -68,8 +68,6 @@
   color: #6069ff !important;
 }
 
-.similar_questions_block .question_list_item_left,
-.similar_questions_block .question_item_top_data_left,
 .question_right_list .question_list_item_left {
   overflow: visible;
 }

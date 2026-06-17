@@ -8,6 +8,7 @@ import LoginModal from "@/components/LoginModal"
 import SharePopup from "@/components/SharePopup"
 import QuestionListCard from "@/components/QuestionListCard"
 import CategoryItemBg from "@/components/CategoryItemBg"
+import CategorySubjectIcon from "@/components/CategorySubjectIcon"
 import { api } from "@/lib/api-client"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import { useAuthStore } from "@/store/authStore"
@@ -203,11 +204,12 @@ export default function HomeContent({
           <div className="subjects_list">
             {(initialData.categories ?? []).map((category) => (
               <CategoryItemBg key={category.id}>
-                <div className="subject_item_icon">
-                  <svg width="24" height="24" className="category_icon">
-                    <use xlinkHref={`#${category.icon_key || "gaming"}`}></use>
-                  </svg>
-                </div>
+                <CategorySubjectIcon
+                  name={category.name}
+                  slug={category.slug}
+                  iconKey={category.icon_key}
+                  fallbackIconKey="gaming"
+                />
                 <Link href={`/categories/${category.slug}`} title={category.name}>
                   <h3>{category.name}</h3>
                 </Link>
@@ -215,14 +217,14 @@ export default function HomeContent({
                   {(category.subcategories ?? []).slice(0, 4).map((subcat) => (
                     <Link href={`/categories/${category.slug}/${subcat.slug}`} key={subcat.id} title={subcat.name}>
                       <span className="subject_item_list_item">
-                        <img src="/images/icons/category-list-item.svg" alt="" />
+                        <img src="/images/icons/category-list-item.svg" alt="" title={subcat.name} />
                         <span>{subcat.name}</span>
                       </span>
                     </Link>
                   ))}
                 </div>
-                <Link href="/categories">
-                  <div className="subject_item_more">
+                <Link href="/categories" title="Посмотреть все категории">
+                  <div className="subject_item_more" title="Посмотреть все категории">
                     <p>Посмотреть все</p>
                     <img src="/images/icons/more-s-icon.svg" alt="" className="subject_item_more_arrow" />
                   </div>

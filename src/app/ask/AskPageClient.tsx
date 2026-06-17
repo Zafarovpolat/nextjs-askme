@@ -27,6 +27,7 @@ import {
   PLAIN_TEXT_SPAM_MESSAGE,
   sanitizePlainTextInput,
 } from "@/lib/plain-text-spam-guard"
+import { legalFooterHref, LEGAL_FOOTER_SLUGS } from "@/lib/legal-footer-slugs"
 
 type Subcategory = { id: number; name: string; slug: string; icon_key: string | null }
 type CategoryItem = { id: number; name: string; slug: string; icon_key: string | null; subcategories: Subcategory[] }
@@ -571,7 +572,15 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                 >
                   {submitting ? "Отправка…" : "Опубликовать вопрос"}
                 </button>
-                <p>Нажимая на кнопку, вы принимаете условия <a href="/user-agreement/" target="_blank">пользовательского соглашения</a></p>
+                <p>
+                  Нажимая на кнопку, вы принимаете условия{" "}
+                  <Link
+                    href={legalFooterHref(LEGAL_FOOTER_SLUGS.userAgreement)}
+                    target="_blank"
+                  >
+                    пользовательского соглашения
+                  </Link>
+                </p>
               </div>
               <div className="ask_form_checkboxes">
                 <label className="chechbox_item"><input type="checkbox" name="receive_notifications" defaultChecked /><span>Получать уведомления (ответы, голоса, комментарии)</span></label>

@@ -494,7 +494,9 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
       <div className="question_wrapper container" style={{ paddingBottom: "20px", borderBottom: "1px solid #E0E2EF" }}>
         <div className="question_left_list">
           {statsBlock(false)}
-          <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
+          <div className="profile_menu_weekly profile_menu_weekly--sidebar">
+            <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
+          </div>
         </div>
 
         <div
@@ -553,8 +555,6 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
             kpdPercentDisplay={`${kpdPercent}%`}
           />
 
-          {statsBlock(true)}
-
           <div className="questions_page_inner">
             {activeMainTab === "questions" ? (
               <div className="questions_filter" style={{ marginTop: "24px", marginBottom: "14px" }}>
@@ -606,7 +606,7 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
               </div>
             )}
 
-            <div className="search-results-list" style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+            <div className="search-results-list">
               {activeMainTab === "questions" ? (
                 qLoading ? (
                   <div style={{ padding: "24px", textAlign: "center", color: "#899AB5" }}>Загрузка…</div>
@@ -665,6 +665,12 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
               </div>
             )}
           </div>
+
+          <div className="profile_menu_weekly profile_menu_weekly--inline">
+            <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
+          </div>
+
+          {statsBlock(true)}
         </div>
 
         <div className={`question_right_list${isBanned ? " banned_opacity" : ""}`}>

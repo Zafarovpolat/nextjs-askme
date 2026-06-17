@@ -330,10 +330,12 @@ body:has(.modal--active) {
   background: #fff;
   border: 1px solid rgb(100, 108, 255);
   padding: 10px;
-  position: absolute;
+  position: fixed;
   border-radius: 10px;
   transform: translateY(10px);
   animation: sharePopupIn 0.18s ease;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
 }
 
 @keyframes sharePopupIn {
@@ -357,7 +359,7 @@ body:has(.modal--active) {
   transform: rotate(0deg);
   position: absolute;
   top: -10px;
-  left: 13px;
+  left: var(--share-popup-arrow-left, 13px);
 }
 
 .share-popup__inner {

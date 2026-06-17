@@ -109,29 +109,17 @@ export default function NotificationsPage() {
   return (
     <div className="page-layout-sticky-footer">
       <Header />
-      <div className="container" style={{ flex: 1, paddingBottom: 40 }}>
+      <div className="container notifications_page" style={{ flex: 1, paddingBottom: 40 }}>
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">Главная</Link>
           <span className="breadcrumbs__sep">•</span>
           <span className="breadcrumbs__current">Уведомления</span>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h2 style={{ margin: 0 }}>Уведомления</h2>
+        <div className="notifications_page__header">
+          <h2>Уведомления</h2>
           {notifications.some((n) => !n.is_read) && (
-            <button
-              type="button"
-              onClick={markAllRead}
-              style={{
-                background: "none",
-                border: "none",
-                color: "#626aff",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-                fontFamily: "Nunito, sans-serif",
-              }}
-            >
+            <button type="button" className="notifications_page__mark-all" onClick={markAllRead}>
               Прочитать все
             </button>
           )}
@@ -142,7 +130,7 @@ export default function NotificationsPage() {
         ) : notifications.length === 0 ? (
           <p className="secondary_text">Нет уведомлений</p>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div className="notifications_page__list">
             {notifications.map((n) => (
               <div
                 key={n.id}

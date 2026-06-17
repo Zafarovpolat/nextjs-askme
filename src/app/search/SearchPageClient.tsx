@@ -524,6 +524,7 @@ export default function SearchPageClient({
                 >
                   <div
                     className="quest_catogory_title"
+                    title={cat.name}
                     onClick={() => toggleCategory(cat.slug)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -535,12 +536,14 @@ export default function SearchPageClient({
                     tabIndex={0}
                   >
                     <div>
-                      <svg width="18" height="18">
-                        <use
-                          xlinkHref={`#${cat.icon_key || "business"}`}
-                        ></use>
-                      </svg>
-                      <p>{cat.name}</p>
+                      <span className="quest_catogory_icon" title={cat.name}>
+                        <svg width="18" height="18" aria-hidden>
+                          <use
+                            xlinkHref={`#${cat.icon_key || "business"}`}
+                          ></use>
+                        </svg>
+                      </span>
+                      <p title={cat.name}>{cat.name}</p>
                     </div>
                     <svg
                       className="quest_catogory_arrow"
@@ -557,13 +560,15 @@ export default function SearchPageClient({
                         <Link
                           href={`/categories/${cat.slug}/${sub.slug}`}
                           key={sub.id}
+                          title={sub.name}
                         >
                           <span className="subject_item_list_item">
                             <img
                               src="/images/icons/category-list-item.svg"
                               alt=""
+                              title={sub.name}
                             />
-                            <span>{sub.name}</span>
+                            <span title={sub.name}>{sub.name}</span>
                           </span>
                         </Link>
                       ))}

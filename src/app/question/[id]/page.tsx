@@ -11,6 +11,8 @@ import QuestionPageContent from "./QuestionPageContent";
 
 const TOKEN_KEY = "otvetai_token";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {
@@ -68,6 +70,7 @@ export default async function QuestionPage({
   const data: QuestionPageData = await res.json();
   return (
     <QuestionPageContent
+      key={data.id}
       initialQuestion={data}
       initialAnchor={initialAnchor}
       sidebarCategories={sidebarCategories}

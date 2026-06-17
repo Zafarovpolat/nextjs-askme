@@ -457,38 +457,18 @@ a:has(.light_logo) {
 }
 
 .subjects_list_wrapper.is-scrollable {
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: rgb(96, 105, 255) rgb(250, 250, 252);
+  scrollbar-width: none; /* Firefox — кастомный скроллбар ниже */
 }
 
-.dark_mode .subjects_list_wrapper.is-scrollable {
-  scrollbar-color: rgb(96, 105, 255) rgb(23, 26, 63);
-}
-
-/* Горизонтальный скроллбар — только когда контент не помещается */
+/* Нативный скроллбар скрыт — кастомный трек с закруглёнными краями */
 .subjects_list_wrapper.is-scrollable::-webkit-scrollbar {
+  display: none !important;
   width: 0;
-  height: 6px;
+  height: 0;
   -webkit-appearance: none;
 }
 
-.subjects_list_wrapper.is-scrollable::-webkit-scrollbar-track {
-  border-radius: 44px;
-  background: rgb(250, 250, 252);
-}
-
-.dark_mode .subjects_list_wrapper.is-scrollable::-webkit-scrollbar-track {
-  border-radius: 44px;
-  background: rgb(23, 26, 63);
-}
-
-.subjects_list_wrapper.is-scrollable::-webkit-scrollbar-thumb {
-  border-radius: 44px;
-  background: rgb(96, 105, 255);
-  min-width: 40px;
-}
-
-/* п.6 — кастомный скроллбар (всегда виден, включая мобилку) */
+/* Кастомный горизонтальный скроллбар категорий */
 .subjects_scroll_track {
   position: relative;
   width: 100%;
@@ -496,7 +476,8 @@ a:has(.light_logo) {
   border-radius: 44px;
   background: rgb(250, 250, 252);
   margin-top: 4px;
-  display: none; /* скрыт на десктопе, там работает webkit-scrollbar */
+  overflow: hidden;
+  display: none;
 }
 
 .dark_mode .subjects_scroll_track {
@@ -506,6 +487,7 @@ a:has(.light_logo) {
 .subjects_scroll_thumb {
   position: absolute;
   top: 0;
+  left: 0;
   height: 100%;
   border-radius: 44px;
   background: rgb(96, 105, 255);
@@ -513,18 +495,8 @@ a:has(.light_logo) {
   transition: left 0.05s linear;
 }
 
-@media (max-width: 768px) {
-  /* на мобилке прячем нативный и показываем кастомный */
-  .subjects_list_wrapper.is-scrollable::-webkit-scrollbar {
-    display: none !important;
-    height: 0;
-  }
-  .subjects_list_wrapper.is-scrollable {
-    scrollbar-width: none; /* Firefox mobile */
-  }
-  .subjects_scroll_track.is-visible {
-    display: block;
-  }
+.subjects_scroll_track.is-visible {
+  display: block;
 }
 
 .popular-section .blocks_title {
@@ -608,6 +580,11 @@ a:has(.light_logo) {
   justify-content: center;
   right: -16px;
   top: -29px;
+}
+
+a.subject_item_icon {
+  text-decoration: none;
+  color: inherit;
 }
 
 .dark_mode .subject_item_icon {
@@ -2015,6 +1992,14 @@ footer .line {
     text-align: left;
   }
 
+  .dark_mode .question_item_top_data_left .question_list_item_author_name,
+  .dark_mode
+    .question_item_top_data_left
+    .question_list_item_left__user_meta
+    > a.main_text {
+    color: #fff;
+  }
+
   .question_list_item:hover .question_item_top_data_left span {
     color: rgba(255, 255, 255, 1);
   }
@@ -3057,7 +3042,8 @@ svg.logo-ai {
   color: #616aff !important;
 }
 
-.premium-btn-mob svg {
+.premium-btn-mob svg,
+.premium-btn-mob svg path {
   fill: #616aff !important;
 }
 
@@ -3065,7 +3051,8 @@ svg.logo-ai {
   color: #ffffff !important;
 }
 
-.dark_mode .premium-btn-mob svg {
+.dark_mode .premium-btn-mob svg,
+.dark_mode .premium-btn-mob svg path {
   fill: #ffffff !important;
 }
 
@@ -3078,6 +3065,33 @@ svg.logo-ai {
 .dark_mode .notification-btn-mob svg,
 .dark_mode .notification-btn-mob svg path {
   fill: #ffffff !important;
+}
+
+/* Нажатие / hover — как у «Спросить» и «Лидеры»: белые иконка и текст */
+.mob_sec_item button:hover,
+.mob_sec_item button:active,
+.mob_sec_item:hover button {
+  background: rgb(96, 105, 255);
+  border-color: rgb(96, 105, 255);
+  color: #fff !important;
+}
+
+.mob_sec_item button:hover svg,
+.mob_sec_item button:active svg,
+.mob_sec_item:hover button svg,
+.mob_sec_item button:hover svg path,
+.mob_sec_item button:active svg path,
+.mob_sec_item:hover button svg path {
+  fill: #fff !important;
+}
+
+.mob_sec_item .premium-btn-mob:hover,
+.mob_sec_item .premium-btn-mob:active,
+.mob_sec_item .notification-btn-mob:hover,
+.mob_sec_item .notification-btn-mob:active,
+.mob_sec_item:hover .premium-btn-mob,
+.mob_sec_item:hover .notification-btn-mob {
+  color: #fff !important;
 }
 
 .notification-badge-mob {

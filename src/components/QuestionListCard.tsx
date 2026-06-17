@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import UserAvatar from "@/components/UserAvatar";
 import QuestionLikerAvatars from "@/components/QuestionLikerAvatars";
 import { formatTimeAgo } from "@/lib/time-ago";
@@ -56,6 +57,7 @@ export default function QuestionListCard({
   onToggleFavorite,
   onShare,
 }: QuestionListCardProps) {
+  const router = useRouter();
   const authorPremium =
     question.author.premium_is_active ??
     question.author.is_premium ??
@@ -68,7 +70,7 @@ export default function QuestionListCard({
     // Не переходим если клик по кнопке, ссылке или интерактивному элементу
     const target = e.target as HTMLElement;
     if (target.closest("a") || target.closest("button") || target.closest("svg")) return;
-    window.location.href = `/question/${question.id}`;
+    router.push(`/question/${question.id}`);
   };
 
   return (
@@ -97,8 +99,8 @@ export default function QuestionListCard({
           <div className="question_list_item_left__user_meta">
             <Link
               href={`/profile/${question.author.id}`}
-              className="main_text"
-              style={{ textDecoration: "none", color: "inherit" }}
+              className="main_text question_list_item_author_name"
+              style={{ textDecoration: "none" }}
               title={authorName}
               onClick={(event) => event.stopPropagation()}
             >

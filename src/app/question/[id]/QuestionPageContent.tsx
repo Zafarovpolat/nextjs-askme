@@ -47,11 +47,13 @@ import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
 import type { AnswerAnchorMeta, QuestionPageData } from "@/types";
 import { getApiFullUrl } from "@/config/api";
 import LinkInputModal from "@/components/LinkInputModal";
+import { useBidirectionalStickySidebar } from "@/hooks/useBidirectionalStickySidebar";
 import {
   containsSpamUnicode,
   PLAIN_TEXT_SPAM_MESSAGE,
   sanitizePlainTextInput,
 } from "@/lib/plain-text-spam-guard";
+import { legalFooterHref, LEGAL_FOOTER_SLUGS } from "@/lib/legal-footer-slugs";
 import {
   anchorRefKey,
   buildAnswerAnchorHash,
@@ -374,6 +376,12 @@ export default function QuestionPageContent({
   const canSelectBestAnswer = !hasBestAnswer && isQuestionAuthor;
 
   const answerRef = useRef<HTMLTextAreaElement>(null);
+  const questionWrapperRef = useRef<HTMLDivElement>(null);
+  const leftSidebarRef = useRef<HTMLDivElement>(null);
+  const rightSidebarRef = useRef<HTMLDivElement>(null);
+
+  useBidirectionalStickySidebar(questionWrapperRef, leftSidebarRef);
+  useBidirectionalStickySidebar(questionWrapperRef, rightSidebarRef);
   useEffect(() => {
     return () => {
       if (fileAttachment?.previewUrl) URL.revokeObjectURL(fileAttachment.previewUrl);
@@ -635,6 +643,38 @@ export default function QuestionPageContent({
   const regularAnswers = answersData;
   const answersSortQuery = `sort_by=${sortBy}&sort_dir=${sortDir}`;
   const sortInitialRef = useRef(true);
+  const initialAnswersLen = (initialQuestion.answers ?? []).length;
+
+  /** Устаревший Router Cache / RSC: счётчик есть, список пуст — догружаем с API */
+  useEffect(() => {
+    const count = initialQuestion.answers_count ?? 0;
+    if (count === 0 || initialAnswersLen > 0) return;
+
+    let cancelled = false;
+    setAnswersLoadingMore(true);
+    void api
+      .get<{
+        answers: NonNullable<QuestionPageData["answers"]>;
+        current_page: number;
+        last_page: number;
+      }>(
+        `v1/questions/${initialQuestion.id}/answers?page=1&per_page=${perPage}&sort_by=rating&sort_dir=desc`
+      )
+      .then((data) => {
+        if (cancelled) return;
+        setAnswersData(data.answers ?? []);
+        setAnswersPage(data.current_page ?? 1);
+        setAnswersLastPage(data.last_page ?? 1);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setAnswersLoadingMore(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialQuestion.id, initialQuestion.answers_count, initialAnswersLen, perPage]);
 
   useEffect(() => {
     if (sortInitialRef.current) {
@@ -952,9 +992,9 @@ export default function QuestionPageContent({
         </div>
       </div>
 
-      <div className="question_wrapper container">
+      <div className="question_wrapper container" ref={questionWrapperRef}>
         {/* Левый сайдбар */}
-        <div className="question_left_list">
+        <div className="question_left_list" ref={leftSidebarRef}>
           <div className="quest_catogories_list">
             <div className="blocks_title">
               <h2>Категории</h2>
@@ -966,12 +1006,15 @@ export default function QuestionPageContent({
               >
                 <div
                   className="quest_catogory_title"
+                  title={cat.name}
                   onClick={() => toggleCategory(cat.slug)}
                 >
                   <div>
-                    <svg width="18" height="18">
-                      <use xlinkHref={`#${categorySidebarIcon(cat)}`}></use>
-                    </svg>
+                    <span className="quest_catogory_icon" title={cat.name}>
+                      <svg width="18" height="18" aria-hidden>
+                        <use xlinkHref={`#${categorySidebarIcon(cat)}`}></use>
+                      </svg>
+                    </span>
                     <p title={cat.name}>{cat.name}</p>
                   </div>
                   <svg
@@ -997,13 +1040,14 @@ export default function QuestionPageContent({
                           ? subcat.id
                           : idx;
                       return (
-                        <Link href={href} key={key}>
+                        <Link href={href} key={key} title={label}>
                           <span className="subject_item_list_item">
                             <img
                               src="/images/icons/category-list-item.svg"
                               alt=""
+                              title={label}
                             />
-                            <span>{label}</span>
+                            <span title={label}>{label}</span>
                           </span>
                         </Link>
                       );
@@ -1439,14 +1483,19 @@ export default function QuestionPageContent({
               </button>
               <p>
                 Нажимая на кнопку, вы принимаете условия <br />
-                <a href="/privacy">пользовательского соглашения</a>
+                <Link href={legalFooterHref(LEGAL_FOOTER_SLUGS.userAgreement)}>
+                  пользовательского соглашения
+                </Link>
               </p>
             </div>
           </form>
         </div>
 
         {/* Правый сайдбар — как в макете: вопросы-лидеры с API */}
-        <QuestionLeadersSidebar questionId={initialQuestion.id} />
+        <QuestionLeadersSidebar
+          ref={rightSidebarRef}
+          questionId={initialQuestion.id}
+        />
       </div>
 
       {/* Не нашли то, что искали? */}

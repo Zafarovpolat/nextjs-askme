@@ -294,6 +294,7 @@ const ProfileDropdown = () => {
                 <Link
                   href={item.href}
                   className={styles.profileMenuItem}
+                  title={item.label}
                   onClick={() => setIsOpen(false)}
                 >
                   <div className={styles.profileMenuIcon}>
@@ -311,6 +312,7 @@ const ProfileDropdown = () => {
             <button
               type="button"
               className={`${styles.profileMenuItem} ${styles.logoutItem}`}
+              title="Выйти"
               onClick={() => {
                 setIsOpen(false);
                 logout();
@@ -399,7 +401,7 @@ export default function Header() {
       <nav className={isNavHidden || isMenuOpen ? "nav--hidden" : ""}>
         <div className="nav_wrapper container">
           {/* п.15 — Логотип текстом вместо SVG (кроме иконки) */}
-          <Link href="/" className="header__logo">
+          <Link href="/" className="header__logo" title="Главная">
             <div className="logo-container light_logo">
               <svg
                 width="44"
@@ -437,7 +439,9 @@ export default function Header() {
           <div className="nav_list">
             {/* п.8 — toggle: если уже на /categories, возвращаемся назад */}
             <button
+              type="button"
               className="m_btn category_btn nav-cat-btn"
+              title="Категории"
               onClick={() => {
                 if (pathname === "/categories") {
                   router.back();
@@ -474,17 +478,21 @@ export default function Header() {
               />
             </form>
 
-            <a href="/ask" className="nav-ask-btn">
-              <button className="m_btn">
+            <Link href="/ask" className="nav-ask-btn" title="Спросить">
+              <button type="button" className="m_btn" title="Спросить">
                 <svg width="20" height="20">
                   <use xlinkHref="#ask"></use>
                 </svg>
                 <span className="nav-btn-label">Спросить</span>
               </button>
-            </a>
+            </Link>
 
-            <Link href={isAuthorized ? "/profile?tab=vip" : "/login"} className="nav-premium-btn">
-              <button className="m_btn m_btn_icon category_btn">
+            <Link
+              href={isAuthorized ? "/profile?tab=vip" : "/login"}
+              className="nav-premium-btn"
+              title="Премиум"
+            >
+              <button type="button" className="m_btn m_btn_icon category_btn" title="Премиум">
                 <svg
                   width="20"
                   height="17"
@@ -513,14 +521,14 @@ export default function Header() {
               </button>
             </Link>
 
-            <a href="/leaders" className="nav-leaders-btn">
-              <button className="m_btn">
+            <Link href="/leaders" className="nav-leaders-btn" title="Лидеры">
+              <button type="button" className="m_btn" title="Лидеры">
                 <svg width="20" height="20">
                   <use xlinkHref="#leaders"></use>
                 </svg>
                 <span className="nav-btn-label">Лидеры</span>
               </button>
-            </a>
+            </Link>
 
             <ThemeToggleBtn onClick={toggleDarkMode} />
 
@@ -564,7 +572,9 @@ export default function Header() {
             )}
 
             <button
+              type="button"
               className="m_btn m_btn_icon category_btn desc_mob_btn"
+              title="Меню"
               onClick={toggleMenu}
             >
               <img src="/images/icons/mob-menu.svg" alt="" />
@@ -578,7 +588,7 @@ export default function Header() {
         className={`nav_mob_wrapper ${isMenuOpen ? "nav_mob_wrapper_visible" : ""}`}
       >
         <div className="nav_mob_wrapper_nav">
-          <Link href="/" className="mob-nav-logo">
+          <Link href="/" className="mob-nav-logo" title="Главная">
             <div className="logo-container" style={{ display: "flex" }}>
               <svg
                 width="44"
@@ -599,15 +609,15 @@ export default function Header() {
           <div>
             <ThemeToggleBtn onClick={toggleDarkMode} />
             {!isAuthorized ? (
-              <Link href="/login">
-                <button type="button" className="m_btn">
+              <Link href="/login" title="Войти">
+                <button type="button" className="m_btn" title="Войти">
                   <img src="/images/icons/user.svg" alt="" />
                 </button>
               </Link>
             ) : (
               <>
-                <Link href="/profile" className="burger-profile-link">
-                  <button type="button" className="m_btn">
+                <Link href="/profile" className="burger-profile-link" title="Личный кабинет">
+                  <button type="button" className="m_btn" title="Личный кабинет">
                     <img src="/images/icons/user.svg" alt="" />
                   </button>
                 </Link>
@@ -631,7 +641,7 @@ export default function Header() {
                 </button>
               </>
             )}
-            <button className="m_btn" onClick={toggleMenu}>
+            <button type="button" className="m_btn" title="Закрыть меню" onClick={toggleMenu}>
               <img src="/images/icons/exit-menu.svg" alt="" />
             </button>
           </div>
@@ -640,7 +650,9 @@ export default function Header() {
         <div className="nav_mob_wrapper_list">
           {/* п.8 — toggle: мобилка */}
           <button
+            type="button"
             className="m_btn mob_category_btn"
+            title="Все категории"
             onClick={() => {
               setIsMenuOpen(false);
               if (pathname === "/categories") {
@@ -675,8 +687,8 @@ export default function Header() {
             />
           </form>
 
-          <Link href="/ask" className="mob_sec_item">
-            <button className="m_btn">
+          <Link href="/ask" className="mob_sec_item" title="Спросить">
+            <button type="button" className="m_btn" title="Спросить">
               <svg width="20" height="20">
                 <use xlinkHref="#ask"></use>
               </svg>
@@ -684,8 +696,8 @@ export default function Header() {
             </button>
           </Link>
 
-          <Link href="/leaders" className="mob_sec_item">
-            <button className="m_btn">
+          <Link href="/leaders" className="mob_sec_item" title="Лидеры">
+            <button type="button" className="m_btn" title="Лидеры">
               <svg width="20" height="20">
                 <use xlinkHref="#leaders"></use>
               </svg>
@@ -693,8 +705,8 @@ export default function Header() {
             </button>
           </Link>
 
-          <Link href="/notifications" className="mob_sec_item">
-            <button className="m_btn notification-btn-mob">
+          <Link href="/notifications" className="mob_sec_item" title="Уведомления">
+            <button type="button" className="m_btn notification-btn-mob" title="Уведомления">
               <svg
                 width="20"
                 height="20"
@@ -711,8 +723,8 @@ export default function Header() {
             </button>
           </Link>
 
-          <Link href="/profile" className="mob_sec_item">
-            <button className="m_btn premium-btn-mob">
+          <Link href="/profile" className="mob_sec_item" title="Премиум">
+            <button type="button" className="m_btn premium-btn-mob" title="Премиум">
               <svg
                 width="20"
                 height="17"

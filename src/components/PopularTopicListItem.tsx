@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import QuestionLikerAvatars, { type LikerUser } from "@/components/QuestionLikerAvatars";
 import { compactCountTitle, formatCompactCountPlus } from "@/lib/format-compact-count";
 
@@ -14,6 +15,7 @@ export type PopularTopicItem = {
 };
 
 export default function PopularTopicListItem({ topic }: { topic: PopularTopicItem }) {
+  const router = useRouter();
   const href =
     topic.parent_slug && topic.slug
       ? `/categories/${topic.parent_slug}/${topic.slug}`
@@ -22,7 +24,7 @@ export default function PopularTopicListItem({ topic }: { topic: PopularTopicIte
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target.closest("a") || target.closest("button")) return;
-    window.location.href = href;
+    router.push(href);
   };
 
   return (

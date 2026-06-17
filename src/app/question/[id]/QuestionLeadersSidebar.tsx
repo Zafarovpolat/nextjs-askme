@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import Link from "next/link";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { api } from "@/lib/api-client";
@@ -10,11 +10,10 @@ import type { SimilarQuestionsPage } from "@/types";
 /**
  * Правый сайдбар «Вопросы лидеры» — вопросы с выбранным лучшим ответом (API similar, filter=solved).
  */
-export default function QuestionLeadersSidebar({
-  questionId,
-}: {
-  questionId: number;
-}) {
+const QuestionLeadersSidebar = forwardRef<
+  HTMLDivElement,
+  { questionId: number }
+>(function QuestionLeadersSidebar({ questionId }, ref) {
   const [items, setItems] = useState<SimilarQuestionsPage["questions"]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -48,7 +47,7 @@ export default function QuestionLeadersSidebar({
   }, [questionId]);
 
   return (
-    <div className="question_right_list">
+    <div className="question_right_list" ref={ref}>
       <div className="blocks_title">
         <h2>Вопросы лидеры</h2>
       </div>
@@ -100,4 +99,6 @@ export default function QuestionLeadersSidebar({
       )}
     </div>
   );
-}
+});
+
+export default QuestionLeadersSidebar;

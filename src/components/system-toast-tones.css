@@ -22,21 +22,21 @@
 
 /* !important — перебиваем .dark_mode .notificationPopup из Header.module.css */
 .dark_mode [data-system-toast="success"] {
-  border-color: #2d6a4f !important;
-  background: linear-gradient(145deg, #1a3d2a 0%, #236b42 55%, #1e4d32 100%) !important;
+  border-color: #3d8b5c !important;
+  background: #1e3228 !important;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
 }
 
 .dark_mode [data-system-toast="success"] > div {
-  color: rgba(255, 255, 255, 0.94) !important;
+  color: #d8f3dc !important;
 }
 
 .dark_mode [data-system-toast="error"] {
-  border-color: #b91c1c !important;
-  background: linear-gradient(145deg, #4c1518 0%, #7f1d1d 50%, #5c181c 100%) !important;
+  border-color: #9f4a4f !important;
+  background: #3a2226 !important;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
 }
 
 .dark_mode [data-system-toast="error"] > div {
-  color: rgba(255, 255, 255, 0.94) !important;
+  color: #fecaca !important;
 }

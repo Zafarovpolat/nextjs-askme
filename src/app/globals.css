@@ -17,6 +17,7 @@
 @import url('../styles/login-auth.css');
 @import url('../styles/404.css');
 @import url('../styles/faq.css');
+@import url('../styles/notifications.css');
 
 /* Дополнительные стили для Next.js */
 :root {

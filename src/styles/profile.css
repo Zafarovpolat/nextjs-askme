@@ -70,7 +70,7 @@
   gap: 19px;
 }
 
-/* Левая колонка: меню + виджеты «Лидеры» / «Активные авторы» (как dont-toch-test) */
+/* Левая колонка: меню профиля */
 .profile_menu_column {
   width: 18%;
   min-width: 0;
@@ -83,6 +83,30 @@
 
 .profile_menu_weekly {
   margin-top: 18px;
+  width: 100%;
+}
+
+.profile_menu_weekly--sidebar {
+  display: block;
+}
+
+.profile_menu_weekly--inline {
+  display: none;
+}
+
+.profile_page_content .profile_menu_weekly--inline,
+.questions_page_list .profile_menu_weekly--inline {
+  margin-top: 24px;
+}
+
+@media only screen and (max-width: 1300px) {
+  .profile_menu_weekly--sidebar {
+    display: none !important;
+  }
+
+  .profile_menu_weekly--inline {
+    display: block;
+  }
 }
 
 .profile_menu_weekly .question_leaders {
@@ -264,6 +288,15 @@
   font-size: 16px;
 }
 
+.dark_mode .limits_help_link {
+  color: #fff;
+  transition: color 0.2s ease;
+}
+
+.dark_mode .limits_help_link:hover {
+  color: #5e68ff;
+}
+
 .profile_stats_limits_list {
   background-color: white;
   border-radius: 14px;
@@ -418,6 +451,26 @@
   border: 3px solid #ffffff;
   background: rgb(93, 103, 255);
   padding: 0;
+}
+
+.user_profile_img_action:disabled,
+.user_profile_img_action--loading {
+  cursor: default;
+  pointer-events: none;
+}
+
+.user_profile_img_action_spinner {
+  fill: #fff;
+  animation: profile-avatar-upload-spin 0.9s linear infinite;
+}
+
+@keyframes profile-avatar-upload-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .user_profile_img_badge {
@@ -973,19 +1026,22 @@
   margin: 0;
 }
 
-.dark_mode .user_seting_item .chechbox_item input[type="radio"] {
+.dark_mode .user_seting_item .chechbox_item input[type="radio"],
+.dark_mode .user_seting_item .chechbox_item input[type="checkbox"] {
   background: transparent;
   border: 2px solid rgb(96, 105, 255);
 }
 
-/* Чекбоксы в тёмной теме при выборе — белый фон с синей галочкой */
-.dark_mode .user_seting_item .chechbox_item input:checked {
-  background: white;
-  border-color: white;
-  background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9.58572 14.3088C9.48352 14.4219 9.30675 14.4306 9.19291 14.328L4.88952 10.4494C4.77568 10.3468 4.77073 10.1742 4.8784 10.0658L6.24948 8.68621C6.35721 8.57781 6.53848 8.57309 6.65232 8.67562L9.00309 10.7942C9.11693 10.8968 9.2937 10.8881 9.39591 10.775L13.9885 5.69364C14.0907 5.58052 14.2716 5.56761 14.3903 5.66499L15.902 6.90401C16.0208 7.00134 16.0344 7.17358 15.9321 7.2867L9.58572 14.3088Z' fill='%23474AB3'/%3E%3C/svg%3E");
+.dark_mode .user_seting_item input[type="checkbox"] {
+  background-color: transparent;
+}
+
+.dark_mode .user_seting_item .chechbox_item input[type="checkbox"]:checked {
+  background: rgb(98, 106, 255);
+  border-color: rgb(98, 106, 255);
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='9' viewBox='0 0 12 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.78494 8.7092C4.68274 8.82231 4.50597 8.83094 4.39213 8.72836L0.0887349 4.84983C-0.0251044 4.74724 -0.030054 4.57462 0.0776145 4.46622L1.4487 3.0866C1.55643 2.9782 1.7377 2.97348 1.85154 3.07601L4.20231 5.19456C4.31615 5.29715 4.49292 5.28852 4.59513 5.1754L9.18771 0.0940296C9.28992 -0.019087 9.4708 -0.0320023 9.58953 0.0653833L11.1013 1.3044C11.22 1.40173 11.2336 1.57397 11.1313 1.68709L4.78494 8.7092Z' fill='white'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 20px;
 }
 
 /* Иконка info в vip_status_card — белая в тёмной теме */
@@ -1860,10 +1916,13 @@
 
 .questions_list_profile,
 .answers_list_profile {
-  padding: 10px 10px 20px;
+  padding: 10px;
   background-color: white;
   border-radius: 12px;
-  overflow: visible;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .dark_mode .questions_list_profile,
@@ -1871,18 +1930,67 @@
   background-color: #2c2b67;
 }
 
-.questions_list_profile .search-result-card,
-.answers_list_profile .answer-result-card {
-  background-color: #e8e8f5;
+/* Зебра: вопросы, ответы, подписки, подписчики (свой и чужой профиль) */
+.questions_list_profile > .search-result-card,
+.answers_list_profile > .search-result-card,
+.questions_list_profile > .answer-result-card,
+.answers_list_profile > .answer-result-card,
+.questions_list_profile > .user-follow-card,
+.answers_list_profile > .user-follow-card,
+.questions_page_inner .search-results-list > .search-result-card,
+.questions_page_inner .search-results-list > .answer-result-card {
+  margin-bottom: 0;
+  border-radius: 12px;
 }
 
-.dark_mode .questions_list_profile .search-result-card,
-.dark_mode .answers_list_profile .answer-result-card {
-  background-color: #2c2b67;
+.questions_list_profile > .search-result-card:not(.premium-question):nth-child(odd),
+.answers_list_profile > .search-result-card:not(.premium-question):nth-child(odd),
+.questions_list_profile > .answer-result-card:not(.premium-answer):nth-child(odd),
+.answers_list_profile > .answer-result-card:not(.premium-answer):nth-child(odd),
+.questions_list_profile > .user-follow-card:nth-child(odd),
+.answers_list_profile > .user-follow-card:nth-child(odd),
+.questions_page_inner .search-results-list > .search-result-card:not(.premium-question):nth-child(odd),
+.questions_page_inner .search-results-list > .answer-result-card:not(.premium-answer):nth-child(odd) {
+  background-color: rgba(232, 232, 245, 0.5);
 }
 
-.dark_mode .answers_list_profile .answer-result-card {
-  background-color: #403586;
+.questions_list_profile > .search-result-card:not(.premium-question):nth-child(even),
+.answers_list_profile > .search-result-card:not(.premium-question):nth-child(even),
+.questions_list_profile > .answer-result-card:not(.premium-answer):nth-child(even),
+.answers_list_profile > .answer-result-card:not(.premium-answer):nth-child(even),
+.questions_list_profile > .user-follow-card:nth-child(even),
+.answers_list_profile > .user-follow-card:nth-child(even),
+.questions_page_inner .search-results-list > .search-result-card:not(.premium-question):nth-child(even),
+.questions_page_inner .search-results-list > .answer-result-card:not(.premium-answer):nth-child(even) {
+  background-color: rgba(232, 232, 245, 0.2);
+}
+
+.dark_mode .questions_list_profile > .search-result-card:not(.premium-question):nth-child(odd),
+.dark_mode .answers_list_profile > .search-result-card:not(.premium-question):nth-child(odd),
+.dark_mode .questions_list_profile > .answer-result-card:not(.premium-answer):nth-child(odd),
+.dark_mode .answers_list_profile > .answer-result-card:not(.premium-answer):nth-child(odd),
+.dark_mode .questions_list_profile > .user-follow-card:nth-child(odd),
+.dark_mode .answers_list_profile > .user-follow-card:nth-child(odd),
+.dark_mode .questions_page_inner .search-results-list > .search-result-card:not(.premium-question):nth-child(odd),
+.dark_mode .questions_page_inner .search-results-list > .answer-result-card:not(.premium-answer):nth-child(odd) {
+  background-color: rgba(64, 53, 134, 0.5) !important;
+}
+
+.dark_mode .questions_list_profile > .search-result-card:not(.premium-question):nth-child(even),
+.dark_mode .answers_list_profile > .search-result-card:not(.premium-question):nth-child(even),
+.dark_mode .questions_list_profile > .answer-result-card:not(.premium-answer):nth-child(even),
+.dark_mode .answers_list_profile > .answer-result-card:not(.premium-answer):nth-child(even),
+.dark_mode .questions_list_profile > .user-follow-card:nth-child(even),
+.dark_mode .answers_list_profile > .user-follow-card:nth-child(even),
+.dark_mode .questions_page_inner .search-results-list > .search-result-card:not(.premium-question):nth-child(even),
+.dark_mode .questions_page_inner .search-results-list > .answer-result-card:not(.premium-answer):nth-child(even) {
+  background-color: rgba(64, 53, 134, 0.25) !important;
+}
+
+.questions_page_inner .search-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .search-result-subtext {
@@ -1897,14 +2005,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #f4f5f8;
   border-radius: 12px;
   padding: 11px 16px;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .dark_mode .user-follow-card {
-  background-color: #403586;
+  background-color: transparent;
 }
 
 .user-follow-left {
@@ -2405,6 +2512,24 @@
     margin-right: 0;
     width: 100%;
   }
+
+  .profile_menu_list_mob.tabs_list_m {
+    display: grid;
+    grid-template-columns: repeat(3, 50px);
+    gap: 10px;
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    width: 100%;
+    padding: 0 15px 15px;
+    box-sizing: border-box;
+  }
+
+  .profile_menu_list_mob .profile_menu_item.menu_item_m {
+    width: 50px;
+    height: 50px;
+    margin: 0;
+  }
 }
 
 @media only screen and (max-width: 700px) {
@@ -2649,7 +2774,7 @@
   }
 
   .answers_list_profile {
-    padding: 7px 8px 20px;
+    padding: 10px;
   }
 
   .user-follow-avatar {
@@ -2663,11 +2788,6 @@
 
   .user-follow-name {
     max-width: 110px;
-  }
-
-  .profile_menu_list_mob.tabs_list_m {
-    flex-wrap: wrap;
-    padding: 0 15px 15px;
   }
 
   .user_profile_block::after {

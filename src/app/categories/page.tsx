@@ -4,6 +4,7 @@ import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { getApiFullUrl } from "@/config/api"
 import CategoryItemBg from "@/components/CategoryItemBg"
+import CategorySubjectIcon from "@/components/CategorySubjectIcon"
 import { metadataForCategoriesIndex } from "@/lib/category-page-metadata"
 
 export const metadata: Metadata = metadataForCategoriesIndex()
@@ -53,15 +54,11 @@ export default async function CategoriesPage() {
           <div className="categories_list">
             {categories.map((category) => (
               <CategoryItemBg key={category.id}>
-                <div className="subject_item_icon">
-                  {category.icon_key ? (
-                    <svg width="24" height="24" className="category_icon">
-                      <use xlinkHref={`#${category.icon_key}`}></use>
-                    </svg>
-                  ) : (
-                    <span className="category_icon_placeholder" aria-hidden />
-                  )}
-                </div>
+                <CategorySubjectIcon
+                  name={category.name}
+                  slug={category.slug}
+                  iconKey={category.icon_key}
+                />
 
                 {/* п.14 — title для длинных названий */}
                 <Link href={`/categories/${category.slug}`} title={category.name}>
@@ -73,11 +70,13 @@ export default async function CategoriesPage() {
                     <Link
                       href={`/categories/${category.slug}/${sub.slug}`}
                       key={sub.id}
+                      title={sub.name}
                     >
                       <span className="subject_item_list_item">
                         <img
                           src="/images/icons/category-list-item.svg"
                           alt=""
+                          title={sub.name}
                         />
                         <span title={sub.name}>{sub.name}</span>
                       </span>

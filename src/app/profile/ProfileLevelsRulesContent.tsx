@@ -16,6 +16,7 @@ export type ProfileLevelsRulesUserSlice = {
   kpd: number;
   levelName: string;
   ballsToNextLevel?: number | null;
+  onBuyVip?: () => void;
 };
 
 function formatAnswersCountLabel(n: number): string {
@@ -100,7 +101,7 @@ export function ProfileLevelsMenuInner(p: ProfileLevelsRulesUserSlice) {
         </div>
 
         <div className="levels_actions">
-          <button className="m_btn vip_buy_btn_new" type="button">
+          <button className="m_btn vip_buy_btn_new" type="button" onClick={p.onBuyVip}>
             Купить VIP
           </button>
         </div>

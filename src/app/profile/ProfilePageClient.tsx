@@ -400,6 +400,10 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
   );
 
   const handleAvatarPick = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (avatarUploading) {
+      e.target.value = "";
+      return;
+    }
     const file = e.target.files?.[0];
     if (!file) return;
     const token = getToken();
@@ -417,7 +421,10 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
         body: fd,
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error((data as { message?: string }).message || "Ошибка загрузки аватара");
+      if (!res.ok) {
+        showSystemToast(getApiErrorMessage(data), "error");
+        return;
+      }
       const payload = data as { avatar_url?: string; avatar_url_2x?: string | null };
       if (payload.avatar_url) {
         patchUser({
@@ -425,11 +432,13 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
           avatar_url_2x: payload.avatar_url_2x ?? null,
         });
       }
+    } catch (err) {
+      showSystemToast(getApiErrorMessage(err), "error");
     } finally {
       setAvatarUploading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = "";
     }
-  }, [patchUser, router]);
+  }, [avatarUploading, patchUser, router]);
 
   const handleSettingsSave = useCallback(async () => {
     setSettingsSaving(true);
@@ -862,6 +871,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item profile-edit-btn ${activeTab === "menu2" ? "active_menu" : ""}`}
                     data-id="menu2"
+                    title="Редактировать профиль"
                     onClick={() => handleTabClick("menu2")}
                   >
                     <svg width="15.714844" height="20.000000">
@@ -872,6 +882,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item ${activeTab === "menu_levels" ? "active_menu" : ""}`}
                     data-id="menu_levels"
+                    title="Уровни"
                     onClick={() => handleTabClick("menu_levels")}
                   >
                     <svg width="13" height="20">
@@ -882,6 +893,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item ${activeTab === "menu_rules" ? "active_menu" : ""}`}
                     data-id="menu_rules"
+                    title="Ограничения"
                     onClick={() => handleTabClick("menu_rules")}
                   >
                     <svg width="20" height="17">
@@ -892,6 +904,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item ${activeTab === "menu_packages" ? "active_menu" : ""}`}
                     data-id="menu_packages"
+                    title="Пакеты"
                     onClick={() => handleTabClick("menu_packages")}
                   >
                     <svg width="16" height="20">
@@ -902,6 +915,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item ${activeTab === "menu4" ? "active_menu" : ""}`}
                     data-id="menu4"
+                    title="Настройки"
                     onClick={() => handleTabClick("menu4")}
                   >
                     <svg width="20.000000" height="20.000000">
@@ -911,6 +925,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   </div>
                   <div
                     className="profile_menu_item menu_item"
+                    title="Выход"
                     onClick={handleLogout}
                     role="button"
                     tabIndex={0}
@@ -925,7 +940,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
               )}
             </div>
           </div>
-                    <div className="profile_menu_weekly">
+          <div className="profile_menu_weekly profile_menu_weekly--sidebar">
             <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
           </div>
           </div>
@@ -952,6 +967,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item_m ${activeTab === "menu2" ? "active_menu" : ""}`}
                     data-id="menu2"
+                    title="Редактировать профиль"
                     onClick={() => handleTabClick("menu2")}
                   >
                     <svg width="15.714844" height="20.000000">
@@ -961,6 +977,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item_m ${activeTab === "menu_levels" ? "active_menu" : ""}`}
                     data-id="menu_levels"
+                    title="Уровни"
                     onClick={() => handleTabClick("menu_levels")}
                   >
                     <svg width="13" height="20">
@@ -970,6 +987,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item_m ${activeTab === "menu_rules" ? "active_menu" : ""}`}
                     data-id="menu_rules"
+                    title="Ограничения"
                     onClick={() => handleTabClick("menu_rules")}
                   >
                     <svg width="20" height="17">
@@ -979,6 +997,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item_m ${activeTab === "menu_packages" ? "active_menu" : ""}`}
                     data-id="menu_packages"
+                    title="Пакеты"
                     onClick={() => handleTabClick("menu_packages")}
                   >
                     <svg width="16" height="20">
@@ -988,6 +1007,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   <div
                     className={`profile_menu_item menu_item_m ${activeTab === "menu4" ? "active_menu" : ""}`}
                     data-id="menu4"
+                    title="Настройки"
                     onClick={() => handleTabClick("menu4")}
                   >
                     <svg width="20" height="20">
@@ -1066,11 +1086,6 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     <div style={{ position: "relative" }}>
                       <div
                         className="questions_list_profile"
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "5px",
-                        }}
                       >
                         {profileQuestionsForCard.map((question, index) => (
                           <SearchResultCard
@@ -1159,7 +1174,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     </p>
                   ) : profileAnswersForCard.length > 0 ? (
                     <div style={{ position: "relative" }}>
-                      <div className="answers_list_profile" style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                      <div className="answers_list_profile">
                         {profileAnswersForCard.map((answer) => (
                           <AnswerResultCard
                             key={answer.id}
@@ -1240,7 +1255,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                       VIP
                     </button>
                   </div>
-                  <div className="answers_list_profile" style={{ display: "flex", flexDirection: "column", gap: "5px", position: "relative", minHeight: "120px" }}>
+                  <div className="answers_list_profile" style={{ position: "relative", minHeight: "120px" }}>
                     {subscriptionsLoading && !subscriptionsLoadingMore ? (
                       <p className="secondary_text" style={{ textAlign: "center", padding: "48px 0" }}>
                         Загрузка…
@@ -1298,7 +1313,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                       VIP
                     </button>
                   </div>
-                  <div className="answers_list_profile" style={{ display: "flex", flexDirection: "column", gap: "5px", position: "relative", minHeight: "120px" }}>
+                  <div className="answers_list_profile" style={{ position: "relative", minHeight: "120px" }}>
                     {subscribersLoading && !subscribersLoadingMore ? (
                       <p className="secondary_text" style={{ textAlign: "center", padding: "48px 0" }}>
                         Загрузка…
@@ -1337,6 +1352,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   kpd={meUser.kpd ?? 0}
                   levelName={rankLabel}
                   ballsToNextLevel={meUser.balls_to_next_level}
+                  onBuyVip={() => handleTabClick("menu_packages")}
                 />
               </div>
 
@@ -1831,6 +1847,10 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="profile_menu_weekly profile_menu_weekly--inline">
+              <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
             </div>
           </div>
 

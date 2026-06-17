@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import QuestionLikerAvatars, { type LikerUser } from "@/components/QuestionLikerAvatars";
 import { compactCountTitle, formatCompactCountPlus } from "@/lib/format-compact-count";
 
@@ -18,13 +19,14 @@ export default function MostDiscussedListItem({
 }: {
   question: MostDiscussedQuestion;
 }) {
+  const router = useRouter();
   const likers = question.latest_likers ?? [];
   const firstLiker = likers[0];
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target.closest("a") || target.closest("button")) return;
-    window.location.href = `/question/${question.id}`;
+    router.push(`/question/${question.id}`);
   };
 
   return (

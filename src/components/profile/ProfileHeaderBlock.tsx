@@ -132,15 +132,25 @@ export default function ProfileHeaderBlock({
         {editableAvatar ? (
           <>
             <button
-              className="user_profile_img_action"
-              title={actionTitle}
+              className={`user_profile_img_action${avatarUploading ? " user_profile_img_action--loading" : ""}`}
+              title={avatarUploading ? "Загрузка…" : actionTitle}
               type="button"
               disabled={avatarUploading}
-              onClick={() => avatarInputRef?.current?.click()}
+              aria-busy={avatarUploading}
+              onClick={() => {
+                if (avatarUploading) return;
+                avatarInputRef?.current?.click();
+              }}
             >
-              <svg width="11" height="11">
-                <use xlinkHref="#pencil-edit"></use>
-              </svg>
+              {avatarUploading ? (
+                <svg width="11" height="11" className="user_profile_img_action_spinner" aria-hidden>
+                  <use xlinkHref="#sync"></use>
+                </svg>
+              ) : (
+                <svg width="11" height="11" aria-hidden>
+                  <use xlinkHref="#pencil-edit"></use>
+                </svg>
+              )}
             </button>
             <input
               ref={(node) => {
@@ -151,6 +161,7 @@ export default function ProfileHeaderBlock({
               type="file"
               accept="image/png,image/jpeg,image/gif,image/webp"
               style={{ display: "none" }}
+              disabled={avatarUploading}
               onChange={onAvatarPick}
             />
           </>

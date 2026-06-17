@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useLayoutEffect, useRef, useCallback, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 interface SharePopupProps {
   isOpen: boolean
@@ -13,26 +14,55 @@ interface SharePopupProps {
 
 export default function SharePopup({ isOpen, onClose, anchorRef, title, description, url }: SharePopupProps) {
   const popupRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const shareTitle = title || (typeof document !== 'undefined' ? document.title : '')
   const shareDescription = description || ''
   const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '')
 
-  // Позиционирование попапа
+  // Позиционирование относительно viewport (fixed), правый край попапа — у кнопки
   const updatePosition = useCallback(() => {
     const popup = popupRef.current
     const anchor = anchorRef.current
     if (!popup || !anchor) return
 
+    const margin = 8
+    const viewportWidth = window.visualViewport?.width ?? window.innerWidth
     const rect = anchor.getBoundingClientRect()
-    popup.style.top = `${window.scrollY + rect.bottom}px`
-    popup.style.left = `${window.scrollX + rect.left}px`
+    const popupWidth = popup.offsetWidth
+    const anchorCenterX = rect.left + rect.width / 2
+
+    let left = rect.right - popupWidth
+
+    if (left + popupWidth > viewportWidth - margin) {
+      left = viewportWidth - margin - popupWidth
+    }
+    if (left < margin) {
+      left = margin
+    }
+
+    popup.style.top = `${rect.bottom}px`
+    popup.style.left = `${left}px`
+
+    const arrowLeft = anchorCenterX - left - 7
+    const maxArrowLeft = Math.max(13, popupWidth - 20)
+    popup.style.setProperty(
+      '--share-popup-arrow-left',
+      `${Math.min(Math.max(arrowLeft, 13), maxArrowLeft)}px`,
+    )
   }, [anchorRef])
+
+  useLayoutEffect(() => {
+    if (!isOpen) return
+    updatePosition()
+  }, [isOpen, updatePosition])
 
   useEffect(() => {
     if (!isOpen) return
-
-    updatePosition()
 
     // Закрытие по клику вне попапа
     const handleClickOutside = (e: MouseEvent) => {
@@ -59,13 +89,13 @@ export default function SharePopup({ isOpen, onClose, anchorRef, title, descript
     }
   }, [isOpen, onClose, anchorRef, updatePosition])
 
-  if (!isOpen) return null
+  if (!isOpen || !mounted) return null
 
   const encodedTitle = encodeURIComponent(shareTitle)
   const encodedDescription = encodeURIComponent(shareDescription)
   const encodedUrl = encodeURIComponent(shareUrl)
 
-  return (
+  return createPortal(
     <div className="share-popup" ref={popupRef}>
       <div className="share-popup__inner">
         <a
@@ -124,6 +154,7 @@ export default function SharePopup({ isOpen, onClose, anchorRef, title, descript
           </svg>
         </a>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

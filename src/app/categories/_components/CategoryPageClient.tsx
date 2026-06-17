@@ -8,6 +8,7 @@ import LoginModal from "@/components/LoginModal"
 import SharePopup from "@/components/SharePopup"
 import QuestionListCard from "@/components/QuestionListCard"
 import CategoryItemBg from "@/components/CategoryItemBg"
+import CategorySubjectIcon from "@/components/CategorySubjectIcon"
 import { api } from "@/lib/api-client"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import { useAuthStore } from "@/store/authStore"
@@ -105,6 +106,8 @@ export default function CategoryPageClient({
   }, [isShareOpen])
 
   const scrollRef = useRef<HTMLDivElement>(null)
+  const scrollTrackRef = useRef<HTMLDivElement>(null)
+  const scrollThumbRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
   const startX = useRef(0)
   const scrollLeft = useRef(0)
@@ -146,17 +149,32 @@ export default function CategoryPageClient({
 
   useEffect(() => {
     const el = scrollRef.current
-    if (!el) return
+    const thumb = scrollThumbRef.current
+    const track = scrollTrackRef.current
+    if (!el || !thumb) return
     const update = () => {
-      el.classList.toggle('is-scrollable', el.scrollWidth > el.clientWidth + 1)
+      const scrollable = el.scrollWidth > el.clientWidth + 1
+      el.classList.toggle('is-scrollable', scrollable)
+      track?.classList.toggle('is-visible', scrollable)
+      if (!scrollable) {
+        thumb.style.width = '0'
+        thumb.style.left = '0'
+        return
+      }
+      const ratio = el.clientWidth / el.scrollWidth
+      const pos = el.scrollLeft / (el.scrollWidth - el.clientWidth)
+      thumb.style.width = `${Math.max(ratio * 100, 20)}%`
+      thumb.style.left = `${pos * (100 - Math.max(ratio * 100, 20))}%`
     }
     update()
+    el.addEventListener('scroll', update, { passive: true })
     window.addEventListener('resize', update)
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
     const inner = el.querySelector('.subjects_list')
     ro?.observe(el)
     if (inner) ro?.observe(inner)
     return () => {
+      el.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
       ro?.disconnect()
     }
@@ -295,24 +313,25 @@ export default function CategoryPageClient({
           <div className="subjects_list">
             {(shared.popular_categories ?? []).map((c) => (
               <CategoryItemBg key={c.id}>
-                <div className="subject_item_icon">
-                  <svg width="24" height="24" className="category_icon">
-                    <use xlinkHref={`#${c.icon_key || "gaming"}`}></use>
-                  </svg>
-                </div>
-                <Link href={`/categories/${c.slug}`}><h3>{c.name}</h3></Link>
+                <CategorySubjectIcon
+                  name={c.name}
+                  slug={c.slug}
+                  iconKey={c.icon_key}
+                  fallbackIconKey="gaming"
+                />
+                <Link href={`/categories/${c.slug}`} title={c.name}><h3>{c.name}</h3></Link>
                 <div className="subject_item_list">
                   {(c.subcategories ?? []).slice(0, 4).map((s) => (
-                    <Link href={`/categories/${c.slug}/${s.slug}`} key={s.id}>
+                    <Link href={`/categories/${c.slug}/${s.slug}`} key={s.id} title={s.name}>
                       <span className="subject_item_list_item">
-                        <img src="/images/icons/category-list-item.svg" alt="" />
+                        <img src="/images/icons/category-list-item.svg" alt="" title={s.name} />
                         <span>{s.name}</span>
                       </span>
                     </Link>
                   ))}
                 </div>
-                <Link href="/categories">
-                  <div className="subject_item_more">
+                <Link href="/categories" title="Посмотреть все категории">
+                  <div className="subject_item_more" title="Посмотреть все категории">
                     <p>Посмотреть все</p>
                     <img src="/images/icons/more-s-icon.svg" alt="" className="subject_item_more_arrow" />
                   </div>
@@ -320,6 +339,9 @@ export default function CategoryPageClient({
               </CategoryItemBg>
             ))}
           </div>
+        </div>
+        <div className="subjects_scroll_track" ref={scrollTrackRef}>
+          <div className="subjects_scroll_thumb" ref={scrollThumbRef} />
         </div>
       </div>
 
