@@ -11,6 +11,7 @@ import QuestionModal from "@/components/QuestionModal"
 import SharePopup from "@/components/SharePopup"
 import VipPurchaseModal from "@/components/VipPurchaseModal"
 import CustomSelect from "@/components/CustomSelect"
+import QuestionListCard, { type QuestionListItem } from "@/components/QuestionListCard"
 import PremiumFilterCrownIcon from "@/components/PremiumFilterCrownIcon"
 import { api } from "@/lib/api-client"
 import { getToken } from "@/lib/cookies"
@@ -22,11 +23,6 @@ import { resizeTextarea } from "@/lib/resize-textarea"
 import LinkInputModal from "@/components/LinkInputModal"
 import type { ApiUser } from "@/types"
 import {
-  compactCountTitle,
-  formatCompactCountPlus,
-  formatCompactNumWord,
-} from "@/lib/format-compact-count"
-import {
   containsSpamUnicode,
   PLAIN_TEXT_SPAM_MESSAGE,
   sanitizePlainTextInput,
@@ -34,13 +30,6 @@ import {
 
 type Subcategory = { id: number; name: string; slug: string; icon_key: string | null }
 type CategoryItem = { id: number; name: string; slug: string; icon_key: string | null; subcategories: Subcategory[] }
-type QuestionListItem = {
-  id: number
-  title: string
-  likes_count: number
-  is_premium?: boolean
-  latest_likers: { id: number; avatar_url: string }[]
-}
 type ProjectLeader = { id: number; first_name: string; last_name: string; avatar_url: string; balls: number }
 type MostDiscussedItem = { id: number; title: string; likes_count: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }
 type PopularTopic = { id: number; name: string; slug: string; parent_slug: string | null; parent_icon_key?: string | null; total_likes: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }
@@ -664,71 +653,15 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
               <>
                 <div className="questions_list">
                   {similarQuestions.map((q) => (
-              <div key={q.id} className={`question_list_item ${q.is_premium ? "premium-question" : ""}`}>
-                <div className="question_item_top_data">
-                  <div className="question_item_top_data_left">
-                    <img src={q.latest_likers[0]?.avatar_url ?? "/images/icons/avatar.svg"} alt="" />
-                    <div className="question_list_item_left__user_meta">
-                      <p className="main_text" title={q.title}>{q.title}</p>
-                      <span title={compactCountTitle(q.likes_count)}>
-                        {formatCompactNumWord(q.likes_count, ["лайк", "лайка", "лайков"])}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="question_item_top_data_right">
-                    <button
-                      type="button"
-                      className={`s_btn s_btn_icon btn-like ${isFavorited(q.id) ? "btn-like--active" : ""}`}
-                      onClick={() => toggleFavorite(q.id)}
-                      disabled={isPending(q.id)}
-                      title="Мне нравится"
-                    >
-                      <svg width="13.714355" height="12"><use xlinkHref="#like"></use></svg>
-                    </button>
-                    <button type="button" className="s_btn s_btn_icon share-this" title="Поделиться" onClick={(e) => handleShareClick(e, q.title, q.id)}>
-                      <svg width="14" height="14"><use xlinkHref="#share"></use></svg>
-                    </button>
-                  </div>
-                </div>
-                <Link href={`/question/${q.id}`}>
-                  <div className="question_list_item_left">
-                    <img src={q.latest_likers[0]?.avatar_url ?? "/images/icons/avatar.svg"} alt="" />
-                    <div className="question_list_item_left__user_meta">
-                      <p className="main_text" title={q.title}>{q.title}</p>
-                      <span title={compactCountTitle(q.likes_count)}>
-                        {formatCompactNumWord(q.likes_count, ["лайк", "лайка", "лайков"])}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-                <div className="question_list_item_right">
-                  <div className="question_list_item_users">
-                    {q.latest_likers.slice(0, 3).map((u) => (
-                      <img key={u.id} src={u.avatar_url} alt="" />
-                    ))}
-                    <p className="main_text" title={compactCountTitle(q.likes_count)}>
-                      {formatCompactCountPlus(q.likes_count)}
-                    </p>
-                  </div>
-                  <div className="question_list_item_right_actions">
-                    <button
-                      type="button"
-                      className={`s_btn s_btn_icon btn-like ${isFavorited(q.id) ? "btn-like--active" : ""}`}
-                      onClick={() => toggleFavorite(q.id)}
-                      disabled={isPending(q.id)}
-                      title="Мне нравится"
-                    >
-                      <svg width="13.714355" height="12"><use xlinkHref="#like"></use></svg>
-                    </button>
-                    <button type="button" className="s_btn s_btn_icon share-this" title="Поделиться" onClick={(e) => handleShareClick(e, q.title, q.id)}>
-                      <svg width="14" height="14"><use xlinkHref="#share"></use></svg>
-                    </button>
-                    <Link href={`/question/${q.id}`} className="s_btn">Посмотреть</Link>
-                    <Link href={`/question/${q.id}#answer`} className="s_btn s_btn_active">Ответить</Link>
-                  </div>
-                </div>
-              </div>
-            ))}
+                    <QuestionListCard
+                      key={q.id}
+                      question={q}
+                      isFavorited={isFavorited}
+                      isPending={isPending}
+                      onToggleFavorite={toggleFavorite}
+                      onShare={handleShareClick}
+                    />
+                  ))}
                 </div>
                 {similarCurrentPage < similarLastPage && (
                   <div className="show_more_btn_wrapper">

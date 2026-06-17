@@ -6,11 +6,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SearchResultCard from "@/components/SearchResultCard";
+import QuestionListCard, {
+  type QuestionListItem,
+} from "@/components/QuestionListCard";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
 import SharePopup from "@/components/SharePopup";
 import PremiumFilterCrownIcon from "@/components/PremiumFilterCrownIcon";
+import CustomSelect from "@/components/CustomSelect";
 import { getApiFullUrl } from "@/config/api";
-import { avatarImgProps } from "@/lib/avatar-srcset";
 import { api } from "@/lib/api-client";
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
@@ -18,9 +21,6 @@ import type { ApiCategoryTree } from "@/lib/server-categories";
 import type { SearchLeaderQuestion } from "@/lib/server-search-leaders";
 import type { Question } from "@/types";
 import {
-  compactCountTitle,
-  formatCompactCount,
-  formatCompactCountPlus,
   formatCompactNumWord,
 } from "@/lib/format-compact-count";
 
@@ -41,6 +41,11 @@ type ApiSearchQuestion = {
     avatar_url: string | null;
     avatar_url_2x?: string | null;
     balls?: number;
+    is_premium?: boolean;
+    premium_is_active?: boolean;
+    premium_is_permanent?: boolean;
+    premium_package_name?: string | null;
+    is_ai?: boolean;
   } | null;
 };
 
@@ -92,13 +97,7 @@ function mapStatus(
   return "opened";
 }
 
-type SimilarQuestionItem = {
-  id: number;
-  title: string;
-  likes_count: number;
-  is_premium?: boolean;
-  latest_likers: { id: number; avatar_url: string | null; avatar_url_2x?: string | null }[];
-};
+type SimilarQuestionItem = QuestionListItem;
 
 const SIMILAR_FILTERS = [
   { label: "Все", value: "all" as const },
@@ -132,6 +131,10 @@ function mapApiToQuestion(q: ApiSearchQuestion): Question {
       answersCount: 0,
       createdAt: created,
       role: "",
+      is_premium: q.author?.is_premium,
+      premium_is_active: q.author?.premium_is_active,
+      premium_is_permanent: q.author?.premium_is_permanent,
+      premium_package_name: q.author?.premium_package_name ?? null,
     },
     category: {
       id: 0,
@@ -198,7 +201,10 @@ export default function SearchPageClient({
   const [similarQuestions, setSimilarQuestions] = useState<
     SimilarQuestionItem[]
   >([]);
+  const [similarCurrentPage, setSimilarCurrentPage] = useState(1);
+  const [similarLastPage, setSimilarLastPage] = useState(1);
   const [similarLoading, setSimilarLoading] = useState(false);
+  const [similarLoadingMore, setSimilarLoadingMore] = useState(false);
   const [isSimilarShareOpen, setIsSimilarShareOpen] = useState(false);
   const [similarShareData, setSimilarShareData] = useState({
     title: "",
@@ -220,6 +226,16 @@ export default function SearchPageClient({
     const parent = categories.find((c) => String(c.id) === categoryIdStr);
     return parent?.subcategories ?? [];
   }, [categories, categoryIdStr]);
+
+  const categorySelectOptions = useMemo(
+    () => categories.map((cat) => ({ value: String(cat.id), label: cat.name })),
+    [categories],
+  );
+
+  const subcategorySelectOptions = useMemo(
+    () => subOptions.map((sub) => ({ value: String(sub.id), label: sub.name })),
+    [subOptions],
+  );
 
   const fetchPage = useCallback(
     async (
@@ -339,6 +355,8 @@ export default function SearchPageClient({
   useEffect(() => {
     if (!qTrimmed) {
       setSimilarQuestions([]);
+      setSimilarCurrentPage(1);
+      setSimilarLastPage(1);
       return;
     }
     let cancelled = false;
@@ -350,14 +368,24 @@ export default function SearchPageClient({
       filter: similarFilter,
     });
     void api
-      .get<{ questions: SimilarQuestionItem[] }>(
-        `v1/questions/similar?${params.toString()}`,
-      )
+      .get<{
+        questions: SimilarQuestionItem[];
+        current_page: number;
+        last_page: number;
+      }>(`v1/questions/similar?${params.toString()}`)
       .then((data) => {
-        if (!cancelled) setSimilarQuestions(data.questions ?? []);
+        if (!cancelled) {
+          setSimilarQuestions(data.questions ?? []);
+          setSimilarCurrentPage(data.current_page ?? 1);
+          setSimilarLastPage(data.last_page ?? 1);
+        }
       })
       .catch(() => {
-        if (!cancelled) setSimilarQuestions([]);
+        if (!cancelled) {
+          setSimilarQuestions([]);
+          setSimilarCurrentPage(1);
+          setSimilarLastPage(1);
+        }
       })
       .finally(() => {
         if (!cancelled) setSimilarLoading(false);
@@ -366,6 +394,38 @@ export default function SearchPageClient({
       cancelled = true;
     };
   }, [qTrimmed, similarFilter]);
+
+  const handleLoadMoreSimilar = useCallback(() => {
+    if (!qTrimmed || similarCurrentPage >= similarLastPage || similarLoadingMore) {
+      return;
+    }
+    setSimilarLoadingMore(true);
+    const params = new URLSearchParams({
+      q: qTrimmed,
+      page: String(similarCurrentPage + 1),
+      per_page: "15",
+      filter: similarFilter,
+    });
+    void api
+      .get<{
+        questions: SimilarQuestionItem[];
+        current_page: number;
+        last_page: number;
+      }>(`v1/questions/similar?${params.toString()}`)
+      .then((data) => {
+        setSimilarQuestions((prev) => [...prev, ...(data.questions ?? [])]);
+        setSimilarCurrentPage(data.current_page ?? similarCurrentPage + 1);
+        setSimilarLastPage(data.last_page ?? similarLastPage);
+      })
+      .catch(() => {})
+      .finally(() => setSimilarLoadingMore(false));
+  }, [
+    qTrimmed,
+    similarFilter,
+    similarCurrentPage,
+    similarLastPage,
+    similarLoadingMore,
+  ]);
 
   const handleSimilarShare = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>, title: string, id: number) => {
@@ -520,7 +580,7 @@ export default function SearchPageClient({
 
           <div className="questions_page_list">
             <div
-              className="main_question_block main_question_block_item"
+              className="main_question_block main_question_block_item search-form-block"
               style={{ marginTop: "0" }}
             >
               <div className="main_question_bg_wrapper">
@@ -638,71 +698,25 @@ export default function SearchPageClient({
                     flexWrap: "wrap",
                   }}
                 >
-                  <div
-                    style={{ flex: 1, minWidth: "250px", position: "relative" }}
-                  >
-                    <select
-                      className="super-select super-select--no-bg"
+                  <div style={{ flex: 1, minWidth: "250px" }}>
+                    <CustomSelect
                       value={categoryIdStr}
-                      onChange={(e) => {
-                        setCategoryIdStr(e.target.value);
+                      onChange={(value) => {
+                        setCategoryIdStr(value);
                         setSubcategoryIdStr("");
                       }}
-                    >
-                      <option value="">Все категории</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={String(cat.id)}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-                    <svg
-                      className="quest_catogory_arrow"
-                      width="12"
-                      height="8"
-                      style={{
-                        fill: "rgb(91, 103, 255)",
-                        position: "absolute",
-                        right: "20px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <use xlinkHref="#arrow-down"></use>
-                    </svg>
+                      placeholder="Все категории"
+                      options={categorySelectOptions}
+                    />
                   </div>
-                  <div
-                    style={{ flex: 1, minWidth: "250px", position: "relative" }}
-                  >
-                    <select
-                      className="super-select super-select--no-bg"
+                  <div style={{ flex: 1, minWidth: "250px" }}>
+                    <CustomSelect
                       value={subcategoryIdStr}
-                      onChange={(e) => setSubcategoryIdStr(e.target.value)}
+                      onChange={setSubcategoryIdStr}
+                      placeholder="Все подкатегории"
+                      options={subcategorySelectOptions}
                       disabled={!categoryIdStr}
-                    >
-                      <option value="">Все подкатегории</option>
-                      {subOptions.map((sub) => (
-                        <option key={sub.id} value={String(sub.id)}>
-                          {sub.name}
-                        </option>
-                      ))}
-                    </select>
-                    <svg
-                      className="quest_catogory_arrow"
-                      width="12"
-                      height="8"
-                      style={{
-                        fill: "rgb(91, 103, 255)",
-                        position: "absolute",
-                        right: "20px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <use xlinkHref="#arrow-down"></use>
-                    </svg>
+                    />
                   </div>
                 </div>
 
@@ -765,7 +779,7 @@ export default function SearchPageClient({
               </form>
             </div>
 
-            <div style={{ marginTop: "35px", paddingBottom: "0px" }}>
+            <div style={{ marginTop: "15px", paddingBottom: "0px" }}>
               <div className="search-results-header">
                 <h2 className="search-results-count">
                   {searchParams.get("q")?.trim()
@@ -833,6 +847,7 @@ export default function SearchPageClient({
               )}
 
               <div
+                className="search-results-list"
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -1007,123 +1022,35 @@ export default function SearchPageClient({
                 Нет похожих вопросов по этому запросу
               </p>
             ) : (
-              <div className="questions_list">
-                {similarQuestions.map((q) => (
-                  <div key={q.id} className={`question_list_item ${q.is_premium ? "premium-question" : ""}`}>
-                    <div className="question_item_top_data">
-                      <div className="question_item_top_data_left">
-                        <img
-                          {...avatarImgProps(
-                            q.latest_likers[0]?.avatar_url,
-                            q.latest_likers[0]?.avatar_url_2x,
-                          )}
-                          alt=""
-                        />
-                        <div>
-                          <p className="main_text">
-                            {q.title}
-                          </p>
-                          <span title={compactCountTitle(q.likes_count)}>
-                            {formatCompactNumWord(q.likes_count, ["лайк", "лайка", "лайков"])}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="question_item_top_data_right">
-                        <button
-                          type="button"
-                          className={`s_btn s_btn_icon btn-like ${isSimilarFavorited(q.id) ? "btn-like--active" : ""}`}
-                          onClick={() => toggleSimilarFavorite(q.id)}
-                          disabled={isSimilarVotePending(q.id)}
-                          title="Мне нравится"
-                        >
-                          <svg width="13.714355" height="12">
-                            <use xlinkHref="#like"></use>
-                          </svg>
-                        </button>
-                        <button
-                          type="button"
-                          className="s_btn s_btn_icon share-this"
-                          title="Поделиться"
-                          onClick={(e) =>
-                            handleSimilarShare(e, q.title, q.id)
-                          }
-                        >
-                          <svg width="14" height="14">
-                            <use xlinkHref="#share"></use>
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                    <Link href={`/question/${q.id}`}>
-                      <div className="question_list_item_left">
-                        <img
-                          {...avatarImgProps(
-                            q.latest_likers[0]?.avatar_url,
-                            q.latest_likers[0]?.avatar_url_2x,
-                          )}
-                          alt=""
-                        />
-                        <div className="question_list_item_left__user_meta">
-                          <p className="main_text">
-                            {q.title}
-                          </p>
-                          <span title={compactCountTitle(q.likes_count)}>
-                            {formatCompactNumWord(q.likes_count, ["лайк", "лайка", "лайков"])}
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                    <div className="question_list_item_right">
-                      <div className="question_list_item_users">
-                        {q.latest_likers.slice(0, 3).map((u) => (
-                          <img
-                            key={u.id}
-                            {...avatarImgProps(u.avatar_url, u.avatar_url_2x)}
-                            alt=""
-                          />
-                        ))}
-                        <p className="main_text" title={compactCountTitle(q.likes_count)}>
-                          {formatCompactCountPlus(q.likes_count)}
-                        </p>
-                      </div>
-                      <div className="question_list_item_right_actions">
-                        <button
-                          type="button"
-                          className={`s_btn s_btn_icon btn-like ${isSimilarFavorited(q.id) ? "btn-like--active" : ""}`}
-                          onClick={() => toggleSimilarFavorite(q.id)}
-                          disabled={isSimilarVotePending(q.id)}
-                          title="Мне нравится"
-                        >
-                          <svg width="13.714355" height="12">
-                            <use xlinkHref="#like"></use>
-                          </svg>
-                        </button>
-                        <button
-                          type="button"
-                          className="s_btn s_btn_icon share-this"
-                          title="Поделиться"
-                          onClick={(e) =>
-                            handleSimilarShare(e, q.title, q.id)
-                          }
-                        >
-                          <svg width="14" height="14">
-                            <use xlinkHref="#share"></use>
-                          </svg>
-                        </button>
-                        <Link href={`/question/${q.id}`} className="s_btn">
-                          Посмотреть
-                        </Link>
-                        <Link
-                          href={`/question/${q.id}#answer`}
-                          className="s_btn s_btn_active"
-                        >
-                          Ответить
-                        </Link>
-                      </div>
-                    </div>
+              <>
+                <div className="questions_list">
+                  {similarQuestions.map((q) => (
+                    <QuestionListCard
+                      key={q.id}
+                      question={q}
+                      isFavorited={isSimilarFavorited}
+                      isPending={isSimilarVotePending}
+                      onToggleFavorite={toggleSimilarFavorite}
+                      onShare={handleSimilarShare}
+                    />
+                  ))}
+                </div>
+                {similarCurrentPage < similarLastPage ? (
+                  <div className="show_more_btn_wrapper">
+                    <button
+                      type="button"
+                      className="show_more_btn"
+                      onClick={handleLoadMoreSimilar}
+                      disabled={similarLoadingMore}
+                    >
+                      <svg width="22" height="22">
+                        <use xlinkHref="#sync"></use>
+                      </svg>
+                      {similarLoadingMore ? "Загрузка…" : "Загрузить еще"}
+                    </button>
                   </div>
-                ))}
-              </div>
+                ) : null}
+              </>
             )}
           </div>
         ) : null}

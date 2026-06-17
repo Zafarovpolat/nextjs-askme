@@ -1096,6 +1096,7 @@ a:has(.light_logo) {
   line-height: 0;
   position: relative;
   z-index: 1;
+  overflow: visible;
 }
 
 .question_list_item_avatar_link:hover {

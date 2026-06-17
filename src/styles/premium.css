@@ -149,6 +149,27 @@
   pointer-events: none;
 }
 
+/* На странице вопроса .question_wrapper отключает фон ленты для премиум-ответов */
+.question_wrapper .main_question_block.premium-question:not(.main_question_block_item) {
+  background: #6069ff !important;
+}
+
+.dark_mode
+  .question_wrapper
+  .main_question_block.premium-question:not(.main_question_block_item) {
+  background: #6069ff !important;
+}
+
+/* Родители аватарки не обрезают бейдж */
+.question_list_item_avatar_link,
+.question_item_top_data_left .question_list_item_avatar_link,
+.question_item_top_data_left .site-user-avatar,
+.question_list_item_left > .question_list_item_avatar_link,
+.search-result-top > a,
+.main_question_block .question_list_item_left > div {
+  overflow: visible !important;
+}
+
 /* .main_question_block.premium-question:hover,
 .dark_mode .main_question_block.premium-question:hover {
   background: #6069ff !important;

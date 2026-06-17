@@ -82,8 +82,28 @@ export default function SearchResultCard({
     false;
   const authorPremiumText = displayPremiumBadge(question.author) ?? "Премиум";
   const authorName = displayUserName(question.author);
+  const questionHref = `/question/${question.slug}`;
+
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("a") || target.closest("button")) return;
+    window.location.href = questionHref;
+  };
+
   return (
-    <div className={`search-result-card ${isPremium ? "premium-question" : ""}`}>
+    <div
+      className={`search-result-card ${isPremium ? "premium-question" : ""}`}
+      onClick={handleCardClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          window.location.href = questionHref;
+        }
+      }}
+      role="link"
+      tabIndex={0}
+      style={{ cursor: "pointer" }}
+    >
       <div
         className="search-result-top"
         style={{
@@ -95,7 +115,9 @@ export default function SearchResultCard({
         {!isOwnProfile && (
           <Link
             href={`/profile/${question.author?.id ?? question.author?.username ?? ""}`}
-            style={{ display: "flex", position: "relative" }}
+            className="question_list_item_avatar_link"
+            style={{ display: "inline-block", position: "relative" }}
+            onClick={(e) => e.stopPropagation()}
           >
             <UserAvatar
               src={question.author?.avatar}
@@ -120,8 +142,9 @@ export default function SearchResultCard({
             }}
           >
             <Link
-              href={`/question/${question.slug}`}
+              href={questionHref}
               className="search-result-title"
+              onClick={(e) => e.stopPropagation()}
             >
               {question.title || "Без заголовка"}
             </Link>
@@ -144,6 +167,7 @@ export default function SearchResultCard({
             <Link
               href={`/categories/${question.category?.slug || ""}`}
               className="search-result-category"
+              onClick={(e) => e.stopPropagation()}
             >
               <svg
                 width="16"
