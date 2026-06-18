@@ -244,6 +244,10 @@
   scrollbar-gutter: stable;
 }
 
+/* WebKit — в notifications.css через .notif-scroll-area */
+
+
+
 .notificationLoadSentinel {
   width: 100%;
   height: 1px;
@@ -498,6 +502,9 @@
 :global(.dark_mode) .notificationDropdown::before {
   border-bottom-color: #6069FF;
 }
+
+/* Dark mode webkit — в notifications.css через .notif-scroll-area */
+
 
 :global(.dark_mode) .notificationTitle {
   color: #ffffff;

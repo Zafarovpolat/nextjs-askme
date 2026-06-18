@@ -32,7 +32,7 @@
 }
 
 .dark_mode .ask_form_item input {
-  border: 2px solid rgb(96, 105, 255);
+  border: 2px solid rgb(96, 105, 255) !important;
   background: transparent;
   color: rgb(255, 255, 255);
 }
@@ -807,9 +807,29 @@
   width: 6px;
 }
 
+.custom-select__dropdown::-webkit-scrollbar-track {
+  background: #f0f0ff;
+  border-radius: 0 0 10px 0;
+}
+
 .custom-select__dropdown::-webkit-scrollbar-thumb {
   background: rgb(98, 106, 255);
   border-radius: 3px;
+}
+
+/* Темная тема — скроллбар дропдауна */
+.dark_mode .custom-select__dropdown::-webkit-scrollbar-track {
+  background: rgb(25, 28, 75);
+  border-radius: 0 0 10px 0;
+}
+
+.dark_mode .custom-select__dropdown::-webkit-scrollbar-thumb {
+  background: rgb(98, 106, 255);
+  border-radius: 3px;
+}
+
+.dark_mode .custom-select__dropdown {
+  scrollbar-color: rgb(98, 106, 255) rgb(25, 28, 75);
 }
 
 .custom-select__option {

@@ -648,7 +648,7 @@ export default function NotificationBtnRealtime() {
 
           <div
             ref={scrollRef}
-            className={styles.notificationScrollArea}
+            className={`${styles.notificationScrollArea} notif-scroll-area`}
           >
             {unreadNotifications.length > 0 ? (
               <section className={styles.notificationSection}>
