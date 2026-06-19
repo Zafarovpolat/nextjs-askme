@@ -1845,6 +1845,87 @@
   }
 }
 
+.gift-vip-modal {
+  position: relative;
+  width: min(960px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 40px);
+  overflow: hidden;
+  padding: 0;
+  text-align: left;
+  align-items: stretch;
+  gap: 0;
+}
+
+.gift-vip-modal__body {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 28px 20px 32px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(98, 106, 255) #f0f0ff;
+  scrollbar-gutter: stable;
+}
+
+.gift-vip-modal__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gift-vip-modal__body::-webkit-scrollbar-track {
+  background: #f0f0ff;
+  border-radius: 3px;
+}
+
+.gift-vip-modal__body::-webkit-scrollbar-thumb {
+  background: rgb(98, 106, 255);
+  border-radius: 3px;
+}
+
+.gift-vip-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  color: #8b94a1;
+  cursor: pointer;
+}
+
+.gift-vip-modal__title {
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.gift-vip-modal__subtitle {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.gift-vip-modal .vip_plans_grid {
+  margin-top: 0;
+}
+
+.dark_mode .gift-vip-modal__close {
+  color: #ccddef;
+}
+
+.dark_mode .gift-vip-modal__body {
+  scrollbar-color: rgb(98, 106, 255) rgba(255, 255, 255, 0.1);
+}
+
+.dark_mode .gift-vip-modal__body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark_mode .gift-vip-modal__body::-webkit-scrollbar-thumb {
+  background: rgb(98, 106, 255);
+}
+
 @media only screen and (max-width: 650px) {
   .vip_plans_grid {
     grid-template-columns: 1fr;
@@ -1852,6 +1933,10 @@
 
   .vip_plan_card {
     padding: 30px 20px;
+  }
+
+  .gift-vip-modal__body {
+    padding: 24px 12px 28px 16px;
   }
 }
 

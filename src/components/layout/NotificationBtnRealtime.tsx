@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import styles from "./Header.module.css";
@@ -181,6 +182,7 @@ export default function NotificationBtnRealtime() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [markingAllRead, setMarkingAllRead] = useState(false);
   const [popups, setPopups] = useState<NotificationItem[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -214,6 +216,10 @@ export default function NotificationBtnRealtime() {
     loadingRef.current = false;
     clearPopupTimers();
   }, [clearPopupTimers]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     notificationsEnabledRef.current = notificationsEnabled;
@@ -594,35 +600,38 @@ export default function NotificationBtnRealtime() {
         </svg>
       </button>
 
-      {popups.length > 0 ? (
-        <div className={styles.notificationPopupStack} aria-live="polite">
-          {popups.map((notification) => (
-            <button
-              key={notification.id}
-              type="button"
-              className={styles.notificationPopup}
-              onClick={() => openNotification(notification)}
-            >
-              <div className={styles.notificationPopupHeader}>
-                <img
-                  src={DEFAULT_AVATAR}
-                  alt=""
-                  className={styles.notificationPopupAvatar}
-                />
-                <div className={styles.notificationPopupInfo}>
-                  {notification.title ? (
-                    <div className={styles.notificationTitleLine}>{notification.title}</div>
-                  ) : null}
-                  {notification.hint ? (
-                    <div className={styles.notificationHint}>{notification.hint}</div>
-                  ) : null}
-                </div>
-              </div>
-              <div className={styles.notificationPopupText}>{notification.text}</div>
-            </button>
-          ))}
-        </div>
-      ) : null}
+      {mounted && popups.length > 0
+        ? createPortal(
+            <div className={styles.notificationPopupStack} aria-live="polite">
+              {popups.map((notification) => (
+                <button
+                  key={notification.id}
+                  type="button"
+                  className={styles.notificationPopup}
+                  onClick={() => openNotification(notification)}
+                >
+                  <div className={styles.notificationPopupHeader}>
+                    <img
+                      src={DEFAULT_AVATAR}
+                      alt=""
+                      className={styles.notificationPopupAvatar}
+                    />
+                    <div className={styles.notificationPopupInfo}>
+                      {notification.title ? (
+                        <div className={styles.notificationTitleLine}>{notification.title}</div>
+                      ) : null}
+                      {notification.hint ? (
+                        <div className={styles.notificationHint}>{notification.hint}</div>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className={styles.notificationPopupText}>{notification.text}</div>
+                </button>
+              ))}
+            </div>,
+            document.body,
+          )
+        : null}
 
       {isOpen ? (
         <div className={styles.notificationDropdown}>

@@ -21,6 +21,7 @@ import {
   formatCompactCount,
 } from "@/lib/format-compact-count";
 import ProfileSharePopup from "@/components/profile/ProfileSharePopup";
+import GiftVipModal from "@/components/profile/GiftVipModal";
 import type { PublicProfileUser } from "@/types";
 import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
 
@@ -97,6 +98,7 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
   const [profile, setProfile] = useState<PublicProfileUser>(initialUser);
   const [followPending, setFollowPending] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isGiftVipOpen, setIsGiftVipOpen] = useState(false);
   const premiumProfile = profile as PublicProfileUser & {
     premium_is_active?: boolean;
     premium_package_name?: string | null;
@@ -393,6 +395,15 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
     }
   };
 
+  const handleGiftVipClick = () => {
+    if (isOwnProfile || isBanned) return;
+    if (!getToken()) {
+      router.push(`/login?return=${encodeURIComponent(`/profile/${profile.id}`)}`);
+      return;
+    }
+    setIsGiftVipOpen(true);
+  };
+
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -673,19 +684,28 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
           {statsBlock(true)}
         </div>
 
-        <div className={`question_right_list${isBanned ? " banned_opacity" : ""}`}>
-          <div className="vip_status_block">
-            <div className="vip_icon">
-              <img src="/images/vip.svg" alt="VIP" />
+        {!isOwnProfile && !isBanned ? (
+          <div className={`question_right_list${isBanned ? " banned_opacity" : ""}`}>
+            <div className="vip_status_block">
+              <div className="vip_icon">
+                <img src="/images/vip.svg" alt="VIP" />
+              </div>
+              <p className="vip_gift_text">Подарить</p>
+              <h3 className="vip_title">VIP статус</h3>
+              <button type="button" className="vip_button" onClick={handleGiftVipClick}>
+                ПОДАРИТЬ
+              </button>
             </div>
-            <p className="vip_gift_text">Подарить</p>
-            <h3 className="vip_title">VIP статус</h3>
-            <button type="button" className="vip_button">
-              ПОДАРИТЬ
-            </button>
           </div>
-        </div>
+        ) : null}
       </div>
+
+      <GiftVipModal
+        isOpen={isGiftVipOpen}
+        onClose={() => setIsGiftVipOpen(false)}
+        recipientId={profile.id}
+        recipientName={displayName}
+      />
 
       <div className="container">
         <div className="ask_question">

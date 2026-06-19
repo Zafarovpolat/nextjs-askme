@@ -313,7 +313,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  z-index: 2500;
+  z-index: 10050;
   width: min(360px, calc(100vw - 40px));
 }
 
