@@ -712,7 +712,7 @@ a.subject_item_icon {
 }
 
 .dark_mode .questions_filter .s_btn {
-  color: rgb(204, 221, 248);
+  color: #ffffff;
   border: 2px solid rgb(50, 54, 118);
   transition: all 0.2s ease;
 }
