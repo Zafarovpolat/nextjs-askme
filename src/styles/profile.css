@@ -1845,23 +1845,39 @@
   }
 }
 
+.gift-vip-modal-overlay {
+  overflow: hidden;
+  overscroll-behavior: none;
+  padding: 16px;
+}
+
 .gift-vip-modal {
   position: relative;
   width: min(960px, calc(100vw - 32px));
   max-width: calc(100vw - 32px);
-  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 32px);
   overflow: hidden;
   padding: 0;
   text-align: left;
+  display: flex;
+  flex-direction: column;
   align-items: stretch;
   gap: 0;
+}
+
+.gift-vip-modal__header {
+  flex: 0 0 auto;
+  padding: 28px 24px 16px;
+  text-align: center;
 }
 
 .gift-vip-modal__body {
   overflow-y: auto;
   flex: 1 1 auto;
   min-height: 0;
-  padding: 28px 20px 32px 24px;
+  padding: 4px 20px 28px 24px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgb(98, 106, 255) #f0f0ff;
   scrollbar-gutter: stable;
@@ -1902,12 +1918,50 @@
 }
 
 .gift-vip-modal__subtitle {
-  margin-bottom: 20px;
+  margin-bottom: 0;
   text-align: center;
 }
 
 .gift-vip-modal .vip_plans_grid {
   margin-top: 0;
+  gap: 16px;
+}
+
+.gift-vip-modal .vip_plan_card {
+  padding: 22px 20px 24px;
+}
+
+.gift-vip-modal .vip_plan_icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+}
+
+.gift-vip-modal .vip_plan_title {
+  font-size: 16px;
+  margin-bottom: 6px !important;
+}
+
+.gift-vip-modal .vip_plan_price_container {
+  margin-bottom: 12px;
+}
+
+.gift-vip-modal .vip_plan_price_value {
+  font-size: 22px;
+}
+
+.gift-vip-modal .vip_plan_features {
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.gift-vip-modal .vip_plan_features li {
+  font-size: 13px;
+}
+
+.gift-vip-modal .vip_buy_btn_card {
+  height: 44px;
+  font-size: 15px;
 }
 
 .dark_mode .gift-vip-modal__close {
@@ -1926,6 +1980,17 @@
   background: rgb(98, 106, 255);
 }
 
+@media only screen and (min-width: 651px) {
+  .gift-vip-modal-overlay {
+    padding: 12px;
+  }
+
+  .gift-vip-modal {
+    min-height: min(760px, calc(100dvh - 24px));
+    max-height: calc(100dvh - 24px);
+  }
+}
+
 @media only screen and (max-width: 650px) {
   .vip_plans_grid {
     grid-template-columns: 1fr;
@@ -1935,8 +2000,78 @@
     padding: 30px 20px;
   }
 
+  .gift-vip-modal-overlay {
+    padding: 8px;
+    align-items: stretch;
+  }
+
+  .gift-vip-modal {
+    width: 100%;
+    max-width: 100%;
+    height: calc(100dvh - 16px);
+    max-height: calc(100dvh - 16px);
+    border-radius: 24px;
+  }
+
+  .gift-vip-modal__header {
+    padding: 20px 16px 12px;
+  }
+
+  .gift-vip-modal__title {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .gift-vip-modal__subtitle {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
   .gift-vip-modal__body {
-    padding: 24px 12px 28px 16px;
+    padding: 4px 12px 20px 16px;
+    max-height: none;
+  }
+
+  .gift-vip-modal .vip_plan_card {
+    padding: 20px 18px 22px;
+  }
+
+  .gift-vip-modal .vip_plan_icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 6px;
+  }
+
+  .gift-vip-modal .vip_plan_title {
+    font-size: 16px;
+    margin-bottom: 6px !important;
+  }
+
+  .gift-vip-modal .vip_plan_price_container {
+    margin-bottom: 12px;
+  }
+
+  .gift-vip-modal .vip_plan_price_value {
+    font-size: 22px;
+  }
+
+  .gift-vip-modal .vip_plan_features {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .gift-vip-modal .vip_plan_features li {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .gift-vip-modal .vip_buy_btn_card {
+    height: 44px;
+    font-size: 15px;
+  }
+
+  .gift-vip-modal .vip_plans_grid {
+    gap: 12px;
   }
 }
 
@@ -2022,6 +2157,8 @@
 .answers_list_profile > .answer-result-card,
 .questions_list_profile > .user-follow-card,
 .answers_list_profile > .user-follow-card,
+.questions_list_profile > .question_list_item,
+.answers_list_profile > .question_list_item,
 .questions_page_inner .search-results-list > .search-result-card,
 .questions_page_inner .search-results-list > .answer-result-card {
   margin-bottom: 0;
@@ -2034,6 +2171,8 @@
 .answers_list_profile > .answer-result-card:not(.premium-answer):nth-child(odd),
 .questions_list_profile > .user-follow-card:nth-child(odd),
 .answers_list_profile > .user-follow-card:nth-child(odd),
+.questions_list_profile > .question_list_item:not(.premium-question):nth-child(odd),
+.answers_list_profile > .question_list_item:not(.premium-question):nth-child(odd),
 .questions_page_inner .search-results-list > .search-result-card:not(.premium-question):nth-child(odd),
 .questions_page_inner .search-results-list > .answer-result-card:not(.premium-answer):nth-child(odd) {
   background-color: rgba(232, 232, 245, 0.5);
@@ -2045,6 +2184,8 @@
 .answers_list_profile > .answer-result-card:not(.premium-answer):nth-child(even),
 .questions_list_profile > .user-follow-card:nth-child(even),
 .answers_list_profile > .user-follow-card:nth-child(even),
+.questions_list_profile > .question_list_item:not(.premium-question):nth-child(even),
+.answers_list_profile > .question_list_item:not(.premium-question):nth-child(even),
 .questions_page_inner .search-results-list > .search-result-card:not(.premium-question):nth-child(even),
 .questions_page_inner .search-results-list > .answer-result-card:not(.premium-answer):nth-child(even) {
   background-color: rgba(232, 232, 245, 0.2);
@@ -2056,6 +2197,8 @@
 .dark_mode .answers_list_profile > .answer-result-card:not(.premium-answer):nth-child(odd),
 .dark_mode .questions_list_profile > .user-follow-card:nth-child(odd),
 .dark_mode .answers_list_profile > .user-follow-card:nth-child(odd),
+.dark_mode .questions_list_profile > .question_list_item:not(.premium-question):nth-child(odd),
+.dark_mode .answers_list_profile > .question_list_item:not(.premium-question):nth-child(odd),
 .dark_mode .questions_page_inner .search-results-list > .search-result-card:not(.premium-question):nth-child(odd),
 .dark_mode .questions_page_inner .search-results-list > .answer-result-card:not(.premium-answer):nth-child(odd) {
   background-color: rgba(64, 53, 134, 0.5) !important;
@@ -2067,9 +2210,31 @@
 .dark_mode .answers_list_profile > .answer-result-card:not(.premium-answer):nth-child(even),
 .dark_mode .questions_list_profile > .user-follow-card:nth-child(even),
 .dark_mode .answers_list_profile > .user-follow-card:nth-child(even),
+.dark_mode .questions_list_profile > .question_list_item:not(.premium-question):nth-child(even),
+.dark_mode .answers_list_profile > .question_list_item:not(.premium-question):nth-child(even),
 .dark_mode .questions_page_inner .search-results-list > .search-result-card:not(.premium-question):nth-child(even),
 .dark_mode .questions_page_inner .search-results-list > .answer-result-card:not(.premium-answer):nth-child(even) {
   background-color: rgba(64, 53, 134, 0.25) !important;
+}
+
+/* Hover как на главной («Вопросы участников»): сиреневая заливка поверх зебры */
+.questions_list_profile > .question_list_item:not(.premium-question):hover,
+.answers_list_profile > .question_list_item:not(.premium-question):hover {
+  background: rgb(98, 106, 255) !important;
+}
+
+.dark_mode .questions_list_profile > .question_list_item:not(.premium-question):hover,
+.dark_mode .answers_list_profile > .question_list_item:not(.premium-question):hover {
+  background: rgb(98, 106, 255) !important;
+}
+
+.dark_mode .questions_list_profile > .question_list_item:not(.premium-question):hover .main_text,
+.dark_mode .answers_list_profile > .question_list_item:not(.premium-question):hover .main_text,
+.dark_mode .questions_list_profile > .question_list_item:not(.premium-question):hover .question_list_item_left span,
+.dark_mode .answers_list_profile > .question_list_item:not(.premium-question):hover .question_list_item_left span,
+.dark_mode .questions_list_profile > .question_list_item:not(.premium-question):hover .question_item_top_data_left span,
+.dark_mode .answers_list_profile > .question_list_item:not(.premium-question):hover .question_item_top_data_left span {
+  color: rgb(255, 255, 255);
 }
 
 .questions_page_inner .search-results-list {
@@ -2151,6 +2316,18 @@
   display: flex;
   align-items: center;
   gap: 22px;
+}
+
+.user-follow-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex: 1;
+  min-width: 0;
+}
+
+.user-follow-stats-qa {
+  display: contents;
 }
 
 .user-follow-stat {
@@ -2468,25 +2645,58 @@
     top: 13px;
   }
 
-  .user-follow-left + .user-follow-separator {
-    display: flex;
-  }
-
-  .user-follow-stat:nth-child(3) + .user-follow-separator {
-    display: none;
-  }
-
   .user-follow-card {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    gap: 12px 10px;
+    padding: 13px 11px;
+  }
+
+  .user-follow-left {
+    grid-column: 1;
+    grid-row: 1;
+    flex: unset;
+    min-width: 0;
+  }
+
+  .user-follow-stats-row {
+    display: contents;
+  }
+
+  .user-follow-stats-row > .user-follow-separator:first-child {
+    grid-column: 2;
+    grid-row: 1;
+    height: 38px;
+  }
+
+  .user-follow-stats-row > .user-follow-stat:first-of-type {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .user-follow-stats-qa {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .user-follow-stats-qa .user-follow-separator {
+    height: 18px;
   }
 
   .user-follow-right {
-    grid-column: 1 / 4;
-  }
-
-  .user-follow-card {
-    gap: 0;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: center;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
   }
 }
 
@@ -2830,34 +3040,6 @@
     gap: 22px;
   }
 
-  .user-follow-stat:nth-child(3) {
-    flex-direction: column;
-  }
-
-  .user-follow-card {
-    gap: 10px 0;
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .user-follow-separator:nth-child(2) {
-    height: 38px;
-  }
-
-  .user-follow-separator:nth-child(6) {
-    height: 18px;
-  }
-
-  .user-follow-right {
-    align-self: center;
-    justify-self: center;
-    margin: 0 auto;
-  }
-
-  .user-follow-card {
-    padding: 13px 11px;
-  }
-
   .answers_list_profile {
     padding: 10px;
   }
@@ -2865,10 +3047,6 @@
   .user-follow-avatar {
     width: 48px;
     height: 48px;
-  }
-
-  .user-follow-left {
-    flex: 0 0 170px;
   }
 
   .user-follow-name {

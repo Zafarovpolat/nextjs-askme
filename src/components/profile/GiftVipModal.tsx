@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import VipPlansGrid from "@/components/profile/VipPlansGrid";
 import { api } from "@/lib/api-client";
 import { getApiErrorMessage } from "@/lib/api-error-message";
@@ -24,6 +25,7 @@ export default function GiftVipModal({
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [checkoutLoadingId, setCheckoutLoadingId] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const fetchPackages = useCallback(async () => {
     setLoading(true);
@@ -39,14 +41,35 @@ export default function GiftVipModal({
   }, []);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (!isOpen) return;
-    document.body.style.overflow = "hidden";
-    if (!loaded && !loading) {
-      void fetchPackages();
-    }
+
+    const scrollY = window.scrollY;
+    const { style: htmlStyle } = document.documentElement;
+    const { style: bodyStyle } = document.body;
+
+    htmlStyle.overflow = "hidden";
+    bodyStyle.overflow = "hidden";
+    bodyStyle.position = "fixed";
+    bodyStyle.top = `-${scrollY}px`;
+    bodyStyle.width = "100%";
+
     return () => {
-      document.body.style.overflow = "unset";
+      htmlStyle.overflow = "";
+      bodyStyle.overflow = "";
+      bodyStyle.position = "";
+      bodyStyle.top = "";
+      bodyStyle.width = "";
+      window.scrollTo(0, scrollY);
     };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || loaded || loading) return;
+    void fetchPackages();
   }, [fetchPackages, isOpen, loaded, loading]);
 
   const handlePurchase = useCallback(
@@ -74,9 +97,9 @@ export default function GiftVipModal({
     [recipientId],
   );
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <div className="vip-purchase-modal-overlay gift-vip-modal-overlay" onClick={onClose}>
       <div
         className="vip-purchase-modal gift-vip-modal"
@@ -94,14 +117,16 @@ export default function GiftVipModal({
           ×
         </button>
 
-        <div className="gift-vip-modal__body">
+        <div className="gift-vip-modal__header">
           <h3 id="gift-vip-modal-title" className="vip-purchase-modal-title gift-vip-modal__title">
             Подарить VIP
           </h3>
           <p className="vip-purchase-modal-text gift-vip-modal__subtitle">
             Выберите пакет для пользователя <strong>{recipientName}</strong>
           </p>
+        </div>
 
+        <div className="gift-vip-modal__body">
           <VipPlansGrid
             packages={packages}
             loading={loading}
@@ -112,6 +137,7 @@ export default function GiftVipModal({
           />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

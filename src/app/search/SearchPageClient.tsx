@@ -1,21 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SearchResultCard from "@/components/SearchResultCard";
-import QuestionListCard, {
-  type QuestionListItem,
-} from "@/components/QuestionListCard";
+import SearchSimilarQuestionsBlock from "@/components/search/SearchSimilarQuestionsBlock";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
-import SharePopup from "@/components/SharePopup";
-import PremiumFilterCrownIcon from "@/components/PremiumFilterCrownIcon";
 import CustomSelect from "@/components/CustomSelect";
 import { getApiFullUrl } from "@/config/api";
-import { api } from "@/lib/api-client";
-import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
 import type { ApiCategoryTree } from "@/lib/server-categories";
 import type { SearchLeaderQuestion } from "@/lib/server-search-leaders";
@@ -96,16 +90,6 @@ function mapStatus(
   if (s === "voting") return "voting";
   return "opened";
 }
-
-type SimilarQuestionItem = QuestionListItem;
-
-const SIMILAR_FILTERS = [
-  { label: "Все", value: "all" as const },
-  { label: "Открытые", value: "open" as const },
-  { label: "На голосовании", value: "voting" as const },
-  { label: "Решения", value: "solved" as const },
-  { label: "Премиум", value: "premium" as const },
-];
 
 function mapApiToQuestion(q: ApiSearchQuestion): Question {
   const created = q.created_at || new Date().toISOString();
@@ -194,28 +178,6 @@ export default function SearchPageClient({
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [similarFilter, setSimilarFilter] = useState<
-    (typeof SIMILAR_FILTERS)[number]["value"]
-  >("all");
-  const [similarQuestions, setSimilarQuestions] = useState<
-    SimilarQuestionItem[]
-  >([]);
-  const [similarCurrentPage, setSimilarCurrentPage] = useState(1);
-  const [similarLastPage, setSimilarLastPage] = useState(1);
-  const [similarLoading, setSimilarLoading] = useState(false);
-  const [similarLoadingMore, setSimilarLoadingMore] = useState(false);
-  const [isSimilarShareOpen, setIsSimilarShareOpen] = useState(false);
-  const [similarShareData, setSimilarShareData] = useState({
-    title: "",
-    url: "",
-  });
-  const similarShareButtonRef = useRef<HTMLButtonElement | null>(null);
-  const {
-    toggleFavorite: toggleSimilarFavorite,
-    isFavorited: isSimilarFavorited,
-    isPending: isSimilarVotePending,
-  } = useFavoriteQuestion();
 
   const [openCategories, setOpenCategories] = useState<string[]>(() =>
     sidebarCategories.length ? [sidebarCategories[0].slug] : [],
@@ -351,90 +313,6 @@ export default function SearchPageClient({
   }, [searchParams, fetchPage]);
 
   const qTrimmed = searchParams.get("q")?.trim() ?? "";
-
-  useEffect(() => {
-    if (!qTrimmed) {
-      setSimilarQuestions([]);
-      setSimilarCurrentPage(1);
-      setSimilarLastPage(1);
-      return;
-    }
-    let cancelled = false;
-    setSimilarLoading(true);
-    const params = new URLSearchParams({
-      q: qTrimmed,
-      page: "1",
-      per_page: "15",
-      filter: similarFilter,
-    });
-    void api
-      .get<{
-        questions: SimilarQuestionItem[];
-        current_page: number;
-        last_page: number;
-      }>(`v1/questions/similar?${params.toString()}`)
-      .then((data) => {
-        if (!cancelled) {
-          setSimilarQuestions(data.questions ?? []);
-          setSimilarCurrentPage(data.current_page ?? 1);
-          setSimilarLastPage(data.last_page ?? 1);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setSimilarQuestions([]);
-          setSimilarCurrentPage(1);
-          setSimilarLastPage(1);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setSimilarLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [qTrimmed, similarFilter]);
-
-  const handleLoadMoreSimilar = useCallback(() => {
-    if (!qTrimmed || similarCurrentPage >= similarLastPage || similarLoadingMore) {
-      return;
-    }
-    setSimilarLoadingMore(true);
-    const params = new URLSearchParams({
-      q: qTrimmed,
-      page: String(similarCurrentPage + 1),
-      per_page: "15",
-      filter: similarFilter,
-    });
-    void api
-      .get<{
-        questions: SimilarQuestionItem[];
-        current_page: number;
-        last_page: number;
-      }>(`v1/questions/similar?${params.toString()}`)
-      .then((data) => {
-        setSimilarQuestions((prev) => [...prev, ...(data.questions ?? [])]);
-        setSimilarCurrentPage(data.current_page ?? similarCurrentPage + 1);
-        setSimilarLastPage(data.last_page ?? similarLastPage);
-      })
-      .catch(() => {})
-      .finally(() => setSimilarLoadingMore(false));
-  }, [
-    qTrimmed,
-    similarFilter,
-    similarCurrentPage,
-    similarLastPage,
-    similarLoadingMore,
-  ]);
-
-  const handleSimilarShare = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>, title: string, id: number) => {
-      similarShareButtonRef.current = e.currentTarget;
-      setSimilarShareData({ title, url: `/question/${id}` });
-      setIsSimilarShareOpen(true);
-    },
-    [],
-  );
 
   const onSubmitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -988,85 +866,8 @@ export default function SearchPageClient({
           </div>
         </div>
 
-        {qTrimmed ? (
-          <div className="similar_questions_block container">
-            <div className="blocks_title">
-              <h2>Похожие вопросы участников</h2>
-              <div className="questions_filter">
-                {SIMILAR_FILTERS.map((tab) => (
-                  <button
-                    key={tab.value}
-                    type="button"
-                    className={`s_btn ${similarFilter === tab.value ? "s_btn_active" : ""} ${tab.value === "premium" ? "premium-filter-btn" : ""}`}
-                    onClick={() => setSimilarFilter(tab.value)}
-                  >
-                    {tab.value === "premium" ? (
-                      <>
-                        <PremiumFilterCrownIcon />
-                        {tab.label}
-                      </>
-                    ) : (
-                      tab.label
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {similarLoading ? (
-              <p
-                className="secondary_text"
-                style={{ padding: "24px 0", textAlign: "center" }}
-              >
-                Загрузка похожих…
-              </p>
-            ) : similarQuestions.length === 0 ? (
-              <p
-                className="secondary_text"
-                style={{ padding: "24px 0", textAlign: "center" }}
-              >
-                Нет похожих вопросов по этому запросу
-              </p>
-            ) : (
-              <>
-                <div className="questions_list">
-                  {similarQuestions.map((q) => (
-                    <QuestionListCard
-                      key={q.id}
-                      question={q}
-                      isFavorited={isSimilarFavorited}
-                      isPending={isSimilarVotePending}
-                      onToggleFavorite={toggleSimilarFavorite}
-                      onShare={handleSimilarShare}
-                    />
-                  ))}
-                </div>
-                {similarCurrentPage < similarLastPage ? (
-                  <div className="show_more_btn_wrapper">
-                    <button
-                      type="button"
-                      className="show_more_btn"
-                      onClick={handleLoadMoreSimilar}
-                      disabled={similarLoadingMore}
-                    >
-                      <svg width="22" height="22">
-                        <use xlinkHref="#sync"></use>
-                      </svg>
-                      {similarLoadingMore ? "Загрузка…" : "Загрузить еще"}
-                    </button>
-                  </div>
-                ) : null}
-              </>
-            )}
-          </div>
-        ) : null}
+        <SearchSimilarQuestionsBlock query={qTrimmed} />
       </div>
-      <SharePopup
-        isOpen={isSimilarShareOpen}
-        onClose={() => setIsSimilarShareOpen(false)}
-        anchorRef={similarShareButtonRef}
-        title={similarShareData.title}
-        url={similarShareData.url}
-      />
       <Footer />
     </>
   );

@@ -38,6 +38,17 @@ export default function SharePopup({ isOpen, onClose, anchorRef, title, descript
 
     let left = rect.right - popupWidth
 
+    const card = anchor.closest('.question_list_item') as HTMLElement | null
+    if (card) {
+      const cardRect = card.getBoundingClientRect()
+      if (popupWidth >= cardRect.width) {
+        left = cardRect.left
+      } else {
+        left = Math.min(left, cardRect.right - popupWidth)
+        left = Math.max(left, cardRect.left)
+      }
+    }
+
     if (left + popupWidth > viewportWidth - margin) {
       left = viewportWidth - margin - popupWidth
     }
@@ -47,6 +58,8 @@ export default function SharePopup({ isOpen, onClose, anchorRef, title, descript
 
     popup.style.top = `${rect.bottom}px`
     popup.style.left = `${left}px`
+    popup.style.width = ''
+    popup.style.transform = ''
 
     const arrowLeft = anchorCenterX - left - 7
     const maxArrowLeft = Math.max(13, popupWidth - 20)

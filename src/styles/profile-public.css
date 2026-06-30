@@ -1072,3 +1072,19 @@ a.share_icon_btn {
     right: 15px;
   }
 }
+
+/* Похожие вопросы — отступы по горизонтали (профиль, поиск, страница вопроса) */
+.similar_questions_block--section.container,
+.similar_questions_block--profile.container {
+  padding-left: 28px;
+  padding-right: 28px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .similar_questions_block--section.container,
+  .similar_questions_block--profile.container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

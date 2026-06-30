@@ -617,7 +617,11 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
               </div>
             )}
 
-            <div className="search-results-list">
+            <div
+              className={
+                activeMainTab === "questions" ? "questions_list_profile" : "answers_list_profile"
+              }
+            >
               {activeMainTab === "questions" ? (
                 qLoading ? (
                   <div style={{ padding: "24px", textAlign: "center", color: "#899AB5" }}>Загрузка…</div>
