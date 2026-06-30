@@ -134,9 +134,9 @@ export default function AnswerBlock({
                   <Link
                     href={`/profile/${parentUser.id}`}
                     className="reply_to_text"
-                    title={parentUser.full_name}
+                    title={displayUserName(parentUser)}
                   >
-                    {parentUser.full_name}
+                    {displayUserName(parentUser)}
                   </Link>
                 </>
               )}
@@ -195,7 +195,7 @@ export default function AnswerBlock({
         <div className="main_question_block_text-body">
           {isNested && parentUser && (
             <span style={{ color: "#6069ff", marginRight: "5px" }}>
-              {parentUser.full_name},
+              {displayUserName(parentUser)},
             </span>
           )}
           <TextWithLinks text={answer.text} />
@@ -214,7 +214,7 @@ export default function AnswerBlock({
               type="button"
               className="s_btn s_btn_active s_btn--answer"
               onClick={() => {
-                onStartReplyToAnswer?.(answer.id, answer.user.full_name);
+                onStartReplyToAnswer?.(answer.id, displayUserName(answer.user));
                 onScrollToAnswer();
               }}
             >

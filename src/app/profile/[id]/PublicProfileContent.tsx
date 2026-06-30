@@ -23,6 +23,7 @@ import {
 import ProfileSharePopup from "@/components/profile/ProfileSharePopup";
 import GiftVipModal from "@/components/profile/GiftVipModal";
 import type { PublicProfileUser } from "@/types";
+import { usePageStickySidebars } from "@/hooks/usePageStickySidebars";
 import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
 
 type ProfileQuestionItem = {
@@ -127,6 +128,8 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
   const [aLoading, setALoading] = useState(false);
   const [aLoadingMore, setALoadingMore] = useState(false);
   const [aLastPage, setALastPage] = useState(1);
+
+  const { wrapperRef, leftSidebarRef, rightSidebarRef } = usePageStickySidebars();
 
   const activeMainTab: TabKey = tab;
   const userId = profile.id;
@@ -502,8 +505,12 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
         </div>
       </div>
 
-      <div className="question_wrapper container" style={{ paddingBottom: "20px", borderBottom: "1px solid #E0E2EF" }}>
-        <div className="question_left_list">
+      <div
+        className="question_wrapper container"
+        style={{ paddingBottom: "20px", borderBottom: "1px solid #E0E2EF" }}
+        ref={wrapperRef}
+      >
+        <div className="question_left_list" ref={leftSidebarRef}>
           {statsBlock(false)}
           <div className="profile_menu_weekly profile_menu_weekly--sidebar">
             <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
@@ -565,6 +572,8 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
             ballsTitle={ballsTitle}
             kpdPercentDisplay={`${kpdPercent}%`}
           />
+
+          {statsBlock(true)}
 
           <div className="questions_page_inner">
             {activeMainTab === "questions" ? (
@@ -684,12 +693,10 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
           <div className="profile_menu_weekly profile_menu_weekly--inline">
             <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
           </div>
-
-          {statsBlock(true)}
         </div>
 
         {!isOwnProfile && !isBanned ? (
-          <div className={`question_right_list${isBanned ? " banned_opacity" : ""}`}>
+          <div className={`question_right_list${isBanned ? " banned_opacity" : ""}`} ref={rightSidebarRef}>
             <div className="vip_status_block">
               <div className="vip_icon">
                 <img src="/images/vip.svg" alt="VIP" />

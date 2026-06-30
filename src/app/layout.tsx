@@ -3,8 +3,16 @@ import type { Metadata, Viewport } from 'next'
 import { cookies } from 'next/headers'
 import SvgSprites from '@/components/SvgSprites'
 import AuthProvider from '@/components/AuthProvider'
+import ThemeSync from '@/components/ThemeSync'
 import { ExternalLinkProvider } from '@/components/ExternalLinkProvider'
 import SystemToastStack from '@/components/SystemToastStack'
+import {
+  COLOR_THEME_COOKIE,
+  DEFAULT_COLOR_THEME,
+  RESOLVED_THEME_COOKIE,
+  isColorThemePreference,
+  resolveColorTheme,
+} from '@/lib/color-theme'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://otvetai.ru'
 const SITE_NAME = 'Ответы АЙ'
@@ -96,8 +104,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const theme = cookies().get('otvetai_theme')?.value
-  const bodyClass = theme === 'dark' ? 'loaded dark_mode' : 'loaded'
+  const preferenceCookie = cookies().get(COLOR_THEME_COOKIE)?.value
+  const resolvedCookie = cookies().get(RESOLVED_THEME_COOKIE)?.value
+
+  const preference = isColorThemePreference(preferenceCookie)
+    ? preferenceCookie
+    : DEFAULT_COLOR_THEME
+
+  const resolved =
+    resolvedCookie === 'dark' || resolvedCookie === 'light'
+      ? resolvedCookie
+      : resolveColorTheme(preference)
+
+  const bodyClass = resolved === 'dark' ? 'loaded dark_mode' : 'loaded'
 
   return (
     <html lang="ru" suppressHydrationWarning>
@@ -126,6 +145,7 @@ export default function RootLayout({
       </head>
       <body className={bodyClass} suppressHydrationWarning>
         <AuthProvider>
+          <ThemeSync />
           <ExternalLinkProvider>
             {children}
           </ExternalLinkProvider>

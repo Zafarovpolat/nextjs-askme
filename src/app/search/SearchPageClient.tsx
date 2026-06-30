@@ -17,6 +17,7 @@ import type { Question } from "@/types";
 import {
   formatCompactNumWord,
 } from "@/lib/format-compact-count";
+import { usePageStickySidebars } from "@/hooks/usePageStickySidebars";
 
 type SortMode = "date" | "relevance";
 
@@ -182,6 +183,8 @@ export default function SearchPageClient({
   const [openCategories, setOpenCategories] = useState<string[]>(() =>
     sidebarCategories.length ? [sidebarCategories[0].slug] : [],
   );
+
+  const { wrapperRef, leftSidebarRef, rightSidebarRef } = usePageStickySidebars();
 
   const subOptions = useMemo(() => {
     if (!categoryIdStr) return [];
@@ -389,8 +392,9 @@ export default function SearchPageClient({
         <div
           className="question_wrapper container"
           style={{ paddingBottom: "25px" }}
+          ref={wrapperRef}
         >
-          <div className="question_left_list">
+          <div className="question_left_list" ref={leftSidebarRef}>
             <div className="quest_catogories_list">
               <div className="blocks_title">
                 <h2>Категории</h2>
@@ -811,7 +815,7 @@ export default function SearchPageClient({
             </div>
           </div>
 
-          <div className="question_right_list">
+          <div className="question_right_list" ref={rightSidebarRef}>
             <div className="blocks_title">
               <h2>Вопросы лидеры</h2>
             </div>

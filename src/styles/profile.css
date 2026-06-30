@@ -21,6 +21,10 @@
     overflow: hidden;
   }
 
+  .profile_page .user_profile_block_content:has(.kpd_tooltip_icon:hover) {
+    overflow: visible;
+  }
+
 }
 
 .textarea_wrapper {
@@ -96,6 +100,10 @@
 
 .profile_page_content .profile_menu_weekly--inline,
 .questions_page_list .profile_menu_weekly--inline {
+  margin-top: 24px;
+}
+
+.profile_page > .profile_menu_weekly--inline {
   margin-top: 24px;
 }
 
@@ -236,7 +244,7 @@
   margin: 0px;
 }
 
-.dark_mode .profile_stats_item div {
+.dark_mode .profile_stats_item .stats_badge {
   background: rgb(96, 105, 255);
 }
 
@@ -364,9 +372,8 @@
 }
 
 /* п.33 — подсказка КПД: вертикальный overflow для тултипа, горизонтально — обрезка длинного имени */
-.user_profile_block:has(.kpd_tooltip_icon) {
-  overflow-x: hidden;
-  overflow-y: visible;
+.user_profile_block:has(.kpd_tooltip_icon:hover) {
+  overflow: visible;
 }
 
 .user_profile_block .user_public_stats {
@@ -413,6 +420,10 @@
   gap: 45px;
   min-width: 0;
   overflow: hidden;
+}
+
+.user_profile_block_content:has(.kpd_tooltip_icon:hover) {
+  overflow: visible;
 }
 
 .profile_page .user_profile_image {
@@ -690,11 +701,11 @@
 
 .dark_mode .user_profile_block_content_profile_desc .quest_user_title {
   border-radius: 12px;
-  background: rgb(50, 46, 112);
+  background: #ffffff;
 }
 
 .dark_mode .user_profile_block_content_profile_desc .quest_user_title p {
-  color: rgb(255, 255, 255);
+  color: rgb(93, 103, 255);
 }
 
 .user_profile_block.premium-profile
@@ -781,8 +792,11 @@
   display: none;
 }
 
-.active_menu {
+.menu_item_content.active_menu {
   display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
 }
 
 .user_profile_page_content {
@@ -890,8 +904,9 @@
 .profile_action_btns {
   margin-top: 15px;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 5px;
+  width: 100%;
 }
 
 .cancel_btn {
@@ -1765,7 +1780,7 @@
 
 .vip_plan_features li {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 9px;
   color: #8b94a1;
   font-size: 14px;
@@ -1775,7 +1790,6 @@
 
 .vip_plan_features li svg {
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
 .vip_buy_btn_card {
@@ -1855,6 +1869,7 @@
   position: relative;
   width: min(960px, calc(100vw - 32px));
   max-width: calc(100vw - 32px);
+  height: fit-content;
   max-height: calc(100dvh - 32px);
   overflow: hidden;
   padding: 0;
@@ -1875,7 +1890,7 @@
   overflow-y: auto;
   flex: 1 1 auto;
   min-height: 0;
-  padding: 4px 20px 28px 24px;
+  padding: 16px 20px 28px 24px;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
@@ -1925,6 +1940,7 @@
 .gift-vip-modal .vip_plans_grid {
   margin-top: 0;
   gap: 16px;
+  padding-top: 4px;
 }
 
 .gift-vip-modal .vip_plan_card {
@@ -1986,8 +2002,13 @@
   }
 
   .gift-vip-modal {
-    min-height: min(760px, calc(100dvh - 24px));
     max-height: calc(100dvh - 24px);
+  }
+
+  .gift-vip-modal__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
   }
 }
 
@@ -2028,7 +2049,7 @@
   }
 
   .gift-vip-modal__body {
-    padding: 4px 12px 20px 16px;
+    padding: 16px 12px 20px 16px;
     max-height: none;
   }
 
@@ -2575,9 +2596,27 @@
   }
 
   .profile_menu_list_mob.tabs_list_m {
+    display: grid;
+    grid-template-columns: repeat(6, 50px);
+    gap: 10px;
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
     background-color: none;
     border-radius: 0 0 22px 22px;
     padding-bottom: 15px;
+  }
+
+  .profile_menu_list_mob.tabs_list_m.profile_menu_list_mob--two-rows {
+    grid-template-columns: repeat(3, 50px);
+  }
+
+  .profile_menu_list_mob .profile_menu_item.menu_item_m {
+    width: 50px;
+    height: 50px;
+    margin: 0;
   }
 
   .user_profile_block_content {
@@ -2591,6 +2630,10 @@
   .profile_page .line {
     display: flex;
     margin-top: 10px;
+  }
+
+  .profile_page > .line {
+    display: none;
   }
 
   .profile_page .user_public_stats {
@@ -2809,21 +2852,21 @@
   }
 
   .profile_menu_list_mob.tabs_list_m {
-    display: grid;
-    grid-template-columns: repeat(3, 50px);
-    gap: 10px;
-    justify-content: center;
-    justify-items: center;
-    align-items: center;
-    width: 100%;
     padding: 0 15px 15px;
-    box-sizing: border-box;
   }
 
-  .profile_menu_list_mob .profile_menu_item.menu_item_m {
-    width: 50px;
-    height: 50px;
-    margin: 0;
+  .profile_action_btns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile_action_btns .m_btn.category_btn,
+  .profile_action_btns .m_btn.cancel_btn {
+    width: 100%;
+    max-width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    white-space: nowrap;
   }
 }
 
@@ -3058,6 +3101,23 @@
   }
 }
 
+/* Горизонтальный телефон с шириной >768: те же полноразмерные кнопки */
+@media only screen and (orientation: landscape) and (max-height: 500px) and (min-width: 769px) {
+  .profile_action_btns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile_action_btns .m_btn.category_btn,
+  .profile_action_btns .m_btn.cancel_btn {
+    width: 100%;
+    max-width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+}
+
 @media only screen and (max-width: 400px) {
   .user_profile_block {
     background-size: 100%;
@@ -3065,15 +3125,6 @@
 
   .user_profile_block_rect {
     right: 3%;
-  }
-
-  .profile_action_btns {
-    flex-direction: column;
-  }
-
-  .profile-edit-tab .category_btn.m_btn,
-  .profile-edit-tab .cancel_btn {
-    width: 100%;
   }
 
   .user_profile_block::after {

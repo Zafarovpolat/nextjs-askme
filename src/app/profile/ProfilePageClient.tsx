@@ -7,6 +7,7 @@ import { formatTimeAgo } from "@/lib/time-ago";
 import { api } from "@/lib/api-client";
 import { getApiFullUrl } from "@/config/api";
 import { getToken } from "@/lib/cookies";
+import { persistThemePreference } from "@/lib/theme-cookie";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo } from "react";
@@ -18,6 +19,7 @@ import type { UserAnswer } from "@/data/mock-answers";
 import SearchResultCard from "@/components/SearchResultCard";
 import AnswerResultCard from "@/components/AnswerResultCard";
 import ProfileHeaderBlock from "@/components/profile/ProfileHeaderBlock";
+import ProfileMenuListMob from "@/components/profile/ProfileMenuListMob";
 import UserAvatar from "@/components/UserAvatar";
 import { ProfileLevelsMenuInner, ProfileRulesMenuInner } from "./ProfileLevelsRulesContent";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
@@ -31,7 +33,9 @@ import { useSearchParams } from "next/navigation";
 import type { SubscriptionPackage } from "@/types";
 import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
 import { showSystemToast } from "@/store/systemToastStore";
+import { getFormApiErrorMessage } from "@/lib/form-api-error-message";
 import { getApiErrorMessage } from "@/lib/api-error-message";
+import { validateAvatarFile } from "@/lib/avatar-validation";
 import {
   sanitizeUserFirstNameInput,
   USER_FIRST_NAME_MAX_LENGTH,
@@ -175,12 +179,12 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
   const isMyProfile = true;
   const meUser = authUser ?? initialMe.user;
   const initialName = meUser.first_name?.trim() || user.displayName;
-  const initialDescription = meUser.description ?? user.bio ?? "";
+  const initialDescription = meUser.description ?? "";
   const [profileName, setProfileName] = useState(
     () => initialMe.user.first_name?.trim() || user.displayName,
   );
   const [profileDescription, setProfileDescription] = useState(
-    () => initialMe.user.description ?? user.bio ?? "",
+    () => initialMe.user.description ?? "",
   );
   const [profileSaving, setProfileSaving] = useState(false);
   const isPremiumUser = Boolean(
@@ -406,9 +410,18 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     }
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validationError = await validateAvatarFile(file);
+    if (validationError) {
+      showSystemToast(validationError, "error");
+      e.target.value = "";
+      return;
+    }
+
     const token = getToken();
     if (!token) {
       router.push("/login");
+      e.target.value = "";
       return;
     }
     const fd = new FormData();
@@ -422,18 +435,22 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        showSystemToast(getApiErrorMessage(data), "error");
+        showSystemToast(
+          getFormApiErrorMessage(data, "Не удалось загрузить аватар. Проверьте формат и размер."),
+          "error",
+        );
         return;
       }
-      const payload = data as { avatar_url?: string; avatar_url_2x?: string | null };
+      const payload = data as { message?: string; avatar_url?: string; avatar_url_2x?: string | null };
       if (payload.avatar_url) {
         patchUser({
           avatar_url: payload.avatar_url,
           avatar_url_2x: payload.avatar_url_2x ?? null,
         });
       }
-    } catch (err) {
-      showSystemToast(getApiErrorMessage(err), "error");
+      showSystemToast(payload.message?.trim() || "Аватар обновлён", "success");
+    } catch {
+      showSystemToast("Не удалось загрузить аватар. Проверьте соединение и попробуйте снова.", "error");
     } finally {
       setAvatarUploading(false);
       if (avatarInputRef.current) avatarInputRef.current.value = "";
@@ -445,6 +462,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     try {
       await api.put("v1/me/settings", { settings: settingsDraft });
       patchUser({ settings: settingsDraft });
+      persistThemePreference(settingsDraft.site.color_theme);
     } finally {
       setSettingsSaving(false);
     }
@@ -931,7 +949,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
               onAvatarPick={handleAvatarPick}
               avatarUploading={avatarUploading}
               cabinetFooter={
-                <div className="profile_menu_list_mob tabs_list_m">
+                <ProfileMenuListMob>
                   <div
                     className={`profile_menu_item menu_item_m ${activeTab === "menu2" ? "active_menu" : ""}`}
                     data-id="menu2"
@@ -992,7 +1010,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                       <use xlinkHref="#logout-profile" />
                     </svg>
                   </div>
-                </div>
+                </ProfileMenuListMob>
               }
             />
 
@@ -1773,19 +1791,12 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                 </div>
               </div>
             </div>
-
-            <div className="profile_menu_weekly profile_menu_weekly--inline">
-              <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
-            </div>
           </div>
 
           <div className="line"></div>
 
           <div className="profile_stats_column">
           <div className="profile_stats">
-            <div className="blocks_title">
-              <h2>Статистика</h2>
-            </div>
             <div className="profile_stats_list">
               <div className={`profile_stats_item ${activeTab === "menu1" ? "active" : ""}`} onClick={() => handleTabClick("menu1")} style={{ cursor: "pointer" }}>
                 <p className="main_text">Вопросы</p>
@@ -1846,6 +1857,10 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
               </div>
             </>
           </div>
+          </div>
+
+          <div className="profile_menu_weekly profile_menu_weekly--inline">
+            <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
           </div>
         </div>
       </div>

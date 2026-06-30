@@ -20,6 +20,19 @@
   cursor: pointer;
   font-family: Nunito, sans-serif;
   flex-shrink: 0;
+  outline: none;
+  box-shadow: none;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.notifications_page__mark-all:hover,
+.notifications_page__mark-all:focus,
+.notifications_page__mark-all:focus-visible,
+.notifications_page__mark-all:active {
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 
 .notifications_page__list {
