@@ -52,15 +52,17 @@
   max-height: 16.8px !important;
 }
 
-.search-result-card.premium-question,
 .search-result-card.premium-question .search-result-top,
 .search-result-card.premium-question .search-result-top > a {
   overflow: visible;
 }
 
-.question_list_item.premium-question,
-.main_question_block.premium-question .question_list_item_left,
-.main_question_block.premium-question .question_list_item-info {
+.question_list_item.premium-question .question_list_item_avatar_link,
+.question_list_item.premium-question .question_item_top_data_left .site-user-avatar,
+.question_list_item.premium-question .question_item_top_data_left .question_list_item_avatar_link,
+.main_question_block.premium-question .question_list_item_left > .question_list_item_avatar_link,
+.main_question_block.premium-question .question_list_item_left > .site-user-avatar,
+.main_question_block.premium-question .question_list_item-info > .question_list_item_avatar_link {
   overflow: visible;
 }
 
@@ -160,12 +162,24 @@
 
 /* Родители аватарки не обрезают бейдж */
 .question_list_item_avatar_link,
+.question_item_top_data,
+.question_item_top_data_left,
 .question_item_top_data_left .question_list_item_avatar_link,
 .question_item_top_data_left .site-user-avatar,
 .question_list_item_left > .question_list_item_avatar_link,
+.questions_list > .question_list_item,
+.questions_list .question_list_item_left,
+.questions_list_profile > .question_list_item,
+.questions_list_profile .question_list_item_left,
+.answers_list_profile > .question_list_item,
+.answers_list_profile .question_list_item_left,
 .search-result-top > a,
 .main_question_block .question_list_item_left > div {
   overflow: visible !important;
+}
+
+.site-user-avatar__badge.premium-badge-stretch {
+  z-index: 5;
 }
 
 /* .main_question_block.premium-question:hover,
@@ -483,6 +497,12 @@
 .user_profile_block.premium-profile .user_profile_img_action {
   top: -8px !important;
   bottom: auto !important;
+}
+
+/* Кнопка над аватаркой (top: -8px) выходит за .user_profile_img — не обрезать overflow у ряда */
+.user_profile_block.premium-profile .user_profile_block_content,
+.user_profile_block.premium-profile .user_profile_block_content_profile {
+  overflow: visible;
 }
 
 @media only screen and (max-width: 1300px) {

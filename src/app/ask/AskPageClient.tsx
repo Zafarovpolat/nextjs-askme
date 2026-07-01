@@ -9,7 +9,6 @@ import TopsBlock from "@/components/TopsBlock"
 import LoginModal from "@/components/LoginModal"
 import QuestionModal from "@/components/QuestionModal"
 import SharePopup from "@/components/SharePopup"
-import VipPurchaseModal from "@/components/VipPurchaseModal"
 import CustomSelect from "@/components/CustomSelect"
 import QuestionListCard, { type QuestionListItem } from "@/components/QuestionListCard"
 import PremiumFilterCrownIcon from "@/components/PremiumFilterCrownIcon"
@@ -28,6 +27,12 @@ import {
   sanitizePlainTextInput,
 } from "@/lib/plain-text-spam-guard"
 import { legalFooterHref, LEGAL_FOOTER_SLUGS } from "@/lib/legal-footer-slugs"
+import {
+  validateImageAttachment,
+  validateVideoAttachment,
+} from "@/lib/attachment-validation"
+import { getFormApiErrorMessage } from "@/lib/form-api-error-message"
+import { showSystemToast } from "@/store/systemToastStore"
 
 type Subcategory = { id: number; name: string; slug: string; icon_key: string | null }
 type CategoryItem = { id: number; name: string; slug: string; icon_key: string | null; subcategories: Subcategory[] }
@@ -59,8 +64,12 @@ const FILTERS = [
   { label: 'Премиум', value: 'premium' as const },
 ]
 
-/** Нет доступных слотов премиум-вопроса (не безлимит). */
+/** Нет подписки или исчерпан лимит премиум-вопросов. */
 function isPremiumQuestionChoiceDisabled(user: ApiUser): boolean {
+  const isPremium = Boolean(user.is_premium ?? user.premium_is_active)
+  if (!isPremium) {
+    return true
+  }
   if (user.premium_questions_quota_is_unlimited) {
     return false
   }
@@ -113,7 +122,6 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
-  const [vipModalOpen, setVipModalOpen] = useState(false)
   const [shareData, setShareData] = useState({ title: '', url: '' })
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -226,10 +234,8 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
     }
   }, [isAuthorized, fetchMe])
 
-  const isPremiumUser = Boolean(user?.is_premium ?? user?.premium_is_active)
-  const premiumQuestionCheckboxDisabled = Boolean(
-    user && isPremiumUser && isPremiumQuestionChoiceDisabled(user),
-  )
+  const canChoosePremiumQuestion = Boolean(user && !isPremiumQuestionChoiceDisabled(user))
+  const premiumQuestionCheckboxDisabled = !canChoosePremiumQuestion
   const canAddFileAttachment = canAddAttachment(user?.attachment_remaining?.file)
   const canAddVideoAttachment = canAddAttachment(user?.attachment_remaining?.video)
 
@@ -269,6 +275,12 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
     const f = e.target.files?.[0]
     e.target.value = ''
     if (!f) return
+    const validationError = validateImageAttachment(f)
+    if (validationError) {
+      showSystemToast(validationError, "error")
+      setSubmitError(validationError)
+      return
+    }
     setSubmitError(null)
     if (fileAttachment?.previewUrl) URL.revokeObjectURL(fileAttachment.previewUrl)
     setFileAttachment({ file: f, previewUrl: URL.createObjectURL(f) })
@@ -278,6 +290,12 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
     const f = e.target.files?.[0]
     e.target.value = ''
     if (!f) return
+    const validationError = validateVideoAttachment(f)
+    if (validationError) {
+      showSystemToast(validationError, "error")
+      setSubmitError(validationError)
+      return
+    }
     setSubmitError(null)
     if (videoAttachment?.previewUrl) URL.revokeObjectURL(videoAttachment.previewUrl)
     setVideoAttachment({ file: f, previewUrl: URL.createObjectURL(f) })
@@ -312,22 +330,55 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
     const receive_notifications = (fd.get("receive_notifications") as string) === "on"
     const allow_answer_comments = (fd.get("allow_answer_comments") as string) === "on"
     let is_premium = false
-    if (user && isPremiumUser && !isPremiumQuestionChoiceDisabled(user)) {
+    if (user && !isPremiumQuestionChoiceDisabled(user)) {
       is_premium = (fd.get("is_premium") as string) === "on"
     }
     if (!title || !description) {
-      setSubmitError("Заполните тему и текст вопроса.")
+      const msg = "Заполните тему и текст вопроса."
+      setSubmitError(msg)
+      showSystemToast(msg, "error")
       return
     }
     if (containsSpamUnicode(title) || containsSpamUnicode(description)) {
       setSubmitError(PLAIN_TEXT_SPAM_MESSAGE)
+      showSystemToast(PLAIN_TEXT_SPAM_MESSAGE, "error")
       return
     }
     const category_id = selectedCategoryId ? Number(selectedCategoryId) : 0
     const subcategory_id = selectedSubcategoryId ? Number(selectedSubcategoryId) : 0
     if (!category_id || !subcategory_id) {
-      setSubmitError("Выберите категорию и подкатегорию.")
+      const msg = "Выберите категорию и подкатегорию."
+      setSubmitError(msg)
+      showSystemToast(msg, "error")
       return
+    }
+    if (fileAttachment?.file) {
+      const fileError = validateImageAttachment(fileAttachment.file)
+      if (fileError) {
+        setSubmitError(fileError)
+        showSystemToast(fileError, "error")
+        return
+      }
+      if (!canAddFileAttachment) {
+        const msg = "Достигнут лимит публикаций с фото за сутки."
+        setSubmitError(msg)
+        showSystemToast(msg, "error")
+        return
+      }
+    }
+    if (videoAttachment?.file) {
+      const videoError = validateVideoAttachment(videoAttachment.file)
+      if (videoError) {
+        setSubmitError(videoError)
+        showSystemToast(videoError, "error")
+        return
+      }
+      if (!canAddVideoAttachment) {
+        const msg = "Достигнут лимит публикаций с видео за сутки."
+        setSubmitError(msg)
+        showSystemToast(msg, "error")
+        return
+      }
     }
     const token = getToken()
     if (!token) {
@@ -357,21 +408,25 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
         },
         body: fdSend,
       })
-      const data = (await res.json().catch(() => ({}))) as any
+      const data = (await res.json().catch(() => ({}))) as Record<string, unknown>
       if (!res.ok) {
-        const first =
-          data?.errors?.is_premium?.[0] ??
-          data?.errors?.title?.[0] ??
-          data?.errors?.description?.[0] ??
-          data?.errors?.category_id?.[0] ??
-          data?.errors?.subcategory_id?.[0] ??
-          data?.message
-        throw new Error(first || "Ошибка при создании вопроса")
+        const detail = getFormApiErrorMessage(
+          data,
+          res.status >= 500
+            ? "Сервер временно недоступен. Попробуйте позже."
+            : "Не удалось создать вопрос. Проверьте данные и попробуйте снова.",
+        )
+        throw new Error(detail)
       }
 
-      router.push(`/question/${data.question.id}`)
+      router.push(`/question/${(data as { question: { id: number } }).question.id}`)
     } catch (err: unknown) {
-      setSubmitError((err as Error)?.message ?? "Ошибка при создании вопроса")
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Не удалось создать вопрос. Проверьте данные и попробуйте снова."
+      setSubmitError(message)
+      showSystemToast(message, "error")
     } finally {
       setSubmitting(false)
     }
@@ -585,37 +640,34 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
               <div className="ask_form_checkboxes">
                 <label className="chechbox_item"><input type="checkbox" name="receive_notifications" defaultChecked /><span>Получать уведомления (ответы, голоса, комментарии)</span></label>
                 <label className="chechbox_item"><input type="checkbox" name="allow_answer_comments" defaultChecked /><span>Разрешить комментарии к ответам</span></label>
-                {isPremiumUser && user ? (
-                  <div className="ask_premium_field">
-                    <label
-                      className={`ask_premium_btn ask_premium_btn--label ${premiumQuestionCheckboxDisabled ? "is-disabled" : ""}`}
+                <div className="ask_premium_field">
+                  <label
+                    className={`ask_premium_btn ask_premium_btn--label ${premiumQuestionCheckboxDisabled ? "is-disabled" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      name="is_premium"
+                      className="ask_premium_btn__check"
+                      disabled={premiumQuestionCheckboxDisabled}
+                      aria-label="Опубликовать как премиум-вопрос"
+                    />
+                    <svg width="20" height="17" viewBox="0 0 20 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="premium_crown_icon" aria-hidden>
+                      <path d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z" fill="currentColor" />
+                      <path d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z" fill="currentColor" />
+                      <path d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z" fill="currentColor" />
+                      <path d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z" fill="currentColor" />
+                    </svg>
+                    <span>{user ? formatPremiumAskButtonLabel(user) : "Премиум вопрос"}</span>
+                  </label>
+                  {!canChoosePremiumQuestion ? (
+                    <Link
+                      href={isAuthorized === 1 ? "/profile?tab=vip" : "/login"}
+                      className="ask_premium_upsell_btn"
                     >
-                      <input
-                        type="checkbox"
-                        name="is_premium"
-                        className="ask_premium_btn__check"
-                        disabled={premiumQuestionCheckboxDisabled}
-                        aria-label="Опубликовать как премиум-вопрос"
-                      />
-                      <svg width="20" height="17" viewBox="0 0 20 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="premium_crown_icon" aria-hidden>
-                        <path d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z" fill="currentColor" />
-                        <path d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z" fill="currentColor" />
-                        <path d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z" fill="currentColor" />
-                        <path d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z" fill="currentColor" />
-                      </svg>
-                      <span>{formatPremiumAskButtonLabel(user)}</span>
-                    </label>
-                    {premiumQuestionCheckboxDisabled ? (
-                      <button
-                        type="button"
-                        className="ask_premium_upsell_btn"
-                        onClick={() => setVipModalOpen(true)}
-                      >
-                        Продлить подписку
-                      </button>
-                    ) : null}
-                  </div>
-                ) : null}
+                      Купить подписку
+                    </Link>
+                  ) : null}
+                </div>
               </div>
             </div>
           </form>
@@ -696,7 +748,6 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
         <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
         <QuestionModal isOpen={isQuestionModalOpen} onClose={() => setIsQuestionModalOpen(false)} />
         <SharePopup isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} anchorRef={shareButtonRef} title={shareData.title} url={shareData.url} />
-        <VipPurchaseModal isOpen={vipModalOpen} onClose={() => setVipModalOpen(false)} planName="Премиум-вопрос" />
         <LinkInputModal
           isOpen={isLinkModalOpen}
           initialValue={linkAttachment}

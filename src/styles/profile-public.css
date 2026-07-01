@@ -34,7 +34,6 @@
   overflow: visible;
 }
 
-
 .main_question_block.main_question_block_item.profile_question_block.premium-profile
   .main_question_bg_wrapper {
   z-index: 3;
@@ -168,6 +167,15 @@
   font-size: 12px !important;
   font-weight: 600 !important;
   line-height: 1.2 !important;
+}
+
+.dark_mode
+  .main_question_block.main_question_block_item.profile_question_block:not(
+    .premium-profile
+  )
+  .user_profile_block_content_profile_desc
+  .quest_user_title {
+  background: #ffffff !important;
 }
 
 .user_profile_block_content {
@@ -355,11 +363,14 @@
     overflow: hidden;
   }
 
+  .user_profile_block_content:has(.kpd_tooltip_icon:hover) {
+    overflow: visible;
+  }
+
   .user_profile_block_content > .user_public_stats {
     align-self: flex-end;
     padding-top: 0;
   }
-
 }
 
 .stats_divider {
@@ -513,6 +524,23 @@
   border-bottom-color: transparent;
 }
 
+/* Десктоп: подсказка КПД уходит вверх — при hover не обрезать цепочку overflow */
+@media (min-width: 768px) {
+  .user_profile_block:has(.kpd_tooltip_icon:hover),
+  .user_profile_block_content:has(.kpd_tooltip_icon:hover),
+  .main_question_block.main_question_block_item.profile_question_block:has(
+      .kpd_tooltip_icon:hover
+    ) {
+    overflow: visible;
+  }
+
+  .user_public_stats,
+  .stat_item,
+  .stat_info,
+  .stat_label {
+    overflow: visible;
+  }
+}
 
 .dark_mode .profile_stats_item.active .stats_badge {
   background: #5764ff !important;
@@ -904,7 +932,7 @@
 }
 
 .dark_mode .profile_share_popup {
-  background: #1f2a3b;
+  background: #332e71 !important;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.4);
 }
 
@@ -978,6 +1006,20 @@ a.share_icon_btn {
   top: 0;
   left: 0;
   transform: translateX(-50%);
+}
+
+.profile_share_popup--document-anchored {
+  position: absolute;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: auto;
+  cursor: default;
+}
+
+.profile_share_popup--document-anchored > .profile_share_popup {
+  position: static;
+  transform: none;
 }
 
 /* =====================================================================
@@ -1071,5 +1113,21 @@ a.share_icon_btn {
   .main_question_block.main_question_block_item.profile_question_block
     .top_bg_rect {
     right: 15px;
+  }
+}
+
+/* Похожие вопросы — отступы по горизонтали (профиль, поиск, страница вопроса) */
+.similar_questions_block--section.container,
+.similar_questions_block--profile.container {
+  padding-left: 28px;
+  padding-right: 28px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .similar_questions_block--section.container,
+  .similar_questions_block--profile.container {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }

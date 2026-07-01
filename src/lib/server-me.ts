@@ -27,8 +27,7 @@ export async function fetchMeOnServer(): Promise<MeApiResponse | null> {
       Accept: 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    /** Кэш между SSR-запросами; внутри одного запроса страницы дедуп через `cache()`. */
-    next: { revalidate: 60 },
+    cache: 'no-store',
   })
   if (!res.ok) {
     return null

@@ -1813,23 +1813,30 @@ footer .line {
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .questions_list .question_list_item_left .question_list_item_title_link {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .question_list_item_title_link.question_list_item_left__user_meta {
-    overflow: visible;
+    overflow: hidden;
     white-space: normal;
+    max-width: 100%;
   }
 
   .question_list_item_title_link.question_list_item_left__user_meta
     > p.main_text {
     white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
+    overflow: hidden;
+    text-overflow: ellipsis;
     word-break: break-word;
+    max-width: 100%;
   }
 
   .main_question_block_item .question_list_item_left span {
@@ -1934,6 +1941,7 @@ footer .line {
     width: 100%;
     gap: 8px;
     min-width: 0;
+    overflow: visible;
   }
 
   .question_item_top_data_left {
@@ -1942,7 +1950,7 @@ footer .line {
     gap: 9px;
     min-width: 0;
     flex: 1;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .question_item_top_data_left .question_list_item_avatar_link,
@@ -2002,6 +2010,54 @@ footer .line {
 
   .question_list_item:hover .question_item_top_data_left span {
     color: rgba(255, 255, 255, 1);
+  }
+}
+
+/* Средняя ширина / горизонтальный телефон: перенос заголовка, бейдж не трогаем */
+@media only screen and (min-width: 501px) and (max-width: 940px) {
+  .questions_list > .question_list_item .question_list_item_left,
+  .questions_list_profile > .question_list_item .question_list_item_left,
+  .answers_list_profile > .question_list_item .question_list_item_left {
+    flex: 1 1 0%;
+    min-width: 0;
+    max-width: 100%;
+    align-items: flex-start;
+  }
+
+  .questions_list
+    > .question_list_item
+    .question_list_item_title_link.question_list_item_left__user_meta,
+  .questions_list_profile
+    > .question_list_item
+    .question_list_item_title_link.question_list_item_left__user_meta,
+  .answers_list_profile
+    > .question_list_item
+    .question_list_item_title_link.question_list_item_left__user_meta {
+    flex: 1 1 0%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .questions_list
+    > .question_list_item
+    .question_list_item_title_link.question_list_item_left__user_meta
+    > p.main_text,
+  .questions_list_profile
+    > .question_list_item
+    .question_list_item_title_link.question_list_item_left__user_meta
+    > p.main_text,
+  .answers_list_profile
+    > .question_list_item
+    .question_list_item_title_link.question_list_item_left__user_meta
+    > p.main_text {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: unset;
+    word-break: break-word;
   }
 }
 
@@ -3132,10 +3188,12 @@ svg.logo-ai {
     display: flex;
   }
 
-  .desc_mob_btn,
-  .category_btn {
+  nav .m_btn_icon.category_btn,
+  nav .desc_mob_btn {
     width: 45px;
     height: 45px;
+    padding: 0;
+    box-sizing: border-box;
   }
 }
 

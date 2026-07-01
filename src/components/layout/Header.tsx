@@ -6,7 +6,8 @@ import { useState, useEffect, useRef, Fragment } from "react";
 import styles from "./Header.module.css";
 import { useAuthStore } from "@/store/authStore";
 import { useNavChromeStore } from "@/store/navChromeStore";
-import { setTheme } from "@/lib/theme-cookie";
+import { toggleExplicitColorTheme } from "@/lib/theme-cookie";
+import { saveAuthorizedUserColorTheme } from "@/lib/save-user-color-theme";
 import NotificationBtnRealtime from "./NotificationBtnRealtime";
 import UserAvatar from "@/components/UserAvatar";
 
@@ -389,9 +390,10 @@ export default function Header() {
   };
 
   const toggleDarkMode = () => {
-    const nextDark = !document.body.classList.contains("dark_mode");
-    document.body.classList.toggle("dark_mode", nextDark);
-    setTheme(nextDark ? "dark" : "light");
+    const nextPreference = toggleExplicitColorTheme();
+    if (isAuthorized) {
+      void saveAuthorizedUserColorTheme(nextPreference).catch(() => {});
+    }
   };
 
   const isPremiumUser = isUserPremium(user);

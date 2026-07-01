@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import FaqIcon from "@/components/faq/FaqIcon";
 import type { FaqCategory } from "@/types/faq-page";
+import { usePageStickySidebars } from "@/hooks/usePageStickySidebars";
 
 type Props = {
   categories: FaqCategory[];
@@ -36,9 +37,11 @@ export default function FaqPageClient({ categories }: Props) {
     setOpenItems((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const { wrapperRef, leftSidebarRef, rightSidebarRef } = usePageStickySidebars();
+
   return (
-    <div className="question_wrapper container faq-page-wrapper">
-      <div className="question_left_list">
+    <div className="question_wrapper container faq-page-wrapper" ref={wrapperRef}>
+      <div className="question_left_list" ref={leftSidebarRef}>
         <div className="faq-sidebar">
           <p className="faq-sidebar-title">Разделы</p>
           <div className="faq-categories">
@@ -178,7 +181,7 @@ export default function FaqPageClient({ categories }: Props) {
         </div>
       </div>
 
-      <div className="question_right_list">
+      <div className="question_right_list" ref={rightSidebarRef}>
         <div className="vip_status_block">
           <div className="vip_icon">
             <img src="/images/vip.svg" alt="VIP" />

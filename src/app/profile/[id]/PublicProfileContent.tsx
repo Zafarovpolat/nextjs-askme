@@ -21,7 +21,9 @@ import {
   formatCompactCount,
 } from "@/lib/format-compact-count";
 import ProfileSharePopup from "@/components/profile/ProfileSharePopup";
+import GiftVipModal from "@/components/profile/GiftVipModal";
 import type { PublicProfileUser } from "@/types";
+import { usePageStickySidebars } from "@/hooks/usePageStickySidebars";
 import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
 
 type ProfileQuestionItem = {
@@ -97,6 +99,7 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
   const [profile, setProfile] = useState<PublicProfileUser>(initialUser);
   const [followPending, setFollowPending] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isGiftVipOpen, setIsGiftVipOpen] = useState(false);
   const premiumProfile = profile as PublicProfileUser & {
     premium_is_active?: boolean;
     premium_package_name?: string | null;
@@ -125,6 +128,8 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
   const [aLoading, setALoading] = useState(false);
   const [aLoadingMore, setALoadingMore] = useState(false);
   const [aLastPage, setALastPage] = useState(1);
+
+  const { wrapperRef, leftSidebarRef, rightSidebarRef } = usePageStickySidebars();
 
   const activeMainTab: TabKey = tab;
   const userId = profile.id;
@@ -393,6 +398,15 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
     }
   };
 
+  const handleGiftVipClick = () => {
+    if (isOwnProfile || isBanned) return;
+    if (!getToken()) {
+      router.push(`/login?return=${encodeURIComponent(`/profile/${profile.id}`)}`);
+      return;
+    }
+    setIsGiftVipOpen(true);
+  };
+
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -491,8 +505,12 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
         </div>
       </div>
 
-      <div className="question_wrapper container" style={{ paddingBottom: "20px", borderBottom: "1px solid #E0E2EF" }}>
-        <div className="question_left_list">
+      <div
+        className="question_wrapper container"
+        style={{ paddingBottom: "20px", borderBottom: "1px solid #E0E2EF" }}
+        ref={wrapperRef}
+      >
+        <div className="question_left_list" ref={leftSidebarRef}>
           {statsBlock(false)}
           <div className="profile_menu_weekly profile_menu_weekly--sidebar">
             <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
@@ -555,6 +573,8 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
             kpdPercentDisplay={`${kpdPercent}%`}
           />
 
+          {statsBlock(true)}
+
           <div className="questions_page_inner">
             {activeMainTab === "questions" ? (
               <div className="questions_filter" style={{ marginTop: "24px", marginBottom: "14px" }}>
@@ -606,7 +626,11 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
               </div>
             )}
 
-            <div className="search-results-list">
+            <div
+              className={
+                activeMainTab === "questions" ? "questions_list_profile" : "answers_list_profile"
+              }
+            >
               {activeMainTab === "questions" ? (
                 qLoading ? (
                   <div style={{ padding: "24px", textAlign: "center", color: "#899AB5" }}>Загрузка…</div>
@@ -669,23 +693,30 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
           <div className="profile_menu_weekly profile_menu_weekly--inline">
             <ProfileWeeklyLeadersSidebar initialWidgets={initialWidgets} />
           </div>
-
-          {statsBlock(true)}
         </div>
 
-        <div className={`question_right_list${isBanned ? " banned_opacity" : ""}`}>
-          <div className="vip_status_block">
-            <div className="vip_icon">
-              <img src="/images/vip.svg" alt="VIP" />
+        {!isOwnProfile && !isBanned ? (
+          <div className={`question_right_list${isBanned ? " banned_opacity" : ""}`} ref={rightSidebarRef}>
+            <div className="vip_status_block">
+              <div className="vip_icon">
+                <img src="/images/vip.svg" alt="VIP" />
+              </div>
+              <p className="vip_gift_text">Подарить</p>
+              <h3 className="vip_title">VIP статус</h3>
+              <button type="button" className="vip_button" onClick={handleGiftVipClick}>
+                ПОДАРИТЬ
+              </button>
             </div>
-            <p className="vip_gift_text">Подарить</p>
-            <h3 className="vip_title">VIP статус</h3>
-            <button type="button" className="vip_button">
-              ПОДАРИТЬ
-            </button>
           </div>
-        </div>
+        ) : null}
       </div>
+
+      <GiftVipModal
+        isOpen={isGiftVipOpen}
+        onClose={() => setIsGiftVipOpen(false)}
+        recipientId={profile.id}
+        recipientName={displayName}
+      />
 
       <div className="container">
         <div className="ask_question">

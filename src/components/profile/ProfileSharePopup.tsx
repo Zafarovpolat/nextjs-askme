@@ -1,19 +1,13 @@
 "use client";
 
-import ShareSocialIcons from "@/components/ShareSocialIcons";
+import SharePopupPanel from "@/components/SharePopupPanel";
 
 type ProfileSharePopupProps = {
   title: string;
   url: string;
 };
 
-/** Попап «Поделиться» в сайдбаре публичного профиля — те же соцсети и URL, что в SharePopup для вопросов. */
+/** Попап «Поделиться» в сайдбаре публичного профиля (inline, position: relative у родителя). */
 export default function ProfileSharePopup({ title, url }: ProfileSharePopupProps) {
-  return (
-    <div className="profile_share_popup" role="dialog" aria-label="Поделиться профилем">
-      <div className="profile_share_popup_title">Поделиться</div>
-      <div className="profile_share_popup_subtitle">через</div>
-      <ShareSocialIcons title={title} url={url} />
-    </div>
-  );
+  return <SharePopupPanel title={title} url={url} variant="full" />;
 }

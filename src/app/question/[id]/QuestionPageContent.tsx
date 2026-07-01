@@ -28,7 +28,7 @@ import {
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import { useVoteQuestion } from "@/hooks/useVoteQuestion";
 import ComplaintModal from "@/components/ComplaintModal";
-import ShareIconsPopup from "@/components/ShareIconsPopup";
+import SharePopup from "@/components/SharePopup";
 import AnswerBlock, { AnswerWithReplies } from "./AnswerBlock";
 import SimilarQuestionsBlock from "./SimilarQuestionsBlock";
 import QuestionLeadersSidebar from "./QuestionLeadersSidebar";
@@ -47,7 +47,7 @@ import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
 import type { AnswerAnchorMeta, QuestionPageData } from "@/types";
 import { getApiFullUrl } from "@/config/api";
 import LinkInputModal from "@/components/LinkInputModal";
-import { useBidirectionalStickySidebar } from "@/hooks/useBidirectionalStickySidebar";
+import { usePageStickySidebars } from "@/hooks/usePageStickySidebars";
 import {
   containsSpamUnicode,
   PLAIN_TEXT_SPAM_MESSAGE,
@@ -65,6 +65,12 @@ import {
   parseAnswerAnchorHash,
   type AnswerAnchorRef,
 } from "@/lib/question-answer-tree";
+import {
+  validateImageAttachment,
+  validateVideoAttachment,
+} from "@/lib/attachment-validation";
+import { getFormApiErrorMessage } from "@/lib/form-api-error-message";
+import { showSystemToast } from "@/store/systemToastStore";
 
 /** Сайдбар, если API категорий недоступен */
 const FALLBACK_SIDEBAR_CATEGORIES = [
@@ -376,12 +382,8 @@ export default function QuestionPageContent({
   const canSelectBestAnswer = !hasBestAnswer && isQuestionAuthor;
 
   const answerRef = useRef<HTMLTextAreaElement>(null);
-  const questionWrapperRef = useRef<HTMLDivElement>(null);
-  const leftSidebarRef = useRef<HTMLDivElement>(null);
-  const rightSidebarRef = useRef<HTMLDivElement>(null);
-
-  useBidirectionalStickySidebar(questionWrapperRef, leftSidebarRef);
-  useBidirectionalStickySidebar(questionWrapperRef, rightSidebarRef);
+  const { wrapperRef: questionWrapperRef, leftSidebarRef, rightSidebarRef } =
+    usePageStickySidebars();
   useEffect(() => {
     return () => {
       if (fileAttachment?.previewUrl) URL.revokeObjectURL(fileAttachment.previewUrl);
@@ -407,6 +409,12 @@ export default function QuestionPageContent({
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f) return;
+    const validationError = validateImageAttachment(f);
+    if (validationError) {
+      showSystemToast(validationError, "error");
+      setAnswerSubmitError(validationError);
+      return;
+    }
     setAnswerSubmitError(null);
     if (fileAttachment?.previewUrl) URL.revokeObjectURL(fileAttachment.previewUrl);
     setFileAttachment({ file: f, previewUrl: URL.createObjectURL(f) });
@@ -416,6 +424,12 @@ export default function QuestionPageContent({
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f) return;
+    const validationError = validateVideoAttachment(f);
+    if (validationError) {
+      showSystemToast(validationError, "error");
+      setAnswerSubmitError(validationError);
+      return;
+    }
     setAnswerSubmitError(null);
     if (videoAttachment?.previewUrl) URL.revokeObjectURL(videoAttachment.previewUrl);
     setVideoAttachment({ file: f, previewUrl: URL.createObjectURL(f) });
@@ -552,11 +566,42 @@ export default function QuestionPageContent({
       if (!raw) return;
       if (containsSpamUnicode(raw)) {
         setAnswerSubmitError(PLAIN_TEXT_SPAM_MESSAGE);
+        showSystemToast(PLAIN_TEXT_SPAM_MESSAGE, "error");
         return;
       }
       if (replyTarget && !allowAnswerComments) {
-        setAnswerSubmitError("Комментарии к ответам отключены автором вопроса.");
+        const msg = "Комментарии к ответам отключены автором вопроса.";
+        setAnswerSubmitError(msg);
+        showSystemToast(msg, "error");
         return;
+      }
+      if (fileAttachment?.file) {
+        const fileError = validateImageAttachment(fileAttachment.file);
+        if (fileError) {
+          setAnswerSubmitError(fileError);
+          showSystemToast(fileError, "error");
+          return;
+        }
+        if (!canAddFileAttachment) {
+          const msg = "Достигнут лимит публикаций с фото за сутки.";
+          setAnswerSubmitError(msg);
+          showSystemToast(msg, "error");
+          return;
+        }
+      }
+      if (videoAttachment?.file) {
+        const videoError = validateVideoAttachment(videoAttachment.file);
+        if (videoError) {
+          setAnswerSubmitError(videoError);
+          showSystemToast(videoError, "error");
+          return;
+        }
+        if (!canAddVideoAttachment) {
+          const msg = "Достигнут лимит публикаций с видео за сутки.";
+          setAnswerSubmitError(msg);
+          showSystemToast(msg, "error");
+          return;
+        }
       }
       setAnswerSubmitPending(true);
       try {
@@ -580,17 +625,17 @@ export default function QuestionPageContent({
             },
             body: fd,
         });
-        const data = (await res.json().catch(() => ({}))) as {
-          errors?: Record<string, string[]>;
-          message?: string;
-        };
+        const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
         if (!res.ok) {
-          const errLists = data.errors ? Object.values(data.errors) : [];
-          const firstArr = errLists.find((a) => Array.isArray(a) && a.length > 0) as
-            | string[]
-            | undefined;
-          const first = firstArr?.[0];
-          throw new Error(first || data?.message || "Не удалось отправить ответ");
+          const detail = getFormApiErrorMessage(
+            data,
+            res.status >= 500
+              ? "Сервер временно недоступен. Попробуйте позже."
+              : replyTarget
+                ? "Не удалось отправить комментарий. Проверьте данные и попробуйте снова."
+                : "Не удалось отправить ответ. Проверьте данные и попробуйте снова.",
+          );
+          throw new Error(detail);
         }
         setReplyTarget(null);
         setAnswerText("");
@@ -616,11 +661,14 @@ export default function QuestionPageContent({
         }
         router.refresh();
       } catch (err) {
-        const e = err as Error & {
-          message?: string;
-          errors?: Record<string, string[]>;
-        };
-        setAnswerSubmitError(e.message || "Не удалось отправить ответ");
+        const message =
+          err instanceof Error
+            ? err.message
+            : replyTarget
+              ? "Не удалось отправить комментарий. Попробуйте снова."
+              : "Не удалось отправить ответ. Попробуйте снова.";
+        setAnswerSubmitError(message);
+        showSystemToast(message, "error");
       } finally {
         setAnswerSubmitPending(false);
       }
@@ -637,6 +685,8 @@ export default function QuestionPageContent({
       linkAttachment,
       sortBy,
       sortDir,
+      canAddFileAttachment,
+      canAddVideoAttachment,
     ]
   );
 
@@ -1524,7 +1574,7 @@ export default function QuestionPageContent({
         onClose={() => setIsLinkModalOpen(false)}
         onSubmit={(url) => setLinkAttachment(url)}
       />
-      <ShareIconsPopup
+      <SharePopup
         isOpen={isShareOpen}
         onClose={() => setIsShareOpen(false)}
         anchorRef={shareButtonRef}

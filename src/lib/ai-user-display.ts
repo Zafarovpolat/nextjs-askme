@@ -13,12 +13,6 @@ export type AiLikeUser = {
 
 export function displayUserName(u: AiLikeUser): string {
   const full = (u.full_name ?? u.first_name ?? "").trim()
-  if (u.is_ai) {
-    const provider = (u.ai_provider_name ?? "AI").trim()
-    // Для AI в основном имени показываем только тип (провайдера).
-    // Имя бота и прочее не выводим здесь, чтобы выглядеть как обычный профиль/ответы.
-    return provider || "AI"
-  }
   return full || "Пользователь"
 }
 

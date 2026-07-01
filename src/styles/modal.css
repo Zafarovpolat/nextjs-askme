@@ -383,7 +383,7 @@ body:has(.modal--active) {
 }
 
 .dark_mode .share-popup {
-  background: #403586;
+  background: #332e71;
 }
 
 .dark_mode .share-popup__inner svg * {

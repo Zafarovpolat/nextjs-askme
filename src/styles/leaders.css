@@ -518,13 +518,78 @@
   color: #fff;
 }
 
+/* Список «Лидеры проекта» — зебра как в сайдбарах */
+.project_leaders_list a.question_list_item {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.project_leaders_grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px 20px;
+}
+
+.project_leaders_list .question_list_item {
+  margin: 0;
+  align-items: center;
+  padding: 12px 20px 12px 18px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  min-height: 62px;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.project_leaders_grid .question_list_item:nth-child(4n + 1),
+.project_leaders_grid .question_list_item:nth-child(4n + 2) {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.project_leaders_grid .question_list_item:nth-child(4n + 3),
+.project_leaders_grid .question_list_item:nth-child(4n + 4) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.project_leaders_list .question_list_item:hover {
+  background: rgb(98, 106, 255);
+  border-color: rgb(98, 106, 255);
+  box-shadow: 0 4px 16px rgba(98, 106, 255, 0.08);
+}
+
+.project_leaders_list .question_list_item:hover .main_text {
+  color: rgb(255, 255, 255);
+}
+
+.project_leaders_list .question_list_item:hover .question_list_item_left span {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.project_leaders_list .question_list_item:hover .leader_number {
+  color: rgb(255, 255, 255);
+}
+
+.dark_mode .project_leaders_grid .question_list_item:nth-child(4n + 1),
+.dark_mode .project_leaders_grid .question_list_item:nth-child(4n + 2) {
+  background: rgba(64, 53, 134, 0.5);
+}
+
+.dark_mode .project_leaders_grid .question_list_item:nth-child(4n + 3),
+.dark_mode .project_leaders_grid .question_list_item:nth-child(4n + 4) {
+  background: rgba(64, 53, 134, 0.25);
+}
+
 .dark_mode .project_leaders_list .question_list_item {
-  background: rgb(64, 53, 134);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .dark_mode .project_leaders_list .question_list_item:hover {
-  background: rgb(64, 53, 134);
+  background: rgb(98, 106, 255);
   border-color: rgb(98, 106, 255);
   box-shadow: 0 4px 16px rgba(98, 106, 255, 0.15);
 }
@@ -602,51 +667,6 @@
 
 .dark_mode .leader_number {
   color: #ccddf8;
-}
-
-/* Список лидеров проекта — белые карточки на фоне #e7e9f6 */
-.project_leaders_list a.question_list_item {
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  box-sizing: border-box;
-}
-
-.project_leaders_list .question_list_item {
-  margin: 0;
-  align-items: center;
-  padding: 12px 20px 12px 18px;
-  background: #ffffff;
-  border: 2px solid #ffffff;
-  border-radius: 10px;
-  min-height: 62px;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.project_leaders_list .question_list_item:hover {
-  background: rgb(255, 255, 255);
-  border-color: rgb(98, 106, 255);
-  box-shadow: 0 4px 16px rgba(98, 106, 255, 0.08);
-}
-
-.project_leaders_list .question_list_item:hover .main_text {
-  color: rgb(98, 106, 255);
-}
-
-.project_leaders_list .question_list_item:hover .question_list_item_left span {
-  color: #899ab5;
-}
-
-.project_leaders_list .question_list_item:hover .leader_number {
-  color: rgb(98, 106, 255);
-}
-
-.project_leaders_grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 8px 20px;
 }
 
 .project_leaders_grid .question_list_item {
@@ -780,6 +800,24 @@
 
   .project_leaders_grid {
     grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* В одну колонку — зебра по каждой строке */
+  .project_leaders_grid .question_list_item:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  .project_leaders_grid .question_list_item:nth-child(even) {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .dark_mode .project_leaders_grid .question_list_item:nth-child(odd) {
+    background: rgba(64, 53, 134, 0.5);
+  }
+
+  .dark_mode .project_leaders_grid .question_list_item:nth-child(even) {
+    background: rgba(64, 53, 134, 0.25);
   }
 }
 
