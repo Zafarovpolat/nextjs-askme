@@ -599,6 +599,7 @@
   min-width: 0;
   flex: 1 1 0%;
   overflow: hidden;
+  margin-top: 0;
 }
 
 .profile_page .user_profile_img {
@@ -637,7 +638,7 @@
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    margin-top: 15px;
+    margin-top: 0;
   }
 
   .user_profile_block_content_profile_desc {
@@ -2412,7 +2413,7 @@
   }
 
   .user_profile_block::after {
-    top: calc(0% + 40px);
+    top: calc(0% + 47px);
   }
 
   .user_profile_block_content {
@@ -2422,7 +2423,7 @@
 
   .user_profile_block_content_profile {
     gap: 8px;
-    margin-top: 15px;
+    margin-top: 0;
   }
 
   .user_profile_image,
@@ -2644,7 +2645,7 @@
 
   .user_profile_block {
     background-image: url("/images/profile-m.svg");
-    background-size: cover;
+    background-size: 100%;
     background-repeat: no-repeat;
     background-position: top;
   }

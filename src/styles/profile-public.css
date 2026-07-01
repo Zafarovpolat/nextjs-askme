@@ -1,20 +1,39 @@
 /* Profile Public Header Styles */
 
+.main_question_block.main_question_block_item.profile_question_block.premium-profile.premium-user {
+  background: #6069ff !important;
+}
+
+.main_question_block.main_question_block_item.profile_question_block.premium-profile.premium-user::after {
+  background-color: #6069ff !important;
+}
+
+.main_question_block.main_question_block_item.profile_question_block.premium-profile.premium-user
+  .main_question_bg_wrapper {
+  z-index: -1;
+}
+
+@media (max-width: 599px) {
+  .main_question_block.main_question_block_item.profile_question_block.premium-profile.premium-user {
+    background: url(/images/subject-bg-m-d.svg) no-repeat !important;
+    background-size: 100% !important;
+  }
+
+  .main_question_block.main_question_block_item.profile_question_block.premium-profile.premium-user
+    .top_bg_dark,
+  .dark_mode
+    .main_question_block.main_question_block_item.profile_question_block.premium-profile.premium-user
+    .top_bg_dark {
+    display: none !important;
+  }
+}
+
 .main_question_block.main_question_block_item.profile_question_block {
   padding: 0 28px 24px;
   position: relative;
   overflow: visible;
 }
 
-/*
- * Публичный профиль: премиум-шапка.
- * Скругление как у карточки вопроса / обычного публичного профиля: border-top-left-radius: 0 из questions.css,
- * чтобы «пяточка» стыковалась без лишнего скругления (как /profile/premium_user…).
- */
-.main_question_block.main_question_block_item.profile_question_block.premium-profile {
-  background: #6069ff !important;
-  overflow: visible;
-}
 
 .main_question_block.main_question_block_item.profile_question_block.premium-profile
   .main_question_bg_wrapper {
@@ -48,26 +67,14 @@
 
 .dark_mode
   .main_question_block.main_question_block_item.profile_question_block.premium-profile
-  .top_bg_light {
-  display: block !important;
-}
-
-.dark_mode
-  .main_question_block.main_question_block_item.profile_question_block.premium-profile
   .top_bg_dark {
-  display: none !important;
-}
-
-.dark_mode
-  .main_question_block.main_question_block_item.profile_question_block.premium-profile
-  .top_bg_rect_light {
   display: block !important;
 }
 
 .dark_mode
   .main_question_block.main_question_block_item.profile_question_block.premium-profile
   .top_bg_rect_dark {
-  display: none !important;
+  display: block !important;
 }
 
 .main_question_block.main_question_block_item.profile_question_block.premium-profile
@@ -179,6 +186,7 @@
   min-width: 0;
   flex: 1 1 0%;
   overflow: hidden;
+  margin-top: 0;
 }
 
 .user_profile_img {
@@ -258,7 +266,7 @@
   margin: 0 0 4px 0;
   display: block;
   min-width: 0;
-  max-width: 100%;
+  max-width: calc(100% - 35px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -505,13 +513,6 @@
   border-bottom-color: transparent;
 }
 
-.dark_mode .profile_stats_item.active {
-  background: #fff !important;
-}
-
-.dark_mode .profile_stats_item.active .main_text {
-  color: #6069ff !important;
-}
 
 .dark_mode .profile_stats_item.active .stats_badge {
   background: #5764ff !important;
@@ -578,7 +579,7 @@
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    margin-top: 15px;
+    margin-top: 0;
   }
 
   .user_profile_block_content_profile_desc {
@@ -594,7 +595,7 @@
   .user_profile_block_content_profile_desc h4,
   .profile-display-name {
     width: 100%;
-    max-width: 100%;
+    max-width: calc(100% - 35px);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
