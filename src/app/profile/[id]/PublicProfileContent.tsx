@@ -24,7 +24,7 @@ import ProfileSharePopup from "@/components/profile/ProfileSharePopup";
 import GiftVipModal from "@/components/profile/GiftVipModal";
 import type { PublicProfileUser } from "@/types";
 import { usePageStickySidebars } from "@/hooks/usePageStickySidebars";
-import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
+import { displayUserName, displayUserSubtitle, displayPremiumBadge } from "@/lib/ai-user-display";
 
 type ProfileQuestionItem = {
   id: number;
@@ -109,9 +109,7 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
       profile.vip ||
       (typeof profile.vip_status === "number" ? profile.vip_status > 0 : profile.vip_status),
   );
-  const premiumBadgeText = premiumProfile.premium_is_permanent
-    ? "Постоянный"
-    : premiumProfile.premium_package_name?.trim() || "Премиум";
+  const premiumBadgeText = displayPremiumBadge(profile) ?? "Премиум";
 
   const tab = parseTab(searchParams.get("tab"));
   const qFilter = parseQuestionFilter(searchParams.get("qf"));

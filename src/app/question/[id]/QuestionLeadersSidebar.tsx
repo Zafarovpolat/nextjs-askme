@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { api } from "@/lib/api-client";
 import UserAvatar from "@/components/UserAvatar";
+import { displayPremiumBadge } from "@/lib/ai-user-display";
 import type { SimilarQuestionsPage } from "@/types";
 
 /**
@@ -63,9 +64,7 @@ const QuestionLeadersSidebar = forwardRef<
         items.map((q) => {
           const authorPremium =
             q.author.premium_is_active ?? q.author.is_premium ?? false;
-          const authorPremiumText = q.author.premium_is_permanent
-            ? "Постоянный"
-            : q.author.premium_package_name?.trim() || "Премиум";
+          const authorPremiumText = displayPremiumBadge(q.author) ?? "Премиум";
           return (
           <Link href={`/question/${q.id}`} key={q.id}>
             <div

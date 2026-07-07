@@ -154,19 +154,6 @@ export default function SearchResultCard({
             </Link>
             {isPremium ? <PremiumQuestionCardBadge /> : null}
           </div>
-          {isOwnProfile && question.content && (
-            <p
-              className="search-result-subtext"
-              style={{
-                marginTop: "4px",
-                marginBottom: "8px",
-                fontSize: "14px",
-                lineHeight: "1.4",
-              }}
-            >
-              {question.content}
-            </p>
-          )}
           <div className="search-result-meta">
             <Link
               href={`/categories/${question.category?.slug || ""}`}

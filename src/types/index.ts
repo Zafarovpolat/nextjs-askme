@@ -93,6 +93,16 @@ export interface ApiUser {
     file: number | null
     video: number | null
   }
+  /** Остаток суточной квоты за скользящие 24 ч.; null = без лимита (∞). */
+  daily_action_remaining?: {
+    ask_question: number | null
+    answer: number | null
+    answer_comment: number | null
+    vote_best: number | null
+    vote_question: number | null
+    file: number | null
+    video: number | null
+  }
   /** Остаток вложений за 24 ч.; null = без лимита */
   attachment_remaining?: {
     file: number | null

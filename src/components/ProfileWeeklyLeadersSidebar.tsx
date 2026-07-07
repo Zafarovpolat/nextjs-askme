@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
+import { displayPremiumBadge } from "@/lib/ai-user-display";
 import type { ProfileWidgetsPayload, ProfileWidgetUser } from "@/lib/server-profile-widgets";
 import { formatCompactNumWord } from "@/lib/format-compact-count";
 
@@ -34,9 +35,7 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
         ) : (
           weeklyBallsLeaders.map((u) => {
             const p = u.premium_is_active ?? u.is_premium ?? false;
-            const pt = u.premium_is_permanent
-              ? "Постоянный"
-              : u.premium_package_name?.trim() || "Премиум";
+            const pt = displayPremiumBadge(u) ?? "Премиум";
             return (
             <Link href={`/profile/${u.id}`} key={u.id}>
               <div className="question_list_item">
@@ -72,9 +71,7 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
         ) : (
           weeklyActiveAuthors.map((u) => {
             const p = u.premium_is_active ?? u.is_premium ?? false;
-            const pt = u.premium_is_permanent
-              ? "Постоянный"
-              : u.premium_package_name?.trim() || "Премиум";
+            const pt = displayPremiumBadge(u) ?? "Премиум";
             return (
             <Link href={`/profile/${u.id}`} key={u.id}>
               <div className="question_list_item">

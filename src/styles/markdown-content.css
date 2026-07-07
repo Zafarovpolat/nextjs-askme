@@ -1,0 +1,170 @@
+.markdown-content {
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+}
+
+.markdown-content > :first-child {
+  margin-top: 0;
+}
+
+.markdown-content > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content p,
+.markdown-content ul,
+.markdown-content ol,
+.markdown-content pre,
+.markdown-content blockquote,
+.markdown-content table,
+.markdown-content .katex-display {
+  margin: 0.75em 0;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin: 1em 0 0.5em;
+  color: rgb(35, 38, 91);
+  font-family: Nunito, sans-serif;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.markdown-content h1 {
+  font-size: 1.5em;
+}
+
+.markdown-content h2 {
+  font-size: 1.35em;
+}
+
+.markdown-content h3 {
+  font-size: 1.2em;
+}
+
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  font-size: 1.05em;
+}
+
+.markdown-content strong {
+  font-weight: 700;
+}
+
+.markdown-content em {
+  font-style: italic;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.5em;
+}
+
+.markdown-content li + li {
+  margin-top: 0.35em;
+}
+
+.markdown-content li > ul,
+.markdown-content li > ol {
+  margin-top: 0.35em;
+}
+
+.markdown-content code {
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: rgba(96, 105, 255, 0.08);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+.markdown-content pre {
+  padding: 12px 14px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: rgb(245, 246, 252);
+}
+
+.markdown-content pre code {
+  padding: 0;
+  background: transparent;
+  font-size: 0.9em;
+}
+
+.markdown-content blockquote {
+  padding-left: 1em;
+  border-left: 3px solid rgba(96, 105, 255, 0.45);
+  color: rgb(110, 118, 132);
+}
+
+.markdown-content a {
+  color: rgb(96, 105, 255);
+  text-decoration: underline;
+  word-break: break-word;
+}
+
+.markdown-content hr {
+  margin: 1em 0;
+  border: 0;
+  border-top: 1px solid rgba(92, 102, 118, 0.2);
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 8px 10px;
+  border: 1px solid rgba(92, 102, 118, 0.2);
+}
+
+.markdown-content th {
+  background: rgba(96, 105, 255, 0.06);
+  font-weight: 700;
+}
+
+.markdown-content .katex {
+  font-size: 1.05em;
+}
+
+.markdown-content .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.dark_mode .markdown-content h1,
+.dark_mode .markdown-content h2,
+.dark_mode .markdown-content h3,
+.dark_mode .markdown-content h4,
+.dark_mode .markdown-content h5,
+.dark_mode .markdown-content h6 {
+  color: rgb(231, 233, 246);
+}
+
+.dark_mode .markdown-content code {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dark_mode .markdown-content pre {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.dark_mode .markdown-content blockquote {
+  color: rgb(180, 186, 198);
+}
+
+.dark_mode .markdown-content th {
+  background: rgba(255, 255, 255, 0.06);
+}

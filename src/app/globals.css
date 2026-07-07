@@ -18,6 +18,7 @@
 @import url('../styles/404.css');
 @import url('../styles/faq.css');
 @import url('../styles/notifications.css');
+@import url('../styles/markdown-content.css');
 
 /* Дополнительные стили для Next.js */
 :root {

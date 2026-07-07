@@ -31,7 +31,7 @@ import {
 import VipPlansGrid from "@/components/profile/VipPlansGrid";
 import { useSearchParams } from "next/navigation";
 import type { SubscriptionPackage } from "@/types";
-import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
+import { displayUserName, displayUserSubtitle, displayPremiumBadge } from "@/lib/ai-user-display";
 import { showSystemToast } from "@/store/systemToastStore";
 import { getFormApiErrorMessage } from "@/lib/form-api-error-message";
 import { getApiErrorMessage } from "@/lib/api-error-message";
@@ -194,26 +194,24 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
   );
 
   const dailyLimitsRows = useMemo(() => {
-    const limits = meUser.daily_action_limits;
-    if (!limits) {
+    const remaining = meUser.daily_action_remaining ?? meUser.daily_action_limits;
+    if (!remaining) {
       return [] as { value: string; label: string }[];
     }
     const fmt = (v: number | null | undefined) =>
       v === null || v === undefined ? "∞" : String(v);
 
     return [
-      { value: fmt(limits.ask_question), label: "Вопросы" },
-      { value: fmt(limits.answer), label: "Ответов" },
-      { value: fmt(limits.answer_comment), label: "Комментариев" },
-      { value: fmt(limits.vote_best), label: "Голосов за ответ" },
-      { value: fmt(limits.vote_question), label: "Оценок вопроса" },
-      { value: fmt(limits.file), label: "Фото" },
-      { value: fmt(limits.video), label: "Видео" },
+      { value: fmt(remaining.ask_question), label: "Вопросы" },
+      { value: fmt(remaining.answer), label: "Ответов" },
+      { value: fmt(remaining.answer_comment), label: "Комментариев" },
+      { value: fmt(remaining.vote_best), label: "Голосов за ответ" },
+      { value: fmt(remaining.vote_question), label: "Оценок вопроса" },
+      { value: fmt(remaining.file), label: "Фото" },
+      { value: fmt(remaining.video), label: "Видео" },
     ];
   }, [meUser]);
-  const premiumBadgeText = meUser.premium_is_permanent
-    ? "Постоянный"
-    : meUser.premium_package_name?.trim() || "Премиум";
+  const premiumBadgeText = displayPremiumBadge(meUser) ?? "Премиум";
   const isAiUser = Boolean(meUser.is_ai);
   const displayName = displayUserName(meUser);
   const rankLabel = displayUserSubtitle(meUser);
@@ -726,9 +724,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     const ballsLine = formatCompactNumWord(u.balls ?? 0, ["балл", "балла", "баллов"]);
     const showSubscribe = isSubscriberView && !u.subscribed_by_me;
     const followPremium = u.premium_is_active ?? u.is_premium ?? false;
-    const followPremiumText = u.premium_is_permanent
-      ? "Постоянный"
-      : u.premium_package_name?.trim() || "Премиум";
+    const followPremiumText = displayPremiumBadge(u) ?? "Премиум";
     return (
       <div className="user-follow-card" key={u.id}>
         <div className="user-follow-left">
@@ -1833,7 +1829,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
             </div>
             <>
               <div className="blocks_title" style={{ marginTop: "24px" }}>
-                <h2>Ограничения на день</h2>
+                <h2>Остаток на день</h2>
               </div>
               <div className="profile_stats_list profile_stats_limits_list">
                 {dailyLimitsRows.length === 0 ? (

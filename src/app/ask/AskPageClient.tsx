@@ -89,14 +89,17 @@ function formatPremiumAskButtonLabel(user: {
   premium_questions_quota_is_unlimited?: boolean
   premium_questions_quota_total?: number | null
   premium_questions_quota_used?: number
+  premium_questions_quota_available?: number | null
 }): string {
   if (user.premium_questions_quota_is_unlimited) {
     return "Премиум вопрос (безлимит)"
   }
   const total = user.premium_questions_quota_total
-  const used = user.premium_questions_quota_used ?? 0
   if (total != null && total > 0) {
-    return `Премиум вопрос ${used} из ${total}`
+    const available =
+      user.premium_questions_quota_available ??
+      Math.max(0, total - (user.premium_questions_quota_used ?? 0))
+    return `Премиум вопрос ${available} из ${total}`
   }
   return "Премиум вопрос"
 }
