@@ -5,6 +5,8 @@ import SvgSprites from '@/components/SvgSprites'
 import AuthProvider from '@/components/AuthProvider'
 import ThemeSync from '@/components/ThemeSync'
 import { ExternalLinkProvider } from '@/components/ExternalLinkProvider'
+import NotificationRealtimeProvider from '@/components/NotificationRealtimeProvider'
+import SiteHeader from '@/components/layout/SiteHeader'
 import SystemToastStack from '@/components/SystemToastStack'
 import {
   COLOR_THEME_COOKIE,
@@ -146,7 +148,9 @@ export default function RootLayout({
       <body className={bodyClass} suppressHydrationWarning>
         <AuthProvider>
           <ThemeSync />
+          <NotificationRealtimeProvider />
           <ExternalLinkProvider>
+            <SiteHeader />
             {children}
           </ExternalLinkProvider>
         </AuthProvider>

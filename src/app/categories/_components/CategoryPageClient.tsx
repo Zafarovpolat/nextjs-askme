@@ -12,6 +12,7 @@ import CategorySubjectIcon from "@/components/CategorySubjectIcon"
 import { api } from "@/lib/api-client"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import { useAuthStore } from "@/store/authStore"
+import { HydrationSafeInput, HydrationSafeTextarea } from "@/components/HydrationSafeInput"
 
 type CategoryInfo = { id: number; name: string; slug: string; icon_key?: string | null }
 type PopularCategory = { id: number; name: string; slug: string; icon_key?: string | null; subcategories: { id: number; name: string; slug: string }[] }
@@ -230,7 +231,7 @@ export default function CategoryPageClient({
 
         <div className="questions_block_search">
           <img src="/images/icons/ask.svg" alt="" />
-          <input
+          <HydrationSafeInput
             name="message"
             type="text"
             placeholder="Задайте свой вопрос здесь"
@@ -245,7 +246,7 @@ export default function CategoryPageClient({
               }
             }}
           />
-          <textarea
+          <HydrationSafeTextarea
             name="message-full"
             placeholder="Задайте свой вопрос здесь"
             value={questionDraft}

@@ -48,7 +48,7 @@ export default function TextWithLinks({ text, className }: TextWithLinksProps) {
     <div className={rootClassName}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[[rehypeKatex, { strict: 'ignore' }]]}
         components={{
           a: MarkdownLink,
         }}

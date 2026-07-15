@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { HydrationSafeInput } from '@/components/HydrationSafeInput'
 
 interface LinkInputModalProps {
   isOpen: boolean
@@ -86,7 +87,7 @@ export default function LinkInputModal({
         <div className="modal__content">
           <p className="modal__title">Добавить ссылку</p>
           <div className="login_input">
-            <input
+            <HydrationSafeInput
               type="text"
               value={value}
               onChange={(e) => {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { UserAnswer } from "@/data/mock-answers";
 import UserAvatar from "@/components/UserAvatar";
+import TextWithLinks from "@/components/TextWithLinks";
 import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
 import { formatCompactCount, formatCompactNumWord, voteCountTitle } from "@/lib/format-compact-count";
 import { useVoteAnswer } from "@/hooks/useVoteAnswer";
@@ -187,7 +188,7 @@ export default function AnswerResultCard({
         <Link href={`/question/${answer.questionSlug}`} className="answer-result-title">
           {answer.questionTitle}
         </Link>
-        <p className="answer-result-subtext">{answer.content}</p>
+        <TextWithLinks text={answer.content} className="answer-result-subtext" />
 
         <div className="answer-result-meta">
           {shouldShowVotes ? (

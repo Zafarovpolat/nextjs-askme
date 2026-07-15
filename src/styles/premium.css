@@ -48,8 +48,8 @@
 .main_question_block:not(.main_question_block_item)
   .site-user-avatar
   .premium-badge-stretch__middle {
-  height: 16.8px !important;
-  max-height: 16.8px !important;
+  height: 16.5px !important;
+  max-height: 16.5px !important;
 }
 
 .search-result-card.premium-question .search-result-top,
@@ -144,6 +144,7 @@
   position: absolute;
   left: 50%;
   bottom: -4px;
+  width: max-content;
   transform: translateX(-50%);
   z-index: 2;
   pointer-events: none;
@@ -179,6 +180,8 @@
 }
 
 .site-user-avatar__badge.premium-badge-stretch {
+  display: flex;
+  align-items: center;
   z-index: 5;
 }
 
@@ -511,28 +514,45 @@
     border-radius: 0 0 22px 22px;
     padding-bottom: 15px;
   }
+
+  .user_profile_block.premium-profile .profile_menu_list_mob.tabs_list_m .profile_menu_item {
+    background: #fff !important;
+  }
+
+  .dark_mode .user_profile_block.premium-profile .profile_menu_list_mob.tabs_list_m .profile_menu_item {
+    background: #fff !important;
+  }
+
+  .user_profile_block.premium-profile .profile_menu_list_mob.tabs_list_m .profile_menu_item:hover {
+    background: transparent !important;
+  }
 }
 
-/* Лейбл «Премиум» в одной строке с заголовком: белая плашка, сиреневый текст (как в макете, не «инверсия» на фон карточки) */
+/* Кнопка редактирования аватара (top: -8px) не должна обрезаться краем карточки */
+.user_profile_block.premium-profile {
+  overflow: visible;
+}
+
+/* Лейбл «Премиум» в одной строке с заголовком карточки поиска */
 .search-result-card.premium-question .premium-badge-card {
   position: relative;
-  display: inline-block;
   flex: 0 0 auto;
   vertical-align: middle;
 }
 
-.search-result-card.premium-question .premium-badge-card .premium-badge-text {
-  position: absolute;
-  top: 36%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  white-space: nowrap;
+.search-result-card.premium-question .premium-badge-card .premium-badge-stretch__label {
   color: #6069ff !important;
 }
 
-.search-result-card.premium-question .premium-badge-card svg path {
+.search-result-card.premium-question .premium-badge-card .premium-badge-stretch__wing path {
   fill: #ffffff !important;
   stroke: #6069ff !important;
+}
+
+.search-result-card.premium-question .premium-badge-card .premium-badge-stretch__middle {
+  background: #ffffff !important;
+  border-top-color: #6069ff !important;
+  border-bottom-color: #6069ff !important;
 }
 
 .answer-result-card.premium-answer {

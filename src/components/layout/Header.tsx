@@ -10,6 +10,7 @@ import { toggleExplicitColorTheme } from "@/lib/theme-cookie";
 import { saveAuthorizedUserColorTheme } from "@/lib/save-user-color-theme";
 import NotificationBtnRealtime from "./NotificationBtnRealtime";
 import UserAvatar from "@/components/UserAvatar";
+import { HydrationSafeInput } from "@/components/HydrationSafeInput";
 
 type PremiumUserLike = {
   is_premium?: boolean | number;
@@ -23,6 +24,22 @@ const isUserPremium = (user?: PremiumUserLike | null): boolean =>
       user?.vip ||
       (typeof user?.vip_status === "number" ? user.vip_status > 0 : user?.vip_status),
   );
+
+const HEADER_PROFILE_AVATAR_SIZE = 34;
+
+const HeaderProfileAvatar = () => {
+  const user = useAuthStore((s) => s.user);
+
+  return (
+    <UserAvatar
+      src={user?.avatar_url || "/images/icons/avatar.svg"}
+      src2x={user?.avatar_url_2x}
+      alt=""
+      size={HEADER_PROFILE_AVATAR_SIZE}
+      imgClassName={styles.profileHeaderBtnAvatar}
+    />
+  );
+};
 
 const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
   <button
@@ -253,13 +270,7 @@ const ProfileDropdown = () => {
         title="Личный кабинет"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <img
-          src="/images/icons/user.svg"
-          alt=""
-          width="16"
-          height="20"
-          style={isOpen ? { filter: "brightness(0) invert(1)" } : undefined}
-        />
+        <HeaderProfileAvatar />
       </button>
 
       {isOpen && (
@@ -389,6 +400,10 @@ export default function Header() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   const toggleDarkMode = () => {
     const nextPreference = toggleExplicitColorTheme();
     if (isAuthorized) {
@@ -471,7 +486,7 @@ export default function Header() {
                 width="18"
                 height="18"
               />
-              <input
+              <HydrationSafeInput
                 ref={desktopSearchRef}
                 type="search"
                 name="q"
@@ -545,15 +560,10 @@ export default function Header() {
                 {/* Мобиль — прямая ссылка на профиль */}
                 <Link href="/profile" className="profile-link-mobile">
                   <button
-                    className="m_btn m_btn_icon category_btn"
+                    className="m_btn m_btn_icon category_btn profile-header-btn"
                     title="Личный кабинет"
                   >
-                    <img
-                      src="/images/icons/user.svg"
-                      alt=""
-                      width="16"
-                      height="20"
-                    />
+                    <HeaderProfileAvatar />
                   </button>
                 </Link>
               </>
@@ -590,7 +600,7 @@ export default function Header() {
         className={`nav_mob_wrapper ${isMenuOpen ? "nav_mob_wrapper_visible" : ""}`}
       >
         <div className="nav_mob_wrapper_nav">
-          <Link href="/" className="mob-nav-logo" title="Главная">
+          <Link href="/" className="mob-nav-logo" title="Главная" onClick={closeMenu}>
             <div className="logo-container" style={{ display: "flex" }}>
               <svg
                 width="44"
@@ -611,16 +621,25 @@ export default function Header() {
           <div>
             <ThemeToggleBtn onClick={toggleDarkMode} />
             {!isAuthorized ? (
-              <Link href="/login" title="Войти">
+              <Link href="/login" title="Войти" onClick={closeMenu}>
                 <button type="button" className="m_btn" title="Войти">
                   <img src="/images/icons/user.svg" alt="" />
                 </button>
               </Link>
             ) : (
               <>
-                <Link href="/profile" className="burger-profile-link" title="Личный кабинет">
-                  <button type="button" className="m_btn" title="Личный кабинет">
-                    <img src="/images/icons/user.svg" alt="" />
+                <Link
+                  href="/profile"
+                  className="burger-profile-link"
+                  title="Личный кабинет"
+                  onClick={closeMenu}
+                >
+                  <button
+                    type="button"
+                    className="m_btn m_btn_icon category_btn profile-header-btn"
+                    title="Личный кабинет"
+                  >
+                    <HeaderProfileAvatar />
                   </button>
                 </Link>
                 <button
@@ -629,9 +648,9 @@ export default function Header() {
                   title="Выход"
                   onClick={() => {
                     logout();
+                    closeMenu();
                     router.push("/");
                     router.refresh();
-                    setIsMenuOpen(false);
                   }}
                 >
                   <img
@@ -643,7 +662,7 @@ export default function Header() {
                 </button>
               </>
             )}
-            <button type="button" className="m_btn" title="Закрыть меню" onClick={toggleMenu}>
+            <button type="button" className="m_btn" title="Закрыть меню" onClick={closeMenu}>
               <img src="/images/icons/exit-menu.svg" alt="" />
             </button>
           </div>
@@ -656,7 +675,7 @@ export default function Header() {
             className="m_btn mob_category_btn"
             title="Все категории"
             onClick={() => {
-              setIsMenuOpen(false);
+              closeMenu();
               if (pathname === "/categories") {
                 router.back();
               } else {
@@ -672,7 +691,10 @@ export default function Header() {
 
           <form
             className="search_input search_input_mob"
-            onSubmit={(e) => onSearchSubmit(e, mobileSearchRef)}
+            onSubmit={(e) => {
+              onSearchSubmit(e, mobileSearchRef);
+              closeMenu();
+            }}
           >
             <img
               src="/images/icons/mob-search.svg"
@@ -680,7 +702,7 @@ export default function Header() {
               width="18"
               height="18"
             />
-            <input
+            <HydrationSafeInput
               ref={mobileSearchRef}
               type="search"
               name="q"
@@ -689,7 +711,7 @@ export default function Header() {
             />
           </form>
 
-          <Link href="/ask" className="mob_sec_item" title="Спросить">
+          <Link href="/ask" className="mob_sec_item" title="Спросить" onClick={closeMenu}>
             <button type="button" className="m_btn" title="Спросить">
               <svg width="20" height="20">
                 <use xlinkHref="#ask"></use>
@@ -698,7 +720,7 @@ export default function Header() {
             </button>
           </Link>
 
-          <Link href="/leaders" className="mob_sec_item" title="Лидеры">
+          <Link href="/leaders" className="mob_sec_item" title="Лидеры" onClick={closeMenu}>
             <button type="button" className="m_btn" title="Лидеры">
               <svg width="20" height="20">
                 <use xlinkHref="#leaders"></use>
@@ -707,7 +729,7 @@ export default function Header() {
             </button>
           </Link>
 
-          <Link href="/notifications" className="mob_sec_item" title="Уведомления">
+          <Link href="/notifications" className="mob_sec_item" title="Уведомления" onClick={closeMenu}>
             <button type="button" className="m_btn notification-btn-mob" title="Уведомления">
               <svg
                 width="20"
@@ -725,7 +747,23 @@ export default function Header() {
             </button>
           </Link>
 
-          <Link href="/profile" className="mob_sec_item" title="Премиум">
+          {isAuthorized ? (
+            <Link
+              href="/profile"
+              className="mob_sec_item burger-profile-list-item"
+              title="Личный кабинет"
+              onClick={closeMenu}
+            >
+              <button type="button" className="m_btn burger-profile-list-btn" title="Личный кабинет">
+                <span className="burger-profile-list-avatar" aria-hidden>
+                  <HeaderProfileAvatar />
+                </span>
+                Личный кабинет
+              </button>
+            </Link>
+          ) : null}
+
+          <Link href="/profile" className="mob_sec_item" title="Премиум" onClick={closeMenu}>
             <button type="button" className="m_btn premium-btn-mob" title="Премиум">
               <svg
                 width="20"

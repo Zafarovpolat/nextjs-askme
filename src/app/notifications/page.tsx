@@ -4,7 +4,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { api } from "@/lib/api-client";
 import { useAuthStore } from "@/store/authStore";
@@ -108,7 +107,6 @@ export default function NotificationsPage() {
 
   return (
     <div className="page-layout-sticky-footer">
-      <Header />
       <div className="container notifications_page" style={{ flex: 1, paddingBottom: 40 }}>
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">Главная</Link>

@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import SocialAuthButtons from '@/components/SocialAuthButtons'
+import { HydrationSafeInput } from '@/components/HydrationSafeInput'
 
 interface LoginModalProps {
   isOpen: boolean
@@ -61,7 +62,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <svg className="login_input_svg" width="13" height="14">
                 <use xlinkHref="#login-user"></use>
               </svg>
-              <input
+              <HydrationSafeInput
                 type="text"
                 name="login"
                 placeholder="Ваш логин"
@@ -72,7 +73,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <svg className="login_input_svg" width="11" height="14">
                 <use xlinkHref="#login-lock"></use>
               </svg>
-              <input
+              <HydrationSafeInput
                 type="password"
                 name="password"
                 placeholder="Ваш пароль"

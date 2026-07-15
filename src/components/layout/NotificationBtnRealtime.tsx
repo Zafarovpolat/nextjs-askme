@@ -8,20 +8,13 @@ import styles from "./Header.module.css";
 import { api } from "@/lib/api-client";
 import {
   getNotificationPopupsEnabled,
-  getToken,
   setNotificationPopupsEnabled,
 } from "@/lib/cookies";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { isNotificationSoundEnabled, playNotificationSound } from "@/lib/notification-sound";
-import {
-  createNotificationEcho,
-  disconnectNotificationEcho,
-} from "@/lib/notification-echo";
-import {
-  isNotificationCreatedEvent,
-  parseNotificationCreatedPayload,
-} from "@/lib/notification-realtime";
+import { subscribeIncomingNotifications } from "@/lib/notification-realtime-bridge";
 import { useAuthStore, type AuthNotification } from "@/store/authStore";
+import { HydrationSafeInput } from "@/components/HydrationSafeInput";
 
 type NotificationItem = {
   id: number;
@@ -44,24 +37,10 @@ type NotificationsPageResponse = {
   total: number;
 };
 
-type RealtimeConfigResponse = {
-  channel: string;
-  subscription_type: "private";
-  auth_endpoint: string;
-  driver: string;
-  key: string;
-  websocket: {
-    host: string;
-    port: number;
-    scheme: string;
-  };
-};
-
 const DEFAULT_AVATAR = "/images/icons/avatar.svg";
 const PAGE_SIZE = 10;
 const POPUP_VISIBLE_MS = 4500;
 const POPUP_LIMIT = 3;
-let realtimeConfigPromise: Promise<RealtimeConfigResponse> | null = null;
 
 const toTimestamp = (value: string): number => {
   const ts = new Date(value).getTime();
@@ -95,19 +74,6 @@ const sortNotifications = (items: NotificationItem[]): NotificationItem[] => {
   return Array.from(byId.values()).sort(
     (a, b) => toTimestamp(b.created_at) - toTimestamp(a.created_at),
   );
-};
-
-const getRealtimeConfig = async (): Promise<RealtimeConfigResponse> => {
-  if (!realtimeConfigPromise) {
-    realtimeConfigPromise = api
-      .get<RealtimeConfigResponse>("v1/notifications/realtime")
-      .catch((error) => {
-        realtimeConfigPromise = null;
-        throw error;
-      });
-  }
-
-  return realtimeConfigPromise;
 };
 
 function NotificationCard({
@@ -187,7 +153,6 @@ export default function NotificationBtnRealtime() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const echoRef = useRef<any>(null);
   const loadingRef = useRef(false);
   const pageRef = useRef(1);
   const lastPageRef = useRef(Number.POSITIVE_INFINITY);
@@ -199,11 +164,6 @@ export default function NotificationBtnRealtime() {
   const clearPopupTimers = useCallback(() => {
     popupTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     popupTimersRef.current.clear();
-  }, []);
-
-  const disconnectEcho = useCallback(() => {
-    disconnectNotificationEcho();
-    echoRef.current = null;
   }, []);
 
   const resetState = useCallback(() => {
@@ -247,13 +207,6 @@ export default function NotificationBtnRealtime() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-
-  useEffect(() => {
-    return () => {
-      disconnectEcho();
-      clearPopupTimers();
-    };
-  }, [clearPopupTimers, disconnectEcho]);
 
   useEffect(() => {
     seededFromMeRef.current = false;
@@ -405,28 +358,15 @@ export default function NotificationBtnRealtime() {
     pushIncomingNotificationRef.current = pushIncomingNotification;
   }, [pushIncomingNotification]);
 
-  const handleRealtimeNotificationEvent = useCallback(
-    (eventName: string, payload: unknown) => {
-      if (!isNotificationCreatedEvent(eventName)) {
-        return;
-      }
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
 
-      const notification = parseNotificationCreatedPayload(payload);
-      if (!notification) {
-        if (process.env.NODE_ENV === "development") {
-          console.warn("[notifications] Не удалось разобрать payload:", payload);
-        }
-        return;
-      }
-
-      if (process.env.NODE_ENV === "development") {
-        console.debug("[notifications] Realtime уведомление:", notification);
-      }
-
+    return subscribeIncomingNotifications((notification) => {
       pushIncomingNotificationRef.current(notification);
-    },
-    [],
-  );
+    });
+  }, [userId]);
 
   const loadNotifications = useCallback(async (pageToLoad = 1) => {
     if (loadingRef.current) {
@@ -461,70 +401,6 @@ export default function NotificationBtnRealtime() {
       setLoadingMore(false);
     }
   }, []);
-
-  useEffect(() => {
-    if (!userId) {
-      disconnectEcho();
-      resetState();
-      return;
-    }
-
-    const token = getToken();
-    if (!token) {
-      disconnectEcho();
-      resetState();
-      return;
-    }
-
-    let cancelled = false;
-
-    const connect = async () => {
-      try {
-        const realtime = await getRealtimeConfig();
-
-        if (cancelled) {
-          return;
-        }
-
-        disconnectEcho();
-
-        const echo = await createNotificationEcho(userId, token, realtime);
-        if (cancelled) {
-          return;
-        }
-
-        echoRef.current = echo;
-
-        const channel = echo.private(realtime.channel);
-
-        channel.listen(".notification.created", (payload: unknown) => {
-          handleRealtimeNotificationEvent("notification.created", payload);
-        });
-
-        channel.error((error: unknown) => {
-          console.warn("[notifications] Ошибка подписки на канал:", error);
-        });
-
-        if (process.env.NODE_ENV === "development") {
-          echo.connector.pusher.connection.bind("state_change", (states: { current: string }) => {
-            console.debug("[notifications] WebSocket:", states.current);
-          });
-          echo.connector.pusher.connection.bind("error", (error: unknown) => {
-            console.warn("[notifications] WebSocket error:", error);
-          });
-        }
-      } catch (error) {
-        console.warn("[notifications] Не удалось подключить realtime:", error);
-      }
-    };
-
-    void connect();
-
-    return () => {
-      cancelled = true;
-      disconnectEcho();
-    };
-  }, [disconnectEcho, handleRealtimeNotificationEvent, resetState, userId]);
 
   useEffect(() => {
     if (!isOpen || !userId) {
@@ -640,7 +516,7 @@ export default function NotificationBtnRealtime() {
           <div className={styles.notificationToggle}>
             <div className={styles.toggleLabel}>Всплывающие оповещения</div>
             <label className={styles.switch}>
-              <input
+              <HydrationSafeInput
                 type="checkbox"
                 checked={notificationsEnabled}
                 onChange={(event) => setNotificationsEnabledState(event.target.checked)}

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { HydrationSafeInput, HydrationSafeTextarea } from '@/components/HydrationSafeInput'
 
 // Обертка для отображения модалки inline (без fixed позиционирования)
 function ModalPreview({ title, children }: { title: string; children: React.ReactNode }) {
@@ -35,13 +36,13 @@ function LoginModalInline() {
             <svg className="login_input_svg" width="13" height="14">
               <use xlinkHref="#login-user"></use>
             </svg>
-            <input type="text" name="login" placeholder="Ваш логин" />
+            <HydrationSafeInput type="text" name="login" placeholder="Ваш логин" />
           </div>
           <div className="login_input login_input_icon">
             <svg className="login_input_svg" width="11" height="14">
               <use xlinkHref="#login-lock"></use>
             </svg>
-            <input type="password" name="password" placeholder="Ваш пароль" />
+            <HydrationSafeInput type="password" name="password" placeholder="Ваш пароль" />
           </div>
           <div className="login_content_actions">
             <button className="m_btn category_btn" type="button">
@@ -127,11 +128,11 @@ function ComplaintModalInline() {
           </select>
         </div>
         <div className="login_input">
-          <textarea
+          <HydrationSafeTextarea
             className="complaint-textarea"
             placeholder="Опишите проблему"
             rows={5}
-          ></textarea>
+          />
         </div>
         <div className="login_content_actions">
           <button className="m_btn category_btn" type="button">

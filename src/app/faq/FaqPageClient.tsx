@@ -5,6 +5,7 @@ import Link from "next/link";
 import FaqIcon from "@/components/faq/FaqIcon";
 import type { FaqCategory } from "@/types/faq-page";
 import { usePageStickySidebars } from "@/hooks/usePageStickySidebars";
+import { HydrationSafeInput } from "@/components/HydrationSafeInput";
 
 type Props = {
   categories: FaqCategory[];
@@ -110,7 +111,7 @@ export default function FaqPageClient({ categories }: Props) {
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <input
+            <HydrationSafeInput
               className="faq-search-input"
               type="text"
               placeholder="Поиск по вопросам..."

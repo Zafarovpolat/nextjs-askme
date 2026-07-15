@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { useAuthStore } from "@/store/authStore"
@@ -12,6 +11,7 @@ import {
   USER_FIRST_NAME_MAX_LENGTH,
   validateUserFirstName,
 } from "@/lib/user-first-name"
+import { HydrationSafeInput } from "@/components/HydrationSafeInput"
 
 export default function SignupPageClient() {
   const router = useRouter()
@@ -64,8 +64,6 @@ export default function SignupPageClient() {
 
   return (
     <div className="auth_page_layout">
-      <Header />
-
       <div className="login_container">
         <div className="auth_page">
           <svg width="457" height="353.5" className="auth_block_bg">
@@ -85,7 +83,7 @@ export default function SignupPageClient() {
             <div className="auth_page_wrapper">
               <div className="auth_form">
                 <div className="login_input">
-                  <input
+                  <HydrationSafeInput
                     type="text"
                     placeholder="Имя"
                     name="first_name"
@@ -98,33 +96,33 @@ export default function SignupPageClient() {
                   />
                 </div>
                 <div className="login_input">
-                  <input type="email" placeholder="Ваш почтовый ящик" name="email" required autoComplete="email" />
+                  <HydrationSafeInput type="email" placeholder="Ваш почтовый ящик" name="email" required autoComplete="email" />
                 </div>
                 <div className="select_gender">
                   <p>Ваш пол</p>
                   <div className="select_gender_items">
                     <label>
-                      <input type="radio" name="gender" value="male" defaultChecked />
+                      <HydrationSafeInput type="radio" name="gender" value="male" defaultChecked />
                       <span>Мужской</span>
                     </label>
                     <label>
-                      <input type="radio" name="gender" value="female" />
+                      <HydrationSafeInput type="radio" name="gender" value="female" />
                       <span>Женский</span>
                     </label>
                   </div>
                 </div>
                 <div className="login_input">
-                  <input type="password" name="password" placeholder="Пароль (не менее 8 символов)" required minLength={8} autoComplete="new-password" />
+                  <HydrationSafeInput type="password" name="password" placeholder="Пароль (не менее 8 символов)" required minLength={8} autoComplete="new-password" />
                 </div>
                 <div className="login_input">
-                  <input type="password" name="password_confirmation" placeholder="Подтвердить пароль" required autoComplete="new-password" />
+                  <HydrationSafeInput type="password" name="password_confirmation" placeholder="Подтвердить пароль" required autoComplete="new-password" />
                 </div>
                 <div className="ask_from_send_btn">
                   <button type="submit" className="m_btn category_btn" disabled={loading}>
                     {loading ? "Регистрация…" : "Регистрация"}
                   </button>
                   <label className="checkbox">
-                    <input type="checkbox" name="terms" required />
+                    <HydrationSafeInput type="checkbox" name="terms" required />
                     <span>
                       Нажимая на кнопку, вы принимаете условия{" "}
                       <Link href="/user-agreement" target="_blank">

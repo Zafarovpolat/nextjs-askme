@@ -74,9 +74,6 @@ export async function createNotificationEcho(
 
   if (typeof window !== "undefined") {
     (window as Window & { Pusher?: typeof Pusher }).Pusher = PusherClient;
-    if (process.env.NODE_ENV === "development") {
-      PusherClient.logToConsole = true;
-    }
   }
 
   const forceTLS =

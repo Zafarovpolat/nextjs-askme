@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { getApiFullUrl } from "@/config/api"
@@ -36,7 +35,6 @@ export default async function CategoriesPage() {
 
   return (
     <>
-      <Header />
       <div className="container">
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">Главная</Link>

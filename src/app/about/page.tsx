@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AboutPageLayout from "@/components/layout/AboutPageLayout";
 import AboutBlocksContent from "@/components/about/AboutBlocksContent";
@@ -36,7 +35,6 @@ export default async function AboutPage() {
 
   return (
     <>
-      <Header />
       <div className="container">
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">

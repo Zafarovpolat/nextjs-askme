@@ -239,7 +239,7 @@
 }
 
 .user_profile_img_badge.premium-badge-stretch {
-  width: auto;
+  width: max-content;
 }
 
 .user_profile_img_badge:not(.premium-badge-stretch) svg {
@@ -261,12 +261,6 @@
   pointer-events: none;
 }
 
-.premium-profile .user_profile_block_rect {
-  right: 28px;
-  top: 12px;
-}
-
-.user_profile_block_content_profile_desc h4,
 .profile-display-name {
   font-size: 24px;
   font-weight: 700;
@@ -567,11 +561,11 @@
 @media (max-width: 767px) {
   .user_profile_block_content {
     flex-direction: column !important;
-    align-items: start !important;
+    align-items: flex-start !important;
     gap: 15px !important;
   }
 
-  .user_profile_img img {
+  .user_profile_img > img.user_profile_image {
     width: 70px !important;
     height: 70px !important;
   }
@@ -613,7 +607,7 @@
   .user_profile_block_content_profile_desc {
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
     flex: 1 1 0%;
     min-width: 0;
     max-width: 100%;
@@ -1113,21 +1107,5 @@ a.share_icon_btn {
   .main_question_block.main_question_block_item.profile_question_block
     .top_bg_rect {
     right: 15px;
-  }
-}
-
-/* Похожие вопросы — отступы по горизонтали (профиль, поиск, страница вопроса) */
-.similar_questions_block--section.container,
-.similar_questions_block--profile.container {
-  padding-left: 28px;
-  padding-right: 28px;
-  box-sizing: border-box;
-}
-
-@media (max-width: 600px) {
-  .similar_questions_block--section.container,
-  .similar_questions_block--profile.container {
-    padding-left: 20px;
-    padding-right: 20px;
   }
 }

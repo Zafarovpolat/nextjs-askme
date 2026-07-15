@@ -1,6 +1,5 @@
 "use client";
 
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SharePopup from "@/components/SharePopup";
 import { formatTimeAgo } from "@/lib/time-ago";
@@ -21,6 +20,7 @@ import AnswerResultCard from "@/components/AnswerResultCard";
 import ProfileHeaderBlock from "@/components/profile/ProfileHeaderBlock";
 import ProfileMenuListMob from "@/components/profile/ProfileMenuListMob";
 import UserAvatar from "@/components/UserAvatar";
+import { HydrationSafeInput, HydrationSafeTextarea } from "@/components/HydrationSafeInput";
 import { ProfileLevelsMenuInner, ProfileRulesMenuInner } from "./ProfileLevelsRulesContent";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
 import {
@@ -42,6 +42,7 @@ import {
   validateUserFirstName,
 } from "@/lib/user-first-name";
 import { playNotificationSound } from "@/lib/notification-sound";
+import { usePageStickySidebars } from "@/hooks/usePageStickySidebars";
 
 type ProfileQuestionItem = {
   id: number;
@@ -172,6 +173,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
   const [shareData, setShareData] = useState({ title: "", url: "" });
   const shareButtonRef = useRef<HTMLButtonElement | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const { wrapperRef, leftSidebarRef, rightSidebarRef } = usePageStickySidebars();
   const BIO_MAX_LENGTH = 250;
 
   // Мок-данные текущего пользователя (fallback, если в API пусто)
@@ -830,8 +832,6 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
 
   return (
     <div className="profile_page_layout">
-      <Header />
-
       <div className="container">
         {/* Хлебные крошки */}
         <div className="breadcrumbs">
@@ -841,8 +841,8 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
         </div>
 
         {/* profile page */}
-        <div className="profile_page">
-          <div className="profile_menu_column">
+        <div className="profile_page" ref={wrapperRef}>
+          <div className="profile_menu_column" ref={leftSidebarRef}>
           <div className="profile_menu">
             <div className="blocks_title">
               <h2>Ваш профиль</h2>
@@ -1363,7 +1363,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     >
                       <div className="profile_input">
                         <p className="main_text">Ваше имя</p>
-                        <input
+                        <HydrationSafeInput
                           type="text"
                           placeholder="Ваше имя"
                           value={profileName}
@@ -1383,7 +1383,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                           В чем вы лучше всего разбираетесь?
                         </p>
                         <div className="textarea_wrapper">
-                          <textarea
+                          <HydrationSafeTextarea
                             placeholder="Опишите как можно подробнее"
                             name="description"
                             value={profileDescription}
@@ -1482,7 +1482,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     <div className="user_seting_item">
                       <p className="secondary_text">Получать все уведомления</p>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.site.receive_all}
                           onChange={(e) =>
@@ -1495,7 +1495,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         <span></span>
                       </label>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.notifications.receive_all}
                           onChange={(e) =>
@@ -1516,7 +1516,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         Новый ответ на мой вопрос
                       </p>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.site.new_answer_on_my_question}
                           onChange={(e) =>
@@ -1532,7 +1532,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         <span></span>
                       </label>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.notifications.new_answer_on_my_question}
                           onChange={(e) =>
@@ -1553,7 +1553,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         Мой вопрос или ответ понравился
                       </p>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.site.my_content_liked}
                           onChange={(e) =>
@@ -1566,7 +1566,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         <span></span>
                       </label>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.notifications.my_content_liked}
                           onChange={(e) =>
@@ -1587,7 +1587,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         Мне оставили новый комментарий
                       </p>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.site.new_comment_on_my_answer}
                           onChange={(e) =>
@@ -1603,7 +1603,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         <span></span>
                       </label>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.notifications.new_comment_on_my_answer}
                           onChange={(e) =>
@@ -1627,7 +1627,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         Включить звук для уведомлений
                       </p>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.site.sound_enabled}
                           onChange={(e) =>
@@ -1664,7 +1664,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         Получать новости проекта
                       </p>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.site.receive_project_news}
                           onChange={(e) =>
@@ -1686,7 +1686,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         Настройка дизайна уведомлений
                       </p>
                       <label className="chechbox_item">
-                        <input
+                        <HydrationSafeInput
                           type="checkbox"
                           checked={settingsDraft.site.compact_view}
                           onChange={(e) =>
@@ -1713,7 +1713,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                       <p className="secondary_text">Цветовая тема сайта</p>
                       <div className="select_themes">
                         <label className="chechbox_item">
-                          <input
+                          <HydrationSafeInput
                             type="radio"
                             value="auto"
                             name="theme"
@@ -1728,7 +1728,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                           <span>Авто</span>
                         </label>
                         <label className="chechbox_item">
-                          <input
+                          <HydrationSafeInput
                             type="radio"
                             value="dark"
                             name="theme"
@@ -1743,7 +1743,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                           <span>Темная</span>
                         </label>
                         <label className="chechbox_item">
-                          <input
+                          <HydrationSafeInput
                             type="radio"
                             value="light"
                             name="theme"
@@ -1791,7 +1791,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
 
           <div className="line"></div>
 
-          <div className="profile_stats_column">
+          <div className="profile_stats_column" ref={rightSidebarRef}>
           <div className="profile_stats">
             <div className="profile_stats_list">
               <div className={`profile_stats_item ${activeTab === "menu1" ? "active" : ""}`} onClick={() => handleTabClick("menu1")} style={{ cursor: "pointer" }}>

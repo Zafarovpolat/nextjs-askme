@@ -12,6 +12,7 @@ import CategorySubjectIcon from "@/components/CategorySubjectIcon"
 import { api } from "@/lib/api-client"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import { useAuthStore } from "@/store/authStore"
+import { HydrationSafeInput, HydrationSafeTextarea } from "@/components/HydrationSafeInput"
 
 type CategoryTop = { id: number; name: string; slug: string; icon_key: string | null; subcategories: { id: number; name: string; slug: string }[] }
 type HomeQuestionItem = {
@@ -276,7 +277,7 @@ export default function HomeContent({
         {/* п.7+32 — поле принимает текст, кнопка редиректит на /ask с текстом */}
         <div className="questions_block_search">
           <img src="/images/icons/ask.svg" alt="" />
-          <input
+          <HydrationSafeInput
             name="message"
             type="text"
             placeholder="Задайте свой вопрос здесь"
@@ -294,12 +295,12 @@ export default function HomeContent({
               }
             }}
           />
-          <textarea
+          <HydrationSafeTextarea
             name="message-full"
             placeholder="Задайте свой вопрос здесь"
             value={questionDraft}
             onChange={(e) => setQuestionDraft(e.target.value)}
-          ></textarea>
+          />
           <button
             type="button"
             className="s_btn s_btn_active"

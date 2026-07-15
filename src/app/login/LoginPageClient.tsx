@@ -2,13 +2,13 @@
 
 import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
-import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import { useAuthStore } from "@/store/authStore"
 import SocialAuthButtons from "@/components/SocialAuthButtons"
 import LoginOAuthError from "@/components/LoginOAuthError"
 import LoginTelegramHashHandler from "@/components/LoginTelegramHashHandler"
+import { HydrationSafeInput } from "@/components/HydrationSafeInput"
 
 export default function LoginPageClient() {
   const router = useRouter()
@@ -44,8 +44,6 @@ export default function LoginPageClient() {
 
   return (
     <div className="auth_page_layout">
-      <Header />
-
       <div className="login_container">
         <div className="login_block">
           <svg width="457" height="353.5" className="login_block_bg">
@@ -67,10 +65,10 @@ export default function LoginPageClient() {
             <LoginTelegramHashHandler />
             {error && <p className="login_error" style={{ color: "#c00", marginBottom: 8 }}>{error}</p>}
             <div className="login_input">
-              <input type="email" name="email" placeholder="Ваша почта" required autoComplete="email" />
+              <HydrationSafeInput type="email" name="email" placeholder="Ваша почта" required autoComplete="email" />
             </div>
             <div className="login_input">
-              <input type="password" name="password" placeholder="Пароль" required autoComplete="current-password" />
+              <HydrationSafeInput type="password" name="password" placeholder="Пароль" required autoComplete="current-password" />
             </div>
             <div className="login_content_actions">
               <button className="m_btn category_btn" type="submit" disabled={loading}>

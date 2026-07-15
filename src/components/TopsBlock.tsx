@@ -5,6 +5,8 @@ import MostDiscussedListItem, {
 import PopularTopicListItem, {
   type PopularTopicItem,
 } from "@/components/PopularTopicListItem";
+import UserAvatar from "@/components/UserAvatar";
+import { displayPremiumBadge } from "@/lib/ai-user-display";
 import { formatCompactNumWord } from "@/lib/format-compact-count";
 
 export type ProjectLeaderItem = {
@@ -12,7 +14,11 @@ export type ProjectLeaderItem = {
   first_name: string;
   last_name: string;
   avatar_url?: string | null;
+  avatar_url_2x?: string | null;
   balls?: number;
+  is_premium?: boolean;
+  premium_is_active?: boolean;
+  premium_package_name?: string | null;
 };
 
 export type TopsBlockData = {
@@ -32,7 +38,11 @@ export default function TopsBlock({ data }: { data: TopsBlockData }) {
           <h2>Лидеры проекта</h2>
         </div>
         <div className="tops_block_item_top_subjects">
-          {(data.project_leaders ?? []).map((u) => (
+          {(data.project_leaders ?? []).map((u) => {
+            const premium = u.premium_is_active ?? u.is_premium ?? false;
+            const premiumText = displayPremiumBadge(u) ?? "Премиум";
+            const displayName = `${u.first_name} ${u.last_name}`.trim();
+            return (
             <Link
               href={`/profile/${u.id}`}
               key={u.id}
@@ -40,16 +50,20 @@ export default function TopsBlock({ data }: { data: TopsBlockData }) {
               style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
             >
               <div className="question_list_item_left">
-                <img
-                  src={u.avatar_url || "/images/icons/avatar.svg"}
-                  alt={u.first_name}
+                <UserAvatar
+                  src={u.avatar_url}
+                  src2x={u.avatar_url_2x}
+                  alt={displayName}
+                  size={40}
+                  premium={premium}
+                  premiumText={premiumText}
                 />
                 <div className="question_list_item_left__user_meta">
                   <div
                     className="main_text"
-                    title={`${u.first_name} ${u.last_name}`.trim()}
+                    title={displayName}
                   >
-                    {u.first_name} {u.last_name}
+                    {displayName}
                   </div>
                   <span>
                     {numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}
@@ -57,7 +71,8 @@ export default function TopsBlock({ data }: { data: TopsBlockData }) {
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
 

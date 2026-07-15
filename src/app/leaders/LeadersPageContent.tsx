@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
+import UserAvatar from "@/components/UserAvatar";
 import { api } from "@/lib/api-client";
-import { displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
+import { displayPremiumBadge, displayUserName, displayUserSubtitle } from "@/lib/ai-user-display";
 import CustomSelect from "@/components/CustomSelect";
 import type {
   LeaderCategory,
@@ -180,7 +180,6 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
 
   return (
     <div className="page-layout-sticky-footer">
-      <Header />
       <div className="container">
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">Главная</Link>
@@ -258,7 +257,10 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
           <p className="secondary_text" style={{ marginBottom: 12 }}>Обновление списка…</p>
         )}
         <div className="top_leaders_list">
-          {topLeaders.map((user, index) => (
+          {topLeaders.map((user, index) => {
+            const premium = user.premium_is_active ?? user.is_premium ?? false;
+            const premiumText = displayPremiumBadge(user) ?? "Премиум";
+            return (
             <Link
               key={user.id}
               href={`/profile/${user.id}`}
@@ -270,10 +272,14 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
               <img className="top_leader_card_rect" src="/images/blues-rect.svg" alt="" />
               <div className="top_leader_card_content">
                 <div className="top_leader_card_img">
-                  <img
-                    className="top_leader_card_image"
-                    src={user.avatar_url || "/images/icons/avatar.svg"}
+                  <UserAvatar
+                    src={user.avatar_url}
+                    src2x={user.avatar_url_2x}
                     alt={displayUserName(user)}
+                    size={97}
+                    premium={premium}
+                    premiumText={premiumText}
+                    imgClassName="top_leader_card_image"
                   />
                   <img className="top_leader_place" src={topPlaceIcons[index]} alt="" />
                 </div>
@@ -284,7 +290,8 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -295,7 +302,10 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
 
         {tableLeaders.length > 0 ? (
           <div className="project_leaders_grid">
-            {tableLeaders.map((user) => (
+            {tableLeaders.map((user) => {
+              const premium = user.premium_is_active ?? user.is_premium ?? false;
+              const premiumText = displayPremiumBadge(user) ?? "Премиум";
+              return (
               <Link
                 key={user.id}
                 href={`/profile/${user.id}`}
@@ -305,7 +315,14 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                 <div className="question_list_item-left">
                   <span className="leader_number">{user.rank}</span>
                   <div className="question_list_item_left">
-                    <img src={user.avatar_url || "/images/icons/avatar.svg"} alt={displayUserName(user)} />
+                    <UserAvatar
+                      src={user.avatar_url}
+                      src2x={user.avatar_url_2x}
+                      alt={displayUserName(user)}
+                      size={40}
+                      premium={premium}
+                      premiumText={premiumText}
+                    />
                     <div className="question_list_item_left__user_meta">
                       <p className="main_text" title={displayUserName(user)}>{displayUserName(user)}</p>
                       <span>{formatMetricLine(metricFilter, user.metric_value)}</span>
@@ -331,7 +348,8 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
                   </div>
                 ) : null}
               </Link>
-            ))}
+              );
+            })}
           </div>
         ) : topLeaders.length === 0 && tableLeaders.length === 0 && !filterLoading ? (
           <div className="empty-list">

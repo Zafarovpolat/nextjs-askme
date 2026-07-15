@@ -2,7 +2,6 @@
 
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import Link from "next/link"
 import TopsBlock from "@/components/TopsBlock"
@@ -12,11 +11,13 @@ import SharePopup from "@/components/SharePopup"
 import CustomSelect from "@/components/CustomSelect"
 import QuestionListCard, { type QuestionListItem } from "@/components/QuestionListCard"
 import PremiumFilterCrownIcon from "@/components/PremiumFilterCrownIcon"
+import BuyVipModal from "@/components/profile/BuyVipModal"
 import { api } from "@/lib/api-client"
 import { getToken } from "@/lib/cookies"
 import { useAuthStore } from "@/store/authStore"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
 import AnswerLinkUrl from "@/components/AnswerLinkUrl"
+import { HydrationSafeInput, HydrationSafeTextarea } from "@/components/HydrationSafeInput"
 import { getApiFullUrl } from "@/config/api"
 import { resizeTextarea } from "@/lib/resize-textarea"
 import LinkInputModal from "@/components/LinkInputModal"
@@ -64,8 +65,11 @@ const FILTERS = [
   { label: 'Премиум', value: 'premium' as const },
 ]
 
-/** Нет подписки или исчерпан лимит премиум-вопросов. */
-function isPremiumQuestionChoiceDisabled(user: ApiUser): boolean {
+/** Чекбокс премиум-вопроса: нет подписки или исчерпан лимит. */
+function isPremiumQuestionCheckboxDisabled(user: ApiUser | null | undefined): boolean {
+  if (!user) {
+    return true
+  }
   const isPremium = Boolean(user.is_premium ?? user.premium_is_active)
   if (!isPremium) {
     return true
@@ -132,6 +136,8 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   const [videoAttachment, setVideoAttachment] = useState<{ file: File; previewUrl: string } | null>(null)
   const [linkAttachment, setLinkAttachment] = useState<string | null>(null)
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
+  const [isBuyVipOpen, setIsBuyVipOpen] = useState(false)
+  const [forcePremiumChecked, setForcePremiumChecked] = useState(false)
   const messageRef = useRef<HTMLTextAreaElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const videoInputRef = useRef<HTMLInputElement | null>(null)
@@ -237,8 +243,28 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
     }
   }, [isAuthorized, fetchMe])
 
-  const canChoosePremiumQuestion = Boolean(user && !isPremiumQuestionChoiceDisabled(user))
-  const premiumQuestionCheckboxDisabled = !canChoosePremiumQuestion
+  const premiumQuestionCheckboxDisabled = isPremiumQuestionCheckboxDisabled(user)
+  const handlePremiumButtonClick = useCallback(
+    (e: React.MouseEvent<HTMLLabelElement>) => {
+      if (!premiumQuestionCheckboxDisabled) {
+        return
+      }
+      e.preventDefault()
+      if (isAuthorized !== 1) {
+        setIsLoginModalOpen(true)
+        return
+      }
+      setIsBuyVipOpen(true)
+    },
+    [isAuthorized, premiumQuestionCheckboxDisabled],
+  )
+
+  const handleBuyVipSuccess = useCallback(async () => {
+    await fetchMe()
+    setForcePremiumChecked(true)
+    setIsBuyVipOpen(false)
+  }, [fetchMe])
+
   const canAddFileAttachment = canAddAttachment(user?.attachment_remaining?.file)
   const canAddVideoAttachment = canAddAttachment(user?.attachment_remaining?.video)
 
@@ -333,7 +359,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
     const receive_notifications = (fd.get("receive_notifications") as string) === "on"
     const allow_answer_comments = (fd.get("allow_answer_comments") as string) === "on"
     let is_premium = false
-    if (user && !isPremiumQuestionChoiceDisabled(user)) {
+    if (user && !isPremiumQuestionCheckboxDisabled(user)) {
       is_premium = (fd.get("is_premium") as string) === "on"
     }
     if (!title || !description) {
@@ -437,7 +463,6 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
 
   return (
     <>
-      <Header />
       <div className="container">
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">Главная</Link>
@@ -454,7 +479,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
 
           <form className="ask_form form" onSubmit={handleSubmit}>
             <div className="ask_form_item">
-              <input
+              <HydrationSafeInput
                 name="title"
                 type="text"
                 placeholder="Тема вопроса"
@@ -464,7 +489,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
               />
             </div>
             <div className="ask_form_item ask_form_item_block_actions">
-              <textarea
+              <HydrationSafeTextarea
                 ref={messageRef}
                 name="message"
                 placeholder="Как можно подробнее опишите свой вопрос"
@@ -498,14 +523,14 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                 </div>
               </div>
 
-              <input
+              <HydrationSafeInput
                 ref={fileInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/gif,image/webp"
                 style={{ display: "none" }}
                 onChange={onFileSelected}
               />
-              <input
+              <HydrationSafeInput
                 ref={videoInputRef}
                 type="file"
                 accept="video/mp4,video/webm,video/ogg"
@@ -617,10 +642,10 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
               </p>
             )}
             <div className="asf_form_actions">
-              <div className="ask_from_send_btn">
+              <div className="asf_form_actions__primary">
                 <button
                   type="submit"
-                  className="m_btn category_btn"
+                  className="m_btn category_btn ask_publish_btn"
                   disabled={submitting || (isAuthorized === 1 && !canPublishQuestion)}
                   title={
                     isAuthorized === 1 && !canPublishQuestion
@@ -630,28 +655,41 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                 >
                   {submitting ? "Отправка…" : "Опубликовать вопрос"}
                 </button>
-                <p>
-                  Нажимая на кнопку, вы принимаете условия{" "}
-                  <Link
-                    href={legalFooterHref(LEGAL_FOOTER_SLUGS.userAgreement)}
-                    target="_blank"
-                  >
-                    пользовательского соглашения
-                  </Link>
-                </p>
+                <div className="ask_policy_notice">
+                  <p className="ask_policy_notice__lead">
+                    Нажимая на кнопку, вы принимаете условия
+                  </p>
+                  <p className="ask_policy_notice__link">
+                    <Link
+                      href={legalFooterHref(LEGAL_FOOTER_SLUGS.userAgreement)}
+                      target="_blank"
+                    >
+                      пользовательского соглашения
+                    </Link>
+                  </p>
+                </div>
               </div>
-              <div className="ask_form_checkboxes">
-                <label className="chechbox_item"><input type="checkbox" name="receive_notifications" defaultChecked /><span>Получать уведомления (ответы, голоса, комментарии)</span></label>
-                <label className="chechbox_item"><input type="checkbox" name="allow_answer_comments" defaultChecked /><span>Разрешить комментарии к ответам</span></label>
+              <div className="asf_form_actions__options">
+                <label className="chechbox_item ask_form_checkbox">
+                  <HydrationSafeInput type="checkbox" name="receive_notifications" defaultChecked />
+                  <span>Получать уведомления</span>
+                </label>
+                <label className="chechbox_item ask_form_checkbox">
+                  <HydrationSafeInput type="checkbox" name="allow_answer_comments" defaultChecked />
+                  <span>Разрешить комментарии к ответам</span>
+                </label>
                 <div className="ask_premium_field">
                   <label
-                    className={`ask_premium_btn ask_premium_btn--label ${premiumQuestionCheckboxDisabled ? "is-disabled" : ""}`}
+                    className="ask_premium_btn ask_premium_btn--label"
+                    onClick={handlePremiumButtonClick}
                   >
-                    <input
+                    <HydrationSafeInput
                       type="checkbox"
                       name="is_premium"
                       className="ask_premium_btn__check"
                       disabled={premiumQuestionCheckboxDisabled}
+                      defaultChecked={forcePremiumChecked}
+                      key={forcePremiumChecked ? "premium-on" : "premium-off"}
                       aria-label="Опубликовать как премиум-вопрос"
                     />
                     <svg width="20" height="17" viewBox="0 0 20 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="premium_crown_icon" aria-hidden>
@@ -662,14 +700,6 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                     </svg>
                     <span>{user ? formatPremiumAskButtonLabel(user) : "Премиум вопрос"}</span>
                   </label>
-                  {!canChoosePremiumQuestion ? (
-                    <Link
-                      href={isAuthorized === 1 ? "/profile?tab=vip" : "/login"}
-                      className="ask_premium_upsell_btn"
-                    >
-                      Купить подписку
-                    </Link>
-                  ) : null}
                 </div>
               </div>
             </div>
@@ -750,6 +780,11 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
 
         <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
         <QuestionModal isOpen={isQuestionModalOpen} onClose={() => setIsQuestionModalOpen(false)} />
+        <BuyVipModal
+          isOpen={isBuyVipOpen}
+          onClose={() => setIsBuyVipOpen(false)}
+          onSuccess={handleBuyVipSuccess}
+        />
         <SharePopup isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} anchorRef={shareButtonRef} title={shareData.title} url={shareData.url} />
         <LinkInputModal
           isOpen={isLinkModalOpen}

@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import { getApiFullUrl } from "@/config/api"
 import { metadataForCategorySlug } from "@/lib/category-page-metadata"
@@ -31,7 +30,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
 
   return (
     <>
-      <Header />
       <CategoryPageClient
         category={data.category}
         subcategory={null}

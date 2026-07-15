@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SearchResultCard from "@/components/SearchResultCard";
 import AnswerResultCard from "@/components/AnswerResultCard";
@@ -246,6 +245,8 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
   const registeredInService = registeredAgo.replace(/\s+назад$/, "");
   const isOwnProfile = authUser?.id === profile.id;
   const isBanned = Boolean(profile.is_blocked);
+  const showVipGiftBlock = !isOwnProfile && !isBanned && !isPremiumUser;
+  const reserveRightSidebar = !isBanned;
   const ballsRaw = profile.balls ?? 0;
   const ballsDisplay = isAiUser ? "∞" : formatCompactCount(ballsRaw);
   const ballsTitle = isAiUser ? undefined : compactCountTitle(ballsRaw);
@@ -492,7 +493,6 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
 
   return (
     <>
-      <Header />
       <div className="container">
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">
@@ -693,18 +693,26 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
           </div>
         </div>
 
-        {!isOwnProfile && !isBanned ? (
-          <div className={`question_right_list${isBanned ? " banned_opacity" : ""}`} ref={rightSidebarRef}>
-            <div className="vip_status_block">
-              <div className="vip_icon">
-                <img src="/images/vip.svg" alt="VIP" />
+        {reserveRightSidebar ? (
+          <div
+            className={`question_right_list${
+              showVipGiftBlock ? "" : " question_right_list--layout-only"
+            }`}
+            ref={rightSidebarRef}
+            aria-hidden={!showVipGiftBlock || undefined}
+          >
+            {showVipGiftBlock ? (
+              <div className="vip_status_block">
+                <div className="vip_icon">
+                  <img src="/images/vip.svg" alt="VIP" />
+                </div>
+                <p className="vip_gift_text">Подарить</p>
+                <h3 className="vip_title">VIP статус</h3>
+                <button type="button" className="vip_button" onClick={handleGiftVipClick}>
+                  ПОДАРИТЬ
+                </button>
               </div>
-              <p className="vip_gift_text">Подарить</p>
-              <h3 className="vip_title">VIP статус</h3>
-              <button type="button" className="vip_button" onClick={handleGiftVipClick}>
-                ПОДАРИТЬ
-              </button>
-            </div>
+            ) : null}
           </div>
         ) : null}
       </div>

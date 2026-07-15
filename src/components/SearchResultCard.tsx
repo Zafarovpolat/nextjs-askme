@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Question } from "@/types";
 import SearchResultQuestionVotes from "@/components/SearchResultQuestionVotes";
 import UserAvatar from "@/components/UserAvatar";
-import PremiumQuestionCardBadge from "@/components/PremiumQuestionCardBadge";
+import StretchablePremiumBadge from "@/components/profile/StretchablePremiumBadge";
 import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
 import {
   compactCountTitle,
@@ -152,7 +152,13 @@ export default function SearchResultCard({
             >
               {question.title || "Без заголовка"}
             </Link>
-            {isPremium ? <PremiumQuestionCardBadge /> : null}
+            {isPremium ? (
+              <StretchablePremiumBadge
+                text="Премиум"
+                className="premium-badge-card"
+                aria-label="Премиум-вопрос"
+              />
+            ) : null}
           </div>
           <div className="search-result-meta">
             <Link

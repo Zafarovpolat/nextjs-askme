@@ -14,7 +14,6 @@ import {
   type MouseEvent,
 } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
@@ -28,10 +27,11 @@ import {
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion";
 import { useVoteQuestion } from "@/hooks/useVoteQuestion";
 import ComplaintModal from "@/components/ComplaintModal";
+import { HydrationSafeInput, HydrationSafeTextarea } from "@/components/HydrationSafeInput";
 import SharePopup from "@/components/SharePopup";
 import AnswerBlock, { AnswerWithReplies } from "./AnswerBlock";
 import SimilarQuestionsBlock from "./SimilarQuestionsBlock";
-import QuestionLeadersSidebar from "./QuestionLeadersSidebar";
+import PremiumQuestionsSidebar from "./PremiumQuestionsSidebar";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
 import TextWithLinks from "@/components/TextWithLinks";
 import BodyAttachments from "@/components/BodyAttachments";
@@ -1009,7 +1009,6 @@ export default function QuestionPageContent({
 
   return (
     <>
-      <Header />
       <div className="container">
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">
@@ -1382,7 +1381,7 @@ export default function QuestionPageContent({
           >
             <div className="ask_form_item ask_form_item_block_actions">
               {/* п.21 — auto-grow textarea */}
-              <textarea
+              <HydrationSafeTextarea
                 ref={answerRef}
                 name="message"
                 placeholder="Введите текст ответа"
@@ -1436,14 +1435,14 @@ export default function QuestionPageContent({
                 </div>
               </div>
 
-              <input
+              <HydrationSafeInput
                 ref={fileInputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/gif,image/webp"
                 style={{ display: "none" }}
                 onChange={onFileSelected}
               />
-              <input
+              <HydrationSafeInput
                 ref={videoInputRef}
                 type="file"
                 accept="video/mp4,video/webm,video/ogg"
@@ -1541,10 +1540,10 @@ export default function QuestionPageContent({
           </form>
         </div>
 
-        {/* Правый сайдбар — как в макете: вопросы-лидеры с API */}
-        <QuestionLeadersSidebar
+        {/* Правый сайдбар — премиум-вопросы подкатегории (SSR из кэша) */}
+        <PremiumQuestionsSidebar
           ref={rightSidebarRef}
-          questionId={initialQuestion.id}
+          questions={initialQuestion.premium_sidebar_questions ?? []}
         />
       </div>
 
@@ -1558,7 +1557,10 @@ export default function QuestionPageContent({
         </div>
       </div>
 
-      <SimilarQuestionsBlock questionId={initialQuestion.id} />
+      <SimilarQuestionsBlock
+        questionId={initialQuestion.id}
+        initialBlock={initialQuestion.similar_questions_block}
+      />
 
       <Footer />
 

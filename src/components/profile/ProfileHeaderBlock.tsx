@@ -2,6 +2,7 @@
 
 import type { ChangeEvent, MutableRefObject, ReactNode } from "react";
 import StretchablePremiumBadge from "@/components/profile/StretchablePremiumBadge";
+import { HydrationSafeInput } from "@/components/HydrationSafeInput";
 import { avatarImgProps } from "@/lib/avatar-srcset";
 
 export type ProfileHeaderVariant = "cabinet" | "public";
@@ -152,7 +153,7 @@ export default function ProfileHeaderBlock({
                 </svg>
               )}
             </button>
-            <input
+            <HydrationSafeInput
               ref={(node) => {
                 if (avatarInputRef) {
                   avatarInputRef.current = node;

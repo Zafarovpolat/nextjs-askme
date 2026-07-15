@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SearchResultCard from "@/components/SearchResultCard";
 import SearchSimilarQuestionsBlock from "@/components/search/SearchSimilarQuestionsBlock";
@@ -13,6 +12,7 @@ import { getApiFullUrl } from "@/config/api";
 import type { ProfileWidgetsPayload } from "@/lib/server-profile-widgets";
 import type { ApiCategoryTree } from "@/lib/server-categories";
 import type { SearchLeaderQuestion } from "@/lib/server-search-leaders";
+import { HydrationSafeInput } from "@/components/HydrationSafeInput";
 import type { Question } from "@/types";
 import {
   formatCompactNumWord,
@@ -377,7 +377,6 @@ export default function SearchPageClient({
 
   return (
     <>
-      <Header />
       <div className="search-page-wrapper">
         <div className="container">
           <div className="breadcrumbs breadcrumbs--search">
@@ -552,7 +551,7 @@ export default function SearchPageClient({
                       }}
                       className="dark_logo"
                     />
-                    <input
+                    <HydrationSafeInput
                       type="text"
                       name="q"
                       placeholder="Что хотите найти?"
@@ -617,7 +616,7 @@ export default function SearchPageClient({
                   }}
                 >
                   <label className="chechbox_item">
-                    <input
+                    <HydrationSafeInput
                       type="checkbox"
                       checked={exact}
                       onChange={(e) => setExact(e.target.checked)}

@@ -1958,21 +1958,30 @@ body.dark_mode .theme-toggle-btn .svg-dark {
   pointer-events: auto;
 }
 
-@media (max-width: 1000px) {
-  .nav_mob_wrapper_nav .theme-toggle-btn {
-    width: 45px !important;
-    height: 45px !important;
-  }
-  .nav_mob_wrapper_nav .theme-toggle-btn svg {
-    width: 45px !important;
-    height: 45px !important;
-  }
+/* В бургер-меню всегда 45×45 (бургер с ~1220px; раньше правило с 1000 ломало иконки) */
+.nav_mob_wrapper_nav .theme-toggle-btn {
+  width: 45px !important;
+  height: 45px !important;
+  min-width: 45px !important;
+  min-height: 45px !important;
+  max-width: 45px !important;
+  max-height: 45px !important;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.nav_mob_wrapper_nav .theme-toggle-btn svg {
+  width: 45px !important;
+  height: 45px !important;
 }
 
 @media (max-width: 768px) {
   .theme-toggle-btn {
     width: 45px !important;
     height: 45px !important;
+    min-width: 45px !important;
+    min-height: 45px !important;
+    aspect-ratio: 1 / 1;
   }
   .theme-toggle-btn svg {
     width: 45px !important;

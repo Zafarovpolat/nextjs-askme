@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FaqPageClient from "./FaqPageClient";
 import { fetchFaqPage } from "@/lib/fetch-faq-page";
@@ -42,8 +41,6 @@ export default async function FaqPage() {
 
   return (
     <>
-      <Header />
-
       <div className="container">
         <div className="breadcrumbs">
           <Link href="/" className="breadcrumbs__link">

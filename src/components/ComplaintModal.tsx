@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api-client'
 import { useAuthStore } from '@/store/authStore'
 import CustomSelect from '@/components/CustomSelect'
+import { HydrationSafeTextarea } from '@/components/HydrationSafeInput'
 
 interface ComplaintModalProps {
   isOpen: boolean
@@ -142,7 +143,7 @@ export default function ComplaintModal({
                 />
               </div>
               <div className="login_input">
-                <textarea
+                <HydrationSafeTextarea
                   className="complaint-textarea"
                   placeholder="Опишите проблему"
                   rows={5}

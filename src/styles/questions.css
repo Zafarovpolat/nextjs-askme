@@ -1,7 +1,7 @@
 .question_left_list,
 .question_right_list {
   width: 18%;
-  align-self: start;
+  align-self: flex-start;
 }
 
 @media only screen and (min-width: 1301px) {
@@ -23,7 +23,7 @@
 
 .question_wrapper {
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
 }
@@ -173,8 +173,8 @@
 }
 
 .question_right_list .question_list_item .question_list_item_left {
-  align-items: start;
-  justify-content: start;
+  align-items: flex-start;
+  justify-content: flex-start;
   width: 100%;
 }
 
@@ -620,6 +620,9 @@
   line-height: 1.6;
   letter-spacing: 0;
   text-align: left;
+}
+.premium-question .main_question_block_text-body{
+  color: #ccddf8;
 }
 
 .main_question_block_text-body .text_embed_media {
@@ -1596,11 +1599,17 @@ button.answer_media_item {
   word-break: break-word;
 }
 
-/* Блок похожих вопросов */
+/* Блок похожих вопросов (не max-width: 100% — ломает .container 1440px) */
 .similar_questions_block {
   padding-top: 20px;
-  max-width: 100%;
   overflow: hidden;
+}
+
+.similar_questions_block.container {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .similar_questions_block .question_list_item {
@@ -1782,7 +1791,7 @@ button.answer_media_item {
     display: none;
   }
 
-  .similar_questions_block .question_list_item_left img {
+  .similar_questions_block .question_list_item_left img:not(.premium-badge-stretch__wing) {
     display: none;
   }
 
@@ -1839,7 +1848,7 @@ button.answer_media_item {
 @media only screen and (max-width: 630px) {
   .main_question_block_actions {
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
     gap: 10px;
   }
 
@@ -1896,7 +1905,7 @@ button.answer_media_item {
 
   .ask_from_send_btn {
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
   }
 
   .question_list_item_left .quest_user_title {
@@ -1936,7 +1945,7 @@ button.answer_media_item {
   }
 
   .question_list_item_left {
-    align-items: start;
+    align-items: flex-start;
   }
 
   .question_list_item-info {
@@ -1955,13 +1964,13 @@ button.answer_media_item {
     padding: 13px 17px 21px 17px;
   }
 
-  .question_list_item_left img {
+  .question_list_item_left img:not(.premium-badge-stretch__wing) {
     width: 46px;
     height: 46px;
   }
 
-  .main_question_block .site-user-avatar img,
-  .question_list_item_left .site-user-avatar img {
+  .main_question_block .site-user-avatar > img,
+  .question_list_item_left .site-user-avatar > img {
     width: 46px !important;
     height: 46px !important;
   }
@@ -2208,4 +2217,17 @@ button.answer_media_item {
 
 .vip_button:active {
   opacity: 0.8;
+}
+
+/* Публичный профиль: пустая правая колонка на ПК, когда VIP-блок скрыт (свой / премиум профиль) */
+@media only screen and (min-width: 1301px) {
+  .question_right_list--layout-only {
+    flex-shrink: 0;
+  }
+}
+
+@media only screen and (max-width: 1300px) {
+  .question_right_list--layout-only {
+    display: none;
+  }
 }

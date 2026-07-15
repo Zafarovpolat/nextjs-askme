@@ -92,6 +92,7 @@
   overflow-x: auto;
   border-radius: 8px;
   background: rgb(245, 246, 252);
+  color: rgb(92, 102, 118);
 }
 
 .markdown-content pre code {
@@ -149,8 +150,15 @@
 .dark_mode .markdown-content h3,
 .dark_mode .markdown-content h4,
 .dark_mode .markdown-content h5,
-.dark_mode .markdown-content h6 {
-  color: rgb(231, 233, 246);
+.dark_mode .markdown-content h6,
+
+.premium-question .markdown-content h1,
+.premium-question .markdown-content h2,
+.premium-question .markdown-content h3,
+.premium-question .markdown-content h4,
+.premium-question .markdown-content h5,
+.premium-question .markdown-content h6 {
+    color: rgb(231, 233, 246);
 }
 
 .dark_mode .markdown-content code {
@@ -159,11 +167,10 @@
 
 .dark_mode .markdown-content pre {
   background: rgba(255, 255, 255, 0.06);
+  color: rgb(246 246 246);
+
 }
 
-.dark_mode .markdown-content blockquote {
-  color: rgb(180, 186, 198);
-}
 
 .dark_mode .markdown-content th {
   background: rgba(255, 255, 255, 0.06);

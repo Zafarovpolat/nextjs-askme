@@ -285,6 +285,30 @@ export interface QuestionPageData {
   }
   anchor_meta?: AnswerAnchorMeta
   answers_loaded_page?: number
+  /** SSR: «Премиум вопросы» в правом сайдбаре (из кэша, без текущего вопроса, до 5) */
+  premium_sidebar_questions?: SimilarQuestionItem[]
+  /**
+   * SSR: блок «Похожие вопросы участников».
+   * null — блока нет (во всех вкладках пусто). filter — активная вкладка с ≥1 вопросом.
+   */
+  similar_questions_block?: SimilarQuestionsBlockPayload | null
+}
+
+export type SimilarQuestionsBlockFilter = "open" | "voting" | "solved"
+
+export interface SimilarQuestionsTabPage {
+  questions: SimilarQuestionItem[]
+  current_page: number
+  last_page: number
+  per_page: number
+  total: number
+}
+
+export interface SimilarQuestionsBlockPayload {
+  /** Активная вкладка при SSR (первая непустая) */
+  filter: SimilarQuestionsBlockFilter
+  /** Первые страницы всех вкладок — без доп. запросов при переключении */
+  tabs: Partial<Record<SimilarQuestionsBlockFilter, SimilarQuestionsTabPage>>
 }
 
 export interface AnswerAnchorMeta {

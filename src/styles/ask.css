@@ -246,8 +246,9 @@
   color: white;
 }
 
-.dark_mode .ask_from_send_btn p,
-.dark_mode .ask_from_send_btn a {
+.dark_mode .ask_policy_notice__lead,
+.dark_mode .ask_policy_notice__link,
+.dark_mode .ask_policy_notice__link a {
   color: #ccddf8;
 }
 
@@ -276,10 +277,60 @@
 }
 
 .asf_form_actions {
-  gap: 40px;
+  gap: 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+}
+
+.asf_form_actions__primary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.asf_form_actions__options {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 16px;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ask_form_checkbox {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/* Перенос только когда flex ужал ширину; при запасе места — одна строка */
+.ask_form_checkbox span {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.ask_publish_btn {
+  max-width: 231px;
+  width: auto;
+  flex-shrink: 0;
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.ask_form .ask_publish_btn.m_btn.category_btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dark_mode .ask_publish_btn.m_btn {
+  background-color: #626aff;
+  color: white;
 }
 
 .select_category_item_inner {
@@ -311,12 +362,6 @@
   border-radius: 12px 12px 0 0;
 }
 
-.ask_form_checkboxes {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-}
-
 .ask_premium_btn {
   height: 50px;
   padding: 0 24px;
@@ -340,14 +385,9 @@
   text-transform: none;
 }
 
-.ask_premium_btn:not(.is-disabled):hover {
+.ask_premium_btn:not(:has(.ask_premium_btn__check:disabled)):hover {
   background: linear-gradient(135deg, #545bde 0%, #4a54d9 100%);
   transition: all 0.2s ease;
-}
-
-.ask_premium_btn.is-disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
 }
 
 .ask_premium_btn__check {
@@ -359,16 +399,17 @@
   accent-color: #ffffff;
 }
 
-.ask_premium_btn.is-disabled .ask_premium_btn__check {
+.ask_premium_btn__check:disabled {
   cursor: not-allowed;
+  opacity: 0.75;
 }
 
 .ask_premium_field {
-  margin-left: auto;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .ask_premium_upsell_btn {
@@ -454,37 +495,39 @@
   color: rgb(204, 221, 248);
 }
 
-.ask_from_send_btn p {
-  max-width: 302px;
+.chechbox_item.ask_form_checkbox span {
+  color: #899ab5;
 }
 
-.ask_from_send_btn button {
-  max-width: 231px;
-  width: 100%;
-  font-size: 17px;
-  font-weight: 700;
-  text-transform: none;
-  white-space: nowrap;
+.dark_mode .chechbox_item.ask_form_checkbox span {
+  color: #ccddf8;
 }
 
-.ask_from_send_btn .m_btn.category_btn:disabled,
-.ask_form .ask_from_send_btn .m_btn.category_btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.ask_policy_notice {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  max-width: none;
 }
 
-.dark_mode .ask_from_send_btn .m_btn {
-  background-color: #626aff;
-  color: white;
+.ask_policy_notice__lead,
+.ask_policy_notice__link {
+  margin: 0;
+  color: #899ab5;
+  font-family: Nunito, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.1;
 }
 
-@media only screen and (max-width: 1280px) {
-  .asf_form_actions {
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: start;
-    gap: 20px;
-  }
+p.ask_policy_notice__lead {
+  white-space: normal;
+  margin-bottom: 0;
+}
+
+.ask_policy_notice__link a {
+  color: inherit;
+  text-decoration: underline;
 }
 
 .search-page-wrapper .search-form-selects .custom-select__trigger {
@@ -497,6 +540,57 @@
   font-size: 15px;
 }
 
+/* Планшет: чекбоксы + премиум в 1-й ряд, кнопка + политика во 2-й */
+@media only screen and (max-width: 1280px) and (min-width: 769px) {
+  .asf_form_actions {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .asf_form_actions__options {
+    order: 1;
+    flex: 1 1 100%;
+    width: 100%;
+    /* не переносим премиум — ужимаем чекбоксы; по левому краю + вертикальный центр к кнопке */
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .asf_form_actions__primary {
+    order: 2;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .ask_form_checkbox {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .ask_form_checkbox span {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .ask_premium_field {
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .ask_policy_notice__lead {
+    white-space: normal;
+  }
+
+  .ask_policy_notice {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
 @media only screen and (max-width: 768px) {
   .questions_filter {
     margin: 0 !important;
@@ -504,31 +598,45 @@
 
   .asf_form_actions {
     flex-direction: column-reverse;
-    align-items: start;
+    align-items: stretch;
     gap: 15px;
+    flex-wrap: wrap;
   }
 
-  .asf_form_actions .ask_from_send_btn {
-    flex-direction: column;
-    align-items: start;
+  .asf_form_actions__primary {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    flex: none;
+    width: 100%;
+    order: 0;
   }
 
-  .ask_form_checkboxes {
+  .asf_form_actions__options {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    flex: none;
+    width: 100%;
+    order: 0;
   }
 
-  .ask_premium_btn {
-    width: 100%;
-    margin-left: 0;
-    justify-content: center;
+  .ask_form_checkbox span {
+    white-space: normal;
+  }
+
+  .ask_policy_notice__lead {
+    white-space: normal;
+  }
+
+  .ask_policy_notice {
+    flex: none;
+    width: auto;
+    max-width: 100%;
   }
 
   .ask_premium_field {
     margin-left: 0;
-    width: 100%;
-    align-items: stretch;
+    width: auto;
+    align-items: flex-start;
   }
 
   .select_category_filters {
@@ -681,10 +789,24 @@
     text-transform: capitalize;
   }
 
-  .ask_from_send_btn button,
-  .asf_form_actions,
-  .ask_from_send_btn {
+  .ask_publish_btn,
+  .ask_premium_btn,
+  .ask_premium_field,
+  .asf_form_actions {
     width: 100%;
+  }
+
+  .ask_publish_btn {
+    max-width: none;
+  }
+
+  .ask_premium_btn {
+    max-width: none;
+    justify-content: center;
+  }
+
+  .ask_premium_field {
+    align-items: stretch;
   }
 }
 

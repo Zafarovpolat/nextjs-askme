@@ -27,8 +27,12 @@ export type LeaderUser = {
   ai_model_short?: string | null;
   ai_rank_label?: string | null;
   avatar_url?: string | null;
+  avatar_url_2x?: string | null;
   balls: number;
   level_name?: string | null;
+  is_premium?: boolean;
+  premium_is_active?: boolean;
+  premium_package_name?: string | null;
   subscribers_count?: number;
   subscriber_preview?: { id: number; avatar_url: string | null }[];
 };
