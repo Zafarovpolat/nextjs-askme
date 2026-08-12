@@ -44,16 +44,24 @@ function LoginModalInline() {
             </svg>
             <HydrationSafeInput type="password" name="password" placeholder="Ваш пароль" />
           </div>
+          <button type="button" className="login_forgot_link">
+            Забыли пароль?
+          </button>
           <div className="login_content_actions">
-            <button className="m_btn category_btn" type="button">
-              Войти в аккаунт
-            </button>
-            <div className="login_content_actions_bottom">
-              Нет аккаунта? <Link href="/signup">Зарегистрироваться</Link>
+            <div className="login_content_actions_btns">
+              <button className="m_btn category_btn" type="button">
+                Войти в аккаунт
+              </button>
+              <Link href="/signup" className="m_btn category_btn">
+                Регистрация
+              </Link>
             </div>
             <div className="login_socials">
               <p>Войти через<br />социальные сети</p>
               <div className="login_socials_list">
+                <div>
+                  <svg width="24" height="16"><use xlinkHref="#yandex-id"></use></svg>
+                </div>
                 <div>
                   <svg width="22" height="12"><use xlinkHref="#vk"></use></svg>
                 </div>

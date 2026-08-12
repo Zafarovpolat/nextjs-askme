@@ -134,11 +134,15 @@
 
 .login_input_icon .login_input_svg {
   position: absolute;
-  left: 18px;
+  left: 16px;
   top: 50%;
-  transform: translateY(calc(-50% - 4px));
+  transform: translateY(calc(-50% - 5px));
   pointer-events: none;
   z-index: 1;
+}
+
+.login_input_svg--accent {
+  color: #5f69ff;
 }
 
 .login_input input {
@@ -147,7 +151,8 @@
   border-radius: 12px;
   height: 50px;
   width: 100%;
-  text-indent: 21px;
+  padding: 0 16px;
+  text-indent: 0;
   color: #4c5b72;
   font-family: Nunito;
   font-size: 16px;
@@ -167,13 +172,62 @@
 }
 
 .login_input_icon input {
-  text-indent: 40px;
+  padding-left: 42px;
+}
+
+.login_input_password input {
+  padding-right: 48px;
+}
+
+.login_password_toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(calc(-50% - 5px));
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #c4c6da;
+  cursor: pointer;
+}
+
+.login_password_toggle:hover {
+  opacity: 0.8;
+}
+
+.login_password_toggle svg {
+  display: block;
+  color: inherit;
 }
 
 .dark_mode .login_input input {
   border: 2px solid rgb(124, 131, 250);
   background: transparent;
   color: #fff;
+}
+
+.dark_mode .login_block .login_input_svg--accent,
+.dark_mode .auth_page_layout .login_input_svg--accent {
+  color: #fff;
+}
+
+.dark_mode .login_block .login_password_toggle,
+.dark_mode .auth_page_layout .login_password_toggle {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dark_mode .modal .login_input_svg--accent {
+  color: #5f69ff;
+}
+
+.dark_mode .modal .login_password_toggle {
+  color: #c4c6da;
 }
 
 .dark_mode
@@ -295,6 +349,105 @@
   justify-content: center;
 }
 
+.login_password_changed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border: 1.5px dashed #c5c9ef;
+  border-radius: 12px;
+  background: none;
+}
+
+.login_password_changed svg {
+  flex-shrink: 0;
+  display: block;
+}
+
+.login_password_changed span {
+  font-family: Nunito, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 18px;
+  letter-spacing: 0;
+  color: #4c5b72;
+}
+
+.dark_mode .login_block .login_password_changed,
+.dark_mode .auth_page_layout .login_password_changed {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: none;
+}
+
+.dark_mode .login_block .login_password_changed span,
+.dark_mode .auth_page_layout .login_password_changed span {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dark_mode .modal .login_password_changed {
+  border-color: #c5c9ef;
+  background: none;
+}
+
+.dark_mode .modal .login_password_changed span {
+  color: #4c5b72;
+}
+
+.login_forgot_link {
+  display: inline-block;
+  margin: 4px 0 2px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #4c5b72;
+  font-family: Nunito, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+}
+
+.login_forgot_link:hover {
+  text-decoration: underline;
+}
+
+.dark_mode .login_block .login_forgot_link,
+.dark_mode .auth_page_layout .login_forgot_link {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dark_mode .modal .login_forgot_link {
+  color: #4c5b72;
+}
+
+.login_content_actions_btns {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  align-self: stretch;
+}
+
+.login_content_actions_btns .m_btn.category_btn,
+.login_content_actions_btns a.m_btn.category_btn {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  box-sizing: border-box;
+  text-align: center;
+  text-decoration: none;
+  justify-content: center;
+}
+
 .login_content_actions .category_btn {
   padding: 0px 34px;
   font-weight: 700;
@@ -307,13 +460,20 @@
   align-self: start;
 }
 
+.login_block .login_content_actions_btns .category_btn {
+  align-self: stretch;
+}
+
 .login_block_content.login_form {
   transform: translateY(-5px);
 }
 
 .dark_mode
   .login_content_actions
-  button:not(.modal .login_content_actions button) {
+  button:not(.modal .login_content_actions button),
+.dark_mode
+  .login_content_actions
+  a.m_btn:not(.modal .login_content_actions a.m_btn) {
   background: rgb(255, 255, 255);
   color: rgb(96, 105, 255);
 }
@@ -347,13 +507,15 @@
   border-right: 1px solid rgb(124, 131, 250);
 }
 
-.auth_form .ask_from_send_btn .m_btn {
+.auth_form .ask_from_send_btn .m_btn,
+.auth_form .signup_submit_block .m_btn {
   padding-left: 39px;
   padding-right: 39px;
   height: 50px;
 }
 
-.dark_mode .auth_form .ask_from_send_btn .m_btn {
+.dark_mode .auth_form .ask_from_send_btn .m_btn,
+.dark_mode .auth_form .signup_submit_block .m_btn {
   background: rgb(255, 255, 255);
   color: rgb(96, 105, 255);
 }
@@ -633,9 +795,90 @@ label.checkbox {
   color: #899ab5;
 }
 
-.auth_form .ask_from_send_btn .m_btn {
+.auth_form .ask_from_send_btn .m_btn,
+.auth_form .signup_submit_block .m_btn {
   max-width: 177px;
 }
+
+.signup_submit_block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.signup_checkboxes {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+/* Стиль чекбоксов регистрации как у настроек (.chechbox_item) */
+.signup_checkbox_item {
+  cursor: pointer;
+  gap: 12px;
+}
+
+.signup_checkbox_item input[type="checkbox"] {
+  border-radius: 6px;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  margin: 0;
+  background-color: #eeeff6;
+  cursor: pointer;
+  border: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.signup_checkbox_item input[type="checkbox"]:checked {
+  background: rgb(98, 106, 255);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='8' viewBox='0 0 11 8' fill='none'%3E%3Cpath d='M4.30645 7.83828C4.21446 7.94008 4.05537 7.94785 3.95292 7.85552L0.0798614 4.36484C-0.022594 4.27251 -0.0270486 4.11716 0.069853 4.0196L1.30383 2.77794C1.40079 2.68038 1.56393 2.67614 1.66639 2.76841L3.78208 4.67511C3.88454 4.76744 4.04363 4.75967 4.13561 4.65786L8.26894 0.0846266C8.36093 -0.0171783 8.52372 -0.0288021 8.63057 0.0588449L9.99113 1.17396C10.098 1.26155 10.1102 1.41658 10.0182 1.51838L4.30645 7.83828Z' fill='white'/%3E%3C/svg%3E");
+  background-size: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.dark_mode .signup_checkbox_item input[type="checkbox"] {
+  background-color: rgba(255, 255, 255, 0.18);
+  border: none;
+}
+
+.dark_mode .signup_checkbox_item input[type="checkbox"]:checked {
+  background: rgb(255, 255, 255);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='8' viewBox='0 0 11 8' fill='none'%3E%3Cpath d='M4.30645 7.83828C4.21446 7.94008 4.05537 7.94785 3.95292 7.85552L0.0798614 4.36484C-0.022594 4.27251 -0.0270486 4.11716 0.069853 4.0196L1.30383 2.77794C1.40079 2.68038 1.56393 2.67614 1.66639 2.76841L3.78208 4.67511C3.88454 4.76744 4.04363 4.75967 4.13561 4.65786L8.26894 0.0846266C8.36093 -0.0171783 8.52372 -0.0288021 8.63057 0.0588449L9.99113 1.17396C10.098 1.26155 10.1102 1.41658 10.0182 1.51838L4.30645 7.83828Z' fill='%236069FF'/%3E%3C/svg%3E");
+  background-size: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.signup_checkbox_item span {
+  font-family: Nunito, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #4c5b72;
+}
+
+.signup_checkbox_item span a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.signup_checkbox_item span a:hover {
+  text-decoration: none;
+}
+
+.dark_mode .signup_checkbox_item span {
+  color: #fff;
+}
+
 
 .dark_mode .select_gender_items input {
   background-color: #7e85f9;
@@ -698,7 +941,8 @@ label.checkbox {
     display: none;
   }
 
-  .auth_form .ask_from_send_btn {
+  .auth_form .ask_from_send_btn,
+  .auth_form .signup_submit_block {
     display: none;
   }
 
@@ -804,6 +1048,12 @@ label.checkbox {
     align-self: stretch;
     box-sizing: border-box;
   }
+
+  .login_content_actions_btns .m_btn.category_btn,
+  .login_content_actions_btns a.m_btn.category_btn {
+    width: auto;
+    height: 50px;
+  }
 }
 
 @media screen and (max-width: 500px) {
@@ -822,6 +1072,20 @@ label.checkbox {
 
   .login_block_content {
     padding: 17px 20px 27px 20px;
+  }
+}
+
+/* Самые узкие телефоны: кнопки входа/регистрации столбиком */
+@media only screen and (max-width: 380px) {
+  .login_content_actions_btns {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .login_content_actions_btns .m_btn.category_btn,
+  .login_content_actions_btns a.m_btn.category_btn {
+    width: 100%;
+    flex: 1 1 auto;
   }
 }
 

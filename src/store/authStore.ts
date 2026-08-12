@@ -15,6 +15,12 @@ export type AuthNotification = {
   text: string
   is_read: boolean
   data?: Record<string, unknown> | null
+  actor?: {
+    id: number
+    name: string
+    avatar_url: string
+    avatar_url_2x?: string | null
+  } | null
   created_at: string
 }
 
@@ -42,7 +48,15 @@ type AuthState = {
   fetchMe: () => Promise<void>
   login: (email: string, password: string) => Promise<void>
   loginWithToken: (token: string) => Promise<void>
-  register: (data: { first_name: string; email: string; password: string; password_confirmation: string; gender?: number }) => Promise<void>
+  register: (data: {
+    first_name: string
+    email: string
+    password: string
+    password_confirmation: string
+    gender?: number
+    accept_legal: boolean
+    advertising_consent?: boolean
+  }) => Promise<void>
   logout: () => void
 }
 
@@ -171,6 +185,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       password: payload.password,
       password_confirmation: payload.password_confirmation,
       gender: payload.gender ?? 0,
+      accept_legal: payload.accept_legal ? 1 : 0,
+      advertising_consent: Boolean(payload.advertising_consent),
     })
     // После регистрации не логиним — редирект на страницу входа
   },

@@ -6,12 +6,19 @@ const REVALIDATE_SEC = 120;
 
 async function fetchCustomHtmlPageUncached(
   slug: string,
+  version?: number | null,
 ): Promise<CustomHtmlPageApi | null> {
   const normalized = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
   if (!normalized) {
     return null;
   }
-  const url = getApiFullUrl(`v1/custom-pages/${encodeURIComponent(normalized)}`);
+  const qs =
+    version != null && Number.isFinite(version) && version > 0
+      ? `?v=${Math.trunc(version)}`
+      : "";
+  const url = getApiFullUrl(
+    `v1/custom-pages/${encodeURIComponent(normalized)}${qs}`,
+  );
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
     console.error(
       "[custom-page] NEXT_PUBLIC_API_URL не задан — серверный fetch невозможен.",
@@ -44,5 +51,5 @@ async function fetchCustomHtmlPageUncached(
   }
 }
 
-/** Один запрос на slug в рамках SSR-запроса (generateMetadata + page). */
+/** Один запрос на slug (+опционально версия) в рамках SSR-запроса. */
 export const fetchCustomHtmlPage = cache(fetchCustomHtmlPageUncached);

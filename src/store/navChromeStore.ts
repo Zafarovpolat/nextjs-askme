@@ -8,9 +8,16 @@ type NavChromeState = {
   /** true, когда на `<nav>` висит класс `nav--hidden` (translateY). */
   mainNavCollapsed: boolean;
   setMainNavCollapsed: (value: boolean) => void;
+  /** Блокировка/скрытие chrome (модалки и т.п.). */
+  chromeLocked: boolean;
+  lockChrome: () => void;
+  unlockChrome: () => void;
 };
 
 export const useNavChromeStore = create<NavChromeState>((set) => ({
   mainNavCollapsed: false,
   setMainNavCollapsed: (value) => set({ mainNavCollapsed: value }),
+  chromeLocked: false,
+  lockChrome: () => set({ chromeLocked: true }),
+  unlockChrome: () => set({ chromeLocked: false }),
 }));

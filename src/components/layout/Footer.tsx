@@ -53,6 +53,9 @@ export default function Footer() {
         <Link href={legalFooterHref(LEGAL_FOOTER_SLUGS.userAgreement)}>
           Пользовательские соглашения
         </Link>
+        <Link href={legalFooterHref(LEGAL_FOOTER_SLUGS.privacyPolicy)}>
+          Политика конфиденциальности
+        </Link>
         <Link href={legalFooterHref(LEGAL_FOOTER_SLUGS.support)}>
           Служба поддержки
         </Link>

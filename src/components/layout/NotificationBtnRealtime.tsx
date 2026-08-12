@@ -15,6 +15,15 @@ import { isNotificationSoundEnabled, playNotificationSound } from "@/lib/notific
 import { subscribeIncomingNotifications } from "@/lib/notification-realtime-bridge";
 import { useAuthStore, type AuthNotification } from "@/store/authStore";
 import { HydrationSafeInput } from "@/components/HydrationSafeInput";
+import { avatarImgProps } from "@/lib/avatar-srcset";
+import { toPlainNotificationText } from "@/lib/plain-notification-text";
+
+type NotificationActor = {
+  id: number;
+  name: string;
+  avatar_url: string;
+  avatar_url_2x?: string | null;
+};
 
 type NotificationItem = {
   id: number;
@@ -24,6 +33,7 @@ type NotificationItem = {
   text: string;
   is_read: boolean;
   data?: Record<string, unknown> | null;
+  actor?: NotificationActor | null;
   created_at: string;
 };
 
@@ -37,7 +47,6 @@ type NotificationsPageResponse = {
   total: number;
 };
 
-const DEFAULT_AVATAR = "/images/icons/avatar.svg";
 const PAGE_SIZE = 10;
 const POPUP_VISIBLE_MS = 4500;
 const POPUP_LIMIT = 3;
@@ -48,11 +57,7 @@ const toTimestamp = (value: string): number => {
 };
 
 const normalizeText = (text: string, limit = 140): string => {
-  const clean = text.trim().replace(/\s+/g, " ");
-  if (clean.length <= limit) {
-    return clean;
-  }
-  return `${clean.slice(0, Math.max(0, limit - 1)).trimEnd()}…`;
+  return toPlainNotificationText(text, limit);
 };
 
 const normalizeNotification = (notification: NotificationItem): NotificationItem => ({
@@ -91,7 +96,7 @@ function NotificationCard({
     <>
       <div className={styles.notificationHeader}>
         <img
-          src={DEFAULT_AVATAR}
+          {...avatarImgProps(notification.actor?.avatar_url, notification.actor?.avatar_url_2x)}
           alt=""
           className={styles.notificationAvatar}
         />
@@ -488,7 +493,7 @@ export default function NotificationBtnRealtime() {
                 >
                   <div className={styles.notificationPopupHeader}>
                     <img
-                      src={DEFAULT_AVATAR}
+                      {...avatarImgProps(notification.actor?.avatar_url, notification.actor?.avatar_url_2x)}
                       alt=""
                       className={styles.notificationPopupAvatar}
                     />
@@ -582,6 +587,16 @@ export default function NotificationBtnRealtime() {
             ) : null}
 
             <div ref={sentinelRef} className={styles.notificationLoadSentinel} aria-hidden="true" />
+          </div>
+
+          <div className={styles.notificationAllLinkWrap}>
+            <Link
+              href="/notifications"
+              className={styles.notificationAllLink}
+              onClick={() => setIsOpen(false)}
+            >
+              Все уведомления
+            </Link>
           </div>
         </div>
       ) : null}

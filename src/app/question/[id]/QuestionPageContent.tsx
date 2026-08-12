@@ -13,7 +13,7 @@ import {
   type SyntheticEvent,
   type MouseEvent,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
@@ -179,6 +179,7 @@ export default function QuestionPageContent({
     : formatTimeAgo(initialQuestion.created_at);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const isAuthorized = useAuthStore((s) => s.isAuthorized);
   const user = useAuthStore((s) => s.user);
   const fetchMe = useAuthStore((s) => s.fetchMe);
@@ -474,6 +475,25 @@ export default function QuestionPageContent({
     },
     [scrollToAnswer]
   );
+
+  /** Ссылки из ЛК/уведомлений: ?reply=1 или ?reply_to=&reply_name= */
+  const replyQueryHandled = useRef(false);
+  useEffect(() => {
+    if (replyQueryHandled.current) return;
+    const replyToRaw = searchParams.get("reply_to");
+    const replyName = (searchParams.get("reply_name") || "").trim();
+    const replyFlag = searchParams.get("reply");
+
+    if (replyToRaw && /^\d+$/.test(replyToRaw)) {
+      replyQueryHandled.current = true;
+      beginReplyToAnswer(Number(replyToRaw), replyName || "Пользователь");
+      return;
+    }
+    if (replyFlag === "1") {
+      replyQueryHandled.current = true;
+      beginReplyToQuestion();
+    }
+  }, [searchParams, beginReplyToAnswer, beginReplyToQuestion]);
 
   /** Префикс в значении textarea (не уходит на сервер) */
   const replyPrefix = replyTarget ? `${replyTarget.replyToName}, ` : "";

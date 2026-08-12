@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useRef, Fragment } from "react";
 import styles from "./Header.module.css";
+import EmailVerifyBanner from "./EmailVerifyBanner";
+
 import { useAuthStore } from "@/store/authStore";
 import { useNavChromeStore } from "@/store/navChromeStore";
 import { toggleExplicitColorTheme } from "@/lib/theme-cookie";
@@ -390,11 +392,18 @@ export default function Header() {
   }, []);
 
   const setMainNavCollapsed = useNavChromeStore((s) => s.setMainNavCollapsed);
-  const mainNavCollapsed = isNavHidden || isMenuOpen;
+  const chromeLocked = useNavChromeStore((s) => s.chromeLocked);
+  const mainNavCollapsed = isNavHidden || isMenuOpen || chromeLocked;
   useEffect(() => {
     setMainNavCollapsed(mainNavCollapsed);
     return () => setMainNavCollapsed(false);
   }, [mainNavCollapsed, setMainNavCollapsed]);
+
+  useEffect(() => {
+    if (chromeLocked) {
+      setIsMenuOpen(false);
+    }
+  }, [chromeLocked]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -412,11 +421,14 @@ export default function Header() {
   };
 
   const isPremiumUser = isUserPremium(user);
+  const chromeHidden = isNavHidden || isMenuOpen || chromeLocked;
 
   return (
     <>
-      <nav className={isNavHidden || isMenuOpen ? "nav--hidden" : ""}>
-        <div className="nav_wrapper container">
+      <div className={`site-chrome${chromeHidden ? " site-chrome--hidden" : ""}`}>
+        <EmailVerifyBanner />
+        <nav>
+          <div className="nav_wrapper container">
           {/* п.15 — Логотип текстом вместо SVG (кроме иконки) */}
           <Link href="/" className="header__logo" title="Главная">
             <div className="logo-container light_logo">
@@ -593,7 +605,8 @@ export default function Header() {
             </button>
           </div>
         </div>
-      </nav>
+        </nav>
+      </div>
 
       {/* Мобильное меню */}
       <div

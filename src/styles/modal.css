@@ -390,3 +390,348 @@ body:has(.modal--active) {
   fill: #fff !important;
   stroke: #fff !important;
 }
+
+/* Forgot password modal */
+.modal-overlay--forgot {
+  z-index: 210;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay--forgot.is-visible {
+  opacity: 0.95;
+  pointer-events: all;
+}
+
+.modal--forgot {
+  left: 0;
+  z-index: 211;
+  max-width: 520px;
+  width: calc(100% - 48px);
+  padding: 36px 40px 32px;
+  opacity: 0;
+  transform: none;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal--forgot.is-visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.forgot-password-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.forgot-password-modal__title {
+  margin: 0 0 22px;
+  font-family: Nunito, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: #1f2a3b;
+}
+
+.forgot-password-modal__hint {
+  margin: 2px 0 18px;
+  font-family: Nunito, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+  color: #4c5b72;
+}
+
+.forgot-password-modal__error {
+  margin: -8px 0 14px;
+  font-family: Nunito, sans-serif;
+  font-size: 14px;
+  text-align: center;
+  color: #c00;
+}
+
+.forgot-password-modal__actions {
+  display: flex;
+  justify-content: center;
+}
+
+.forgot-password-modal__actions .m_btn.category_btn {
+  min-width: 160px;
+  padding: 0 36px;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.forgot-password-modal .login_input_icon .login_input_svg {
+  transform: translateY(calc(-50% - 5px));
+}
+
+.forgot-password-modal .login_input input {
+  margin-bottom: 12px;
+}
+
+.forgot-password-modal--sent .forgot-password-modal__hint {
+  margin-bottom: 24px;
+}
+
+.dark_mode .modal--forgot {
+  background: #fff;
+}
+
+.dark_mode .forgot-password-modal__title {
+  color: #1f2a3b;
+}
+
+.dark_mode .forgot-password-modal__hint {
+  color: #4c5b72;
+}
+
+/* Пока открыта модалка — мобильное меню тоже недоступно */
+body:has(.modal--forgot.is-visible) .nav_mob_wrapper {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+@media only screen and (max-width: 480px) {
+  .modal--forgot {
+    max-width: calc(100% - 32px);
+    padding: 28px 20px 24px;
+  }
+
+  .forgot-password-modal__title {
+    font-size: 20px;
+  }
+
+  .forgot-password-modal__actions .m_btn.category_btn {
+    width: 100%;
+  }
+}
+
+/* Email sent (resend verify) modal */
+.modal-overlay--email-sent {
+  z-index: 210;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay--email-sent.is-visible {
+  opacity: 0.95;
+  pointer-events: all;
+}
+
+.modal--email-sent {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  z-index: 211;
+  display: block;
+  width: calc(100% - 48px);
+  max-width: 420px;
+  height: auto;
+  margin: 0;
+  padding: 48px 40px 44px;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal--email-sent.is-visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translate(-50%, -50%);
+}
+
+.modal--email-sent .modal__close {
+  color: #6069ff;
+}
+
+.email-sent-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.email-sent-modal__illust {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.email-sent-modal__illust svg {
+  display: block;
+  width: 177px;
+  max-width: 100%;
+  height: auto;
+}
+
+.email-sent-modal__title {
+  margin: 0;
+  font-family: Nunito, sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #1f2a3b;
+}
+
+.dark_mode .modal--email-sent {
+  background: #fff;
+}
+
+.dark_mode .email-sent-modal__title {
+  color: #1f2a3b;
+}
+
+body:has(.modal--email-sent.is-visible) .nav_mob_wrapper {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+@media only screen and (max-width: 480px) {
+  .modal--email-sent {
+    max-width: calc(100% - 32px);
+    padding: 40px 24px 36px;
+  }
+
+  .email-sent-modal__title {
+    font-size: 24px;
+  }
+
+  .email-sent-modal__illust {
+    margin-bottom: 22px;
+  }
+}
+
+/* Статус email: отправлено / привязано / подтверждено */
+.modal-overlay--email-status {
+  z-index: 210;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay--email-status.is-visible {
+  opacity: 0.95;
+  pointer-events: all;
+}
+
+.modal--email-status {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  z-index: 211;
+  display: block;
+  width: calc(100% - 48px);
+  max-width: 460px;
+  height: auto;
+  margin: 0;
+  padding: 44px 40px 40px;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal--email-status.is-visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translate(-50%, -50%);
+}
+
+.modal--email-status .modal__close {
+  color: #6069ff;
+}
+
+.email-status-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.email-status-modal__title {
+  margin: 0;
+  white-space: pre-line;
+  font-family: Nunito, sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #1f2a3b;
+}
+
+.email-status-modal__email {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 18px 0 0;
+  font-family: Nunito, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #4c5b72;
+}
+
+.email-status-modal__email svg {
+  flex-shrink: 0;
+  display: block;
+  color: #5f69ff;
+}
+
+.email-status-modal__resend.m_btn.category_btn {
+  width: 100%;
+  margin-top: 24px;
+  height: 50px;
+  text-transform: none;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dark_mode .modal--email-status {
+  background: #fff;
+}
+
+.dark_mode .email-status-modal__title {
+  color: #1f2a3b;
+}
+
+.dark_mode .email-status-modal__email {
+  color: #4c5b72;
+}
+
+body:has(.modal--email-status.is-visible) .nav_mob_wrapper {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+@media only screen and (max-width: 480px) {
+  .modal--email-status {
+    max-width: calc(100% - 32px);
+    padding: 36px 22px 32px;
+  }
+
+  .email-status-modal__title {
+    font-size: 20px;
+  }
+
+  .email-status-modal__resend.m_btn.category_btn {
+    height: 46px;
+    font-size: 14px;
+    white-space: normal;
+  }
+}
+
+

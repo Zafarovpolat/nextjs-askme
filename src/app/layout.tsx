@@ -8,6 +8,8 @@ import { ExternalLinkProvider } from '@/components/ExternalLinkProvider'
 import NotificationRealtimeProvider from '@/components/NotificationRealtimeProvider'
 import SiteHeader from '@/components/layout/SiteHeader'
 import SystemToastStack from '@/components/SystemToastStack'
+import CookieConsentBanner from '@/components/cookie-consent/CookieConsentBanner'
+import YandexMetrica from '@/components/cookie-consent/YandexMetrica'
 import {
   COLOR_THEME_COOKIE,
   DEFAULT_COLOR_THEME,
@@ -155,6 +157,8 @@ export default function RootLayout({
           </ExternalLinkProvider>
         </AuthProvider>
         <SystemToastStack />
+        <CookieConsentBanner />
+        <YandexMetrica />
         <SvgSprites />
       </body>
     </html>

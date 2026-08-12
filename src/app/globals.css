@@ -19,6 +19,7 @@
 @import url('../styles/faq.css');
 @import url('../styles/notifications.css');
 @import url('../styles/markdown-content.css');
+@import url('../styles/cookie-consent.css');
 
 /* Дополнительные стили для Next.js */
 :root {

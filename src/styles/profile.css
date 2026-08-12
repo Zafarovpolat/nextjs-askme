@@ -158,6 +158,10 @@
   fill: #5d67ff;
 }
 
+.profile_menu_item svg path {
+  fill: inherit;
+}
+
 .profile_menu_item:hover svg {
   transition: all 0.2s ease;
   fill: #fff;
@@ -2726,6 +2730,54 @@
   margin-bottom: 0 !important;
 }
 
+.profile-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-security-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-security-section .blocks_title {
+  margin: 0;
+}
+
+.profile-security-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.profile-security-row .login_input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.profile-security-row .login_input input {
+  margin-bottom: 0;
+}
+
+.profile-security-row .login_input_icon .login_input_svg {
+  transform: translateY(-50%);
+}
+
+.profile-security-btn.m_btn.category_btn {
+  flex: 0 0 auto;
+  align-self: stretch;
+  height: auto;
+  min-height: 50px;
+  padding: 0 18px;
+  text-transform: none;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 700;
+}
+
 .profile-settings .line {
   display: flex;
 }
@@ -3961,6 +4013,20 @@
     flex-shrink: 0;
     box-sizing: border-box;
     white-space: nowrap;
+  }
+
+  .profile-security-row,
+  .profile-security-row--password {
+    flex-wrap: wrap;
+  }
+
+  .profile-security-row .login_input {
+    flex: 1 1 100%;
+  }
+
+  .profile-security-btn.m_btn.category_btn {
+    width: 100%;
+    min-height: 44px;
   }
 }
 

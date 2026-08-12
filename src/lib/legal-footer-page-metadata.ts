@@ -4,12 +4,17 @@ import { fetchCustomHtmlPage } from "@/lib/fetch-custom-html-page";
 
 export async function metadataForLegalFooterSlug(
   slug: string,
+  version?: number | null,
 ): Promise<Metadata> {
-  const page = await fetchCustomHtmlPage(slug);
+  const page = await fetchCustomHtmlPage(slug, version);
   if (!page) {
     notFound();
   }
-  const title = page.title?.trim() || slug;
+  const baseTitle = page.title?.trim() || slug;
+  const title =
+    page.version?.version != null
+      ? `${baseTitle} (редакция v${page.version.version})`
+      : baseTitle;
   const description = page.description?.trim() || undefined;
   const keywordsRaw = page.keywords?.trim();
   const keywords = keywordsRaw

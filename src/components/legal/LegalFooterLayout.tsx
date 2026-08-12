@@ -14,6 +14,12 @@ export default function LegalFooterLayout({ page }: { page: CustomHtmlPageApi })
           </Link>
           <span className="breadcrumbs__sep">•</span>
           <span className="breadcrumbs__current">{page.title}</span>
+          {page.version?.version != null ? (
+            <>
+              <span className="breadcrumbs__sep">•</span>
+              <span className="breadcrumbs__current">ред. v{page.version.version}</span>
+            </>
+          ) : null}
         </div>
         <LegalHtmlPageView page={page} />
       </div>

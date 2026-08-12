@@ -46,6 +46,10 @@ export interface ApiUser {
   email: string
   created_at?: string | null
   email_verified_at?: string | null
+  /** Email-аккаунт ещё не подтвердил почту — мутации на сайте заблокированы. */
+  requires_email_verification?: boolean
+  has_real_email?: boolean
+  pending_email?: string | null
   gender: number
   avatar_url?: string | null
   avatar_url_2x?: string | null
@@ -108,6 +112,32 @@ export interface ApiUser {
     file: number | null
     video: number | null
   }
+  advertising_consent?: boolean
+  legal_acceptance?: {
+    accepted_at: string | null
+    advertising_consent: boolean
+    user_agreement: {
+      version: number
+      title: string
+      slug: string | null
+      url: string | null
+      created_at: string | null
+    } | null
+    privacy_policy: {
+      version: number
+      title: string
+      slug: string | null
+      url: string | null
+      created_at: string | null
+    } | null
+    cookies: {
+      version: number
+      title: string
+      slug: string | null
+      url: string | null
+      created_at: string | null
+    } | null
+  } | null
 }
 
 export interface User {

@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import Link from 'next/link'
 import SocialAuthButtons from '@/components/SocialAuthButtons'
+import ForgotPasswordModal from '@/components/ForgotPasswordModal'
 import { HydrationSafeInput } from '@/components/HydrationSafeInput'
 
 interface LoginModalProps {
@@ -11,10 +12,12 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
-  // Закрытие по Escape
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') onClose()
-  }, [onClose])
+    if (e.key === 'Escape' && !forgotPasswordOpen) onClose()
+  }, [onClose, forgotPasswordOpen])
 
   useEffect(() => {
     if (isOpen) {
@@ -27,22 +30,26 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     }
   }, [isOpen, handleKeyDown])
 
-  // Клик по оверлею
+  useEffect(() => {
+    if (!isOpen) {
+      setForgotPasswordOpen(false)
+      setShowPassword(false)
+    }
+  }, [isOpen])
+
   const handleOverlayClick = useCallback((e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) onClose()
-  }, [onClose])
+    if (e.target === e.currentTarget && !forgotPasswordOpen) onClose()
+  }, [onClose, forgotPasswordOpen])
 
   if (!isOpen) return null
 
   return (
     <>
-      {/* Оверлей */}
       <div
         className="modal-overlay"
         onClick={handleOverlayClick}
       />
 
-      {/* Модалка */}
       <div className="modal modal--small modal--active" id="modal__login">
         <button className="modal__close" onClick={onClose}>
           <svg width="16" height="16">
@@ -59,33 +66,52 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             onSubmit={(e) => e.preventDefault()}
           >
             <div className="login_input login_input_icon">
-              <svg className="login_input_svg" width="13" height="14">
-                <use xlinkHref="#login-user"></use>
+              <svg className="login_input_svg login_input_svg--accent" width="14" height="12" aria-hidden>
+                <use xlinkHref="#login-mail" />
               </svg>
               <HydrationSafeInput
-                type="text"
-                name="login"
-                placeholder="Ваш логин"
+                type="email"
+                name="email"
+                placeholder="Ваша почта"
                 required
               />
             </div>
-            <div className="login_input login_input_icon">
-              <svg className="login_input_svg" width="11" height="14">
-                <use xlinkHref="#login-lock"></use>
+            <div className="login_input login_input_icon login_input_password">
+              <svg className="login_input_svg login_input_svg--accent" width="12" height="15" aria-hidden>
+                <use xlinkHref="#login-lock" />
               </svg>
               <HydrationSafeInput
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 name="password"
                 placeholder="Ваш пароль"
                 required
               />
-            </div>
-            <div className="login_content_actions">
-              <button className="m_btn category_btn" type="submit">
-                Войти в аккаунт
+              <button
+                type="button"
+                className="login_password_toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+              >
+                <svg width="20" height="14" aria-hidden>
+                  <use xlinkHref={showPassword ? '#login-eye' : '#login-eye-off'} />
+                </svg>
               </button>
-              <div className="login_content_actions_bottom">
-                Нет аккаунта? <Link href="/signup">Зарегистрироваться</Link>
+            </div>
+            <button
+              type="button"
+              className="login_forgot_link"
+              onClick={() => setForgotPasswordOpen(true)}
+            >
+              Забыли пароль?
+            </button>
+            <div className="login_content_actions">
+              <div className="login_content_actions_btns">
+                <button className="m_btn category_btn" type="submit">
+                  Войти в аккаунт
+                </button>
+                <Link href="/signup" className="m_btn category_btn" onClick={onClose}>
+                  Регистрация
+                </Link>
               </div>
               <div className="login_socials">
                 <p>Войти через<br />социальные сети</p>
@@ -95,6 +121,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </form>
         </div>
       </div>
+
+      <ForgotPasswordModal
+        isOpen={forgotPasswordOpen}
+        onClose={() => setForgotPasswordOpen(false)}
+      />
     </>
   )
 }
