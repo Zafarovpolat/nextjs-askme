@@ -53,7 +53,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       <div className="modal modal--small modal--active" id="modal__login">
         <button className="modal__close" onClick={onClose}>
           <svg width="16" height="16">
-            <use xlinkHref="#close"></use>
+            <use xlinkHref="/sprites.svg#close"></use>
           </svg>
         </button>
         <div className="modal__content">
@@ -67,7 +67,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           >
             <div className="login_input login_input_icon">
               <svg className="login_input_svg login_input_svg--accent" width="14" height="12" aria-hidden>
-                <use xlinkHref="#login-mail" />
+                <use xlinkHref="/sprites.svg#login-mail" />
               </svg>
               <HydrationSafeInput
                 type="email"
@@ -78,7 +78,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </div>
             <div className="login_input login_input_icon login_input_password">
               <svg className="login_input_svg login_input_svg--accent" width="12" height="15" aria-hidden>
-                <use xlinkHref="#login-lock" />
+                <use xlinkHref="/sprites.svg#login-lock" />
               </svg>
               <HydrationSafeInput
                 type={showPassword ? 'text' : 'password'}
@@ -93,7 +93,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
               >
                 <svg width="20" height="14" aria-hidden>
-                  <use xlinkHref={showPassword ? '#login-eye' : '#login-eye-off'} />
+                  <use xlinkHref={showPassword ? '/sprites.svg#login-eye' : '/sprites.svg#login-eye-off'} />
                 </svg>
               </button>
             </div>

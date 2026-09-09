@@ -81,7 +81,7 @@ export default function LinkInputModal({
       <div className="modal modal--small modal--active" id="modal__link_input">
         <button className="modal__close" onClick={onClose}>
           <svg width="16" height="16">
-            <use xlinkHref="#close"></use>
+            <use xlinkHref="/sprites.svg#close"></use>
           </svg>
         </button>
         <div className="modal__content">

@@ -1,7 +1,6 @@
 import './globals.css'
 import type { Metadata, Viewport } from 'next'
 import { cookies } from 'next/headers'
-import SvgSprites from '@/components/SvgSprites'
 import AuthProvider from '@/components/AuthProvider'
 import ThemeSync from '@/components/ThemeSync'
 import { ExternalLinkProvider } from '@/components/ExternalLinkProvider'
@@ -17,9 +16,7 @@ import {
   isColorThemePreference,
   resolveColorTheme,
 } from '@/lib/color-theme'
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://otvetai.ru'
-const SITE_NAME = 'Ответы АЙ'
+import { SITE_NAME, SITE_URL } from '@/lib/page-seo'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -55,7 +52,6 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
-    url: SITE_URL,
     siteName: SITE_NAME,
     title: `${SITE_NAME} — вопросы и ответы`,
     description: 'Задавай вопросы и получай ответы от других пользователей. Сотни тысяч вопросов по школьным предметам.',
@@ -76,13 +72,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/images/favicon/cropped-android-chrome-512x512-1-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/images/favicon/cropped-android-chrome-512x512-1-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/images/favicon/favicon.svg', type: 'image/svg+xml' },
+      { url: '/images/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/images/favicon/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/images/favicon/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: { url: '/images/favicon/cropped-android-chrome-512x512-1-180x180.png', sizes: '180x180' },
-  },
-  alternates: {
-    canonical: SITE_URL,
+    shortcut: '/favicon.ico',
+    apple: { url: '/images/favicon/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
   },
 }
 
@@ -97,7 +94,7 @@ const jsonLd = {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: `${SITE_URL}/?q={search_term_string}`,
+      urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
     },
     'query-input': 'required name=search_term_string',
   },
@@ -159,7 +156,6 @@ export default function RootLayout({
         <SystemToastStack />
         <CookieConsentBanner />
         <YandexMetrica />
-        <SvgSprites />
       </body>
     </html>
   )

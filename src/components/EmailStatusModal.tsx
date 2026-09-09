@@ -126,7 +126,7 @@ export default function EmailStatusModal({
           {showEmail && (
             <p className="email-status-modal__email">
               <svg width="14" height="12" aria-hidden>
-                <use xlinkHref="#login-mail" />
+                <use xlinkHref="/sprites.svg#login-mail" />
               </svg>
               <span>{email}</span>
             </p>

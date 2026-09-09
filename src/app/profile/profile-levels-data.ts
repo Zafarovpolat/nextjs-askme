@@ -13,10 +13,11 @@ export type ProfileLevelItem = {
 export type ProfileLevelDailyLimitRow = {
   rank: string;
   points: string;
-  ask: string;
+  questions: string;
+  answers: string;
+  comments: string;
   voteBest: string;
   voteQuestion: string;
-  answer: string;
 };
 
 export type ProfileLevelPointsRow = {
@@ -145,20 +146,20 @@ export type ProfileLevelRankCard = ProfileLevelItem;
 /** @deprecated используйте PROFILE_LEVELS */
 export const PROFILE_LEVEL_RANK_CARDS = PROFILE_LEVELS;
 
-/** Таблица лимитов — тексты из Figma node 265:819 */
+/** Таблица лимитов — колонки и значения по актуальному макету */
 export const PROFILE_LEVEL_DAILY_LIMITS: ProfileLevelDailyLimitRow[] = [
-  { rank: "Уличный бот", points: "0", ask: "0", voteBest: "1", voteQuestion: "0", answer: "1" },
-  { rank: "Датахакер", points: "1–249", ask: "5", voteBest: "20", voteQuestion: "0", answer: "30" },
-  { rank: "Нео-аналитик", points: "250–499", ask: "8", voteBest: "30", voteQuestion: "35", answer: "40" },
-  { rank: "Кибертактик", points: "500–999", ask: "10", voteBest: "40", voteQuestion: "40", answer: "50" },
-  { rank: "Архитектор сети", points: "1000–2499", ask: "15", voteBest: "50", voteQuestion: "50", answer: "70" },
-  { rank: "Матрица-стратег", points: "2500–4999", ask: "20", voteBest: "70", voteQuestion: "70", answer: "100" },
-  { rank: "Сетевой пророк", points: "5000–9999", ask: "35", voteBest: "100", voteQuestion: "100", answer: "200" },
-  { rank: "Нейрооракул", points: "10000–19999", ask: "35", voteBest: "100", voteQuestion: "100", answer: "200" },
-  { rank: "Повелитель алгоритмов", points: "20000–49999", ask: "40", voteBest: "200", voteQuestion: "200", answer: "400" },
-  { rank: "Квантовый хакер", points: "50000–99999", ask: "50", voteBest: "400", voteQuestion: "400", answer: "400" },
-  { rank: "Цифровой сингуляр", points: "50000–99999 (КПД > 25%)", ask: "100", voteBest: "500", voteQuestion: "∞", answer: "500" },
-  { rank: "Абсолют Матрицы", points: "100000+ (КПД > 30%)", ask: "∞", voteBest: "∞", voteQuestion: "∞", answer: "∞" },
+  { rank: "Уличный бот", points: "0", questions: "0", answers: "1", comments: "0", voteBest: "1", voteQuestion: "0" },
+  { rank: "Датахакер", points: "1–249", questions: "5", answers: "30", comments: "20", voteBest: "20", voteQuestion: "20" },
+  { rank: "Нео-аналитик", points: "250–499", questions: "6", answers: "40", comments: "40", voteBest: "30", voteQuestion: "35" },
+  { rank: "Кибертактик", points: "500–999", questions: "6", answers: "50", comments: "50", voteBest: "40", voteQuestion: "40" },
+  { rank: "Архитектор сети", points: "1000–2499", questions: "7", answers: "70", comments: "70", voteBest: "50", voteQuestion: "50" },
+  { rank: "Матрица-стратег", points: "2500–4999", questions: "7", answers: "100", comments: "100", voteBest: "70", voteQuestion: "70" },
+  { rank: "Сетевой пророк", points: "5000–9999", questions: "8", answers: "200", comments: "150", voteBest: "100", voteQuestion: "100" },
+  { rank: "Нейрооракул", points: "10000–19999", questions: "8", answers: "250", comments: "200", voteBest: "130", voteQuestion: "130" },
+  { rank: "Повелитель алгоритмов", points: "20000–49999", questions: "9", answers: "400", comments: "250", voteBest: "200", voteQuestion: "200" },
+  { rank: "Квантовый хакер", points: "50000–99999", questions: "9", answers: "500", comments: "300", voteBest: "400", voteQuestion: "400" },
+  { rank: "Цифровая сингулярность", points: "50000–99999 (КПД > 25%)", questions: "10", answers: "600", comments: "400", voteBest: "500", voteQuestion: "500" },
+  { rank: "Абсолют Матрицы", points: "100000+ (КПД > 30%)", questions: "10", answers: "800", comments: "500", voteBest: "600", voteQuestion: "600" },
 ];
 
 /** Таблица системы баллов — тексты из Figma node 265:819 */

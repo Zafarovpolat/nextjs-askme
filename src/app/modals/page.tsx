@@ -21,7 +21,7 @@ function LoginModalInline() {
     <div className="modal modal--small modal--inline" id="preview__login">
       <button className="modal__close" onClick={() => {}}>
         <svg width="16" height="16">
-          <use xlinkHref="#close"></use>
+          <use xlinkHref="/sprites.svg#close"></use>
         </svg>
       </button>
       <div className="modal__content">
@@ -34,13 +34,13 @@ function LoginModalInline() {
         >
           <div className="login_input login_input_icon">
             <svg className="login_input_svg" width="13" height="14">
-              <use xlinkHref="#login-user"></use>
+              <use xlinkHref="/sprites.svg#login-user"></use>
             </svg>
             <HydrationSafeInput type="text" name="login" placeholder="Ваш логин" />
           </div>
           <div className="login_input login_input_icon">
             <svg className="login_input_svg" width="11" height="14">
-              <use xlinkHref="#login-lock"></use>
+              <use xlinkHref="/sprites.svg#login-lock"></use>
             </svg>
             <HydrationSafeInput type="password" name="password" placeholder="Ваш пароль" />
           </div>
@@ -60,19 +60,19 @@ function LoginModalInline() {
               <p>Войти через<br />социальные сети</p>
               <div className="login_socials_list">
                 <div>
-                  <svg width="24" height="16"><use xlinkHref="#yandex-id"></use></svg>
+                  <svg width="24" height="16"><use xlinkHref="/sprites.svg#yandex-id"></use></svg>
                 </div>
                 <div>
-                  <svg width="22" height="12"><use xlinkHref="#vk"></use></svg>
+                  <svg width="22" height="12"><use xlinkHref="/sprites.svg#vk"></use></svg>
                 </div>
                 <div>
-                  <svg width="20" height="20"><use xlinkHref="#ok"></use></svg>
+                  <svg width="20" height="20"><use xlinkHref="/sprites.svg#ok"></use></svg>
                 </div>
                 <div>
-                  <svg width="23" height="18"><use xlinkHref="#discord"></use></svg>
+                  <svg width="23" height="18"><use xlinkHref="/sprites.svg#discord"></use></svg>
                 </div>
                 <div>
-                  <svg width="17" height="16"><use xlinkHref="#tg"></use></svg>
+                  <svg width="17" height="16"><use xlinkHref="/sprites.svg#tg"></use></svg>
                 </div>
               </div>
             </div>
@@ -88,7 +88,7 @@ function TipsModalInline() {
     <div className="modal modal--medium modal--inline" id="preview__tips">
       <button className="modal__close" onClick={() => {}}>
         <svg width="16" height="16">
-          <use xlinkHref="#close"></use>
+          <use xlinkHref="/sprites.svg#close"></use>
         </svg>
       </button>
       <div className="modal__content">
@@ -111,11 +111,11 @@ function ComplaintModalInline() {
   return (
     <div className="login_block" id="preview__complaint">
       <svg className="login_block_bg" viewBox="0 0 457 353.5" style={{ width: '100%', height: 'auto' }}>
-        <use xlinkHref="#login-bg"></use>
+        <use xlinkHref="/sprites.svg#login-bg"></use>
       </svg>
 
       <svg className="login_block_rect" width="124.601562" height="52">
-        <use xlinkHref="#main-rect"></use>
+        <use xlinkHref="/sprites.svg#main-rect"></use>
       </svg>
 
       <div className="login_block_title">

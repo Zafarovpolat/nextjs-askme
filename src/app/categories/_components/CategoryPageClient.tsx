@@ -3,97 +3,61 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import Link from "next/link"
 import TopsBlock from "@/components/TopsBlock"
+import Breadcrumbs from "@/components/layout/Breadcrumbs"
 import { useRouter } from "next/navigation"
-import LoginModal from "@/components/LoginModal"
 import SharePopup from "@/components/SharePopup"
 import QuestionListCard from "@/components/QuestionListCard"
 import CategoryItemBg from "@/components/CategoryItemBg"
 import CategorySubjectIcon from "@/components/CategorySubjectIcon"
-import { api } from "@/lib/api-client"
 import { useFavoriteQuestion } from "@/hooks/useFavoriteQuestion"
-import { useAuthStore } from "@/store/authStore"
 import { HydrationSafeInput, HydrationSafeTextarea } from "@/components/HydrationSafeInput"
+import QuestionsTabPagination from "@/components/QuestionsTabPagination"
+import { api } from "@/lib/api-client"
+import {
+  type CategoryQuestionFilter,
+  type CategoryQuestionsByFilter,
+  type CategoryQuestionsPage,
+} from "@/lib/category-questions-tabs"
 
 type CategoryInfo = { id: number; name: string; slug: string; icon_key?: string | null }
 type PopularCategory = { id: number; name: string; slug: string; icon_key?: string | null; subcategories: { id: number; name: string; slug: string }[] }
-type QuestionItem = {
-  id: number
-  title: string
-  created_at: string
-  answers_count: number
-  likes_count: number
-  author: { id: number; full_name: string; avatar_url?: string | null; balls?: number }
-  latest_likers: { id: number; avatar_url?: string | null }[]
-}
 type SharedBlocks = {
   popular_categories: PopularCategory[]
   project_leaders: { id: number; first_name: string; last_name: string; avatar_url?: string | null; balls: number }[]
   most_discussed: { id: number; title: string; likes_count: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
   popular_topics: { id: number; name: string; slug: string | null; parent_slug: string | null; parent_icon_key?: string | null; total_likes: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
 }
-type QuestionsPage = { questions: QuestionItem[]; current_page: number; last_page: number; per_page: number; total: number }
 
 const tabs = [
   { id: "open", label: "Открытые" },
   { id: "voting", label: "На голосовании" },
   { id: "best", label: "Лучшие" },
-] as const
-type Filter = typeof tabs[number]["id"]
+] as const satisfies ReadonlyArray<{ id: CategoryQuestionFilter; label: string }>
 
 export default function CategoryPageClient({
   category,
   subcategory,
   shared,
-  initialQuestions,
-  questionsEndpoint,
+  initialByFilter,
+  initialFilter,
+  listPath,
 }: {
   category: CategoryInfo
   subcategory: CategoryInfo | null
   shared: SharedBlocks
-  initialQuestions: QuestionsPage
-  questionsEndpoint: string
+  initialByFilter: CategoryQuestionsByFilter
+  initialFilter: CategoryQuestionFilter
+  listPath: string
 }) {
   const router = useRouter()
-  const isAuthorized = useAuthStore((s) => s.isAuthorized)
   const { toggleFavorite, isFavorited, isPending } = useFavoriteQuestion()
-  const [activeTab, setActiveTab] = useState<Filter>("open")
-  const [questions, setQuestions] = useState<QuestionItem[]>(initialQuestions.questions ?? [])
-  const [currentPage, setCurrentPage] = useState(initialQuestions.current_page ?? 1)
-  const [lastPage, setLastPage] = useState(initialQuestions.last_page ?? 1)
-  const [loadingList, setLoadingList] = useState(false)
-  const [loadingMore, setLoadingMore] = useState(false)
+  const [activeTab, setActiveTab] = useState<CategoryQuestionFilter>(initialFilter)
+  const [byFilter, setByFilter] = useState(initialByFilter)
+  const [loadingMore, setLoadingMore] = useState<Partial<Record<CategoryQuestionFilter, boolean>>>({})
   const [questionDraft, setQuestionDraft] = useState('')
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
   const [shareData, setShareData] = useState({ title: '', url: '' })
   const shareButtonRef = useRef<HTMLButtonElement | null>(null)
-  const abortRef = useRef<AbortController | null>(null)
-
-  const fetchQuestions = useCallback(async (filter: Filter, page: number, append: boolean) => {
-    if (abortRef.current) abortRef.current.abort()
-    abortRef.current = new AbortController()
-    const signal = abortRef.current.signal
-    if (append) setLoadingMore(true)
-    else setLoadingList(true)
-    try {
-      const params = new URLSearchParams({ filter, page: String(page), per_page: "10" })
-      const data = await api.get<QuestionsPage>(`${questionsEndpoint}?${params}`, { signal })
-      if (append) setQuestions((prev) => [...prev, ...(data.questions ?? [])])
-      else setQuestions(data.questions ?? [])
-      setCurrentPage(data.current_page ?? 1)
-      setLastPage(data.last_page ?? 1)
-    } catch {
-      if (!append) {
-        setQuestions([])
-        setCurrentPage(1)
-        setLastPage(1)
-      }
-    } finally {
-      setLoadingList(false)
-      setLoadingMore(false)
-      abortRef.current = null
-    }
-  }, [questionsEndpoint])
 
   const handleShareClick = useCallback((e: React.MouseEvent<HTMLButtonElement>, title: string, id: number) => {
     const btn = e.currentTarget
@@ -105,6 +69,34 @@ export default function CategoryPageClient({
     setShareData({ title, url: `${typeof window !== 'undefined' ? window.location.origin : ''}/question/${id}` })
     setIsShareOpen(true)
   }, [isShareOpen])
+
+  const questionsApiPath = `v1/category-pages${listPath.replace(/^\/categories/, "")}/questions`
+
+  const loadMore = useCallback(async (tab: CategoryQuestionFilter) => {
+    const page = byFilter[tab]
+    if (page.current_page >= page.last_page || loadingMore[tab]) return
+    setLoadingMore((prev) => ({ ...prev, [tab]: true }))
+    try {
+      const nextPage = page.current_page + 1
+      const params = new URLSearchParams({
+        filter: tab,
+        page: String(nextPage),
+        per_page: String(page.per_page || 10),
+      })
+      const data = await api.get<CategoryQuestionsPage>(`${questionsApiPath}?${params}`)
+      setByFilter((prev) => ({
+        ...prev,
+        [tab]: {
+          ...data,
+          questions: [...prev[tab].questions, ...(data.questions ?? [])],
+        },
+      }))
+    } catch {
+      /* тихо */
+    } finally {
+      setLoadingMore((prev) => ({ ...prev, [tab]: false }))
+    }
+  }, [byFilter, loadingMore, questionsApiPath])
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const scrollTrackRef = useRef<HTMLDivElement>(null)
@@ -183,34 +175,38 @@ export default function CategoryPageClient({
 
   return (
     <div className="container">
-      <div className="breadcrumbs">
-        <Link href="/" className="breadcrumbs__link">Главная</Link>
-        <span className="breadcrumbs__sep">•</span>
-        <Link href="/categories" className="breadcrumbs__link">Категории вопросов</Link>
-        <span className="breadcrumbs__sep">•</span>
-        {subcategory ? (
-          <>
-            <Link href={`/categories/${category.slug}`} className="breadcrumbs__link">{category.name}</Link>
-            <span className="breadcrumbs__sep">•</span>
-            <span className="breadcrumbs__current">{subcategory.name}</span>
-          </>
-        ) : (
-          <span className="breadcrumbs__current">{category.name}</span>
-        )}
-      </div>
+      <Breadcrumbs
+        items={[
+          { name: "Главная", href: "/" },
+          { name: "Категории вопросов", href: "/categories" },
+          { name: category.name, href: `/categories/${category.slug}` },
+          ...(subcategory
+            ? [
+                {
+                  name: subcategory.name,
+                  href: `/categories/${category.slug}/${subcategory.slug}`,
+                },
+              ]
+            : []),
+        ]}
+      />
 
       <div className="section populars_block">
         <div className="blocks_title category_page_block">
           <svg width="24" height="24" className="category_page_icon">
-            <use xlinkHref={`#${category.icon_key || "gaming"}`}></use>
+            <use xlinkHref={`/sprites.svg#${category.icon_key || "gaming"}`}></use>
           </svg>
-          <h2>{category.name}</h2>
           {subcategory ? (
-            <div className="subcatogory_title">
-              <div></div>
-              <h3>{subcategory.name}</h3>
-            </div>
-          ) : null}
+            <>
+              <h2>{category.name}</h2>
+              <div className="subcatogory_title">
+                <div></div>
+                <h1>{subcategory.name}</h1>
+              </div>
+            </>
+          ) : (
+            <h1>{category.name}</h1>
+          )}
 
           <div className="questions_filter">
             {tabs.map((tab) => (
@@ -218,10 +214,7 @@ export default function CategoryPageClient({
                 key={tab.id}
                 type="button"
                 className={`s_btn ${activeTab === tab.id ? "s_btn_active" : ""}`}
-                onClick={() => {
-                  setActiveTab(tab.id)
-                  fetchQuestions(tab.id, 1, false)
-                }}
+                onClick={() => setActiveTab(tab.id)}
               >
                 {tab.label}
               </button>
@@ -240,7 +233,6 @@ export default function CategoryPageClient({
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault()
-                if (!isAuthorized) { setIsLoginModalOpen(true); return }
                 const q = questionDraft.trim()
                 router.push(q ? `/ask?draft=${encodeURIComponent(q)}` : '/ask')
               }
@@ -254,7 +246,6 @@ export default function CategoryPageClient({
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
-                if (!isAuthorized) { setIsLoginModalOpen(true); return }
                 const q = questionDraft.trim()
                 router.push(q ? `/ask?draft=${encodeURIComponent(q)}` : '/ask')
               }
@@ -264,7 +255,6 @@ export default function CategoryPageClient({
             type="button"
             className="s_btn s_btn_active"
             onClick={() => {
-              if (!isAuthorized) { setIsLoginModalOpen(true); return }
               const q = questionDraft.trim()
               router.push(q ? `/ask?draft=${encodeURIComponent(q)}` : '/ask')
             }}
@@ -273,28 +263,51 @@ export default function CategoryPageClient({
           </button>
         </div>
 
-        <div className="questions_list">
-          {questions.map((question) => (
-            <QuestionListCard
-              key={question.id}
-              question={question}
-              isFavorited={isFavorited}
-              isPending={isPending}
-              onToggleFavorite={toggleFavorite}
-              onShare={handleShareClick}
-            />
-          ))}
-        </div>
-
-        {loadingList ? <p className="secondary_text" style={{ textAlign: "center" }}>Загрузка вопросов…</p> : null}
-        {currentPage < lastPage ? (
-          <div className="show_more_btn_wrapper">
-            <button className="show_more_btn" type="button" onClick={() => fetchQuestions(activeTab, currentPage + 1, true)} disabled={loadingMore}>
-              <svg width="22" height="22"><use xlinkHref="#sync"></use></svg>
-              {loadingMore ? "Загрузка…" : "Показать еще"}
-            </button>
-          </div>
-        ) : null}
+        {tabs.map((tab) => {
+          const page = byFilter[tab.id]
+          const questions = page.questions ?? []
+          const hasMore = (page.current_page ?? 1) < (page.last_page ?? 1)
+          return (
+            <div key={tab.id} hidden={activeTab !== tab.id} data-questions-tab={tab.id}>
+              <div className="questions_list">
+                {questions.map((question) => (
+                  <QuestionListCard
+                    key={question.id}
+                    question={question}
+                    isFavorited={isFavorited}
+                    isPending={isPending}
+                    onToggleFavorite={toggleFavorite}
+                    onShare={handleShareClick}
+                  />
+                ))}
+              </div>
+              {questions.length === 0 ? (
+                <p className="secondary_text" style={{ textAlign: "center" }}>Пока нет вопросов</p>
+              ) : null}
+              {hasMore ? (
+                <div className="show_more_btn_wrapper">
+                  <button
+                    className="show_more_btn"
+                    type="button"
+                    onClick={() => void loadMore(tab.id)}
+                    disabled={Boolean(loadingMore[tab.id])}
+                  >
+                    <svg width="22" height="22">
+                      <use xlinkHref="/sprites.svg#sync"></use>
+                    </svg>
+                    {loadingMore[tab.id] ? "Загрузка..." : "Показать еще"}
+                  </button>
+                </div>
+              ) : null}
+              <QuestionsTabPagination
+                basePath={listPath}
+                filter={tab.id}
+                current={initialByFilter[tab.id].current_page ?? 1}
+                last={initialByFilter[tab.id].last_page ?? 1}
+              />
+            </div>
+          )
+        })}
       </div>
 
       <div className="line"></div>
@@ -350,9 +363,7 @@ export default function CategoryPageClient({
 
       <TopsBlock data={shared} />
 
-      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
       <SharePopup isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} anchorRef={shareButtonRef} title={shareData.title} url={shareData.url} />
     </div>
   )
 }
-

@@ -69,11 +69,11 @@ export default function LoginPageClient() {
       <div className="login_container">
         <div className="login_block">
           <svg width="457" height="353.5" className="login_block_bg">
-            <use xlinkHref="#login-bg"></use>
+            <use xlinkHref="/sprites.svg#login-bg"></use>
           </svg>
 
           <svg className="login_block_rect" width="124.601562" height="42">
-            <use xlinkHref="#main-rect"></use>
+            <use xlinkHref="/sprites.svg#main-rect"></use>
           </svg>
 
           <div className="login_block_title">
@@ -89,13 +89,13 @@ export default function LoginPageClient() {
             {error && <p className="login_error" style={{ color: "#c00", marginBottom: 8 }}>{error}</p>}
             <div className="login_input login_input_icon">
               <svg className="login_input_svg login_input_svg--accent" width="14" height="12" aria-hidden>
-                <use xlinkHref="#login-mail" />
+                <use xlinkHref="/sprites.svg#login-mail" />
               </svg>
               <HydrationSafeInput type="email" name="email" placeholder="Ваша почта" required autoComplete="email" />
             </div>
             <div className="login_input login_input_icon login_input_password">
               <svg className="login_input_svg login_input_svg--accent" width="12" height="15" aria-hidden>
-                <use xlinkHref="#login-lock" />
+                <use xlinkHref="/sprites.svg#login-lock" />
               </svg>
               <HydrationSafeInput
                 type={showPassword ? "text" : "password"}
@@ -111,7 +111,7 @@ export default function LoginPageClient() {
                 aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
               >
                 <svg width="20" height="14" aria-hidden>
-                  <use xlinkHref={showPassword ? "#login-eye" : "#login-eye-off"} />
+                  <use xlinkHref={showPassword ? "/sprites.svg#login-eye" : "/sprites.svg#login-eye-off"} />
                 </svg>
               </button>
             </div>

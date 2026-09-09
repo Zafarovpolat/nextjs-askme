@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import Footer from "@/components/layout/Footer";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import FaqPageClient from "./FaqPageClient";
 import { fetchFaqPage } from "@/lib/fetch-faq-page";
+import { withPageUrl } from "@/lib/page-seo";
 import "@/styles/faq.css";
 
 export const revalidate = 60;
@@ -13,14 +14,14 @@ export async function generateMetadata(): Promise<Metadata> {
   if (!data) {
     notFound();
   }
-  const title = data.title?.trim() || "Часто задаваемые вопросы — Otvetai";
+  const title = data.title?.trim() || "Часто задаваемые вопросы — otvetai";
   const description = data.description?.trim() || undefined;
   const keywordsRaw = data.keywords?.trim();
   const keywords = keywordsRaw
     ? keywordsRaw.split(/[,;]\s*/).filter(Boolean)
     : undefined;
 
-  return {
+  return withPageUrl("/faq", {
     title,
     description,
     keywords,
@@ -28,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
     },
-  };
+  });
 }
 
 export default async function FaqPage() {
@@ -42,13 +43,12 @@ export default async function FaqPage() {
   return (
     <>
       <div className="container">
-        <div className="breadcrumbs">
-          <Link href="/" className="breadcrumbs__link">
-            Главная
-          </Link>
-          <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">{pageTitle}</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { name: "Главная", href: "/" },
+            { name: pageTitle, href: "/faq" },
+          ]}
+        />
       </div>
 
       <FaqPageClient categories={data.categories} />

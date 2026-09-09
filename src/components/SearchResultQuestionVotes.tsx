@@ -36,7 +36,7 @@ export default function SearchResultQuestionVotes({
           disabled={pending}
         >
           <svg width="18" height="18">
-            <use xlinkHref="#thumb-up"></use>
+            <use xlinkHref="/sprites.svg#thumb-up"></use>
           </svg>
           <span className="vote_count" title={voteCountTitle(likes_count)}>
             {formatCompactCount(likes_count)}
@@ -50,7 +50,7 @@ export default function SearchResultQuestionVotes({
           disabled={pending}
         >
           <svg width="18" height="18">
-            <use xlinkHref="#thumb-down"></use>
+            <use xlinkHref="/sprites.svg#thumb-down"></use>
           </svg>
           <span className="vote_count" title={voteCountTitle(dislikes_count)}>
             {formatCompactCount(dislikes_count)}

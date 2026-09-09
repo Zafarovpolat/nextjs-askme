@@ -43,7 +43,7 @@ export default function QuestionModal({ isOpen, onClose }: QuestionModalProps) {
       <div className="modal modal--medium modal--active" id="modal__question">
         <button className="modal__close" onClick={onClose}>
           <svg width="16" height="16">
-            <use xlinkHref="#close"></use>
+            <use xlinkHref="/sprites.svg#close"></use>
           </svg>
         </button>
         <div className="modal__content">
@@ -51,7 +51,7 @@ export default function QuestionModal({ isOpen, onClose }: QuestionModalProps) {
             <img src="/images/question.png" alt="" />
           </div>
           <p className="modal__description">
-            Для публикации вопроса мы предложим вам зарегистрироваться на Ответах. Так вы не пропустите ни одного ответа на вопрос.
+            Для публикации вопроса мы предложим вам зарегистрироваться на otvetai. Так вы не пропустите ни одного ответа на вопрос.
           </p>
         </div>
       </div>

@@ -21,6 +21,11 @@
 @import url('../styles/markdown-content.css');
 @import url('../styles/cookie-consent.css');
 
+/* Внешний спрайт: заливка со страницы не доходит до path, красим <use> */
+svg use {
+  fill: inherit;
+}
+
 /* Дополнительные стили для Next.js */
 :root {
   --max-width: 1100px;
@@ -28,6 +33,57 @@
   --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
     'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
     'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+  --scrollbar-size: 8px;
+  --scrollbar-thumb: rgba(97, 106, 255, 0.45);
+  --scrollbar-thumb-hover: #616aff;
+  --scrollbar-track: #e7e9f6;
+}
+
+html:has(body.dark_mode),
+body.dark_mode {
+  --scrollbar-thumb: rgba(145, 152, 255, 0.5);
+  --scrollbar-thumb-hover: #9198ff;
+  --scrollbar-track: #23265b;
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+html::-webkit-scrollbar-button,
+body::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 8px;
+  border: 2px solid var(--scrollbar-track);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
 }
 
 /* Кроссбраузерные фиксы для мобильных устройств */

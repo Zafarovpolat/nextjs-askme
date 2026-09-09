@@ -516,19 +516,21 @@ export function ProfileLevelsMenuInner(p: ProfileLevelsRulesUserSlice) {
             <div className="profile-levels-table__row profile-levels-table__row_head">
               <span>Ранг</span>
               <span>Баллы</span>
-              <span>Задать вопрос</span>
+              <span>Вопросы</span>
+              <span>Ответы</span>
+              <span>Комментарии</span>
               <span>Голос за лучший</span>
-              <span>Голос за вопрос</span>
-              <span>Ответить</span>
+              <span>Оценка вопроса</span>
             </div>
             {PROFILE_LEVEL_DAILY_LIMITS.map((row) => (
               <div key={row.rank} className="profile-levels-table__row">
                 <span>{row.rank}</span>
                 <span>{row.points}</span>
-                <span>{row.ask}</span>
+                <span>{row.questions}</span>
+                <span>{row.answers}</span>
+                <span>{row.comments}</span>
                 <span>{row.voteBest}</span>
                 <span>{row.voteQuestion}</span>
-                <span>{row.answer}</span>
               </div>
             ))}
           </div>

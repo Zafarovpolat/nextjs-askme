@@ -3,6 +3,11 @@ import { notFound } from "next/navigation"
 import Footer from "@/components/layout/Footer"
 import { getApiFullUrl } from "@/config/api"
 import { metadataForCategorySlug } from "@/lib/category-page-metadata"
+import {
+  fetchCategoryQuestionsTabs,
+  parseCategoryQuestionFilter,
+  parseCategoryQuestionPage,
+} from "@/lib/category-questions-tabs"
 import CategoryPageClient from "../_components/CategoryPageClient"
 
 export async function generateMetadata({
@@ -21,16 +26,29 @@ async function fetchJson(url: string) {
   return res.json()
 }
 
-export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ filter?: string; page?: string }>
+}) {
   const { slug } = await params
-  const [data, questions] = await Promise.all([
+  const query = await searchParams
+  const initialFilter = parseCategoryQuestionFilter(query.filter)
+  const initialPage = parseCategoryQuestionPage(query.page)
+  const questionsEndpoint = `v1/category-pages/${slug}/questions-tabs`
+  const listPath = `/categories/${slug}`
+
+  const [data, initialByFilter] = await Promise.all([
     fetchJson(getApiFullUrl(`v1/category-pages/${slug}`)),
-    fetchJson(getApiFullUrl(`v1/category-pages/${slug}/questions?filter=open&page=1&per_page=10`)),
+    fetchCategoryQuestionsTabs(questionsEndpoint, initialFilter, initialPage),
   ])
 
   return (
     <>
       <CategoryPageClient
+        key={`${listPath}-${initialFilter}-${initialPage}`}
         category={data.category}
         subcategory={null}
         shared={{
@@ -39,11 +57,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           most_discussed: data.most_discussed ?? [],
           popular_topics: data.popular_topics ?? [],
         }}
-        initialQuestions={questions}
-        questionsEndpoint={`v1/category-pages/${slug}/questions`}
+        initialByFilter={initialByFilter}
+        initialFilter={initialFilter}
+        listPath={listPath}
       />
       <Footer />
     </>
   )
 }
-

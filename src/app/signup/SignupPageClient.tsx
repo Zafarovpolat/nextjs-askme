@@ -138,11 +138,11 @@ export default function SignupPageClient() {
       <div className="login_container">
         <div className="auth_page">
           <svg width="457" height="353.5" className="auth_block_bg">
-            <use xlinkHref="#login-bg"></use>
+            <use xlinkHref="/sprites.svg#login-bg"></use>
           </svg>
 
           <svg className="auth_block_rect" width="124.601562" height="42">
-            <use xlinkHref="#main-rect"></use>
+            <use xlinkHref="/sprites.svg#main-rect"></use>
           </svg>
 
           <div className="login_block_title">

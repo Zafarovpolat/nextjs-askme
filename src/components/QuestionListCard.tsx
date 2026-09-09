@@ -69,7 +69,7 @@ export default function QuestionListCard({
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Не переходим если клик по кнопке, ссылке или интерактивному элементу
     const target = e.target as HTMLElement;
-    if (target.closest("a") || target.closest("button") || target.closest("svg")) return;
+    if (target.closest("a") || target.closest("button")) return;
     router.push(`/question/${question.id}`);
   };
 
@@ -118,7 +118,7 @@ export default function QuestionListCard({
             type="button"
           >
             <svg width="13.714355" height="12.000000">
-              <use xlinkHref="#like"></use>
+              <use xlinkHref="/sprites.svg#like"></use>
             </svg>
           </button>
           <button
@@ -128,7 +128,7 @@ export default function QuestionListCard({
             type="button"
           >
             <svg width="14" height="14.000000">
-              <use xlinkHref="#share"></use>
+              <use xlinkHref="/sprites.svg#share"></use>
             </svg>
           </button>
         </div>
@@ -176,7 +176,7 @@ export default function QuestionListCard({
             type="button"
           >
             <svg width="13.714355" height="12.000000">
-              <use xlinkHref="#like"></use>
+              <use xlinkHref="/sprites.svg#like"></use>
             </svg>
           </button>
           <button
@@ -186,7 +186,7 @@ export default function QuestionListCard({
             type="button"
           >
             <svg width="14" height="14.000000">
-              <use xlinkHref="#share"></use>
+              <use xlinkHref="/sprites.svg#share"></use>
             </svg>
           </button>
           <Link href={`/question/${question.id}`} className="s_btn">

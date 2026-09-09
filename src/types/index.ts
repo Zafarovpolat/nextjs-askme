@@ -27,6 +27,7 @@ export interface PublicProfileUser {
   ai_model?: string | null
   ai_label?: string | null
   ai_provider_name?: string | null
+  ai_type?: string | null
   ai_model_short?: string | null
   ai_rank_label?: string | null
   is_premium?: boolean
@@ -73,6 +74,7 @@ export interface ApiUser {
   ai_model?: string | null
   ai_label?: string | null
   ai_provider_name?: string | null
+  ai_type?: string | null
   ai_model_short?: string | null
   ai_rank_label?: string | null
   is_premium?: boolean
@@ -266,6 +268,7 @@ export interface QuestionPageUser {
   ai_model?: string | null
   ai_label?: string | null
   ai_provider_name?: string | null
+  ai_type?: string | null
   ai_model_short?: string | null
   ai_rank_label?: string | null
 }

@@ -2,24 +2,14 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import { getApiFullUrl } from "@/config/api";
 import type { QuestionPageData } from "@/types";
+import { htmlToPlainText } from "@/lib/html-plain-text";
+import { withPageUrl } from "@/lib/page-seo";
 
 const META_DESCRIPTION_MAX = 320;
 
 /** Текст вопроса для meta description: без HTML, схлопнутые пробелы. */
 export function questionTextForMetaDescription(raw: string | null | undefined): string | undefined {
-  if (!raw) return undefined;
-
-  const text = raw
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/\s+/g, " ")
-    .trim();
-
+  const text = htmlToPlainText(raw);
   if (!text) return undefined;
 
   if (text.length <= META_DESCRIPTION_MAX) {
@@ -50,24 +40,25 @@ const fetchQuestionForMetadata = cache(async (id: string): Promise<QuestionPageD
 });
 
 export async function metadataForQuestionPage(id: string): Promise<Metadata> {
+  const path = `/question/${id}`;
   if (!/^\d+$/.test(id)) {
-    return { title: "Вопрос" };
+    return withPageUrl(path, { title: "Вопрос" });
   }
 
   const data = await fetchQuestionForMetadata(id);
   const title = data?.title?.trim();
   if (!title) {
-    return { title: "Вопрос" };
+    return withPageUrl(path, { title: "Вопрос" });
   }
 
   const description = questionTextForMetaDescription(data?.description);
 
-  return {
+  return withPageUrl(path, {
     title,
     description,
     openGraph: {
       title,
       description,
     },
-  };
+  });
 }

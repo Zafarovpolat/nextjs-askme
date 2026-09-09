@@ -6,6 +6,7 @@ import { api } from '@/lib/api-client'
 import { useAuthStore } from '@/store/authStore'
 import CustomSelect from '@/components/CustomSelect'
 import { HydrationSafeTextarea } from '@/components/HydrationSafeInput'
+import { showSystemToast } from '@/store/systemToastStore'
 
 interface ComplaintModalProps {
   isOpen: boolean
@@ -96,6 +97,7 @@ export default function ComplaintModal({
           ...(hasAnswer ? { answer_id: answerId } : {}),
         })
         onClose()
+        showSystemToast('Жалоба отправлена', 'success')
       } catch (err: unknown) {
         const e = err as Error & { message?: string; errors?: Record<string, string[]> }
         const msg = e?.message ?? e?.errors?.message?.[0] ?? 'Не удалось отправить жалобу'
@@ -115,16 +117,16 @@ export default function ComplaintModal({
       <div className="modal modal--small modal--active" id="modal__complaint">
         <button className="modal__close" onClick={onClose}>
           <svg width="16" height="16">
-            <use xlinkHref="#close"></use>
+            <use xlinkHref="/sprites.svg#close"></use>
           </svg>
         </button>
         <div className="modal__content">
           <div className="login_block">
             <svg width="457" height="353.5" className="login_block_bg">
-              <use xlinkHref="#login-bg"></use>
+              <use xlinkHref="/sprites.svg#login-bg"></use>
             </svg>
             <svg className="login_block_rect" width="124.601562" height="42">
-              <use xlinkHref="#main-rect"></use>
+              <use xlinkHref="/sprites.svg#main-rect"></use>
             </svg>
             <div className="login_block_title">
               <h2>Пожаловаться</h2>

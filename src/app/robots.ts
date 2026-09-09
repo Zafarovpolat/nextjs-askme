@@ -1,14 +1,22 @@
 import type { MetadataRoute } from 'next'
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://otvetai.ru'
+import { SITE_URL } from '@/lib/page-seo'
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
-        disallow: ['/profile', '/ask', '/modals', '/login', '/signup'],
+        allow: ['/', '/profile/'],
+        disallow: [
+          '/modals',
+          '/login',
+          '/signup',
+          '/notifications',
+          '/settings',
+          '/auth',
+          '/email-verified',
+          '/profile$',
+        ],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

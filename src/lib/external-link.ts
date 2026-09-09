@@ -50,6 +50,19 @@ export function parseHttpUrlsFromText(text: string): Array<
   return parts
 }
 
+/** Всегда навешивается на внешние ссылки из контента пользователей. */
+export const UGC_EXTERNAL_REL = "nofollow ugc noopener noreferrer";
+
+export function ugcExternalAnchorProps(href: string | undefined): {
+  rel: string;
+  target: "_blank";
+} | Record<string, never> {
+  if (!href || !isExternalHref(href)) {
+    return {};
+  }
+  return { rel: UGC_EXTERNAL_REL, target: "_blank" };
+}
+
 /**
  * true — ссылка ведёт с текущего сайта (включая относительные /mailto/tel).
  * false — открывать через предупреждение о внешнем ресурсе.

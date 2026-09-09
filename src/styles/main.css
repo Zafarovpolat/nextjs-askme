@@ -666,8 +666,7 @@ a:has(.light_logo) {
 
 /* Скрываем текст логотипа когда не хватает места — остаётся только иконка */
 @media (max-width: 400px) {
-  .header__logo .logo-text-otvet,
-  .header__logo .logo-text-ai {
+  .header__logo .logo-word {
     display: none;
   }
 
@@ -1053,6 +1052,7 @@ a.subject_item_icon {
 }
 
 .question_list_item {
+  position: relative;
   border-radius: 12px;
   margin-bottom: 5px;
   background: rgb(255, 255, 255);
@@ -1300,12 +1300,12 @@ a.subject_item_icon {
   border-radius: 50%;
   line-height: 0;
   position: relative;
-  z-index: 1;
+  z-index: 3;
   overflow: visible;
 }
 
 .question_list_item_avatar_link:hover {
-  z-index: 2;
+  z-index: 4;
 }
 
 .question_list_item_title_link {
@@ -1315,6 +1315,22 @@ a.subject_item_icon {
   display: flex;
   align-items: center;
   gap: 14px;
+}
+
+/* Вся карточка кликабельна: псевдоэлемент ссылки заголовка перекрывает ряд, аватар выше по z-index */
+.question_list_item_title_link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 12px;
+}
+
+.question_list_item_author_name,
+.question_list_item_right_actions,
+.question_item_top_data_right {
+  position: relative;
+  z-index: 3;
 }
 
 /* Заголовок + дата в карточке вопроса (<a>, не div) */
@@ -1526,7 +1542,7 @@ footer .line {
   padding-bottom: 16px;
 }
 
-.footer__logo .logo-container svg:nth-child(1) {
+.footer__logo .logo-mark-icon {
   width: 34px;
   height: 38px;
 }
@@ -1718,27 +1734,36 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   fill: #fff !important;
 }
 
-.mob-nav-logo .logo-container svg:nth-child(1) {
+.mob-nav-logo .logo-mark-icon {
   width: 30px;
   height: 34px;
 }
 
-.mob-nav-logo .logo-container svg path {
+.mob-nav-logo .logo-mark-icon path {
   fill: white;
 }
 
-.mob-nav-logo .neon-letter {
-  color: white !important;
-  text-shadow: none !important;
-  animation: none !important;
+.mob-nav-logo .logo-word {
+  color: #fff;
 }
 
-.dark_mode .mob-nav-logo .logo-container svg path {
+.mob-nav-logo .logo-svg-a path,
+.mob-nav-logo .logo-svg-i path {
+  fill: #fff;
+}
+
+.mob-nav-logo .neon-letter {
+  animation: none !important;
+  filter: none !important;
+}
+
+.dark_mode .mob-nav-logo .logo-mark-icon path {
   fill: #616aff;
 }
 
-.dark_mode .mob-nav-logo .neon-letter {
-  color: inherit !important;
+.dark_mode .mob-nav-logo .logo-svg-a path,
+.dark_mode .mob-nav-logo .logo-svg-i path {
+  fill: #616aff;
 }
 
 .nav_mob_wrapper_nav .mode_toggler svg {
@@ -2578,9 +2603,7 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
 }
 
 .pagination {
-  display: flex;
-  margin-top: 20px;
-  gap: 5px;
+  display: none;
 }
 
 .pagination .page-numbers {
@@ -2756,34 +2779,41 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   width: 16px;
   height: 14px;
   color: #6069ff;
-  transition: color 0.3s ease;
+  fill: currentColor;
+  transition: color 0.3s ease, fill 0.3s ease;
   margin-top: -3px;
 }
 
 /* Light theme */
 .premium-filter-btn .premium-crown-icon {
   color: #6069ff;
+  fill: currentColor;
 }
 
 .premium-filter-btn:hover .premium-crown-icon {
   color: white;
+  fill: currentColor;
 }
 
 .premium-filter-btn.s_btn_active .premium-crown-icon {
   color: white;
+  fill: currentColor;
 }
 
 /* Dark theme */
 .dark_mode .premium-filter-btn .premium-crown-icon {
   color: white;
+  fill: currentColor;
 }
 
 .dark_mode .premium-filter-btn:hover .premium-crown-icon {
   color: white;
+  fill: currentColor;
 }
 
 .dark_mode .premium-filter-btn.s_btn_active .premium-crown-icon {
   color: white;
+  fill: currentColor;
 }
 
 /* Dark theme для кнопки уведомлений в Header */
@@ -2819,124 +2849,122 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   display: flex;
 }
 
-.logo-container svg:nth-child(1) {
+.logo-mark-icon {
   margin-right: 10px;
+  flex-shrink: 0;
 }
 
-.logo-container svg:nth-child(2) {
-  margin-right: 3px;
-}
-
-/* п.15 — текстовый логотип вместо SVG */
-.logo-text-otvet {
-  font-family: Nunito, sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+.logo-word {
+  display: flex;
+  align-items: flex-end;
+  height: 31px;
   color: #384b67;
-  line-height: 1;
-  margin-right: 2px;
-  text-transform: uppercase;
 }
 
-.logo-text-otvet--dark {
+.dark_logo .logo-word,
+.dark_mode .logo-word {
   color: #ffffff;
 }
 
+.logo-svg-otvet {
+  display: block;
+  height: 27px;
+  width: auto;
+  margin-right: 2px;
+}
+
+.logo-svg-otvet path {
+  fill: currentColor;
+}
+
 .logo-text-ai {
-  font-family: Nunito, sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: #616aff;
-  line-height: 1;
-  text-transform: uppercase;
   display: flex;
+  align-items: flex-end;
+  height: 31px;
+  gap: 4.5px;
 }
 
-/* п.16 — неон-эффект мерцания букв «a» и «i» независимо */
-.logo-text-ai {
-  text-shadow: none;
-  animation: none;
+.logo-svg-a,
+.logo-svg-i {
+  display: block;
+  width: auto;
+  overflow: visible;
 }
 
+.logo-svg-a {
+  height: 22.7px;
+}
+
+.logo-svg-i {
+  height: 31px;
+}
+
+.logo-svg-a path,
+.logo-svg-i path {
+  fill: #616aff;
+}
+
+/* Неон-мерцание SVG-букв «a» и «i» (тот же ритм 24s) */
 .neon-letter {
   display: inline-block;
-  will-change: opacity, text-shadow;
+  overflow: visible;
+  --logo-neon-glow: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
+    drop-shadow(0 0 14px rgba(130, 145, 255, 0.6))
+    drop-shadow(0 0 20px rgba(110, 130, 255, 0.4));
+  filter: var(--logo-neon-glow);
+  will-change: opacity, filter;
 }
 
-/* Буква «a» — цикл 24s, органические случайные мерцания (1 раз в фазе) */
 .neon-letter--a {
-  text-shadow:
-    0 0 6px rgba(150, 160, 255, 0.9),
-    0 0 14px rgba(130, 145, 255, 0.6),
-    0 0 20px rgba(110, 130, 255, 0.4);
   animation: neon-flicker-a 24s infinite;
 }
 
-/* Буква «i» — цикл 24s, органические двойные мерцания со смещением во времени (2 раза в фазе) */
 .neon-letter--i {
-  text-shadow:
-    0 0 6px rgba(150, 160, 255, 0.9),
-    0 0 14px rgba(130, 145, 255, 0.6),
-    0 0 20px rgba(110, 130, 255, 0.4);
   animation: neon-flicker-i 24s infinite;
 }
 
+.dark_mode .neon-letter {
+  --logo-neon-glow: drop-shadow(0 0 10px rgba(97, 106, 255, 1))
+    drop-shadow(0 0 22px rgba(97, 106, 255, 0.8))
+    drop-shadow(0 0 34px rgba(97, 106, 255, 0.5));
+}
+
+/* Буква a: 3 одиночных моргания. Буква i: 3 двойных, со сдвигом. */
 @keyframes neon-flicker-a {
   0%,
   13% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
   13.33%,
   13.73% {
     opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
+    filter: none;
   }
   14.07%,
   47% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
   47.5%,
   47.9% {
     opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
+    filter: none;
   }
   48.3%,
   94.5% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
   95%,
   95.4% {
     opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
+    filter: none;
   }
   95.8%,
   100% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
 }
 
@@ -2944,277 +2972,67 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   0%,
   25% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
   25.42%,
   25.82% {
     opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
+    filter: none;
   }
   26.22%,
   27.5% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
   27.92%,
   28.32% {
     opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
+    filter: none;
   }
   28.72%,
   63.3% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
   63.75%,
   64.15% {
     opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
+    filter: none;
   }
   64.55%,
   65.8% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
   66.25%,
   66.65% {
     opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
+    filter: none;
   }
   67.05%,
   76.6% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
   77.08%,
   77.48% {
     opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
+    filter: none;
   }
   77.88%,
   79.1% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
+    filter: var(--logo-neon-glow);
   }
   79.58%,
   79.98% {
     opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
+    filter: none;
   }
   80.38%,
   100% {
     opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 6px rgba(150, 160, 255, 0.9),
-      0 0 14px rgba(130, 145, 255, 0.6),
-      0 0 20px rgba(110, 130, 255, 0.4);
-  }
-}
-
-/* Тёмная тема — ярче свечение */
-.dark_mode .neon-letter--a {
-  text-shadow:
-    0 0 10px rgba(97, 106, 255, 1),
-    0 0 22px rgba(97, 106, 255, 0.8),
-    0 0 34px rgba(97, 106, 255, 0.5);
-  animation-name: neon-flicker-a-dark;
-}
-
-.dark_mode .neon-letter--i {
-  text-shadow:
-    0 0 10px rgba(97, 106, 255, 1),
-    0 0 22px rgba(97, 106, 255, 0.8),
-    0 0 34px rgba(97, 106, 255, 0.5);
-  animation-name: neon-flicker-i-dark;
-}
-
-@keyframes neon-flicker-a-dark {
-  0%,
-  13% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-  13.33%,
-  13.73% {
-    opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
-  }
-  14.07%,
-  47% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-  47.5%,
-  47.9% {
-    opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
-  }
-  48.3%,
-  94.5% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-  95%,
-  95.4% {
-    opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
-  }
-  95.8%,
-  100% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-}
-
-@keyframes neon-flicker-i-dark {
-  0%,
-  25% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-  25.42%,
-  25.82% {
-    opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
-  }
-  26.22%,
-  27.5% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-  27.92%,
-  28.32% {
-    opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
-  }
-  28.72%,
-  63.3% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-  63.75%,
-  64.15% {
-    opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
-  }
-  64.55%,
-  65.8% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-  66.25%,
-  66.65% {
-    opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
-  }
-  67.05%,
-  76.6% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-  77.08%,
-  77.48% {
-    opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
-  }
-  77.88%,
-  79.1% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
-  }
-  79.58%,
-  79.98% {
-    opacity: 0.15;
-    color: #616aff;
-    text-shadow: none;
-  }
-  80.38%,
-  100% {
-    opacity: 1;
-    color: #616aff;
-    text-shadow:
-      0 0 10px rgba(97, 106, 255, 1),
-      0 0 22px rgba(97, 106, 255, 0.8),
-      0 0 34px rgba(97, 106, 255, 0.5);
+    filter: var(--logo-neon-glow);
   }
 }
 

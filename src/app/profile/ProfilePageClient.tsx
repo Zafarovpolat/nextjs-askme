@@ -1,6 +1,7 @@
 "use client";
 
 import Footer from "@/components/layout/Footer";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import SharePopup from "@/components/SharePopup";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { api } from "@/lib/api-client";
@@ -835,11 +836,12 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     <div className="profile_page_layout">
       <div className="container">
         {/* Хлебные крошки */}
-        <div className="breadcrumbs">
-          <Link href="/" className="breadcrumbs__link">Главная</Link>
-          <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">Профиль</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { name: "Главная", href: "/" },
+            { name: "Профиль", href: "/profile" },
+          ]}
+        />
 
         {/* profile page */}
         <div className="profile_page" ref={wrapperRef}>
@@ -858,7 +860,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu2")}
                   >
                     <svg width="15.714844" height="20.000000">
-                      <use xlinkHref="#profile"></use>
+                      <use xlinkHref="/sprites.svg#profile"></use>
                     </svg>
                     <p className="main_text">Редактировать профиль</p>
                   </div>
@@ -876,7 +878,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu_levels")}
                   >
                     <svg width="13" height="20">
-                      <use xlinkHref="#levels"></use>
+                      <use xlinkHref="/sprites.svg#levels"></use>
                     </svg>
                     <p className="main_text">Уровни</p>
                   </div>
@@ -887,7 +889,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu_rules")}
                   >
                     <svg width="20" height="17">
-                      <use xlinkHref="#rules"></use>
+                      <use xlinkHref="/sprites.svg#rules"></use>
                     </svg>
                     <p className="main_text">Ограничения</p>
                   </div>
@@ -898,7 +900,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu_packages")}
                   >
                     <svg width="16" height="20">
-                      <use xlinkHref="#vip"></use>
+                      <use xlinkHref="/sprites.svg#vip"></use>
                     </svg>
                     <p className="main_text">Пакеты</p>
                   </div>
@@ -909,7 +911,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu4")}
                   >
                     <svg width="20.000000" height="20.000000">
-                      <use xlinkHref="#settings"></use>
+                      <use xlinkHref="/sprites.svg#settings"></use>
                     </svg>
                     <p className="main_text">Настройки</p>
                   </div>
@@ -922,7 +924,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onKeyDown={(e) => e.key === 'Enter' && handleLogout()}
                   >
                     <svg width="20" height="20" aria-hidden>
-                      <use xlinkHref="#logout-profile" />
+                      <use xlinkHref="/sprites.svg#logout-profile" />
                     </svg>
                     <p className="main_text">Выход</p>
                   </div>
@@ -961,7 +963,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu2")}
                   >
                     <svg width="15.714844" height="20.000000">
-                      <use xlinkHref="#profile"></use>
+                      <use xlinkHref="/sprites.svg#profile"></use>
                     </svg>
                   </div>
                   <Link href="/notifications" className="profile_menu_item menu_item_m" title="Уведомления">
@@ -977,7 +979,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu_levels")}
                   >
                     <svg width="13" height="20">
-                      <use xlinkHref="#levels"></use>
+                      <use xlinkHref="/sprites.svg#levels"></use>
                     </svg>
                   </div>
                   <div
@@ -987,7 +989,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu_rules")}
                   >
                     <svg width="20" height="17">
-                      <use xlinkHref="#rules"></use>
+                      <use xlinkHref="/sprites.svg#rules"></use>
                     </svg>
                   </div>
                   <div
@@ -997,7 +999,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu_packages")}
                   >
                     <svg width="16" height="20">
-                      <use xlinkHref="#vip"></use>
+                      <use xlinkHref="/sprites.svg#vip"></use>
                     </svg>
                   </div>
                   <div
@@ -1007,7 +1009,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     onClick={() => handleTabClick("menu4")}
                   >
                     <svg width="20" height="20">
-                      <use xlinkHref="#settings"></use>
+                      <use xlinkHref="/sprites.svg#settings"></use>
                     </svg>
                   </div>
                   <div
@@ -1017,7 +1019,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                     title="Выход"
                   >
                     <svg width="20" height="20" aria-hidden>
-                      <use xlinkHref="#logout-profile" />
+                      <use xlinkHref="/sprites.svg#logout-profile" />
                     </svg>
                   </div>
                 </ProfileMenuListMob>
@@ -1123,7 +1125,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                             disabled={userQuestionsLoadingMore}
                           >
                             <svg width="22" height="22">
-                              <use xlinkHref="#sync"></use>
+                              <use xlinkHref="/sprites.svg#sync"></use>
                             </svg>
                             <span>{userQuestionsLoadingMore ? "Загрузка…" : "Загрузить еще"}</span>
                           </button>
@@ -1207,7 +1209,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                             disabled={myAnswersLoadingMore}
                           >
                             <svg width="22" height="22">
-                              <use xlinkHref="#sync"></use>
+                              <use xlinkHref="/sprites.svg#sync"></use>
                             </svg>
                             <span>{myAnswersLoadingMore ? "Загрузка…" : "Загрузить еще"}</span>
                           </button>
@@ -1272,7 +1274,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         onClick={() => fetchSubscriptions(subscriptionsPage + 1, true)}
                         disabled={subscriptionsLoadingMore}
                       >
-                        <svg width="22" height="22"><use xlinkHref="#sync"></use></svg>
+                        <svg width="22" height="22"><use xlinkHref="/sprites.svg#sync"></use></svg>
                         <span>{subscriptionsLoadingMore ? "Загрузка…" : "Загрузить еще"}</span>
                       </button>
                     </div>
@@ -1330,7 +1332,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         onClick={() => fetchSubscribers(subscribersPage + 1, true)}
                         disabled={subscribersLoadingMore}
                       >
-                        <svg width="22" height="22"><use xlinkHref="#sync"></use></svg>
+                        <svg width="22" height="22"><use xlinkHref="/sprites.svg#sync"></use></svg>
                         <span>{subscribersLoadingMore ? "Загрузка…" : "Загрузить еще"}</span>
                       </button>
                     </div>
@@ -1455,7 +1457,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                       {meUser.premium_is_active ? (
                         <>
                           Текущий тариф:{" "}
-                          <strong>{meUser.premium_is_permanent ? "Постоянный" : (meUser.premium_package_name ?? "Премиум")}</strong>
+                          <strong>{meUser.premium_package_name ?? (meUser.premium_is_permanent ? "Постоянный" : "Премиум")}</strong>
                           {meUser.premium_is_permanent
                             ? " · действует постоянно"
                             : meUser.premium_until
@@ -1665,7 +1667,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                         }}
                       >
                         <svg width="11" height="14">
-                          <use xlinkHref="#play-sound"></use>
+                          <use xlinkHref="/sprites.svg#play-sound"></use>
                         </svg>
                       </button>
                       <p className="secondary_text">Прослушать звук</p>

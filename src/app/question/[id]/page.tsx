@@ -1,12 +1,15 @@
 import { cookies } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getApiFullUrl } from "@/config/api";
 import { fetchMainSidebarCategoriesCached } from "@/lib/server-main-sidebar-categories";
 import { fetchProfileWidgetsCached } from "@/lib/server-profile-widgets";
 import { metadataForQuestionPage } from "@/lib/question-page-metadata";
+import { canonicalQuestionIdSegment } from "@/lib/question-canonical";
 import type { AnswerAnchorRef } from "@/lib/question-answer-tree";
 import type { QuestionPageData } from "@/types";
+import JsonLd from "@/components/JsonLd";
+import { buildQuestionQaPageJsonLd } from "@/lib/question-qapage-jsonld";
 import QuestionPageContent from "./QuestionPageContent";
 
 const TOKEN_KEY = "otvetai_token";
@@ -19,7 +22,11 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  return metadataForQuestionPage(id);
+  const canonicalId = canonicalQuestionIdSegment(id);
+  if (!canonicalId) {
+    return { title: "Вопрос" };
+  }
+  return metadataForQuestionPage(canonicalId);
 }
 
 export default async function QuestionPage({
@@ -29,8 +36,19 @@ export default async function QuestionPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ answer?: string; coment?: string }>;
 }) {
-  const { id } = await params;
+  const { id: rawId } = await params;
   const { answer, coment } = await searchParams;
+  const id = canonicalQuestionIdSegment(rawId);
+  if (!id) {
+    notFound();
+  }
+  if (rawId !== id) {
+    const q = new URLSearchParams();
+    if (answer) q.set("answer", answer);
+    if (coment) q.set("coment", coment);
+    const qs = q.toString();
+    permanentRedirect(`/question/${id}${qs ? `?${qs}` : ""}`);
+  }
 
   let initialAnchor: AnswerAnchorRef | undefined;
   let anchorTargetId: string | null = null;
@@ -69,12 +87,15 @@ export default async function QuestionPage({
   }
   const data: QuestionPageData = await res.json();
   return (
-    <QuestionPageContent
-      key={data.id}
-      initialQuestion={data}
-      initialAnchor={initialAnchor}
-      sidebarCategories={sidebarCategories}
-      widgets={widgets}
-    />
+    <>
+      <JsonLd data={buildQuestionQaPageJsonLd(data)} />
+      <QuestionPageContent
+        key={data.id}
+        initialQuestion={data}
+        initialAnchor={initialAnchor}
+        sidebarCategories={sidebarCategories}
+        widgets={widgets}
+      />
+    </>
   );
 }

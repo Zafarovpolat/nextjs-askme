@@ -172,7 +172,7 @@ export default function SearchResultCard({
                 className="search-result-category-icon"
               >
                 <use
-                  xlinkHref={`#${question.category?.svgIcon || "business"}`}
+                  xlinkHref={`/sprites.svg#${question.category?.svgIcon || "business"}`}
                 ></use>
               </svg>
               <span className="search-result-category-name">

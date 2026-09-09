@@ -11,6 +11,7 @@ import { useNavChromeStore } from "@/store/navChromeStore";
 import { toggleExplicitColorTheme } from "@/lib/theme-cookie";
 import { saveAuthorizedUserColorTheme } from "@/lib/save-user-color-theme";
 import NotificationBtnRealtime from "./NotificationBtnRealtime";
+import LogoWordmark from "./LogoWordmark";
 import UserAvatar from "@/components/UserAvatar";
 import { HydrationSafeInput } from "@/components/HydrationSafeInput";
 
@@ -313,7 +314,7 @@ const ProfileDropdown = () => {
                 >
                   <div className={styles.profileMenuIcon}>
                     <svg width="24" height="24">
-                      <use xlinkHref={`#${item.icon}`}></use>
+                      <use xlinkHref={`/sprites.svg#${item.icon}`}></use>
                     </svg>
                   </div>
                   {item.label}
@@ -336,7 +337,7 @@ const ProfileDropdown = () => {
             >
               <div className={styles.profileMenuIcon}>
                 <svg width="24" height="24">
-                  <use xlinkHref="#logout"></use>
+                  <use xlinkHref="/sprites.svg#logout"></use>
                 </svg>
               </div>
               Выйти
@@ -429,39 +430,12 @@ export default function Header() {
         <EmailVerifyBanner />
         <nav>
           <div className="nav_wrapper container">
-          {/* п.15 — Логотип текстом вместо SVG (кроме иконки) */}
           <Link href="/" className="header__logo" title="Главная">
             <div className="logo-container light_logo">
-              <svg
-                width="44"
-                height="50"
-                viewBox="0 0 44 50"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M21.8621 0C33.5553 0 44 9.4959 44 21.2097C44 29.661 39.9808 38.1356 21.931 50V42.2812C34.6207 29.2373 34.6207 26.1072 34.6207 19.6207C34.6207 13.1342 28.4061 7.87591 21.931 7.87591C15.456 7.87591 9.51724 13.1342 9.51724 19.6207C9.51724 26.061 15.3816 32.1379 21.7931 32.212V42.4188C10.1316 42.3816 0 32.9005 0 21.2097C0 9.4959 10.1689 0 21.8621 0Z"
-                  fill="#616AFF"
-                />
-              </svg>
-              <span className="logo-text-otvet">Otvet</span>
-              <span className="logo-text-ai"><span className="neon-letter neon-letter--a">a</span><span className="neon-letter neon-letter--i">i</span></span>
+              <LogoWordmark />
             </div>
             <div className="logo-container dark_logo">
-              <svg
-                width="44"
-                height="50"
-                viewBox="0 0 44 50"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M21.8621 0C33.5553 0 44 9.4959 44 21.2097C44 29.661 39.9808 38.1356 21.931 50V42.2812C34.6207 29.2373 34.6207 26.1072 34.6207 19.6207C34.6207 13.1342 28.4061 7.87591 21.931 7.87591C15.456 7.87591 9.51724 13.1342 9.51724 19.6207C9.51724 26.061 15.3816 32.1379 21.7931 32.212V42.4188C10.1316 42.3816 0 32.9005 0 21.2097C0 9.4959 10.1689 0 21.8621 0Z"
-                  fill="#616AFF"
-                />
-              </svg>
-              <span className="logo-text-otvet logo-text-otvet--dark">Otvet</span>
-              <span className="logo-text-ai"><span className="neon-letter neon-letter--a">a</span><span className="neon-letter neon-letter--i">i</span></span>
+              <LogoWordmark />
             </div>
           </Link>
 
@@ -510,7 +484,7 @@ export default function Header() {
             <Link href="/ask" className="nav-ask-btn" title="Спросить">
               <button type="button" className="m_btn" title="Спросить">
                 <svg width="20" height="20">
-                  <use xlinkHref="#ask"></use>
+                  <use xlinkHref="/sprites.svg#ask"></use>
                 </svg>
                 <span className="nav-btn-label">Спросить</span>
               </button>
@@ -553,7 +527,7 @@ export default function Header() {
             <Link href="/leaders" className="nav-leaders-btn" title="Лидеры">
               <button type="button" className="m_btn" title="Лидеры">
                 <svg width="20" height="20">
-                  <use xlinkHref="#leaders"></use>
+                  <use xlinkHref="/sprites.svg#leaders"></use>
                 </svg>
                 <span className="nav-btn-label">Лидеры</span>
               </button>
@@ -615,20 +589,7 @@ export default function Header() {
         <div className="nav_mob_wrapper_nav">
           <Link href="/" className="mob-nav-logo" title="Главная" onClick={closeMenu}>
             <div className="logo-container" style={{ display: "flex" }}>
-              <svg
-                width="44"
-                height="50"
-                viewBox="0 0 44 50"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M21.8621 0C33.5553 0 44 9.4959 44 21.2097C44 29.661 39.9808 38.1356 21.931 50V42.2812C34.6207 29.2373 34.6207 26.1072 34.6207 19.6207C34.6207 13.1342 28.4061 7.87591 21.931 7.87591C15.456 7.87591 9.51724 13.1342 9.51724 19.6207C9.51724 26.061 15.3816 32.1379 21.7931 32.212V42.4188C10.1316 42.3816 0 32.9005 0 21.2097C0 9.4959 10.1689 0 21.8621 0Z"
-                  fill="#616AFF"
-                />
-              </svg>
-              <span className="logo-text-otvet logo-text-otvet--dark">Otvet</span>
-              <span className="logo-text-ai"><span className="neon-letter neon-letter--a">a</span><span className="neon-letter neon-letter--i">i</span></span>
+              <LogoWordmark />
             </div>
           </Link>
           <div>
@@ -697,7 +658,7 @@ export default function Header() {
             }}
           >
             <svg width="18" height="18">
-              <use xlinkHref="#all-categories"></use>
+              <use xlinkHref="/sprites.svg#all-categories"></use>
             </svg>
             Все категории
           </button>
@@ -727,7 +688,7 @@ export default function Header() {
           <Link href="/ask" className="mob_sec_item" title="Спросить" onClick={closeMenu}>
             <button type="button" className="m_btn" title="Спросить">
               <svg width="20" height="20">
-                <use xlinkHref="#ask"></use>
+                <use xlinkHref="/sprites.svg#ask"></use>
               </svg>
               Спросить
             </button>
@@ -736,7 +697,7 @@ export default function Header() {
           <Link href="/leaders" className="mob_sec_item" title="Лидеры" onClick={closeMenu}>
             <button type="button" className="m_btn" title="Лидеры">
               <svg width="20" height="20">
-                <use xlinkHref="#leaders"></use>
+                <use xlinkHref="/sprites.svg#leaders"></use>
               </svg>
               Лидеры
             </button>

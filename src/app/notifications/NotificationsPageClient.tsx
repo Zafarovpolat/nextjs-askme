@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Footer from '@/components/layout/Footer'
+import Breadcrumbs from '@/components/layout/Breadcrumbs'
 import ProfileHeaderBlock from '@/components/profile/ProfileHeaderBlock'
 import ProfileMenuListMob from '@/components/profile/ProfileMenuListMob'
 import ProfileWeeklyLeadersSidebar from '@/components/ProfileWeeklyLeadersSidebar'
@@ -104,13 +105,16 @@ export default function NotificationsPageClient({
   const [shareData, setShareData] = useState({ title: '', url: '' })
   const shareButtonRef = useRef<HTMLButtonElement | null>(null)
 
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const leftSidebarRef = useRef<HTMLDivElement>(null)
-  const rightSidebarRef = useRef<HTMLDivElement>(null)
-  usePageStickySidebars(wrapperRef, leftSidebarRef, rightSidebarRef)
+  const { wrapperRef, leftSidebarRef, rightSidebarRef } = usePageStickySidebars()
 
   useEffect(() => {
-    hydrateFromMe(initialMe)
+    hydrateFromMe({
+      user: initialMe.user,
+      favorite_question_ids: initialMe.favorite_question_ids ?? [],
+      favorite_answer_ids: initialMe.favorite_answer_ids ?? [],
+      subscribed_user_ids: initialMe.subscribed_user_ids ?? [],
+      subscribed_question_ids: initialMe.subscribed_question_ids ?? [],
+    })
   }, [hydrateFromMe, initialMe])
 
   useEffect(() => {
@@ -225,17 +229,13 @@ export default function NotificationsPageClient({
   return (
     <div className="profile_page_layout">
       <div className="container">
-        <div className="breadcrumbs">
-          <Link href="/" className="breadcrumbs__link">
-            Главная
-          </Link>
-          <span className="breadcrumbs__sep">•</span>
-          <Link href="/profile" className="breadcrumbs__link">
-            Профиль
-          </Link>
-          <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">Уведомления</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { name: 'Главная', href: '/' },
+            { name: 'Профиль', href: '/profile' },
+            { name: 'Уведомления', href: '/notifications' },
+          ]}
+        />
 
         <div className="profile_page" ref={wrapperRef}>
           <div className="profile_menu_column" ref={leftSidebarRef}>
@@ -246,7 +246,7 @@ export default function NotificationsPageClient({
               <div className="profile_menu_list tabs_list">
                 <Link href="/profile?tab=edit" className="profile_menu_item menu_item profile-edit-btn" title="Редактировать профиль">
                   <svg width="15.714844" height="20">
-                    <use xlinkHref="#profile" />
+                    <use xlinkHref="/sprites.svg#profile" />
                   </svg>
                   <p className="main_text">Редактировать профиль</p>
                 </Link>
@@ -256,25 +256,25 @@ export default function NotificationsPageClient({
                 </Link>
                 <Link href="/profile?tab=levels" className="profile_menu_item menu_item" title="Уровни">
                   <svg width="13" height="20">
-                    <use xlinkHref="#levels" />
+                    <use xlinkHref="/sprites.svg#levels" />
                   </svg>
                   <p className="main_text">Уровни</p>
                 </Link>
                 <Link href="/profile?tab=rules" className="profile_menu_item menu_item" title="Ограничения">
                   <svg width="20" height="17">
-                    <use xlinkHref="#rules" />
+                    <use xlinkHref="/sprites.svg#rules" />
                   </svg>
                   <p className="main_text">Ограничения</p>
                 </Link>
                 <Link href="/profile?tab=vip" className="profile_menu_item menu_item" title="Пакеты">
                   <svg width="16" height="20">
-                    <use xlinkHref="#vip" />
+                    <use xlinkHref="/sprites.svg#vip" />
                   </svg>
                   <p className="main_text">Пакеты</p>
                 </Link>
                 <Link href="/profile?tab=settings" className="profile_menu_item menu_item" title="Настройки">
                   <svg width="20" height="20">
-                    <use xlinkHref="#settings" />
+                    <use xlinkHref="/sprites.svg#settings" />
                   </svg>
                   <p className="main_text">Настройки</p>
                 </Link>
@@ -287,7 +287,7 @@ export default function NotificationsPageClient({
                   onKeyDown={(e) => e.key === 'Enter' && handleLogout()}
                 >
                   <svg width="20" height="20" aria-hidden>
-                    <use xlinkHref="#logout-profile" />
+                    <use xlinkHref="/sprites.svg#logout-profile" />
                   </svg>
                   <p className="main_text">Выход</p>
                 </div>
@@ -315,7 +315,7 @@ export default function NotificationsPageClient({
                 <ProfileMenuListMob>
                   <Link href="/profile?tab=edit" className="profile_menu_item menu_item_m" title="Редактировать профиль">
                     <svg width="15.714844" height="20">
-                      <use xlinkHref="#profile" />
+                      <use xlinkHref="/sprites.svg#profile" />
                     </svg>
                   </Link>
                   <Link href="/notifications" className="profile_menu_item menu_item_m active_menu" title="Уведомления">
@@ -323,27 +323,27 @@ export default function NotificationsPageClient({
                   </Link>
                   <Link href="/profile?tab=levels" className="profile_menu_item menu_item_m" title="Уровни">
                     <svg width="13" height="20">
-                      <use xlinkHref="#levels" />
+                      <use xlinkHref="/sprites.svg#levels" />
                     </svg>
                   </Link>
                   <Link href="/profile?tab=rules" className="profile_menu_item menu_item_m" title="Ограничения">
                     <svg width="20" height="17">
-                      <use xlinkHref="#rules" />
+                      <use xlinkHref="/sprites.svg#rules" />
                     </svg>
                   </Link>
                   <Link href="/profile?tab=vip" className="profile_menu_item menu_item_m" title="Пакеты">
                     <svg width="16" height="20">
-                      <use xlinkHref="#vip" />
+                      <use xlinkHref="/sprites.svg#vip" />
                     </svg>
                   </Link>
                   <Link href="/profile?tab=settings" className="profile_menu_item menu_item_m" title="Настройки">
                     <svg width="20" height="20">
-                      <use xlinkHref="#settings" />
+                      <use xlinkHref="/sprites.svg#settings" />
                     </svg>
                   </Link>
                   <div className="profile_menu_item menu_item_m" onClick={handleLogout} role="button" title="Выход">
                     <svg width="20" height="20" aria-hidden>
-                      <use xlinkHref="#logout-profile" />
+                      <use xlinkHref="/sprites.svg#logout-profile" />
                     </svg>
                   </div>
                 </ProfileMenuListMob>
@@ -513,7 +513,7 @@ export default function NotificationsPageClient({
                                 }}
                               >
                                 <svg width="14" height="14" aria-hidden>
-                                  <use xlinkHref="#share" />
+                                  <use xlinkHref="/sprites.svg#share" />
                                 </svg>
                               </button>
                             )}
@@ -532,7 +532,7 @@ export default function NotificationsPageClient({
                           disabled={loadingMore}
                         >
                           <svg width="22" height="22">
-                            <use xlinkHref="#sync" />
+                            <use xlinkHref="/sprites.svg#sync" />
                           </svg>
                           {loadingMore ? 'Загрузка…' : 'Показать еще'}
                         </button>

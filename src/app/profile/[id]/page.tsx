@@ -6,6 +6,7 @@ import { AUTH_TOKEN_COOKIE_KEY } from "@/lib/auth-constants";
 import type { PublicProfileUser } from "@/types";
 import { fetchProfileWidgetsCached } from "@/lib/server-profile-widgets";
 import PublicProfileContent from "./PublicProfileContent";
+import { withPageUrl } from "@/lib/page-seo";
 
 const PROFILE_REVALIDATE_SEC = 60;
 
@@ -67,15 +68,15 @@ export async function generateMetadata({
   try {
     const id = await resolveId(params);
     if (!id || !/^\d+$/.test(id)) {
-      return { title: "Профиль" };
+      return withPageUrl(id ? `/profile/${id}` : "/profile", { title: "Профиль" });
     }
     const data = await getPublicProfileCached(id);
     if (!data) {
-      return { title: "Профиль" };
+      return withPageUrl(`/profile/${id}`, { title: "Профиль" });
     }
     const u = data.user;
     const name = u.full_name || u.first_name || id;
-    return { title: `${name} — профиль` };
+    return withPageUrl(`/profile/${id}`, { title: `${name} — профиль` });
   } catch {
     return { title: "Профиль" };
   }

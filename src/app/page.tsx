@@ -1,6 +1,15 @@
 import Footer from "@/components/layout/Footer";
 import HomeContent from "@/components/HomeContent";
 import { getApiFullUrl } from "@/config/api";
+import { withPageUrl } from "@/lib/page-seo";
+import {
+  fetchHomeQuestionsTabs,
+  parseHomeQuestionFilter,
+  parseHomeQuestionPage,
+} from "@/lib/home-questions-tabs";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = withPageUrl("/");
 
 async function fetchMainData() {
   const res = await fetch(getApiFullUrl("v1/main"), {
@@ -18,32 +27,28 @@ async function fetchMainData() {
   return res.json();
 }
 
-async function fetchMainQuestions() {
-  const res = await fetch(getApiFullUrl("v1/main/questions?filter=open&page=1&per_page=10"), {
-    headers: { Accept: "application/json" },
-    next: { revalidate: 30 },
-  });
-  if (!res.ok) {
-    return {
-      questions: [],
-      current_page: 1,
-      last_page: 1,
-      per_page: 10,
-      total: 0,
-    };
-  }
-  return res.json();
-}
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string; page?: string }>;
+}) {
+  const query = await searchParams;
+  const initialFilter = parseHomeQuestionFilter(query.filter);
+  const initialPage = parseHomeQuestionPage(query.page);
 
-export default async function Home() {
-  const [mainData, mainQuestions] = await Promise.all([
+  const [mainData, initialByFilter] = await Promise.all([
     fetchMainData(),
-    fetchMainQuestions(),
+    fetchHomeQuestionsTabs(initialFilter, initialPage),
   ]);
 
   return (
     <>
-      <HomeContent initialData={mainData} initialQuestions={mainQuestions} />
+      <HomeContent
+        key={`${initialFilter}-${initialPage}`}
+        initialData={mainData}
+        initialByFilter={initialByFilter}
+        initialFilter={initialFilter}
+      />
       <Footer />
     </>
   );

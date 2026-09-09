@@ -1,6 +1,4 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import QuestionLikerAvatars, { type LikerUser } from "@/components/QuestionLikerAvatars";
 import { compactCountTitle, formatCompactCountPlus } from "@/lib/format-compact-count";
 
@@ -15,34 +13,23 @@ export type PopularTopicItem = {
 };
 
 export default function PopularTopicListItem({ topic }: { topic: PopularTopicItem }) {
-  const router = useRouter();
   const href =
     topic.parent_slug && topic.slug
       ? `/categories/${topic.parent_slug}/${topic.slug}`
       : "/categories";
 
-  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    if (target.closest("a") || target.closest("button")) return;
-    router.push(href);
-  };
-
   return (
-    <div
-      className="question_list_item"
-      onClick={handleCardClick}
-      style={{ cursor: "pointer" }}
-    >
-      <div className="question_list_item_left question_list_item_title_link">
+    <div className="question_list_item">
+      <Link href={href} className="question_list_item_left question_list_item_title_link" title={topic.name}>
         <svg width="24" height="24" className="topic_icon" aria-hidden>
-          <use xlinkHref={`#${topic.parent_icon_key || "gaming"}`}></use>
+          <use xlinkHref={`/sprites.svg#${topic.parent_icon_key || "gaming"}`}></use>
         </svg>
         <div className="question_list_item_left__user_meta">
           <div className="main_text question_title_clamp" title={topic.name}>
             {topic.name}
           </div>
         </div>
-      </div>
+      </Link>
       <QuestionLikerAvatars
         likers={topic.latest_likers ?? []}
         countLabel={formatCompactCountPlus(topic.total_likes)}

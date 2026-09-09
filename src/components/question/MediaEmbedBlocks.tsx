@@ -6,15 +6,15 @@ import {
   getYouTubeEmbedUrl,
   getVimeoEmbedUrl,
 } from '@/lib/video-thumb'
+import { ugcExternalAnchorProps } from '@/lib/external-link'
 
 export function ImageTile({ href }: { href: string }) {
   return (
     <div className="answer_media_item answer_media_item--image">
       <a
         href={href}
-        target="_blank"
-        rel="noopener noreferrer"
         aria-label="Открыть изображение в новой вкладке"
+        {...ugcExternalAnchorProps(href)}
       >
         <img src={href} alt="" loading="lazy" decoding="async" />
       </a>

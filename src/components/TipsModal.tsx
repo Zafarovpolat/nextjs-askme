@@ -43,7 +43,7 @@ export default function TipsModal({ isOpen, onClose }: TipsModalProps) {
       <div className="modal modal--medium modal--active" id="modal__tips">
         <button className="modal__close" onClick={onClose}>
           <svg width="16" height="16">
-            <use xlinkHref="#close"></use>
+            <use xlinkHref="/sprites.svg#close"></use>
           </svg>
         </button>
         <div className="modal__content">

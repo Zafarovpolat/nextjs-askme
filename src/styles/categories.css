@@ -33,6 +33,10 @@
   line-height: 100%;
 }
 
+.breadcrumbs__node {
+  display: contents;
+}
+
 .breadcrumbs__link {
   color: rgb(188, 197, 211);
   text-decoration: none;
@@ -63,7 +67,9 @@
   align-items: center;
 }
 
-.category_page_block .blocks_title h2 {
+.category_page_block .blocks_title h2,
+.blocks_title.category_page_block h1,
+.blocks_title.category_page_block h2 {
   margin-right: 25px;
   margin-left: 7px;
 }
@@ -72,7 +78,8 @@
   width: 30px;
 }
 
-.subcatogory_title h3 {
+.subcatogory_title h3,
+.subcatogory_title h1 {
   color: rgb(137, 154, 181);
   font-family: Nunito;
   font-size: 18px;
@@ -203,7 +210,8 @@
     padding-left: 0;
   }
 
-  .blocks_title svg + h2 {
+  .blocks_title svg + h2,
+  .blocks_title svg + h1 {
     padding-right: 20px;
   }
 }

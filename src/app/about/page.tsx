@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Footer from "@/components/layout/Footer";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import AboutPageLayout from "@/components/layout/AboutPageLayout";
 import AboutBlocksContent from "@/components/about/AboutBlocksContent";
 import { fetchAboutPage } from "@/lib/fetch-about-page";
+import { withPageUrl } from "@/lib/page-seo";
 import "@/styles/about.css";
 
 export const revalidate = 60;
@@ -17,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
     ? keywordsRaw.split(/[,;]\s*/).filter(Boolean)
     : undefined;
 
-  return {
+  return withPageUrl("/about", {
     title,
     description,
     keywords,
@@ -25,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
     },
-  };
+  });
 }
 
 export default async function AboutPage() {
@@ -36,13 +37,12 @@ export default async function AboutPage() {
   return (
     <>
       <div className="container">
-        <div className="breadcrumbs">
-          <Link href="/" className="breadcrumbs__link">
-            Главная
-          </Link>
-          <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">{pageTitle}</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { name: "Главная", href: "/" },
+            { name: pageTitle, href: "/about" },
+          ]}
+        />
       </div>
 
       <AboutPageLayout>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
-import Footer from "@/components/layout/Footer"
 import Link from "next/link"
+import Footer from "@/components/layout/Footer"
+import Breadcrumbs from "@/components/layout/Breadcrumbs"
 import { getApiFullUrl } from "@/config/api"
 import CategoryItemBg from "@/components/CategoryItemBg"
 import CategorySubjectIcon from "@/components/CategorySubjectIcon"
@@ -36,15 +37,16 @@ export default async function CategoriesPage() {
   return (
     <>
       <div className="container">
-        <div className="breadcrumbs">
-          <Link href="/" className="breadcrumbs__link">Главная</Link>
-          <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">Категории вопросов</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { name: "Главная", href: "/" },
+            { name: "Категории вопросов", href: "/categories" },
+          ]}
+        />
 
         <div className="section">
           <div className="blocks_title">
-            <h2>Категории</h2>
+            <h1>Категории вопросов</h1>
           </div>
 
           {error && <p className="secondary_text" style={{ color: "#c00" }}>{error}</p>}

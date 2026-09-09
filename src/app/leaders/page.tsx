@@ -1,5 +1,11 @@
 import { getApiFullUrl } from "@/config/api";
+import { withPageUrl } from "@/lib/page-seo";
 import LeadersPageContent from "./LeadersPageContent";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = withPageUrl("/leaders", {
+  title: "Лидеры",
+});
 
 export type LeaderSubcategory = {
   id: number;

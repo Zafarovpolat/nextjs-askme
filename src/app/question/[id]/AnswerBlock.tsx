@@ -17,6 +17,10 @@ import {
 } from "@/lib/ai-user-display";
 import type { AnswerAnchorRef } from "@/lib/question-answer-tree";
 import { buildAnswerAnchorHash } from "@/lib/question-answer-tree";
+import { showSystemToast } from "@/store/systemToastStore";
+
+/** Затемнение карточки ответа — только при таком числе дизлайков, лайки не учитываются. */
+const ANSWER_DIM_MIN_DISLIKES = 10;
 
 export interface AnswerBlockProps {
   answer: QuestionPageAnswer;
@@ -78,7 +82,8 @@ export default function AnswerBlock({
       ? { targetId: answer.id, rootAnswerId }
       : { targetId: answer.id };
 
-  const isNegative = (dislikes_count ?? 0) > (likes_count ?? 0);
+  const dislikeCount = Number(dislikes_count) || 0;
+  const isNegative = dislikeCount >= ANSWER_DIM_MIN_DISLIKES;
   const parentUser = answer.parent_user;
   const isAuthorPremium = Boolean(
     answer.user.premium_is_active ?? answer.user.is_premium,
@@ -88,7 +93,7 @@ export default function AnswerBlock({
 
   return (
     <div
-      id={`answer-${answer.id}`}
+      id={isBest ? `best-answer-${answer.id}` : `answer-${answer.id}`}
       className={`main_question_block ${isBest ? "best_answer_block" : ""} ${isNested ? "secondary_question_block" : ""} ${isNegative ? "blocked_question_block" : ""} ${isAuthorPremium ? "premium-question" : ""}`}
       style={
         isNested
@@ -160,7 +165,7 @@ export default function AnswerBlock({
               title="Выбрать как лучший ответ"
             >
               <svg width="15" height="15">
-                <use xlinkHref="#star-best"></use>
+                <use xlinkHref="/sprites.svg#star-best"></use>
               </svg>
               <span className="star_tooltip_text">
                 Выбрать как лучший ответ
@@ -177,7 +182,7 @@ export default function AnswerBlock({
               aria-label="Лучший ответ"
             >
               <svg width="15" height="15">
-                <use xlinkHref="#star-best"></use>
+                <use xlinkHref="/sprites.svg#star-best"></use>
               </svg>
               <span className="star_tooltip_text">Лучший ответ</span>
             </button>
@@ -187,7 +192,7 @@ export default function AnswerBlock({
 
       {isBest && (
         <div className="main_question_block_title mobile_only_title">
-          <h1>{questionTitle}</h1>
+          <p>{questionTitle}</p>
         </div>
       )}
 
@@ -229,7 +234,7 @@ export default function AnswerBlock({
               disabled={votePending}
             >
               <svg width="18" height="18">
-                <use xlinkHref="#thumb-up"></use>
+                <use xlinkHref="/sprites.svg#thumb-up"></use>
               </svg>
               <span className="vote_count" title={voteCountTitle(likes_count)}>
                 {formatCompactCount(likes_count)}
@@ -242,7 +247,7 @@ export default function AnswerBlock({
               disabled={votePending}
             >
               <svg width="18" height="18">
-                <use xlinkHref="#thumb-down"></use>
+                <use xlinkHref="/sprites.svg#thumb-down"></use>
               </svg>
               <span className="vote_count" title={voteCountTitle(dislikes_count)}>
                 {formatCompactCount(dislikes_count)}
@@ -265,7 +270,7 @@ export default function AnswerBlock({
             disabled={isPending(answer.id)}
           >
             <svg width="14" height="12">
-              <use xlinkHref="#like"></use>
+              <use xlinkHref="/sprites.svg#like"></use>
             </svg>
           </button>
           {/* п.26 — копирование ссылки с якорем */}
@@ -274,7 +279,12 @@ export default function AnswerBlock({
             title="Скопировать ссылку"
             onClick={() => {
               const url = `${window.location.origin}${window.location.pathname}${buildAnswerAnchorHash(anchorRef)}`;
-              navigator.clipboard.writeText(url).catch(() => {});
+              navigator.clipboard
+                .writeText(url)
+                .then(() => {
+                  showSystemToast("Ссылка скопирована", "success");
+                })
+                .catch(() => {});
             }}
           >
             <svg
@@ -295,7 +305,7 @@ export default function AnswerBlock({
             onClick={(e) => onShareClick?.(e, anchorRef)}
           >
             <svg width="14" height="14">
-              <use xlinkHref="#share"></use>
+              <use xlinkHref="/sprites.svg#share"></use>
             </svg>
           </button>
         </div>
@@ -329,6 +339,7 @@ export function AnswerWithReplies({
   const loadedComments = answer.answers?.length ?? 0;
   const totalComments = answer.answers_count ?? 0;
   const hasMoreComments =
+    !isBestRoot &&
     allowAnswerComments &&
     totalComments > loadedComments &&
     onLoadMoreComments != null;
@@ -365,7 +376,7 @@ export function AnswerWithReplies({
             disabled={commentsLoading}
           >
             <svg width="22" height="22">
-              <use xlinkHref="#sync"></use>
+              <use xlinkHref="/sprites.svg#sync"></use>
             </svg>
             <span>{commentsLoading ? "Загрузка..." : "Загрузить еще"}</span>
           </button>

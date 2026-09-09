@@ -15,7 +15,7 @@ export default function AboutSidebarTabs() {
 
   return (
     <div className="about-sidebar">
-      <h2 className="about-sidebar-title">Всё об «Ответы АЙ»</h2>
+      <h2 className="about-sidebar-title">Всё об otvetai</h2>
       <div className="about-tabs">
         {aboutTabs.map((tab) => (
           <button

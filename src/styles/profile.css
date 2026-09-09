@@ -519,7 +519,7 @@
 
 .user_profile_img_badge.premium-badge-stretch {
   width: max-content;
-  height: 17px;
+  height: 15px;
   display: inline-grid;
 }
 
@@ -531,14 +531,16 @@
 
 /* Растягиваемый премиум-бейдж */
 .premium-badge-stretch {
+  --premium-badge-h: 15px;
+  --premium-badge-wing-w: 4.887px;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   vertical-align: middle;
-  min-width: 49px;
-  height: 17px;
+  min-width: 43px;
+  height: var(--premium-badge-h);
   overflow: visible;
 }
 
@@ -551,20 +553,20 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 17px;
+  height: var(--premium-badge-h);
   overflow: visible;
   pointer-events: none;
 }
 
-/* Край щита: 5.538834951456311 × 17; правый — зеркало левого img */
+/* Край щита; правый — зеркало левого img */
 .premium-badge-stretch__wing {
   display: block;
-  flex: 0 0 5.538834951456311px;
-  width: 5.538834951456311px !important;
-  min-width: 5.538834951456311px;
-  max-width: 5.538834951456311px;
-  height: 17px !important;
-  max-height: 17px;
+  flex: 0 0 var(--premium-badge-wing-w);
+  width: var(--premium-badge-wing-w) !important;
+  min-width: var(--premium-badge-wing-w);
+  max-width: var(--premium-badge-wing-w);
+  height: var(--premium-badge-h) !important;
+  max-height: var(--premium-badge-h);
   flex-shrink: 0;
   /* Не наследовать border/border-radius от .question_list_item_left img и .site-user-avatar img */
   border: none !important;
@@ -585,8 +587,8 @@
   flex: 1 1 auto;
   min-width: 0;
   align-self: center;
-  height: 17px;
-  max-height: 17px;
+  height: var(--premium-badge-h);
+  max-height: var(--premium-badge-h);
   box-sizing: border-box;
   background: #ffffff;
   border-top: 1px solid #6069ff;
@@ -600,11 +602,11 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  height: 17px;
-  padding: 1px 9px 0;
+  height: var(--premium-badge-h);
+  padding: 1px 6px 0;
   /* !important: не наследовать серый/белый от .question_list_item_left span и :hover */
   color: #6069ff !important;
-  font-size: 9px !important;
+  font-size: 7px !important;
   font-weight: 700 !important;
   line-height: 1;
   white-space: nowrap;
@@ -2056,11 +2058,15 @@
 }
 
 .profile-levels-table_limits .profile-levels-table__row {
-  grid-template-columns: 1.35fr 1.65fr 0.72fr 0.78fr 0.82fr 0.68fr;
+  grid-template-columns: 1.3fr 1.55fr 0.62fr 0.62fr 0.88fr 0.92fr 0.92fr;
 }
 
 .profile-levels-table_limits .profile-levels-table__row span:nth-child(n + 3) {
   text-align: center;
+}
+
+.profile-levels-table_limits .profile-levels-table__row_head span {
+  white-space: normal;
 }
 
 .profile-levels-table_points .profile-levels-table__row {
@@ -2233,25 +2239,31 @@
   }
 
   .profile-levels-table_limits .profile-levels-table__row span:nth-child(3)::before {
-    content: "Задать вопрос: ";
+    content: "Вопросы: ";
     color: #808992;
     font-weight: 700;
   }
 
   .profile-levels-table_limits .profile-levels-table__row span:nth-child(4)::before {
-    content: "Голос за лучший: ";
+    content: "Ответы: ";
     color: #808992;
     font-weight: 700;
   }
 
   .profile-levels-table_limits .profile-levels-table__row span:nth-child(5)::before {
-    content: "Голос за вопрос: ";
+    content: "Комментарии: ";
     color: #808992;
     font-weight: 700;
   }
 
   .profile-levels-table_limits .profile-levels-table__row span:nth-child(6)::before {
-    content: "Ответить: ";
+    content: "Голос за лучший: ";
+    color: #808992;
+    font-weight: 700;
+  }
+
+  .profile-levels-table_limits .profile-levels-table__row span:nth-child(7)::before {
+    content: "Оценка вопроса: ";
     color: #808992;
     font-weight: 700;
   }

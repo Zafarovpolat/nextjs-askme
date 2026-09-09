@@ -170,7 +170,7 @@ export default function ProfileSecuritySettings() {
           <div className="profile-security-row">
             <div className="login_input login_input_icon">
               <svg className="login_input_svg login_input_svg--accent" width="14" height="12" aria-hidden>
-                <use xlinkHref="#login-mail" />
+                <use xlinkHref="/sprites.svg#login-mail" />
               </svg>
               <HydrationSafeInput
                 type="email"
@@ -204,7 +204,7 @@ export default function ProfileSecuritySettings() {
           <form className="profile-security-row profile-security-row--password" onSubmit={handlePasswordChange}>
             <div className="login_input login_input_icon">
               <svg className="login_input_svg login_input_svg--accent" width="12" height="15" aria-hidden>
-                <use xlinkHref="#login-lock" />
+                <use xlinkHref="/sprites.svg#login-lock" />
               </svg>
               <HydrationSafeInput
                 type="password"
@@ -217,7 +217,7 @@ export default function ProfileSecuritySettings() {
             </div>
             <div className="login_input login_input_icon">
               <svg className="login_input_svg login_input_svg--accent" width="12" height="15" aria-hidden>
-                <use xlinkHref="#login-lock" />
+                <use xlinkHref="/sprites.svg#login-lock" />
               </svg>
               <HydrationSafeInput
                 type="password"
@@ -230,7 +230,7 @@ export default function ProfileSecuritySettings() {
             </div>
             <div className="login_input login_input_icon">
               <svg className="login_input_svg login_input_svg--accent" width="12" height="15" aria-hidden>
-                <use xlinkHref="#login-lock" />
+                <use xlinkHref="/sprites.svg#login-lock" />
               </svg>
               <HydrationSafeInput
                 type="password"

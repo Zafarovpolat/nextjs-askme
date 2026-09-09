@@ -43,7 +43,7 @@ function YandexIdIcon() {
 function VkIcon() {
   return (
     <svg width="22" height="12" aria-hidden>
-      <use xlinkHref="#vk"></use>
+      <use xlinkHref="/sprites.svg#vk"></use>
     </svg>
   );
 }
@@ -51,7 +51,7 @@ function VkIcon() {
 function OkIcon() {
   return (
     <svg width="20" height="20" aria-hidden>
-      <use xlinkHref="#ok"></use>
+      <use xlinkHref="/sprites.svg#ok"></use>
     </svg>
   );
 }

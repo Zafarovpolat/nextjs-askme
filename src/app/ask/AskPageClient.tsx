@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Footer from "@/components/layout/Footer"
+import Breadcrumbs from "@/components/layout/Breadcrumbs"
 import Link from "next/link"
 import TopsBlock from "@/components/TopsBlock"
 import LoginModal from "@/components/LoginModal"
@@ -34,6 +35,8 @@ import {
 } from "@/lib/attachment-validation"
 import { getFormApiErrorMessage } from "@/lib/form-api-error-message"
 import { showSystemToast } from "@/store/systemToastStore"
+import { rememberHomeOwnQuestion } from "@/lib/home-own-questions"
+import { displayUserName } from "@/lib/ai-user-display"
 
 type Subcategory = { id: number; name: string; slug: string; icon_key: string | null }
 type CategoryItem = { id: number; name: string; slug: string; icon_key: string | null; subcategories: Subcategory[] }
@@ -448,7 +451,26 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
         throw new Error(detail)
       }
 
-      router.push(`/question/${(data as { question: { id: number } }).question.id}`)
+      const created = (data as {
+        question: { id: number; title?: string; is_premium?: boolean }
+      }).question
+      rememberHomeOwnQuestion({
+        id: created.id,
+        title: created.title?.trim() || titleInput.trim(),
+        created_at: new Date().toISOString(),
+        answers_count: 0,
+        likes_count: 0,
+        is_premium: Boolean(created.is_premium),
+        author: {
+          id: user?.id ?? 0,
+          full_name: displayUserName(user ?? { first_name: "" }),
+          avatar_url: user?.avatar_url,
+          avatar_url_2x: user?.avatar_url_2x,
+          balls: user?.balls ?? 0,
+        },
+        latest_likers: [],
+      })
+      router.push(`/question/${created.id}`)
     } catch (err: unknown) {
       const message =
         err instanceof Error
@@ -464,13 +486,13 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
   return (
     <>
       <div className="container">
-        <div className="breadcrumbs">
-          <Link href="/" className="breadcrumbs__link">Главная</Link>
-          <span className="breadcrumbs__sep">•</span>
-          <Link href="/categories" className="breadcrumbs__link">Категории вопросов</Link>
-          <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">Задать вопрос</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { name: "Главная", href: "/" },
+            { name: "Категории вопросов", href: "/categories" },
+            { name: "Задать вопрос", href: "/ask" },
+          ]}
+        />
 
         <div className="section ask_form_wrapper">
           <div className="blocks_title">
@@ -506,7 +528,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                   title={!canAddFileAttachment ? "Достигнут лимит публикаций с фото за сутки" : undefined}
                   onClick={onAddFileClick}
                 >
-                  <svg width="15.67" height="13.71"><use xlinkHref="#add-file"></use></svg>
+                  <svg width="15.67" height="13.71"><use xlinkHref="/sprites.svg#add-file"></use></svg>
                   <p><span>Добавить файл</span><span>Файл</span></p>
                 </div>
                 <div
@@ -514,11 +536,11 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                   title={!canAddVideoAttachment ? "Достигнут лимит публикаций с видео за сутки" : undefined}
                   onClick={onAddVideoClick}
                 >
-                  <svg width="13.71" height="12.73"><use xlinkHref="#add-video"></use></svg>
+                  <svg width="13.71" height="12.73"><use xlinkHref="/sprites.svg#add-video"></use></svg>
                   <p><span>Добавить видео</span><span>Видео</span></p>
                 </div>
                 <div onClick={onAddLinkClick}>
-                  <svg width="12.73" height="12.73"><use xlinkHref="#add-link"></use></svg>
+                  <svg width="12.73" height="12.73"><use xlinkHref="/sprites.svg#add-link"></use></svg>
                   <p><span>Добавить ссылку</span><span>Ссылка</span></p>
                 </div>
               </div>
@@ -622,7 +644,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                   onChange={handleCategoryChange}
                   placeholder="Выберите категорию вопроса"
                   options={categories.map((c) => ({ value: String(c.id), label: c.name }))}
-                  icon={<svg width="18" height="18"><use xlinkHref="#grid-icon"></use></svg>}
+                  icon={<svg width="18" height="18"><use xlinkHref="/sprites.svg#grid-icon"></use></svg>}
                 />
               </div>
               <div className="select_category_item">
@@ -632,7 +654,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                   placeholder="Выберите подкатегорию вопроса"
                   options={subcategoryOptions.map((s) => ({ value: String(s.id), label: s.name }))}
                   disabled={!selectedCategoryId}
-                  icon={<svg width="18" height="18"><use xlinkHref="#list-icon"></use></svg>}
+                  icon={<svg width="18" height="18"><use xlinkHref="/sprites.svg#list-icon"></use></svg>}
                 />
               </div>
             </div>
@@ -765,7 +787,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                       onClick={handleLoadMoreSimilar}
                       disabled={similarLoadingMore}
                     >
-                      <svg width="22" height="22"><use xlinkHref="#sync"></use></svg>
+                      <svg width="22" height="22"><use xlinkHref="/sprites.svg#sync"></use></svg>
                       {similarLoadingMore ? "Загрузка…" : "Загрузить еще"}
                     </button>
                   </div>

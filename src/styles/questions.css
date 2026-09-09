@@ -493,7 +493,8 @@
   text-align: left;
 }
 
-.main_question_block_title h1 {
+.main_question_block_title h1,
+.mobile_only_title p {
   color: rgb(31, 42, 59);
   font-family: Nunito;
   font-size: 24px;
@@ -780,6 +781,7 @@
 }
 
 .dark_mode .main_question_block_title h1,
+.dark_mode .mobile_only_title p,
 .dark_mode .leader_quest p {
   color: rgb(255, 255, 255);
 }
@@ -1868,7 +1870,7 @@ button.answer_media_item {
   }
 
   .main_question_block_title h1,
-  .mobile_only_title h1 {
+  .mobile_only_title p {
     font-size: 20px;
     line-height: 26px;
     margin-bottom: 10px;

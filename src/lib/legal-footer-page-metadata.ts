@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { fetchCustomHtmlPage } from "@/lib/fetch-custom-html-page";
+import { withPageUrl } from "@/lib/page-seo";
 
 export async function metadataForLegalFooterSlug(
   slug: string,
@@ -20,10 +21,10 @@ export async function metadataForLegalFooterSlug(
   const keywords = keywordsRaw
     ? keywordsRaw.split(/[,;]\s*/).filter(Boolean)
     : undefined;
-  return {
+  return withPageUrl(`/${slug}`, {
     title,
     description,
     keywords,
     openGraph: { title, description },
-  };
+  });
 }

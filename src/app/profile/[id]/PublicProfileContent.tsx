@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/layout/Footer";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import SearchResultCard from "@/components/SearchResultCard";
 import AnswerResultCard from "@/components/AnswerResultCard";
 import ProfileRelatedQuestionsBlock from "./ProfileRelatedQuestionsBlock";
@@ -494,13 +495,12 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
   return (
     <>
       <div className="container">
-        <div className="breadcrumbs">
-          <Link href="/" className="breadcrumbs__link">
-            Главная
-          </Link>
-          <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">{displayName}</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { name: "Главная", href: "/" },
+            { name: displayName, href: `/profile/${userId}` },
+          ]}
+        />
       </div>
 
       <div
@@ -669,7 +669,7 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
               <div className="show_more_btn_wrapper" style={{ display: "flex", justifyContent: "center" }}>
                 <button className="show_more_btn" type="button" disabled={qLoadingMore} onClick={loadMoreQuestions}>
                   <svg width="22" height="22">
-                    <use xlinkHref="#sync"></use>
+                    <use xlinkHref="/sprites.svg#sync"></use>
                   </svg>
                   <span>{qLoadingMore ? "Загрузка…" : "Загрузить еще"}</span>
                 </button>
@@ -680,7 +680,7 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
               <div className="show_more_btn_wrapper" style={{ display: "flex", justifyContent: "center" }}>
                 <button className="show_more_btn" type="button" disabled={aLoadingMore} onClick={loadMoreAnswers}>
                   <svg width="22" height="22">
-                    <use xlinkHref="#sync"></use>
+                    <use xlinkHref="/sprites.svg#sync"></use>
                   </svg>
                   <span>{aLoadingMore ? "Загрузка…" : "Загрузить еще"}</span>
                 </button>

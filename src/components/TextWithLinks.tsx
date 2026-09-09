@@ -1,29 +1,68 @@
 'use client'
 
-import type { ComponentPropsWithoutRef } from 'react'
-import ReactMarkdown from 'react-markdown'
+import { createElement, type ComponentPropsWithoutRef, type JSX } from 'react'
+import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import '@/styles/markdown-content.css'
 import { normalizeMathDelimiters } from '@/lib/normalize-math-delimiters'
+import { ugcExternalAnchorProps } from '@/lib/external-link'
+import { useExternalLink } from '@/components/ExternalLinkProvider'
 
 interface TextWithLinksProps {
   text: string
   className?: string
 }
 
+type WithMarkdownNode<P> = P & { node?: unknown }
+
+function omitMarkdownNode<P extends object>({ node: _node, ...props }: WithMarkdownNode<P>) {
+  return props
+}
+
+function mdTag<T extends keyof JSX.IntrinsicElements>(tag: T) {
+  return function MarkdownTag(props: WithMarkdownNode<JSX.IntrinsicElements[T]>) {
+    return createElement(tag, omitMarkdownNode(props))
+  }
+}
+
+const MARKDOWN_TAGS = [
+  'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'ul', 'ol', 'li', 'blockquote', 'code', 'pre',
+  'em', 'strong', 'hr', 'br', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+  'del', 'sup', 'sub', 'span', 'div',
+] as const
+
 function MarkdownLink({
   href,
   children,
+  onClick,
+  node: _node,
   ...props
-}: ComponentPropsWithoutRef<'a'>) {
+}: WithMarkdownNode<ComponentPropsWithoutRef<'a'>>) {
+  const { onNavigateClick } = useExternalLink()
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+    <a
+      {...props}
+      href={href}
+      {...ugcExternalAnchorProps(href)}
+      onClick={(e) => {
+        onClick?.(e)
+        if (!e.defaultPrevented && href) {
+          onNavigateClick(e, href)
+        }
+      }}
+    >
       {children}
     </a>
   )
+}
+
+const markdownComponents: Components = {
+  ...(Object.fromEntries(MARKDOWN_TAGS.map((tag) => [tag, mdTag(tag)])) as Components),
+  a: MarkdownLink,
 }
 
 /**
@@ -49,9 +88,7 @@ export default function TextWithLinks({ text, className }: TextWithLinksProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[[rehypeKatex, { strict: 'ignore' }]]}
-        components={{
-          a: MarkdownLink,
-        }}
+        components={markdownComponents}
       >
         {markdown}
       </ReactMarkdown>

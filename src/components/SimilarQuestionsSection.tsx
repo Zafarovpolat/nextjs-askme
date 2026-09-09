@@ -97,7 +97,7 @@ export default function SimilarQuestionsSection({
                 disabled={loadingMore}
               >
                 <svg width="22" height="22">
-                  <use xlinkHref="#sync"></use>
+                  <use xlinkHref="/sprites.svg#sync"></use>
                 </svg>
                 <span>{loadingMore ? "Загрузка…" : "Загрузить еще"}</span>
               </button>

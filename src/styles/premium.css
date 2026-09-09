@@ -48,8 +48,8 @@
 .main_question_block:not(.main_question_block_item)
   .site-user-avatar
   .premium-badge-stretch__middle {
-  height: 16.5px !important;
-  max-height: 16.5px !important;
+  height: 14.5px !important;
+  max-height: 14.5px !important;
 }
 
 .search-result-card.premium-question .search-result-top,

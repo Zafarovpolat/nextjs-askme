@@ -110,7 +110,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
       >
         <button type="button" className="modal__close" onClick={onClose} aria-label="Закрыть">
           <svg width="16" height="16">
-            <use xlinkHref="#close" />
+            <use xlinkHref="/sprites.svg#close" />
           </svg>
         </button>
 
@@ -121,7 +121,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordM
 
           <div className="login_input login_input_icon">
               <svg className="login_input_svg login_input_svg--accent" width="14" height="12">
-                <use xlinkHref="#login-mail" />
+                <use xlinkHref="/sprites.svg#login-mail" />
               </svg>
             <HydrationSafeInput
               type="email"

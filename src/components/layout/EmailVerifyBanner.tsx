@@ -47,7 +47,7 @@ export default function EmailVerifyBanner() {
             <div className="email-verify-banner__content">
               <span className="email-verify-banner__icon-slot" aria-hidden>
                 <svg className="email-verify-banner__icon" width="14" height="12">
-                  <use xlinkHref="#login-mail" />
+                  <use xlinkHref="/sprites.svg#login-mail" />
                 </svg>
               </span>
               <span className="email-verify-banner__text">

@@ -47,7 +47,8 @@
   align-items: center;
 }
 
-.top_leaders_list_wrapper .blocks_title h2 {
+.top_leaders_list_wrapper .blocks_title h2,
+.top_leaders_list_wrapper .blocks_title h1 {
   white-space: nowrap;
 }
 

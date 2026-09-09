@@ -15,6 +15,7 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/layout/Footer";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
 import { formatTimeAgo } from "@/lib/time-ago";
@@ -250,8 +251,8 @@ export default function QuestionPageContent({
   });
 
   const apiAnswers = initialQuestion.answers ?? [];
-  const bestAnswer = initialQuestion.best_answer ?? null;
-  const bestAnswerIdFromApi = bestAnswer?.id ?? null;
+  const bestAnswerFromApi = initialQuestion.best_answer ?? null;
+  const bestAnswerIdFromApi = bestAnswerFromApi?.id ?? null;
   const perPage = 10;
   const totalAnswers = Math.max(
     0,
@@ -306,6 +307,8 @@ export default function QuestionPageContent({
   const [bestAnswerId, setBestAnswerId] = useState<number | null>(
     bestAnswerIdFromApi
   );
+  /** Карточка в блоке «Лучший ответ»; ветка комментариев остаётся в общем списке. */
+  const [bestAnswer, setBestAnswer] = useState(bestAnswerFromApi);
   const [replyTarget, setReplyTarget] = useState<{
     parentAnswerId: number;
     replyToName: string;
@@ -444,6 +447,11 @@ export default function QuestionPageContent({
           answer_id: answerId,
         });
         setBestAnswerId(answerId);
+        const fromList = answersDataRef.current.find((a) => a.id === answerId);
+        if (fromList) {
+          const { answers: _comments, ...card } = fromList;
+          setBestAnswer({ ...card, answers_count: 0 });
+        }
       } finally {
         setPendingBestAnswer(false);
       }
@@ -1030,35 +1038,28 @@ export default function QuestionPageContent({
   return (
     <>
       <div className="container">
-        <div className="breadcrumbs">
-          <Link href="/" className="breadcrumbs__link">
-            Главная
-          </Link>
-          <span className="breadcrumbs__sep">•</span>
-          <Link href="/categories" className="breadcrumbs__link">
-            Категории вопросов
-          </Link>
-          <span className="breadcrumbs__sep">•</span>
-          <Link
-            href={categorySlug ? `/categories/${categorySlug}` : "/categories"}
-            className="breadcrumbs__link"
-          >
-            {categoryName}
-          </Link>
-          {subcategorySlug ? (
-            <>
-              <span className="breadcrumbs__sep">•</span>
-              <Link
-                href={`/categories/${categorySlug}/${subcategorySlug}`}
-                className="breadcrumbs__link"
-              >
-                {subcategoryName}
-              </Link>
-            </>
-          ) : null}
-          <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">{initialQuestion.title}</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { name: "Главная", href: "/" },
+            { name: "Категории вопросов", href: "/categories" },
+            {
+              name: categoryName,
+              href: categorySlug ? `/categories/${categorySlug}` : "/categories",
+            },
+            ...(subcategorySlug
+              ? [
+                  {
+                    name: subcategoryName,
+                    href: `/categories/${categorySlug}/${subcategorySlug}`,
+                  },
+                ]
+              : []),
+            {
+              name: initialQuestion.title,
+              href: `/question/${initialQuestion.id}`,
+            },
+          ]}
+        />
       </div>
 
       <div className="question_wrapper container" ref={questionWrapperRef}>
@@ -1081,7 +1082,7 @@ export default function QuestionPageContent({
                   <div>
                     <span className="quest_catogory_icon" title={cat.name}>
                       <svg width="18" height="18" aria-hidden>
-                        <use xlinkHref={`#${categorySidebarIcon(cat)}`}></use>
+                        <use xlinkHref={`/sprites.svg#${categorySidebarIcon(cat)}`}></use>
                       </svg>
                     </span>
                     <p title={cat.name}>{cat.name}</p>
@@ -1092,7 +1093,7 @@ export default function QuestionPageContent({
                     height="6"
                     style={{ fill: "rgb(91, 103, 255)" }}
                   >
-                    <use xlinkHref="#arrow-down"></use>
+                    <use xlinkHref="/sprites.svg#arrow-down"></use>
                   </svg>
                 </div>
                 <div className="quest_catogory_content">
@@ -1144,7 +1145,7 @@ export default function QuestionPageContent({
             {isPremiumQuestion ? (
               <div className="premium_crown_floating" aria-hidden>
                 <svg width="38" height="31">
-                  <use xlinkHref="#crown-premium" />
+                  <use xlinkHref="/sprites.svg#crown-premium" />
                 </svg>
               </div>
             ) : null}
@@ -1206,7 +1207,7 @@ export default function QuestionPageContent({
             {isPremiumQuestion ? (
               <div className="leader_quest question_leader_badge">
                 <svg width="20" height="20" aria-hidden>
-                  <use xlinkHref="#crown-premium" />
+                  <use xlinkHref="/sprites.svg#crown-premium" />
                 </svg>
                 <p>Премиум вопрос</p>
               </div>
@@ -1239,7 +1240,7 @@ export default function QuestionPageContent({
                     disabled={votePending}
                   >
                     <svg width="18" height="18">
-                      <use xlinkHref="#thumb-up"></use>
+                      <use xlinkHref="/sprites.svg#thumb-up"></use>
                     </svg>
                     <span className="vote_count" title={voteCountTitle(likes_count)}>
                       {formatCompactCount(likes_count)}
@@ -1252,7 +1253,7 @@ export default function QuestionPageContent({
                     disabled={votePending}
                   >
                     <svg width="18" height="18">
-                      <use xlinkHref="#thumb-down"></use>
+                      <use xlinkHref="/sprites.svg#thumb-down"></use>
                     </svg>
                     <span className="vote_count" title={voteCountTitle(dislikes_count)}>
                       {formatCompactCount(dislikes_count)}
@@ -1277,7 +1278,7 @@ export default function QuestionPageContent({
                   disabled={isPending(initialQuestion.id)}
                 >
                   <svg width="14" height="12">
-                    <use xlinkHref="#like"></use>
+                    <use xlinkHref="/sprites.svg#like"></use>
                   </svg>
                 </button>
                 <button
@@ -1287,32 +1288,30 @@ export default function QuestionPageContent({
                   onClick={handleShareQuestion}
                 >
                   <svg width="14" height="14">
-                    <use xlinkHref="#share"></use>
+                    <use xlinkHref="/sprites.svg#share"></use>
                   </svg>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Лучший ответ */}
+          {/* Лучший ответ: только выбранная карточка, без комментариев и «Загрузить еще» */}
           {bestAnswer && (
             <div className="best-comments" style={{ display: "block" }}>
               <div className="blocks_title mt_25px">
                 <h2>Лучший ответ</h2>
               </div>
-              <AnswerWithReplies
+              <AnswerBlock
                 answer={bestAnswer}
                 questionId={initialQuestion.id}
                 questionTitle={initialQuestion.title}
-                isBestRoot
+                isBest
                 onComplaint={(id) => setComplaintModal({ answerId: id })}
                 onScrollToAnswer={scrollToAnswer}
                 onStartReplyToAnswer={beginReplyToAnswer}
                 allowAnswerComments={allowAnswerComments}
                 answerVotes={answerVotes}
                 onShareClick={handleShareAnswer}
-                onLoadMoreComments={loadMoreComments}
-                commentsLoadingMore={commentsLoadingMore}
               />
             </div>
           )}
@@ -1372,7 +1371,7 @@ export default function QuestionPageContent({
                 disabled={answersLoadingMore}
               >
                 <svg width="22" height="22">
-                  <use xlinkHref="#sync"></use>
+                  <use xlinkHref="/sprites.svg#sync"></use>
                 </svg>
                 <span>{answersLoadingMore ? "Загрузка..." : "Загрузить еще"}</span>
               </button>
@@ -1424,7 +1423,7 @@ export default function QuestionPageContent({
                   onClick={onAddFileClick}
                 >
                   <svg width="15.67" height="13.71">
-                    <use xlinkHref="#add-file"></use>
+                    <use xlinkHref="/sprites.svg#add-file"></use>
                   </svg>
                   <p>
                     <span>Добавить файл</span>
@@ -1437,7 +1436,7 @@ export default function QuestionPageContent({
                   onClick={onAddVideoClick}
                 >
                   <svg width="13.71" height="12.73">
-                    <use xlinkHref="#add-video"></use>
+                    <use xlinkHref="/sprites.svg#add-video"></use>
                   </svg>
                   <p>
                     <span>Добавить видео</span>
@@ -1446,7 +1445,7 @@ export default function QuestionPageContent({
                 </div>
                 <div onClick={onAddLinkClick}>
                   <svg width="12.73" height="12.73">
-                    <use xlinkHref="#add-link"></use>
+                    <use xlinkHref="/sprites.svg#add-link"></use>
                   </svg>
                   <p>
                     <span>Добавить ссылку</span>

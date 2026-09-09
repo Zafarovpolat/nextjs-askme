@@ -145,11 +145,11 @@ export default function ProfileHeaderBlock({
             >
               {avatarUploading ? (
                 <svg width="11" height="11" className="user_profile_img_action_spinner" aria-hidden>
-                  <use xlinkHref="#sync"></use>
+                  <use xlinkHref="/sprites.svg#sync"></use>
                 </svg>
               ) : (
                 <svg width="11" height="11" aria-hidden>
-                  <use xlinkHref="#pencil-edit"></use>
+                  <use xlinkHref="/sprites.svg#pencil-edit"></use>
                 </svg>
               )}
             </button>

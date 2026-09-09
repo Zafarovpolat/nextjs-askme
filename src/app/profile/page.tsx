@@ -3,17 +3,16 @@ import { redirect } from "next/navigation";
 import { fetchMeOnServerCached } from "@/lib/server-me";
 import { fetchProfileWidgetsCached } from "@/lib/server-profile-widgets";
 import ProfilePageClient from "./ProfilePageClient";
-
-const SITE_NAME = "Ответы АЙ";
+import { SITE_NAME, withPageUrl } from "@/lib/page-seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const me = await fetchMeOnServerCached();
   if (!me?.user) {
-    return {
+    return withPageUrl("/profile", {
       title: "Личный кабинет",
       description: `Войдите в аккаунт ${SITE_NAME}, чтобы открыть профиль, вопросы, ответы и настройки.`,
       robots: { index: false, follow: false },
-    };
+    });
   }
   const u = me.user;
   const display =
@@ -29,11 +28,11 @@ export async function generateMetadata(): Promise<Metadata> {
     descriptionParts.push(`Уровень: ${level}.`);
   }
   descriptionParts.push("Настройки, подписки и уведомления.");
-  return {
+  return withPageUrl("/profile", {
     title: display,
     description: descriptionParts.join(" "),
     robots: { index: false, follow: false },
-  };
+  });
 }
 
 export default async function ProfilePage() {

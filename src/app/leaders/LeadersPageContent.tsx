@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Footer from "@/components/layout/Footer";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
 import { api } from "@/lib/api-client";
@@ -181,16 +182,17 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
   return (
     <div className="page-layout-sticky-footer">
       <div className="container">
-        <div className="breadcrumbs">
-          <Link href="/" className="breadcrumbs__link">Главная</Link>
-          <span className="breadcrumbs__sep">•</span>
-          <span className="breadcrumbs__current">Лидеры</span>
-        </div>
+        <Breadcrumbs
+          items={[
+            { name: "Главная", href: "/" },
+            { name: "Лидеры", href: "/leaders" },
+          ]}
+        />
       </div>
 
       <div className="top_leaders_list_wrapper container">
         <div className="blocks_title">
-          <h2>Лидеры по активности</h2>
+          <h1>Лидеры по активности</h1>
           <button
             type="button"
             className="top_leaders_filter_reset"
@@ -361,7 +363,7 @@ export default function LeadersPageContent({ initialData }: LeadersPageContentPr
           <div className="show_more_btn_wrapper">
             <button className="show_more_btn" onClick={() => void loadMore()} disabled={loadingMore || filterLoading}>
               <svg width="22" height="22">
-                <use xlinkHref="#sync"></use>
+                <use xlinkHref="/sprites.svg#sync"></use>
               </svg>
               {loadingMore ? "Загрузка..." : "Показать еще"}
             </button>

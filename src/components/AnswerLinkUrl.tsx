@@ -1,12 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { isExternalHref, displayUrlLabel } from '@/lib/external-link'
+import { isExternalHref, displayUrlLabel, ugcExternalAnchorProps } from '@/lib/external-link'
 import { useExternalLink } from '@/components/ExternalLinkProvider'
 
 const linkIcon = (
   <svg width="13" height="13" aria-hidden>
-    <use xlinkHref="#answer-link" />
+    <use xlinkHref="/sprites.svg#answer-link" />
   </svg>
 )
 
@@ -22,7 +22,12 @@ export default function AnswerLinkUrl({ href, label }: AnswerLinkUrlProps) {
 
   if (isExternalHref(href)) {
     return (
-      <a href={href} className="answer_link_url" onClick={(e) => onNavigateClick(e, href)}>
+      <a
+        href={href}
+        className="answer_link_url"
+        {...ugcExternalAnchorProps(href)}
+        onClick={(e) => onNavigateClick(e, href)}
+      >
         {linkIcon}
         {text}
       </a>
@@ -37,7 +42,7 @@ export default function AnswerLinkUrl({ href, label }: AnswerLinkUrlProps) {
     )
   }
   return (
-    <a href={href} className="answer_link_url">
+    <a href={href} className="answer_link_url" {...ugcExternalAnchorProps(href)}>
       {linkIcon}
       {text}
     </a>

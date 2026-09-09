@@ -34,7 +34,7 @@ export default function VipPurchaseModal({ isOpen, onClose, planName }: VipPurch
         <h3 className="vip-purchase-modal-title">Переход по ссылке</h3>
 
         <p className="vip-purchase-modal-text">
-          Вы собираетесь перейти по ссылке, которая ведёт за пределы сервиса «Ответы АЙ». Убедитесь, что ссылка безопасна.
+          Вы собираетесь перейти по ссылке, которая ведёт за пределы сервиса otvetai. Убедитесь, что ссылка безопасна.
           {planName ? ` Тариф: ${planName}.` : ''}
         </p>
 

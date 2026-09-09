@@ -94,7 +94,7 @@ export function ExternalLinkProvider({ children }: { children: ReactNode }) {
               aria-label="Закрыть"
             >
               <svg width="16" height="16" aria-hidden>
-                <use xlinkHref="#close" />
+                <use xlinkHref="/sprites.svg#close" />
               </svg>
             </button>
             <div className="vip-purchase-modal-icon" aria-hidden>
@@ -109,7 +109,7 @@ export function ExternalLinkProvider({ children }: { children: ReactNode }) {
               Переход по ссылке
             </h3>
             <p className="vip-purchase-modal-text">
-              Вы собираетесь перейти по ссылке, которая ведёт за пределы сервиса «Ответы АЙ». Убедитесь, что ссылка безопасна.
+              Вы собираетесь перейти по ссылке, которая ведёт за пределы сервиса otvetai. Убедитесь, что ссылка безопасна.
             </p>
             <p className="vip-purchase-modal-link" style={{ wordBreak: 'break-all', maxWidth: '100%' }}>
               {target}

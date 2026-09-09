@@ -1,7 +1,14 @@
-import { redirect } from "next/navigation"
 import { getApiFullUrl } from "@/config/api"
-import { fetchMeOnServerCached } from "@/lib/server-me"
+import { withPageUrl } from "@/lib/page-seo"
 import AskPageClient, { type AskPageInitialData } from "./AskPageClient"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = withPageUrl("/ask", {
+  title: "Задать вопрос",
+  description:
+    "Задайте вопрос на otvetai и получите ответы от сообщества. Форма создания вопроса: тема, категория и текст.",
+  robots: { index: true, follow: true },
+})
 
 async function fetchAskPageData(): Promise<AskPageInitialData> {
   const url = getApiFullUrl("v1/ask")
@@ -22,11 +29,6 @@ async function fetchAskPageData(): Promise<AskPageInitialData> {
 }
 
 export default async function AskPage() {
-  const me = await fetchMeOnServerCached()
-  if (!me?.user) {
-    redirect("/login")
-  }
-
   let initialData: AskPageInitialData
   try {
     initialData = await fetchAskPageData()

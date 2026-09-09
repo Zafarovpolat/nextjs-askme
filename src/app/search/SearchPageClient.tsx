@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "@/components/layout/Footer";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import SearchResultCard from "@/components/SearchResultCard";
 import SearchSimilarQuestionsBlock from "@/components/search/SearchSimilarQuestionsBlock";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
@@ -379,13 +380,13 @@ export default function SearchPageClient({
     <>
       <div className="search-page-wrapper">
         <div className="container">
-          <div className="breadcrumbs breadcrumbs--search">
-            <Link href="/" className="breadcrumbs__link">
-              Главная
-            </Link>
-            <span className="breadcrumbs__sep">•</span>
-            <span className="breadcrumbs__current">Результаты поиска</span>
-          </div>
+          <Breadcrumbs
+            className="breadcrumbs--search"
+            items={[
+              { name: "Главная", href: "/" },
+              { name: "Результаты поиска", href: "/search" },
+            ]}
+          />
         </div>
 
         <div
@@ -420,7 +421,7 @@ export default function SearchPageClient({
                       <span className="quest_catogory_icon" title={cat.name}>
                         <svg width="18" height="18" aria-hidden>
                           <use
-                            xlinkHref={`#${cat.icon_key || "business"}`}
+                            xlinkHref={`/sprites.svg#${cat.icon_key || "business"}`}
                           ></use>
                         </svg>
                       </span>
@@ -432,7 +433,7 @@ export default function SearchPageClient({
                       height="6"
                       style={{ fill: "rgb(91, 103, 255)" }}
                     >
-                      <use xlinkHref="#arrow-down"></use>
+                      <use xlinkHref="/sprites.svg#arrow-down"></use>
                     </svg>
                   </div>
                   <div className="quest_catogory_content">
@@ -658,7 +659,7 @@ export default function SearchPageClient({
                         fill: "currentColor",
                       }}
                     >
-                      <use xlinkHref="#arrow-down"></use>
+                      <use xlinkHref="/sprites.svg#arrow-down"></use>
                     </svg>
                   </button>
                 </div>
@@ -805,7 +806,7 @@ export default function SearchPageClient({
                       }}
                     >
                       <svg width="22" height="22">
-                        <use xlinkHref="#sync"></use>
+                        <use xlinkHref="/sprites.svg#sync"></use>
                       </svg>
                       {loadingMore ? "Загрузка…" : "Загрузить еще"}
                     </button>

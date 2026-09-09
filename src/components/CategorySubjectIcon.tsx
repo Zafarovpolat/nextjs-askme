@@ -25,7 +25,7 @@ export default function CategorySubjectIcon({
     >
       {resolvedKey ? (
         <svg width="24" height="24" className="category_icon" aria-hidden>
-          <use xlinkHref={`#${resolvedKey}`} />
+          <use xlinkHref={`/sprites.svg#${resolvedKey}`} />
         </svg>
       ) : (
         <span className="category_icon_placeholder" aria-hidden />
