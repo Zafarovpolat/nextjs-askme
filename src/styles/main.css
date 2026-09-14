@@ -88,6 +88,14 @@ nav.nav--hidden {
   transform: translateY(-110%);
 }
 
+/* Хлебные крошки — тоже <nav>, но не шапка: без sticky и z-index,
+   иначе они перекрывают дропдаун уведомлений. */
+nav.breadcrumbs {
+  position: static;
+  z-index: auto;
+  background: transparent;
+}
+
 /* Баннер подтверждения email */
 .email-verify-banner {
   position: relative;
@@ -137,10 +145,12 @@ nav.nav--hidden {
   width: 14px;
   height: 12px;
   color: #5f69ff;
+  fill: currentColor;
 }
 
 .dark_mode .email-verify-banner__icon {
   color: #fff;
+  fill: currentColor;
 }
 
 .email-verify-banner__text {
@@ -340,6 +350,12 @@ nav.nav--hidden {
   transition: all 0.2s ease;
 }
 
+a.m_btn {
+  cursor: pointer;
+  border: none;
+  box-sizing: border-box;
+}
+
 .m_btn:hover {
   transition: all 0.2s ease;
   background: rgb(96, 105, 255);
@@ -452,6 +468,7 @@ nav.nav--hidden {
 a:has(.dark_logo),
 a:has(.light_logo) {
   height: 50px;
+  overflow: visible;
 }
 
 .category_btn:hover {
@@ -681,6 +698,7 @@ a:has(.light_logo) {
   a:has(.dark_logo),
   a:has(.light_logo) {
     height: 44px;
+    overflow: visible;
   }
 }
 
@@ -770,10 +788,10 @@ a:has(.light_logo) {
   text-align: left;
   margin-bottom: 8px;
   cursor: pointer;
-  max-width: 160px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 100%;
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: break-word;
 }
 
 .subject_item_list {
@@ -1536,10 +1554,22 @@ footer .line {
 }
 
 .footer_wrapper {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.72fr) minmax(0, 1.28fr);
+  align-items: start;
+  column-gap: clamp(32px, 5vw, 72px);
+  row-gap: 28px;
+  width: 100%;
+  padding: 8px 24px 32px;
+  box-sizing: border-box;
+}
+
+.footer__brand {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
 }
 
 .footer__logo .logo-mark-icon {
@@ -1547,21 +1577,82 @@ footer .line {
   height: 38px;
 }
 
-.footer_wrapper p {
+.footer__copy {
+  margin: 0;
+  max-width: 22em;
   color: rgb(139, 148, 161);
-  font-family: Nunito;
-  font-size: 16px;
+  font-family: Nunito, sans-serif;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 28px;
+  line-height: 1.45;
   letter-spacing: 0;
 }
 
-.dark_mode .footer_wrapper p {
+.dark_mode .footer__copy {
   color: rgb(204, 221, 248);
 }
 
-.footer_wrapper a:hover p {
+.footer__legal {
+  min-width: 0;
+}
+
+.footer__legal-heading {
+  margin: 0 0 12px;
+  color: #899ab5;
+  font-family: Nunito, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dark_mode .footer__legal-heading {
+  color: #9aa3ff;
+}
+
+.footer__legal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 28px;
+}
+
+.footer__legal-list a {
+  display: inline-block;
+  max-width: 100%;
+  color: #4c5b72;
+  font-family: Nunito, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.footer__legal-list a:hover,
+.footer__legal-list a:focus-visible {
+  color: #5f69ff;
   text-decoration: underline;
+}
+
+.footer__legal-list a:focus-visible {
+  outline: 2px solid #5f69ff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.dark_mode .footer__legal-list a {
+  color: #ccddf8;
+}
+
+.dark_mode .footer__legal-list a:hover,
+.dark_mode .footer__legal-list a:focus-visible {
+  color: #9aa3ff;
 }
 
 .questions_block_search textarea {
@@ -1591,7 +1682,7 @@ footer .line {
   height: 100dvh;
   left: 0;
   top: 0;
-  z-index: 10;
+  z-index: 400;
   padding: 16px 10px;
   transition: all 0.2s ease;
   transform: translateY(-100%);
@@ -1628,7 +1719,7 @@ footer .line {
 }
 
 .nav_mob_wrapper_nav > div > button,
-.nav_mob_wrapper_nav > div > a > button,
+.nav_mob_wrapper_nav > div > a,
 .nav_mob_wrapper_nav > div .theme-toggle-btn,
 .nav_mob_wrapper_nav > div .profile-header-btn,
 .nav_mob_wrapper_nav > div .m_btn,
@@ -1663,7 +1754,8 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   box-shadow: inset 0 0 0 2px rgb(65, 65, 165);
 }
 
-.nav_mob_wrapper_nav > div button svg {
+.nav_mob_wrapper_nav > div button svg,
+.nav_mob_wrapper_nav > div a svg {
   fill: rgb(98, 106, 255) !important;
 }
 
@@ -1701,11 +1793,11 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   fill: #fff;
 }
 
-.dark_mode .mob_sec_item button svg {
+.dark_mode .mob_sec_item svg {
   fill: #fff;
 }
 
-.mob_sec_item button {
+.mob_sec_item.m_btn {
   width: 100%;
   margin-bottom: 10px;
   height: 50px;
@@ -1718,7 +1810,7 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
 }
 
 .dark_mode .nav_mob_wrapper_nav > div > button,
-.dark_mode .nav_mob_wrapper_nav > div > a > button,
+.dark_mode .nav_mob_wrapper_nav > div > a,
 .dark_mode .nav_mob_wrapper_nav > div .theme-toggle-btn,
 .dark_mode .nav_mob_wrapper_nav > div .profile-header-btn,
 .dark_mode .nav_mob_wrapper_nav > div .m_btn {
@@ -1726,11 +1818,13 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   background: rgb(96, 105, 255);
 }
 
-.dark_mode .nav_mob_wrapper_nav > div button img {
+.dark_mode .nav_mob_wrapper_nav > div button img,
+.dark_mode .nav_mob_wrapper_nav > div a img {
   filter: brightness(0) invert(1);
 }
 
-.dark_mode .nav_mob_wrapper_nav > div button svg {
+.dark_mode .nav_mob_wrapper_nav > div button svg,
+.dark_mode .nav_mob_wrapper_nav > div a svg {
   fill: #fff !important;
 }
 
@@ -1885,24 +1979,14 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   }
 }
 
-/* Этап 1 — поэтапно убираем текст у кнопок, остаются только иконки */
-@media only screen and (max-width: 1620px) {
-  .nav-cat-btn .nav-btn-label {
-    display: none;
-  }
-
-  .nav-cat-btn {
-    padding: 0 17px;
-    gap: 0;
-  }
-}
+/* Этап 1 — подпись «Категории» держим; поиск по-прежнему flex:1 и заполняет середину */
 
 @media only screen and (max-width: 1520px) {
   .nav-ask-btn .nav-btn-label {
     display: none;
   }
 
-  .nav-ask-btn .m_btn {
+  .nav-ask-btn.m_btn {
     padding: 0 17px;
     gap: 0;
   }
@@ -1913,7 +1997,7 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
     display: none;
   }
 
-  .nav-leaders-btn .m_btn {
+  .nav-leaders-btn.m_btn {
     padding: 0 17px;
     gap: 0;
   }
@@ -1924,13 +2008,13 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
     display: none;
   }
 
-  .nav-premium-btn .m_btn {
+  .nav-premium-btn.m_btn {
     padding: 0 17px;
     gap: 0;
   }
 }
 
-/* Этап 2 — когда иконок уже недостаточно, скрываем кнопки целиком и показываем бургер */
+/* Этап 2 — бургер; подпись «Категории» ещё держим */
 @media only screen and (max-width: 1220px) {
   .desc_mob_btn {
     display: flex;
@@ -1955,13 +2039,22 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
 }
 
 @media only screen and (max-width: 980px) {
-  .nav-cat-btn {
+  .nav-cat-btn .nav-btn-label {
     display: none;
+  }
+
+  .nav-cat-btn {
+    padding: 0 17px;
+    gap: 0;
   }
 }
 
 @media only screen and (max-width: 860px) {
   .nav-ask-btn {
+    display: none;
+  }
+
+  .nav-cat-btn {
     display: none;
   }
 }
@@ -1970,6 +2063,7 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   a:has(.dark_logo),
   a:has(.light_logo) {
     height: 45px;
+    overflow: visible;
   }
 
   .nav_list .logout-btn {
@@ -1998,14 +2092,27 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   }
 }
 
-@media only screen and (max-width: 940px) {
+@media only screen and (min-width: 1280px) {
+  .footer__legal-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media only screen and (max-width: 1100px) {
   .footer_wrapper {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    row-gap: 24px;
   }
 
   .footer__logo {
     width: 180px;
-    /* width: auto; */
+  }
+}
+
+@media only screen and (max-width: 640px) {
+  .footer__legal-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
 
@@ -2323,10 +2430,6 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
 
 .footer_wrapper {
   color: rgb(139, 148, 161);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 28px;
-  letter-spacing: 0;
 }
 
 .dark_mode .container p,
@@ -2830,7 +2933,8 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   display: flex;
   align-items: center;
   overflow: visible;
-  isolation: isolate;
+  padding: 10px 12px 10px 4px;
+  margin: -10px -4px -10px 0;
 }
 
 .logo-container.light_logo {
@@ -2859,6 +2963,7 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   align-items: flex-end;
   height: 31px;
   color: #384b67;
+  overflow: visible;
 }
 
 .dark_logo .logo-word,
@@ -2882,6 +2987,7 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   align-items: flex-end;
   height: 31px;
   gap: 4.5px;
+  overflow: visible;
 }
 
 .logo-svg-a,
@@ -2904,64 +3010,45 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
   fill: #616aff;
 }
 
-/* Неон-мерцание SVG-букв «a» и «i» (тот же ритм 24s) */
+/* Неон-мерцание SVG-букв «a» и «i»: разный период, не в фазе */
 .neon-letter {
   display: inline-block;
   overflow: visible;
-  --logo-neon-glow: drop-shadow(0 0 6px rgba(150, 160, 255, 0.9))
-    drop-shadow(0 0 14px rgba(130, 145, 255, 0.6))
-    drop-shadow(0 0 20px rgba(110, 130, 255, 0.4));
+  --logo-neon-glow: drop-shadow(0 0 3px rgba(150, 160, 255, 0.9))
+    drop-shadow(0 0 7px rgba(130, 145, 255, 0.55))
+    drop-shadow(0 0 11px rgba(110, 130, 255, 0.35));
   filter: var(--logo-neon-glow);
   will-change: opacity, filter;
 }
 
 .neon-letter--a {
-  animation: neon-flicker-a 24s infinite;
+  animation: neon-flicker-a 6.2s infinite;
 }
 
 .neon-letter--i {
-  animation: neon-flicker-i 24s infinite;
+  animation: neon-flicker-i 4.3s infinite;
+  animation-delay: -2.1s;
 }
 
 .dark_mode .neon-letter {
-  --logo-neon-glow: drop-shadow(0 0 10px rgba(97, 106, 255, 1))
-    drop-shadow(0 0 22px rgba(97, 106, 255, 0.8))
-    drop-shadow(0 0 34px rgba(97, 106, 255, 0.5));
+  --logo-neon-glow: drop-shadow(0 0 4px rgba(97, 106, 255, 1))
+    drop-shadow(0 0 9px rgba(97, 106, 255, 0.75))
+    drop-shadow(0 0 14px rgba(97, 106, 255, 0.4));
 }
 
-/* Буква a: 3 одиночных моргания. Буква i: 3 двойных, со сдвигом. */
+/* Цикл 3–7 с: почти всё время горит, короткое моргание раз за период. «a» — одно, «i» — двойное. */
 @keyframes neon-flicker-a {
   0%,
-  13% {
+  88% {
     opacity: 1;
     filter: var(--logo-neon-glow);
   }
-  13.33%,
-  13.73% {
+  89.2%,
+  90.8% {
     opacity: 0.15;
     filter: none;
   }
-  14.07%,
-  47% {
-    opacity: 1;
-    filter: var(--logo-neon-glow);
-  }
-  47.5%,
-  47.9% {
-    opacity: 0.15;
-    filter: none;
-  }
-  48.3%,
-  94.5% {
-    opacity: 1;
-    filter: var(--logo-neon-glow);
-  }
-  95%,
-  95.4% {
-    opacity: 0.15;
-    filter: none;
-  }
-  95.8%,
+  92%,
   100% {
     opacity: 1;
     filter: var(--logo-neon-glow);
@@ -2970,66 +3057,26 @@ body:not(.dark_mode) .nav_mob_wrapper_nav > div .profile-header-btn {
 
 @keyframes neon-flicker-i {
   0%,
-  25% {
+  72% {
     opacity: 1;
     filter: var(--logo-neon-glow);
   }
-  25.42%,
-  25.82% {
+  73.2%,
+  74.6% {
     opacity: 0.15;
     filter: none;
   }
-  26.22%,
-  27.5% {
+  76%,
+  78% {
     opacity: 1;
     filter: var(--logo-neon-glow);
   }
-  27.92%,
-  28.32% {
+  79.2%,
+  80.6% {
     opacity: 0.15;
     filter: none;
   }
-  28.72%,
-  63.3% {
-    opacity: 1;
-    filter: var(--logo-neon-glow);
-  }
-  63.75%,
-  64.15% {
-    opacity: 0.15;
-    filter: none;
-  }
-  64.55%,
-  65.8% {
-    opacity: 1;
-    filter: var(--logo-neon-glow);
-  }
-  66.25%,
-  66.65% {
-    opacity: 0.15;
-    filter: none;
-  }
-  67.05%,
-  76.6% {
-    opacity: 1;
-    filter: var(--logo-neon-glow);
-  }
-  77.08%,
-  77.48% {
-    opacity: 0.15;
-    filter: none;
-  }
-  77.88%,
-  79.1% {
-    opacity: 1;
-    filter: var(--logo-neon-glow);
-  }
-  79.58%,
-  79.98% {
-    opacity: 0.15;
-    filter: none;
-  }
-  80.38%,
+  82%,
   100% {
     opacity: 1;
     filter: var(--logo-neon-glow);
@@ -3177,29 +3224,24 @@ svg.logo-ai {
 }
 
 /* Нажатие / hover — как у «Спросить» и «Лидеры»: белые иконка и текст */
-.mob_sec_item button:hover,
-.mob_sec_item button:active,
-.mob_sec_item:hover button {
+.mob_sec_item:hover,
+.mob_sec_item:active {
   background: rgb(96, 105, 255);
   border-color: rgb(96, 105, 255);
   color: #fff !important;
 }
 
-.mob_sec_item button:hover svg,
-.mob_sec_item button:active svg,
-.mob_sec_item:hover button svg,
-.mob_sec_item button:hover svg path,
-.mob_sec_item button:active svg path,
-.mob_sec_item:hover button svg path {
+.mob_sec_item:hover svg,
+.mob_sec_item:active svg,
+.mob_sec_item:hover svg path,
+.mob_sec_item:active svg path {
   fill: #fff !important;
 }
 
-.mob_sec_item .premium-btn-mob:hover,
-.mob_sec_item .premium-btn-mob:active,
-.mob_sec_item .notification-btn-mob:hover,
-.mob_sec_item .notification-btn-mob:active,
-.mob_sec_item:hover .premium-btn-mob,
-.mob_sec_item:hover .notification-btn-mob {
+.mob_sec_item.premium-btn-mob:hover,
+.mob_sec_item.premium-btn-mob:active,
+.mob_sec_item.notification-btn-mob:hover,
+.mob_sec_item.notification-btn-mob:active {
   color: #fff !important;
 }
 
@@ -3287,16 +3329,15 @@ svg.logo-ai {
 }
 
 /* Обводка всей кнопки — как у профиля в шапке бургера (светлая тема) */
-body:not(.dark_mode) .burger-profile-list-item .burger-profile-list-btn {
+body:not(.dark_mode) .burger-profile-list-item.burger-profile-list-btn {
   box-shadow: inset 0 0 0 2px rgb(65, 65, 165);
 }
 
-.dark_mode .burger-profile-list-item .burger-profile-list-btn {
+.dark_mode .burger-profile-list-item.burger-profile-list-btn {
   box-shadow: inset 0 0 0 2px #ffffff;
 }
 
-.burger-profile-list-item .burger-profile-list-btn:hover,
-.burger-profile-list-item:hover .burger-profile-list-btn {
+.burger-profile-list-item.burger-profile-list-btn:hover {
   box-shadow: inset 0 0 0 2px #ffffff;
 }
 
@@ -3306,6 +3347,6 @@ body:not(.dark_mode) .burger-profile-list-item .burger-profile-list-btn {
   }
 
   .burger-profile-list-item {
-    display: block;
+    display: flex;
   }
 }

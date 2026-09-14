@@ -25,9 +25,12 @@ import { HydrationSafeInput, HydrationSafeTextarea } from "@/components/Hydratio
 import { ProfileLevelsMenuInner, ProfileRulesMenuInner } from "./ProfileLevelsRulesContent";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
 import {
+  BALL_WORDS,
+  capitalizeRuWord,
   compactCountTitle,
   formatCompactCount,
   formatCompactNumWord,
+  ruPluralWord,
 } from "@/lib/format-compact-count";
 import VipPlansGrid from "@/components/profile/VipPlansGrid";
 import ProfileSecuritySettings from "@/components/profile/ProfileSecuritySettings";
@@ -205,12 +208,21 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     const fmt = (v: number | null | undefined) =>
       v === null || v === undefined ? "∞" : String(v);
 
+    const remainingLabel = (
+      v: number | null | undefined,
+      forms: [string, string, string],
+      suffix = "",
+    ) => {
+      const word = v === null || v === undefined ? forms[2] : ruPluralWord(v, forms);
+      return capitalizeRuWord(word) + suffix;
+    };
+
     return [
-      { value: fmt(remaining.ask_question), label: "Вопросы" },
-      { value: fmt(remaining.answer), label: "Ответов" },
-      { value: fmt(remaining.answer_comment), label: "Комментариев" },
-      { value: fmt(remaining.vote_best), label: "Голосов за ответ" },
-      { value: fmt(remaining.vote_question), label: "Оценок вопроса" },
+      { value: fmt(remaining.ask_question), label: remainingLabel(remaining.ask_question, ["вопрос", "вопроса", "вопросов"]) },
+      { value: fmt(remaining.answer), label: remainingLabel(remaining.answer, ["ответ", "ответа", "ответов"]) },
+      { value: fmt(remaining.answer_comment), label: remainingLabel(remaining.answer_comment, ["комментарий", "комментария", "комментариев"]) },
+      { value: fmt(remaining.vote_best), label: remainingLabel(remaining.vote_best, ["голос", "голоса", "голосов"], " за ответ") },
+      { value: fmt(remaining.vote_question), label: remainingLabel(remaining.vote_question, ["оценка", "оценки", "оценок"], " вопроса") },
       { value: fmt(remaining.file), label: "Фото" },
       { value: fmt(remaining.video), label: "Видео" },
     ];
@@ -725,7 +737,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
     const tenure = u.created_at ? formatTimeAgo(u.created_at).replace(/\s+назад$/, "") : "недавно";
     const qCount = u.questions_count ?? 0;
     const aCount = u.answers_count ?? 0;
-    const ballsLine = formatCompactNumWord(u.balls ?? 0, ["балл", "балла", "баллов"]);
+    const ballsLine = formatCompactNumWord(u.balls ?? 0, BALL_WORDS);
     const showSubscribe = isSubscriberView && !u.subscribed_by_me;
     const followPremium = u.premium_is_active ?? u.is_premium ?? false;
     const followPremiumText = displayPremiumBadge(u) ?? "Премиум";
@@ -949,6 +961,8 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
               avatarUrl2x={avatarUrl2x}
               ballsDisplay={ballsDisplay}
               ballsTitle={ballsTitle}
+              ballsCount={ballsRaw}
+              ballsInfinite={isAiUser}
               kpdPercentDisplay={`${kpdPercent}%`}
               editableAvatar
               avatarInputRef={avatarInputRef}
@@ -1250,7 +1264,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                       className={`s_btn ${followFilter === "vip" ? "s_btn_active questions_filter_active" : ""}`}
                       onClick={() => setFollowFilter("vip")}
                     >
-                      VIP
+                      Премиум
                     </button>
                   </div>
                   <div className="answers_list_profile" style={{ position: "relative" }}>
@@ -1308,7 +1322,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                       className={`s_btn ${subscriberFilter === "vip" ? "s_btn_active questions_filter_active" : ""}`}
                       onClick={() => setSubscriberFilter("vip")}
                     >
-                      VIP
+                      Премиум
                     </button>
                   </div>
                   <div className="answers_list_profile" style={{ position: "relative" }}>
@@ -1446,7 +1460,7 @@ export default function ProfilePageClient({ initialMe, initialWidgets }: Profile
                   </div>
                   <div className="user_profile_page_content_wrapper">
                     <p className="secondary_text">
-                      VIP — это особые знаки отличия на проекте, выделение
+                      Премиум — это особые знаки отличия на проекте, выделение
                       ответов и вопросов в общих списках, в два раза больше
                       баллов за каждый ответ и увеличение ежедневного лимита
                       вопросов до 100, возможность скрыть списки вопросов и

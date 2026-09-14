@@ -449,15 +449,18 @@
   width: 100%;
   background: rgb(255, 255, 255);
   margin-bottom: 5px;
+  scroll-margin-top: 96px;
 }
 
 .main_question_block.answer-anchor-highlight {
   box-shadow: 0 0 0 2px #5764ff;
-  transition: box-shadow 0.15s ease;
+  background: #eef1ff;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .dark_mode .main_question_block.answer-anchor-highlight {
   box-shadow: 0 0 0 2px #8b93ff;
+  background: #2f336e;
 }
 
 /* Кнопка догрузки комментариев — ближе к комментариям, отступ до след. ответа */

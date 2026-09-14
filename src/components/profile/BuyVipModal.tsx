@@ -112,8 +112,8 @@ export default function BuyVipModal({ isOpen, onClose, onSuccess }: BuyVipModalP
 
           if (status === "succeeded") {
             setPhase("success");
-            setWaitingHint("Оплата прошла успешно. VIP активирован.");
-            showSystemToast("VIP успешно активирован", "success");
+            setWaitingHint("Оплата прошла успешно. Премиум активирован.");
+            showSystemToast("Премиум успешно активирован", "success");
             try {
               await onSuccess?.();
             } catch {
@@ -205,12 +205,12 @@ export default function BuyVipModal({ isOpen, onClose, onSuccess }: BuyVipModalP
 
         <div className="gift-vip-modal__header">
           <h3 id="buy-vip-modal-title" className="vip-purchase-modal-title gift-vip-modal__title">
-            Купить VIP
+            Купить премиум
           </h3>
           {phase === "plans" ? (
             <>
               <p className="vip-purchase-modal-text gift-vip-modal__subtitle secondary_text">
-                VIP — это особые знаки отличия на проекте, выделение ответов и
+                Премиум — это особые знаки отличия на проекте, выделение ответов и
                 вопросов в общих списках, в два раза больше баллов за каждый
                 ответ и увеличение ежедневного лимита вопросов до 100,
                 возможность скрыть списки вопросов и ответов в своем личном

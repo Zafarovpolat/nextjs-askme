@@ -77,7 +77,7 @@ export default function LoginPageClient() {
           </svg>
 
           <div className="login_block_title">
-            <h2><span className="login_title_full">Вход в аккаунт</span><span className="login_title_short">Вход</span></h2>
+            <h1><span className="login_title_full">Вход в аккаунт</span><span className="login_title_short">Вход</span></h1>
           </div>
 
           <form method="POST" className="login_block_content login_form" onSubmit={handleSubmit}>

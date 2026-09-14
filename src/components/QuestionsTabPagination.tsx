@@ -1,17 +1,6 @@
-import Link from "next/link";
+import { questionsListHref } from "@/lib/questions-list-href";
 
-export function questionsListHref(
-  basePath: string,
-  filter: string,
-  page: number,
-  defaultFilter = "open",
-): string {
-  const qs = new URLSearchParams();
-  if (filter !== defaultFilter) qs.set("filter", filter);
-  if (page > 1) qs.set("page", String(page));
-  const q = qs.toString();
-  return q ? `${basePath}?${q}` : basePath;
-}
+export { questionsListHref };
 
 function paginationItems(current: number, last: number): Array<number | "ellipsis"> {
   if (last <= 7) {
@@ -36,7 +25,7 @@ export default function QuestionsTabPagination({
   defaultFilter = "open",
 }: {
   basePath: string;
-  filter: string;
+  filter: string | null;
   current: number;
   last: number;
   defaultFilter?: string;
@@ -46,13 +35,13 @@ export default function QuestionsTabPagination({
   return (
     <nav className="pagination" aria-label="Страницы вопросов" style={{ display: "none" }}>
       {safeCurrent > 1 ? (
-        <Link
+        <a
           href={questionsListHref(basePath, filter, safeCurrent - 1, defaultFilter)}
           className="page-numbers"
           rel="prev"
         >
           Назад
-        </Link>
+        </a>
       ) : null}
       {paginationItems(safeCurrent, last).map((item, index) =>
         item === "ellipsis" ? (
@@ -64,23 +53,23 @@ export default function QuestionsTabPagination({
             {item}
           </span>
         ) : (
-          <Link
+          <a
             key={item}
             href={questionsListHref(basePath, filter, item, defaultFilter)}
             className="page-numbers"
           >
             {item}
-          </Link>
+          </a>
         ),
       )}
       {safeCurrent < last ? (
-        <Link
+        <a
           href={questionsListHref(basePath, filter, safeCurrent + 1, defaultFilter)}
           className="page-numbers"
           rel="next"
         >
           Вперёд
-        </Link>
+        </a>
       ) : null}
     </nav>
   );

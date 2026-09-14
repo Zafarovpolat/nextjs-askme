@@ -41,6 +41,12 @@ export function parseCategoryQuestionFilter(raw: unknown): CategoryQuestionFilte
   return "open";
 }
 
+/** Явно указанный filter в URL; иначе page идёт на все вкладки. */
+export function parseExplicitCategoryFilter(raw: unknown): CategoryQuestionFilter | null {
+  if (raw === "voting" || raw === "best" || raw === "open") return raw;
+  return null;
+}
+
 export function parseCategoryQuestionPage(raw: unknown): number {
   const n = Number.parseInt(String(raw ?? "1"), 10);
   return Number.isFinite(n) && n > 0 ? n : 1;
@@ -72,33 +78,34 @@ function normalizeQuestionsPage(
   };
 }
 
-/** Первые экраны всех вкладок одним запросом; у активной — запрошенная страница. */
+/** Первые экраны всех вкладок одним запросом.
+ *  Без explicitFilter — запрошенная страница у всех вкладок. */
 export async function fetchCategoryQuestionsTabs(
   tabsEndpoint: string,
-  activeFilter: CategoryQuestionFilter,
+  explicitFilter: CategoryQuestionFilter | null,
   activePage: number,
 ): Promise<CategoryQuestionsByFilter> {
   const params = new URLSearchParams({
-    filter: activeFilter,
     page: String(activePage),
     per_page: String(PER_PAGE),
   });
+  if (explicitFilter) params.set("filter", explicitFilter);
   const res = await fetch(getApiFullUrl(`${tabsEndpoint}?${params}`), {
     headers: { Accept: "application/json" },
-    next: { revalidate: 60 },
+    cache: "no-store",
   });
   if (res.status === 404) notFound();
   if (!res.ok) {
     return {
-      open: emptyQuestionsPage(activeFilter === "open" ? activePage : 1),
-      voting: emptyQuestionsPage(activeFilter === "voting" ? activePage : 1),
-      best: emptyQuestionsPage(activeFilter === "best" ? activePage : 1),
+      open: emptyQuestionsPage(explicitFilter == null || explicitFilter === "open" ? activePage : 1),
+      voting: emptyQuestionsPage(explicitFilter == null || explicitFilter === "voting" ? activePage : 1),
+      best: emptyQuestionsPage(explicitFilter == null || explicitFilter === "best" ? activePage : 1),
     };
   }
   const data = (await res.json()) as Partial<Record<CategoryQuestionFilter, Partial<CategoryQuestionsPage>>>;
   return {
-    open: normalizeQuestionsPage(data.open, activeFilter === "open" ? activePage : 1),
-    voting: normalizeQuestionsPage(data.voting, activeFilter === "voting" ? activePage : 1),
-    best: normalizeQuestionsPage(data.best, activeFilter === "best" ? activePage : 1),
+    open: normalizeQuestionsPage(data.open, explicitFilter == null || explicitFilter === "open" ? activePage : 1),
+    voting: normalizeQuestionsPage(data.voting, explicitFilter == null || explicitFilter === "voting" ? activePage : 1),
+    best: normalizeQuestionsPage(data.best, explicitFilter == null || explicitFilter === "best" ? activePage : 1),
   };
 }

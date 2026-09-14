@@ -5,6 +5,15 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = withPageUrl("/leaders", {
   title: "Лидеры",
+  description: "Топ участников otvetai за месяц",
+  openGraph: {
+    title: "Лидеры",
+    description: "Топ участников otvetai за месяц",
+  },
+  twitter: {
+    title: "Лидеры",
+    description: "Топ участников otvetai за месяц",
+  },
 });
 
 export type LeaderSubcategory = {

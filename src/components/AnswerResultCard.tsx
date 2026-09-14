@@ -5,7 +5,8 @@ import { UserAnswer } from "@/data/mock-answers";
 import UserAvatar from "@/components/UserAvatar";
 import TextWithLinks from "@/components/TextWithLinks";
 import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
-import { formatCompactCount, formatCompactNumWord, voteCountTitle } from "@/lib/format-compact-count";
+import { formatCompactCount, formatCompactNumWord, ruPluralPhrase, voteCountTitle } from "@/lib/format-compact-count";
+import { profileLinkLabel } from "@/lib/a11y-labels";
 import { useVoteAnswer } from "@/hooks/useVoteAnswer";
 
 interface AnswerResultCardProps {
@@ -16,20 +17,10 @@ interface AnswerResultCardProps {
   hideVotes?: boolean;
   /** Всегда показывать лайки/дизлайки, даже если это свой профиль. */
   showVotes?: boolean;
-  /** Премиум-оформление аватара (например профиль VIP) */
+  /** Премиум-оформление аватара */
   isPremiumUser?: boolean;
 }
 
-// Склонение ответов
-const numWord = (value: number, words: [string, string, string]): string => {
-  const abs = Math.abs(value);
-  const cases = [2, 0, 1, 1, 1, 2];
-  const index =
-    abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)];
-  return `${value} ${words[index]}`;
-};
-
-// Форматирование даты
 const formatTimeAgo = (dateStr: string): string => {
   const now = new Date();
   const date = new Date(dateStr);
@@ -38,18 +29,18 @@ const formatTimeAgo = (dateStr: string): string => {
 
   if (diffDays < 1) return "сегодня";
   if (diffDays < 7)
-    return numWord(diffDays, ["день", "дня", "дней"]) + " назад";
+    return ruPluralPhrase(diffDays, ["день", "дня", "дней"]) + " назад";
 
   const diffWeeks = Math.floor(diffDays / 7);
   if (diffWeeks < 4)
-    return numWord(diffWeeks, ["неделю", "недели", "недель"]) + " назад";
+    return ruPluralPhrase(diffWeeks, ["неделю", "недели", "недель"]) + " назад";
 
   const diffMonths = Math.floor(diffDays / 30);
   if (diffMonths < 12)
-    return numWord(diffMonths, ["месяц", "месяца", "месяцев"]) + " назад";
+    return ruPluralPhrase(diffMonths, ["месяц", "месяца", "месяцев"]) + " назад";
 
   const diffYears = Math.floor(diffDays / 365);
-  return numWord(diffYears, ["год", "года", "лет"]) + " назад";
+  return ruPluralPhrase(diffYears, ["год", "года", "лет"]) + " назад";
 };
 
 function ReadOnlyVoteBadges({ likes, dislikes }: { likes: number; dislikes: number }) {
@@ -113,7 +104,8 @@ function InteractiveVoteBadges({
       <button
         className={`like-badge${user_vote === 1 ? " like-badge--active" : ""}`}
         type="button"
-        title="Мне нравится"
+        title="Нравится"
+        aria-label="Нравится"
         disabled={pending}
         onClick={() => vote(1)}
       >
@@ -173,6 +165,7 @@ export default function AnswerResultCard({
       <Link
         href={`/profile/${answer.author.id ?? answer.author.username}`}
         className="answer-result-avatar-link"
+        aria-label={profileLinkLabel(authorName)}
       >
         <UserAvatar
           src={answer.author.avatar}

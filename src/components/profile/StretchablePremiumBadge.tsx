@@ -1,8 +1,10 @@
 "use client";
 
+import SiteImage from "@/components/SiteImage";
+
 /** Крылья масштабируются вместе с высотой бейджа (исходный SVG 5.538… × 17). */
 const WING_H = 15;
-const WING_W = (5.538834951456311 * WING_H) / 17;
+const WING_W = Math.round((5.538834951456311 * WING_H) / 17) || 5;
 const WING_SRC = "/images/premium-badge-wing-left.svg";
 
 export type StretchablePremiumBadgeProps = {
@@ -23,7 +25,7 @@ export default function StretchablePremiumBadge({
       aria-label={ariaLabel}
     >
       <div className="premium-badge-stretch__graphics" aria-hidden>
-        <img
+        <SiteImage
           className="premium-badge-stretch__wing premium-badge-stretch__wing--left"
           src={WING_SRC}
           alt=""
@@ -32,7 +34,7 @@ export default function StretchablePremiumBadge({
           draggable={false}
         />
         <div className="premium-badge-stretch__middle" />
-        <img
+        <SiteImage
           className="premium-badge-stretch__wing premium-badge-stretch__wing--right"
           src={WING_SRC}
           alt=""

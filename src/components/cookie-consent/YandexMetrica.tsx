@@ -57,6 +57,10 @@ ym(${id}, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, we
             src={`https://mc.yandex.ru/watch/${id}`}
             style={{ position: 'absolute', left: '-9999px' }}
             alt=""
+            width={1}
+            height={1}
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </noscript>

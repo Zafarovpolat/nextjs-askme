@@ -46,6 +46,7 @@
   padding-left: 28px;
 }
 
+.login_block .login_block_title h1,
 .login_block .login_block_title h2 {
   margin: 0;
 }
@@ -113,6 +114,7 @@
   background: rgb(96, 105, 255);
 }
 
+.login_block_title h1,
 .login_block_title h2 {
   color: rgb(31, 42, 59);
   font-family: Nunito;
@@ -124,6 +126,7 @@
   margin-bottom: 17px;
 }
 
+.dark_mode .login_block_title h1,
 .dark_mode .login_block_title h2 {
   color: rgb(255, 255, 255);
 }
@@ -141,8 +144,10 @@
   z-index: 1;
 }
 
+.login_input_svg,
 .login_input_svg--accent {
   color: #5f69ff;
+  fill: currentColor;
 }
 
 .login_input input {
@@ -204,6 +209,7 @@
 .login_password_toggle svg {
   display: block;
   color: inherit;
+  fill: currentColor;
 }
 
 .dark_mode .login_input input {
@@ -215,6 +221,7 @@
 .dark_mode .login_block .login_input_svg--accent,
 .dark_mode .auth_page_layout .login_input_svg--accent {
   color: #fff;
+  fill: currentColor;
 }
 
 .dark_mode .login_block .login_password_toggle,
@@ -224,6 +231,7 @@
 
 .dark_mode .modal .login_input_svg--accent {
   color: #5f69ff;
+  fill: currentColor;
 }
 
 .dark_mode .modal .login_password_toggle {
@@ -647,6 +655,7 @@
   z-index: 2;
 }
 
+.auth_page .login_block_title h1,
 .auth_page .login_block_title h2 {
   margin: 0;
 }
@@ -1150,6 +1159,7 @@ label.checkbox {
     padding-left: 20px;
   }
 
+  .auth_page .login_block_title h1,
   .auth_page .login_block_title h2 {
     font-size: 22px;
   }

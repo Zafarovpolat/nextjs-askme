@@ -7,16 +7,25 @@ import {
   fetchCategoryQuestionsTabs,
   parseCategoryQuestionFilter,
   parseCategoryQuestionPage,
+  parseExplicitCategoryFilter,
 } from "@/lib/category-questions-tabs"
 import CategoryPageClient from "../_components/CategoryPageClient"
 
+export const dynamic = "force-dynamic"
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ filter?: string; page?: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  return metadataForCategorySlug(slug)
+  const query = await searchParams
+  return metadataForCategorySlug(slug, {
+    filter: parseExplicitCategoryFilter(query.filter),
+    page: parseCategoryQuestionPage(query.page),
+  })
 }
 
 async function fetchJson(url: string) {
@@ -35,6 +44,7 @@ export default async function CategoryPage({
 }) {
   const { slug } = await params
   const query = await searchParams
+  const explicitFilter = parseExplicitCategoryFilter(query.filter)
   const initialFilter = parseCategoryQuestionFilter(query.filter)
   const initialPage = parseCategoryQuestionPage(query.page)
   const questionsEndpoint = `v1/category-pages/${slug}/questions-tabs`
@@ -42,13 +52,17 @@ export default async function CategoryPage({
 
   const [data, initialByFilter] = await Promise.all([
     fetchJson(getApiFullUrl(`v1/category-pages/${slug}`)),
-    fetchCategoryQuestionsTabs(questionsEndpoint, initialFilter, initialPage),
+    fetchCategoryQuestionsTabs(questionsEndpoint, explicitFilter, initialPage),
   ])
+
+  if (data?.category?.slug !== slug) {
+    notFound()
+  }
 
   return (
     <>
       <CategoryPageClient
-        key={`${listPath}-${initialFilter}-${initialPage}`}
+        key={`${listPath}-${explicitFilter ?? "all"}-${initialPage}`}
         category={data.category}
         subcategory={null}
         shared={{
@@ -59,6 +73,8 @@ export default async function CategoryPage({
         }}
         initialByFilter={initialByFilter}
         initialFilter={initialFilter}
+        explicitFilter={explicitFilter}
+        initialPage={initialPage}
         listPath={listPath}
       />
       <Footer />

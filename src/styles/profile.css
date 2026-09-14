@@ -655,9 +655,10 @@
   overflow: hidden;
 }
 
+.user_profile_block_content_profile_desc h1,
 .user_profile_block_content_profile_desc h4,
 .profile-display-name {
-  color: rgb(31, 42, 59);
+  color: #5e68ff;
   font-family: Nunito;
   font-size: 18px;
   font-weight: 700;
@@ -693,8 +694,15 @@
   display: none;
 }
 
-.dark_mode .user_profile_block_content_profile_desc h4 {
-  color: #fff;
+.dark_mode .user_profile_block_content_profile_desc h1,
+.dark_mode .user_profile_block_content_profile_desc h4,
+.dark_mode .profile-display-name {
+  color: #5e68ff;
+}
+
+.dark_mode .user_profile_block.premium-profile .profile-display-name,
+.dark_mode .user_profile_block.premium-profile .user_profile_block_content_profile_desc h1 {
+  color: #ffffff;
 }
 
 .user_profile_block_content_profile_desc p {

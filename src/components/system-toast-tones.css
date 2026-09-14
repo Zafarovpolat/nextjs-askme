@@ -1,22 +1,29 @@
-/* Тона системных тостов (рядом с классами из Header.module.css). */
+/* Тона системных тостов (рядом с классами из Header.module.css).
+   Иконка и полоса прогресса берут цвет из --nk-accent / --nk-soft. */
 
 [data-system-toast="success"] {
+  --nk-accent: #1f9d55;
+  --nk-soft: #e8f8ee;
   border-color: #b7e4c7;
   background: #f0fdf4;
   box-shadow: 0 16px 40px rgba(34, 120, 70, 0.12);
 }
 
-[data-system-toast="success"] > div {
+[data-system-toast="success"] > div,
+[data-system-toast="success"] > div > div {
   color: #1b4332;
 }
 
 [data-system-toast="error"] {
+  --nk-accent: #d93f4c;
+  --nk-soft: #fde2e4;
   border-color: #f5c2c7;
   background: #fff5f5;
   box-shadow: 0 16px 40px rgba(120, 34, 40, 0.1);
 }
 
-[data-system-toast="error"] > div {
+[data-system-toast="error"] > div,
+[data-system-toast="error"] > div > div {
   color: #7f1d1d;
 }
 
@@ -27,7 +34,8 @@
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
 }
 
-.dark_mode [data-system-toast="success"] > div {
+.dark_mode [data-system-toast="success"] > div,
+.dark_mode [data-system-toast="success"] > div > div {
   color: #d8f3dc !important;
 }
 
@@ -37,6 +45,7 @@
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
 }
 
-.dark_mode [data-system-toast="error"] > div {
+.dark_mode [data-system-toast="error"] > div,
+.dark_mode [data-system-toast="error"] > div > div {
   color: #fecaca !important;
 }

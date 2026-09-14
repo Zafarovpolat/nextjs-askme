@@ -96,6 +96,7 @@ export default function FaqPageClient({ categories }: Props) {
       </div>
 
       <div className="questions_page_list">
+        <h1 className="faq-page-title">Частые вопросы</h1>
         <div className="faq-search-wrap">
           <div className="faq-search">
             <svg
@@ -185,10 +186,10 @@ export default function FaqPageClient({ categories }: Props) {
       <div className="question_right_list" ref={rightSidebarRef}>
         <div className="vip_status_block">
           <div className="vip_icon">
-            <img src="/images/vip.svg" alt="VIP" />
+            <img src="/images/vip.svg" alt="Премиум" />
           </div>
           <p className="vip_gift_text">Подарить</p>
-          <h3 className="vip_title">VIP статус</h3>
+          <h3 className="vip_title">Премиум</h3>
           <button type="button" className="vip_button">
             ПОДАРИТЬ
           </button>

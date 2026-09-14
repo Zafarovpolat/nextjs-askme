@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, useRef, Fragment, useId } from "react";
 import styles from "./Header.module.css";
 import EmailVerifyBanner from "./EmailVerifyBanner";
 
@@ -13,7 +13,9 @@ import { saveAuthorizedUserColorTheme } from "@/lib/save-user-color-theme";
 import NotificationBtnRealtime from "./NotificationBtnRealtime";
 import LogoWordmark from "./LogoWordmark";
 import UserAvatar from "@/components/UserAvatar";
+import SiteImage from "@/components/SiteImage";
 import { HydrationSafeInput } from "@/components/HydrationSafeInput";
+import { HOME_LOGO_LABEL } from "@/lib/a11y-labels";
 
 type PremiumUserLike = {
   is_premium?: boolean | number;
@@ -40,12 +42,21 @@ const HeaderProfileAvatar = () => {
       alt=""
       size={HEADER_PROFILE_AVATAR_SIZE}
       imgClassName={styles.profileHeaderBtnAvatar}
+      eager
     />
   );
 };
 
-const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
+const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => {
+  const uid = useId().replace(/:/g, "");
+  const maskLight = `${uid}-mask-light`;
+  const paintLight = `${uid}-paint-light`;
+  const maskDark = `${uid}-mask-dark`;
+  const paintDark = `${uid}-paint-dark`;
+
+  return (
   <button
+    type="button"
     className="theme-toggle-btn mode_toggler"
     onClick={onClick}
     title="Темная/светлая тема"
@@ -60,7 +71,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       xmlns="http://www.w3.org/2000/svg"
     >
       <mask
-        id="mask0_3_4601"
+        id={maskLight}
         style={{ maskType: "alpha" }}
         maskUnits="userSpaceOnUse"
         x="0"
@@ -70,7 +81,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       >
         <rect width="50" height="50" rx="12" fill="white" />
       </mask>
-      <g mask="url(#mask0_3_4601)">
+      <g mask={`url(#${maskLight})`}>
         <rect width="50" height="50" rx="12" fill="white" />
         <ellipse
           opacity="0.11"
@@ -78,7 +89,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
           cy="45.5"
           rx="41.5"
           ry="23.5"
-          fill="url(#paint0_linear_3_4601)"
+          fill={`url(#${paintLight})`}
         />
         <path
           d="M32.8721 28.0248C32.7185 27.8268 32.4606 27.7536 32.2337 27.8388C31.5975 28.0776 30.9075 28.2 30.1809 28.2C26.7046 28.2 23.877 25.2384 23.877 21.6C23.877 19.41 24.9097 17.3712 26.6392 16.1448C26.8352 16.0056 26.9292 15.7548 26.8765 15.5136C26.8238 15.2724 26.6346 15.09 26.3997 15.054C26.1315 15.0132 25.8644 15 25.5962 15C20.8557 15 17 19.0368 17 24C17 28.9632 20.8557 33 25.5962 33C28.6049 33 31.3419 31.3992 32.9156 28.7184C33.0428 28.5012 33.0245 28.224 32.8721 28.0248Z"
@@ -103,7 +114,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       </g>
       <defs>
         <linearGradient
-          id="paint0_linear_3_4601"
+          id={paintLight}
           x1="25.5"
           y1="22"
           x2="25.5"
@@ -124,7 +135,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       xmlns="http://www.w3.org/2000/svg"
     >
       <mask
-        id="mask0_3_4582"
+        id={maskDark}
         style={{ maskType: "alpha" }}
         maskUnits="userSpaceOnUse"
         x="0"
@@ -134,7 +145,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       >
         <rect width="50" height="50" rx="12" fill="white" />
       </mask>
-      <g mask="url(#mask0_3_4582)">
+      <g mask={`url(#${maskDark})`}>
         <rect width="50" height="50" rx="12" fill="#6069FF" />
         <ellipse
           opacity="0.55"
@@ -142,7 +153,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
           cy="45.5"
           rx="41.5"
           ry="23.5"
-          fill="url(#paint0_linear_3_4582)"
+          fill={`url(#${paintDark})`}
         />
         <path
           fillRule="evenodd"
@@ -195,7 +206,7 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       </g>
       <defs>
         <linearGradient
-          id="paint0_linear_3_4582"
+          id={paintDark}
           x1="25.5"
           y1="22"
           x2="25.5"
@@ -208,7 +219,8 @@ const ThemeToggleBtn = ({ onClick }: { onClick: () => void }) => (
       </defs>
     </svg>
   </button>
-);
+  );
+};
 
 // Выпадающее меню профиля
 const ProfileDropdown = () => {
@@ -255,7 +267,7 @@ const ProfileDropdown = () => {
       icon: "rules",
     },
     {
-      label: "VIP - статус",
+      label: "Премиум",
       href: "/profile?tab=vip",
       icon: "vip",
     },
@@ -269,8 +281,10 @@ const ProfileDropdown = () => {
   return (
     <div ref={wrapperRef} className={styles.notificationWrapper}>
       <button
+        type="button"
         className={`m_btn m_btn_icon category_btn profile-header-btn${isOpen ? " profile-header-btn--open" : ""}`}
         title="Личный кабинет"
+        aria-label="Личный кабинет"
         onClick={() => setIsOpen(!isOpen)}
       >
         <HeaderProfileAvatar />
@@ -288,6 +302,7 @@ const ProfileDropdown = () => {
                 premiumText="Премиум"
                 size={80}
                 imgClassName={styles.profileAvatar}
+                eager
               />
             </div>
             <div className={styles.profileUserDetail}>
@@ -430,7 +445,7 @@ export default function Header() {
         <EmailVerifyBanner />
         <nav>
           <div className="nav_wrapper container">
-          <Link href="/" className="header__logo" title="Главная">
+          <Link href="/" className="header__logo" title="Главная" aria-label={HOME_LOGO_LABEL}>
             <div className="logo-container light_logo">
               <LogoWordmark />
             </div>
@@ -445,6 +460,7 @@ export default function Header() {
               type="button"
               className="m_btn category_btn nav-cat-btn"
               title="Категории"
+              aria-label="Категории"
               onClick={() => {
                 if (pathname === "/categories") {
                   router.back();
@@ -453,11 +469,12 @@ export default function Header() {
                 }
               }}
             >
-              <img
+              <SiteImage
                 src="/images/icons/category-icon.svg"
                 alt=""
-                width="18"
-                height="18"
+                width={18}
+                height={18}
+                eager
               />
               <span className="nav-btn-label">Категории</span>
             </button>
@@ -466,11 +483,12 @@ export default function Header() {
               className="search_input"
               onSubmit={(e) => onSearchSubmit(e, desktopSearchRef)}
             >
-              <img
+              <SiteImage
                 src="/images/icons/search.svg"
                 alt=""
-                width="18"
-                height="18"
+                width={18}
+                height={18}
+                eager
               />
               <HydrationSafeInput
                 ref={desktopSearchRef}
@@ -481,56 +499,52 @@ export default function Header() {
               />
             </form>
 
-            <Link href="/ask" className="nav-ask-btn" title="Спросить">
-              <button type="button" className="m_btn" title="Спросить">
-                <svg width="20" height="20">
-                  <use xlinkHref="/sprites.svg#ask"></use>
-                </svg>
-                <span className="nav-btn-label">Спросить</span>
-              </button>
+            <Link href="/ask" className="m_btn nav-ask-btn" title="Спросить" aria-label="Спросить">
+              <svg width="20" height="20" aria-hidden>
+                <use xlinkHref="/sprites.svg#ask"></use>
+              </svg>
+              <span className="nav-btn-label">Спросить</span>
             </Link>
 
             <Link
               href={isAuthorized ? "/profile?tab=vip" : "/login"}
-              className="nav-premium-btn"
+              className="m_btn m_btn_icon category_btn nav-premium-btn"
               title="Премиум"
+              aria-label="Премиум"
             >
-              <button type="button" className="m_btn m_btn_icon category_btn" title="Премиум">
-                <svg
-                  width="20"
-                  height="17"
-                  viewBox="0 0 20 17"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
-                    fill="white"
-                  />
-                  <path
-                    d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
-                    fill="white"
-                  />
-                  <path
-                    d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
-                    fill="white"
-                  />
-                  <path
-                    d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
-                    fill="white"
-                  />
-                </svg>
-                <span className={`${styles.premiumText} nav-btn-label`}>Премиум</span>
-              </button>
+              <svg
+                width="20"
+                height="17"
+                viewBox="0 0 20 17"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden
+              >
+                <path
+                  d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
+                  fill="white"
+                />
+                <path
+                  d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
+                  fill="white"
+                />
+                <path
+                  d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
+                  fill="white"
+                />
+                <path
+                  d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
+                  fill="white"
+                />
+              </svg>
+              <span className={`${styles.premiumText} nav-btn-label`}>Премиум</span>
             </Link>
 
-            <Link href="/leaders" className="nav-leaders-btn" title="Лидеры">
-              <button type="button" className="m_btn" title="Лидеры">
-                <svg width="20" height="20">
-                  <use xlinkHref="/sprites.svg#leaders"></use>
-                </svg>
-                <span className="nav-btn-label">Лидеры</span>
-              </button>
+            <Link href="/leaders" className="m_btn nav-leaders-btn" title="Лидеры" aria-label="Лидеры">
+              <svg width="20" height="20" aria-hidden>
+                <use xlinkHref="/sprites.svg#leaders"></use>
+              </svg>
+              <span className="nav-btn-label">Лидеры</span>
             </Link>
 
             <ThemeToggleBtn onClick={toggleDarkMode} />
@@ -544,28 +558,29 @@ export default function Header() {
                   <ProfileDropdown />
                 </div>
                 {/* Мобиль — прямая ссылка на профиль */}
-                <Link href="/profile" className="profile-link-mobile">
-                  <button
-                    className="m_btn m_btn_icon category_btn profile-header-btn"
-                    title="Личный кабинет"
-                  >
-                    <HeaderProfileAvatar />
-                  </button>
+                <Link
+                  href="/profile"
+                  className="m_btn m_btn_icon category_btn profile-header-btn profile-link-mobile"
+                  title="Личный кабинет"
+                  aria-label="Личный кабинет"
+                >
+                  <HeaderProfileAvatar />
                 </Link>
               </>
             ) : (
-              <Link href="/login">
-                <button
-                  className="m_btn m_btn_icon category_btn"
-                  title="Личный кабинет"
-                >
-                  <img
-                    src="/images/icons/user.svg"
-                    alt=""
-                    width="16"
-                    height="20"
-                  />
-                </button>
+              <Link
+                href="/login"
+                className="m_btn m_btn_icon category_btn"
+                title="Войти"
+                aria-label="Войти"
+              >
+                <SiteImage
+                  src="/images/icons/user.svg"
+                  alt=""
+                  width={16}
+                  height={20}
+                  eager
+                />
               </Link>
             )}
 
@@ -573,9 +588,10 @@ export default function Header() {
               type="button"
               className="m_btn m_btn_icon category_btn desc_mob_btn"
               title="Меню"
+              aria-label="Открыть меню"
               onClick={toggleMenu}
             >
-              <img src="/images/icons/mob-menu.svg" alt="" />
+              <SiteImage src="/images/icons/mob-menu.svg" alt="" width={18} height={18} eager />
             </button>
           </div>
         </div>
@@ -587,7 +603,7 @@ export default function Header() {
         className={`nav_mob_wrapper ${isMenuOpen ? "nav_mob_wrapper_visible" : ""}`}
       >
         <div className="nav_mob_wrapper_nav">
-          <Link href="/" className="mob-nav-logo" title="Главная" onClick={closeMenu}>
+          <Link href="/" className="mob-nav-logo" title="Главная" aria-label={HOME_LOGO_LABEL} onClick={closeMenu}>
             <div className="logo-container" style={{ display: "flex" }}>
               <LogoWordmark />
             </div>
@@ -595,31 +611,25 @@ export default function Header() {
           <div>
             <ThemeToggleBtn onClick={toggleDarkMode} />
             {!isAuthorized ? (
-              <Link href="/login" title="Войти" onClick={closeMenu}>
-                <button type="button" className="m_btn" title="Войти">
-                  <img src="/images/icons/user.svg" alt="" />
-                </button>
+              <Link href="/login" className="m_btn" title="Войти" aria-label="Войти" onClick={closeMenu}>
+                <SiteImage src="/images/icons/user.svg" alt="" width={16} height={20} eager />
               </Link>
             ) : (
               <>
                 <Link
                   href="/profile"
-                  className="burger-profile-link"
+                  className="m_btn m_btn_icon category_btn profile-header-btn burger-profile-link"
                   title="Личный кабинет"
+                  aria-label="Личный кабинет"
                   onClick={closeMenu}
                 >
-                  <button
-                    type="button"
-                    className="m_btn m_btn_icon category_btn profile-header-btn"
-                    title="Личный кабинет"
-                  >
-                    <HeaderProfileAvatar />
-                  </button>
+                  <HeaderProfileAvatar />
                 </Link>
                 <button
                   type="button"
                   className="m_btn m_btn_icon category_btn burger-logout-btn"
                   title="Выход"
+                  aria-label="Выйти"
                   onClick={() => {
                     logout();
                     closeMenu();
@@ -627,17 +637,18 @@ export default function Header() {
                     router.refresh();
                   }}
                 >
-                  <img
+                  <SiteImage
                     src="/images/icons/logout.svg"
                     alt=""
-                    width="16"
-                    height="20"
+                    width={16}
+                    height={20}
+                    eager
                   />
                 </button>
               </>
             )}
-            <button type="button" className="m_btn" title="Закрыть меню" onClick={closeMenu}>
-              <img src="/images/icons/exit-menu.svg" alt="" />
+            <button type="button" className="m_btn" title="Закрыть меню" aria-label="Закрыть меню" onClick={closeMenu}>
+              <SiteImage src="/images/icons/exit-menu.svg" alt="" width={16} height={16} eager />
             </button>
           </div>
         </div>
@@ -670,11 +681,12 @@ export default function Header() {
               closeMenu();
             }}
           >
-            <img
+            <SiteImage
               src="/images/icons/mob-search.svg"
               alt=""
-              width="18"
-              height="18"
+              width={18}
+              height={18}
+              eager
             />
             <HydrationSafeInput
               ref={mobileSearchRef}
@@ -685,86 +697,89 @@ export default function Header() {
             />
           </form>
 
-          <Link href="/ask" className="mob_sec_item" title="Спросить" onClick={closeMenu}>
-            <button type="button" className="m_btn" title="Спросить">
-              <svg width="20" height="20">
-                <use xlinkHref="/sprites.svg#ask"></use>
-              </svg>
-              Спросить
-            </button>
+          <Link href="/ask" className="m_btn mob_sec_item" title="Спросить" aria-label="Спросить" onClick={closeMenu}>
+            <svg width="20" height="20">
+              <use xlinkHref="/sprites.svg#ask"></use>
+            </svg>
+            Спросить
           </Link>
 
-          <Link href="/leaders" className="mob_sec_item" title="Лидеры" onClick={closeMenu}>
-            <button type="button" className="m_btn" title="Лидеры">
-              <svg width="20" height="20">
-                <use xlinkHref="/sprites.svg#leaders"></use>
-              </svg>
-              Лидеры
-            </button>
+          <Link href="/leaders" className="m_btn mob_sec_item" title="Лидеры" aria-label="Лидеры" onClick={closeMenu}>
+            <svg width="20" height="20">
+              <use xlinkHref="/sprites.svg#leaders"></use>
+            </svg>
+            Лидеры
           </Link>
 
-          <Link href="/notifications" className="mob_sec_item" title="Уведомления" onClick={closeMenu}>
-            <button type="button" className="m_btn notification-btn-mob" title="Уведомления">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M10 0C8.89543 0 8 0.89543 8 2V2.29C5.16229 3.02104 3 5.60626 3 8.66667V12.5L1.29289 14.2071C0.902369 14.5976 0.902369 15.2308 1.29289 15.6213C1.68342 16.0118 2.31658 16.0118 2.70711 15.6213L3 15.3284V16C3 17.1046 3.89543 18 5 18H7.17071C7.58254 19.1652 8.69378 20 10 20C11.3062 20 12.4175 19.1652 12.8293 18H15C16.1046 18 17 17.1046 17 16V15.3284L17.2929 15.6213C17.6834 16.0118 18.3166 16.0118 18.7071 15.6213C19.0976 15.2308 19.0976 14.5976 18.7071 14.2071L17 12.5V8.66667C17 5.60626 14.8377 3.02104 12 2.29V2C12 0.89543 11.1046 0 10 0ZM10 2C10.5523 2 11 2.44772 11 3V3.04938C10.6711 3.01659 10.3375 3 10 3C9.6625 3 9.32887 3.01659 9 3.04938V3C9 2.44772 9.44772 2 10 2ZM10 18C9.44772 18 9 17.5523 9 17H11C11 17.5523 10.5523 18 10 18Z"
-                  fill="currentColor"
-                />
-              </svg>
-              Уведомления
-            </button>
+          <Link
+            href="/notifications"
+            className="m_btn mob_sec_item notification-btn-mob"
+            title="Уведомления"
+            aria-label="Уведомления"
+            onClick={closeMenu}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 0C8.89543 0 8 0.89543 8 2V2.29C5.16229 3.02104 3 5.60626 3 8.66667V12.5L1.29289 14.2071C0.902369 14.5976 0.902369 15.2308 1.29289 15.6213C1.68342 16.0118 2.31658 16.0118 2.70711 15.6213L3 15.3284V16C3 17.1046 3.89543 18 5 18H7.17071C7.58254 19.1652 8.69378 20 10 20C11.3062 20 12.4175 19.1652 12.8293 18H15C16.1046 18 17 17.1046 17 16V15.3284L17.2929 15.6213C17.6834 16.0118 18.3166 16.0118 18.7071 15.6213C19.0976 15.2308 19.0976 14.5976 18.7071 14.2071L17 12.5V8.66667C17 5.60626 14.8377 3.02104 12 2.29V2C12 0.89543 11.1046 0 10 0ZM10 2C10.5523 2 11 2.44772 11 3V3.04938C10.6711 3.01659 10.3375 3 10 3C9.6625 3 9.32887 3.01659 9 3.04938V3C9 2.44772 9.44772 2 10 2ZM10 18C9.44772 18 9 17.5523 9 17H11C11 17.5523 10.5523 18 10 18Z"
+                fill="currentColor"
+              />
+            </svg>
+            Уведомления
           </Link>
 
           {isAuthorized ? (
             <Link
               href="/profile"
-              className="mob_sec_item burger-profile-list-item"
+              className="m_btn mob_sec_item burger-profile-list-item burger-profile-list-btn"
               title="Личный кабинет"
+              aria-label="Личный кабинет"
               onClick={closeMenu}
             >
-              <button type="button" className="m_btn burger-profile-list-btn" title="Личный кабинет">
-                <span className="burger-profile-list-avatar" aria-hidden>
-                  <HeaderProfileAvatar />
-                </span>
-                Личный кабинет
-              </button>
+              <span className="burger-profile-list-avatar" aria-hidden>
+                <HeaderProfileAvatar />
+              </span>
+              Личный кабинет
             </Link>
           ) : null}
 
-          <Link href="/profile" className="mob_sec_item" title="Премиум" onClick={closeMenu}>
-            <button type="button" className="m_btn premium-btn-mob" title="Премиум">
-              <svg
-                width="20"
-                height="17"
-                viewBox="0 0 20 17"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
-                  fill="currentColor"
-                />
-              </svg>
-              Премиум
-            </button>
+          <Link
+            href="/profile"
+            className="m_btn mob_sec_item premium-btn-mob"
+            title="Премиум"
+            aria-label="Премиум"
+            onClick={closeMenu}
+          >
+            <svg
+              width="20"
+              height="17"
+              viewBox="0 0 20 17"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M16.949 7.47907L14.405 8.11407C14.3509 8.12793 14.2939 8.12578 14.241 8.10788C14.1881 8.08997 14.1416 8.05709 14.107 8.01323L11.3181 4.52671C11.1548 4.33729 10.9525 4.18532 10.725 4.08115C10.4976 3.97698 10.2504 3.92306 10.0002 3.92306C9.75009 3.92306 9.50288 3.97698 9.27545 4.08115C9.04802 4.18532 8.84572 4.33729 8.68233 4.52671L5.89257 8.01415C5.85701 8.057 5.81018 8.08906 5.75738 8.10672C5.70457 8.12438 5.64787 8.12693 5.59369 8.11408L3.05141 7.47907C2.85168 7.42913 2.64243 7.43175 2.44401 7.48666C2.24559 7.54157 2.06476 7.6469 1.91912 7.79241C1.77347 7.93792 1.66798 8.11865 1.61289 8.31702C1.5578 8.51539 1.55499 8.72464 1.60474 8.92442L3.19721 15.2925C3.28774 15.6581 3.4982 15.9827 3.79495 16.2146C4.0917 16.4464 4.45761 16.5721 4.8342 16.5716H15.1658C15.5424 16.5721 15.9083 16.4464 16.205 16.2146C16.5018 15.9827 16.7123 15.6581 16.8028 15.2925L18.3953 8.92442C18.445 8.72468 18.4422 8.51547 18.3872 8.31714C18.3321 8.1188 18.2267 7.93809 18.0811 7.79258C17.9355 7.64708 17.7547 7.54173 17.5563 7.48679C17.3579 7.43186 17.1487 7.42919 16.949 7.47907Z"
+                fill="currentColor"
+              />
+              <path
+                d="M1.39535 6.74419C2.16598 6.74419 2.7907 6.11947 2.7907 5.34884C2.7907 4.57821 2.16598 3.95349 1.39535 3.95349C0.624719 3.95349 0 4.57821 0 5.34884C0 6.11947 0.624719 6.74419 1.39535 6.74419Z"
+                fill="currentColor"
+              />
+              <path
+                d="M18.6047 6.74419C19.3753 6.74419 20 6.11947 20 5.34884C20 4.57821 19.3753 3.95349 18.6047 3.95349C17.834 3.95349 17.2093 4.57821 17.2093 5.34884C17.2093 6.11947 17.834 6.74419 18.6047 6.74419Z"
+                fill="currentColor"
+              />
+              <path
+                d="M10 2.7907C10.7706 2.7907 11.3953 2.16598 11.3953 1.39535C11.3953 0.624719 10.7706 0 10 0C9.22937 0 8.60465 0.624719 8.60465 1.39535C8.60465 2.16598 9.22937 2.7907 10 2.7907Z"
+                fill="currentColor"
+              />
+            </svg>
+            Премиум
           </Link>
         </div>
       </div>

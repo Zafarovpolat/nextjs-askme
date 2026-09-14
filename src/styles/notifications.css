@@ -1,53 +1,46 @@
-/* ── Скроллбар дропдауна уведомлений ── */
+/* ── Скроллбар дропдауна уведомлений (тонкий, без запасного желоба) ── */
+.notif-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(97, 106, 255, 0.45) transparent;
+}
+
 .notif-scroll-area::-webkit-scrollbar {
   width: 6px;
 }
 
 .notif-scroll-area::-webkit-scrollbar-button {
   display: none;
+  width: 0;
   height: 0;
 }
 
 .notif-scroll-area::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: 4px;
+  background: transparent;
 }
 
 .notif-scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(98, 106, 255, 0.5);
-  border-radius: 4px;
+  background: rgba(97, 106, 255, 0.4);
+  border-radius: 8px;
+}
+
+.notif-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(97, 106, 255, 0.7);
 }
 
 .notif-scroll-area::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-.dark_mode .notif-scroll-area::-webkit-scrollbar-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.dark_mode .notif-scroll-area::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.dark_mode .notif-scroll-area::-webkit-scrollbar-track:hover {
-  background: rgba(255, 255, 255, 0.1);
+.dark_mode .notif-scroll-area {
+  scrollbar-color: rgba(145, 152, 255, 0.55) transparent;
 }
 
 .dark_mode .notif-scroll-area::-webkit-scrollbar-thumb {
-  background: transparent;
-  box-shadow: inset 0 0 0 10px #9198ff;
+  background: rgba(145, 152, 255, 0.5);
 }
 
 .dark_mode .notif-scroll-area::-webkit-scrollbar-thumb:hover {
-  background: transparent;
-  box-shadow: inset 0 0 0 10px #9198ff;
-}
-
-.dark_mode .notif-scroll-area::-webkit-scrollbar-corner {
-  background: transparent;
+  background: rgba(145, 152, 255, 0.8);
 }
 
 /* ── Страница /notifications в layout личного кабинета ── */
@@ -518,4 +511,116 @@ a.notifications-card__name:hover {
   .notifications-card__footer-right {
     justify-content: space-between;
   }
+}
+
+/* ---------- Системные уведомления: иконка типа + заголовок + чип баллов ---------- */
+
+.notifications-card__kind {
+  --nk-accent: #6069ff;
+  --nk-soft: #eef0ff;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--nk-soft);
+  color: var(--nk-accent);
+}
+
+.notifications-card__kind--warning {
+  --nk-accent: #d93f4c;
+  --nk-soft: #fde2e4;
+}
+
+.dark_mode .notifications-card__kind {
+  background: rgba(255, 255, 255, 0.12);
+  color: #b3b8ff;
+}
+
+.dark_mode .notifications-card__kind--warning {
+  background: rgba(217, 63, 76, 0.22);
+  color: #ff7a84;
+}
+
+.notifications-card__pts {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #eef0ff;
+  color: #6069ff;
+  font-family: Nunito, sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.notifications-card__pts--warning {
+  background: #fde2e4;
+  color: #d93f4c;
+}
+
+.dark_mode .notifications-card__pts {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.notifications-card__time-sep {
+  margin: 0 6px;
+  opacity: 0.6;
+}
+
+.notifications-card__status--unread {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  background: transparent;
+  color: #6069ff;
+}
+
+.notifications-card__status--unread::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6069ff;
+}
+
+.notifications-card__status--read {
+  padding: 4px 0;
+  background: transparent;
+  color: #8b95a8;
+}
+
+.dark_mode .notifications-card__status--unread {
+  background: transparent;
+  color: #fff;
+}
+
+.dark_mode .notifications-card__status--unread::before {
+  background: #fff;
+}
+
+.dark_mode .notifications-card__status--read {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.notifications-card--system .notifications-card__footer {
+  margin-top: 4px;
+}
+
+.notifications-card--system .notifications-card__share {
+  width: 32px;
+  height: 32px;
+  border-color: transparent;
+  color: #8b95a8;
+}
+
+.notifications-card--system .notifications-card__share:hover {
+  border-color: #6069ff;
+  color: #6069ff;
 }

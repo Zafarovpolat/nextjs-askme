@@ -5,11 +5,20 @@ import type { QuestionPageData } from "@/types";
 import { htmlToPlainText } from "@/lib/html-plain-text";
 import { withPageUrl } from "@/lib/page-seo";
 
-const META_DESCRIPTION_MAX = 320;
+const META_DESCRIPTION_MAX = 160;
 
-/** Текст вопроса для meta description: без HTML, схлопнутые пробелы. */
-export function questionTextForMetaDescription(raw: string | null | undefined): string | undefined {
-  const text = htmlToPlainText(raw);
+function stripLinks(text: string): string {
+  return text
+    .replace(/\[([^\]]+)\]\((?:https?:\/\/|www\.)[^)]+\)/gi, "$1")
+    .replace(/https?:\/\/[^\s<>]+/gi, " ")
+    .replace(/\bwww\.[^\s<>]+/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Текст для meta description: без HTML, ссылок и markdown-ссылок, до 160 символов. */
+export function snippetForMetaDescription(raw: string | null | undefined): string | undefined {
+  const text = stripLinks(htmlToPlainText(raw));
   if (!text) return undefined;
 
   if (text.length <= META_DESCRIPTION_MAX) {
@@ -17,6 +26,16 @@ export function questionTextForMetaDescription(raw: string | null | undefined): 
   }
 
   return `${text.slice(0, META_DESCRIPTION_MAX - 1).trimEnd()}…`;
+}
+
+export function questionTextForMetaDescription(raw: string | null | undefined): string | undefined {
+  return snippetForMetaDescription(raw);
+}
+
+export function questionPageMetaDescription(data: QuestionPageData): string | undefined {
+  const fromBest = snippetForMetaDescription(data.best_answer?.text);
+  if (fromBest) return fromBest;
+  return snippetForMetaDescription(data.description);
 }
 
 const fetchQuestionForMetadata = cache(async (id: string): Promise<QuestionPageData | null> => {
@@ -51,12 +70,16 @@ export async function metadataForQuestionPage(id: string): Promise<Metadata> {
     return withPageUrl(path, { title: "Вопрос" });
   }
 
-  const description = questionTextForMetaDescription(data?.description);
+  const description = questionPageMetaDescription(data);
 
   return withPageUrl(path, {
     title,
     description,
     openGraph: {
+      title,
+      description,
+    },
+    twitter: {
       title,
       description,
     },

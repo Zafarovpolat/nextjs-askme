@@ -469,7 +469,9 @@
   }
 }
 
+.user_profile_block.premium-profile .user_profile_block_content_profile_desc h1,
 .user_profile_block.premium-profile .user_profile_block_content_profile_desc h4,
+.user_profile_block.premium-profile .user_profile_block_content_profile_desc .profile-display-name,
 .user_profile_block.premium-profile .user_profile_block_content_profile_desc p,
 .user_profile_block.premium-profile .stat_value,
 .user_profile_block.premium-profile .stat_label {

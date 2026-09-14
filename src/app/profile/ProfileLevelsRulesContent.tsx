@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { CheckIcon } from "@/components/AboutIcons";
+import { BALL_WORDS, ruPluralPhrase } from "@/lib/format-compact-count";
 import { getBallsToNextLevel, getLevelSegmentProgressPercent, getNextLevelThreshold } from "@/lib/user-points";
 import {
   getProfileLevelCarouselIndex,
@@ -39,18 +40,7 @@ function updateCarouselFog(track: HTMLDivElement) {
 }
 
 function formatBallsRemaining(n: number): string {
-  const abs = Math.abs(n) % 100;
-  const m = abs % 10;
-  if (abs > 10 && abs < 20) {
-    return `${n} баллов`;
-  }
-  if (m === 1) {
-    return `${n} балл`;
-  }
-  if (m >= 2 && m <= 4) {
-    return `${n} балла`;
-  }
-  return `${n} баллов`;
+  return ruPluralPhrase(n, BALL_WORDS);
 }
 
 function getCarouselCardState(cardIndex: number, userLevelIndex: number): CarouselCardState {
@@ -264,7 +254,7 @@ function ProfileLevelsCarouselCard({
 
           <button type="button" className="profile-levels-carousel-card__vip-btn" onClick={onBuyVip}>
             <ProfileLevelsCarouselCrownIcon />
-            <span className="profile-levels-carousel-card__vip-text">Или купить VIP</span>
+            <span className="profile-levels-carousel-card__vip-text">Или купить премиум</span>
           </button>
         </div>
       </article>
@@ -484,7 +474,7 @@ export function ProfileLevelsMenuInner(p: ProfileLevelsRulesUserSlice) {
             </div>
 
             <button className="profile-levels-vip-btn" type="button" onClick={p.onBuyVip}>
-              Купить VIP
+              Купить премиум
             </button>
           </div>
         </div>

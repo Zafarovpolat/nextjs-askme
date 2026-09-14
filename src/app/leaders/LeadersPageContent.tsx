@@ -13,7 +13,7 @@ import type {
   LeaderUser,
   LeadersPageResponse,
 } from "./page";
-import { formatCompactNumWord } from "@/lib/format-compact-count";
+import { BALL_WORDS, formatCompactNumWord } from "@/lib/format-compact-count";
 
 type LeadersPageContentProps = {
   initialData: LeadersPageResponse;
@@ -38,7 +38,7 @@ const numWord = (value: number, words: [string, string, string]): string =>
 function formatMetricLine(metric: string, metricValue: number): string {
   if (metric === "rating") {
     const abs = Math.abs(metricValue);
-    const body = formatCompactNumWord(abs, ["балл", "балла", "баллов"]);
+    const body = formatCompactNumWord(abs, BALL_WORDS);
     if (metricValue > 0) return `+${body} за период`;
     if (metricValue < 0) return `-${body} за период`;
     return `${body} за период`;

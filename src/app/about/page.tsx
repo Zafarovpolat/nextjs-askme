@@ -13,15 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await fetchAboutPage();
   const title = data?.title?.trim() || "О нас";
   const description = data?.description?.trim() || undefined;
-  const keywordsRaw = data?.keywords?.trim();
-  const keywords = keywordsRaw
-    ? keywordsRaw.split(/[,;]\s*/).filter(Boolean)
-    : undefined;
 
   return withPageUrl("/about", {
     title,
     description,
-    keywords,
     openGraph: {
       title,
       description,

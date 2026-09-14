@@ -1,21 +1,19 @@
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
+import { profileLinkLabel } from "@/lib/a11y-labels";
 
 export type LikerUser = {
   id?: number;
+  full_name?: string | null;
   avatar_url?: string | null;
   avatar_url_2x?: string | null;
 };
-
-const DEFAULT_AVATAR = "/images/icons/avatar.svg";
 
 type QuestionLikerAvatarsProps = {
   likers: LikerUser[];
   countLabel: string;
   countTitle?: string;
-  /** 30 — стопка справа; без UserAvatar — plain img (tops block) */
   avatarSize?: number;
-  usePlainImg?: boolean;
 };
 
 export default function QuestionLikerAvatars({
@@ -23,22 +21,11 @@ export default function QuestionLikerAvatars({
   countLabel,
   countTitle,
   avatarSize = 30,
-  usePlainImg = false,
 }: QuestionLikerAvatarsProps) {
   return (
     <div className="question_list_item_users">
       {likers.slice(0, 3).map((user, index) => {
-        const avatar = usePlainImg ? (
-          <img
-            src={user.avatar_url || DEFAULT_AVATAR}
-            srcSet={
-              user.avatar_url_2x
-                ? `${user.avatar_url || DEFAULT_AVATAR} 1x, ${user.avatar_url_2x} 2x`
-                : undefined
-            }
-            alt=""
-          />
-        ) : (
+        const avatar = (
           <UserAvatar
             src={user.avatar_url}
             src2x={user.avatar_url_2x}
@@ -60,7 +47,8 @@ export default function QuestionLikerAvatars({
             key={user.id}
             href={`/profile/${user.id}`}
             className="question_list_item_users__avatar-link"
-            title="Профиль пользователя"
+            title={profileLinkLabel(user.full_name)}
+            aria-label={profileLinkLabel(user.full_name)}
             onClick={(event) => event.stopPropagation()}
           >
             {avatar}

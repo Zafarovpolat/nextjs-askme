@@ -31,7 +31,8 @@ export default function SearchResultQuestionVotes({
         <button
           type="button"
           className={`vote_btn like_btn ${user_vote === 1 ? "vote_btn--active" : ""}`}
-          title="Мне нравится"
+          title="Нравится"
+          aria-label="Нравится"
           onClick={() => vote(1)}
           disabled={pending}
         >

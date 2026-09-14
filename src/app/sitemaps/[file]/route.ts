@@ -8,8 +8,7 @@ import { xmlResponse } from "@/lib/sitemap-xml";
 
 export const revalidate = SITEMAP_REVALIDATE_SEC;
 
-const FILE_RE =
-  /^(system|categories|questions|profiles)(?:-([1-9]\d*))?\.xml$/;
+const FILE_RE = /^(system|categories|questions)(?:-([1-9]\d*))?\.xml$/;
 
 export async function GET(
   _request: Request,
@@ -21,11 +20,7 @@ export async function GET(
     return new Response("Not found", { status: 404 });
   }
 
-  const kind = match[1] as
-    | "system"
-    | "categories"
-    | "questions"
-    | "profiles";
+  const kind = match[1] as "system" | "categories" | "questions";
   const pageRaw = match[2];
 
   let xml: string;

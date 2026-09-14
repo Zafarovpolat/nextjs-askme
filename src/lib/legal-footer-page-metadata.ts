@@ -17,14 +17,9 @@ export async function metadataForLegalFooterSlug(
       ? `${baseTitle} (редакция v${page.version.version})`
       : baseTitle;
   const description = page.description?.trim() || undefined;
-  const keywordsRaw = page.keywords?.trim();
-  const keywords = keywordsRaw
-    ? keywordsRaw.split(/[,;]\s*/).filter(Boolean)
-    : undefined;
   return withPageUrl(`/${slug}`, {
     title,
     description,
-    keywords,
     openGraph: { title, description },
   });
 }

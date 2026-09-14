@@ -41,6 +41,12 @@ export function parseHomeQuestionFilter(raw: unknown): HomeQuestionFilter {
   return "open";
 }
 
+/** Явно указанный filter в URL; иначе page идёт на все вкладки. */
+export function parseExplicitHomeFilter(raw: unknown): HomeQuestionFilter | null {
+  if (raw === "voting" || raw === "best" || raw === "premium" || raw === "open") return raw;
+  return null;
+}
+
 export function parseHomeQuestionPage(raw: unknown): number {
   const n = Number.parseInt(String(raw ?? "1"), 10);
   return Number.isFinite(n) && n > 0 ? n : 1;
@@ -60,31 +66,33 @@ function normalizeQuestionsPage(
 }
 
 export async function fetchHomeQuestionsTabs(
-  activeFilter: HomeQuestionFilter,
+  explicitFilter: HomeQuestionFilter | null,
   activePage: number,
 ): Promise<HomeQuestionsByFilter> {
   const params = new URLSearchParams({
-    filter: activeFilter,
     page: String(activePage),
     per_page: String(PER_PAGE),
   });
+  if (explicitFilter) params.set("filter", explicitFilter);
   const res = await fetch(getApiFullUrl(`v1/main/questions-tabs?${params}`), {
     headers: { Accept: "application/json" },
-    next: { revalidate: 30 },
+    cache: "no-store",
   });
+  const pageFor = (tab: HomeQuestionFilter) =>
+    explicitFilter == null || explicitFilter === tab ? activePage : 1;
   if (!res.ok) {
     return {
-      open: emptyQuestionsPage(activeFilter === "open" ? activePage : 1),
-      voting: emptyQuestionsPage(activeFilter === "voting" ? activePage : 1),
-      best: emptyQuestionsPage(activeFilter === "best" ? activePage : 1),
-      premium: emptyQuestionsPage(activeFilter === "premium" ? activePage : 1),
+      open: emptyQuestionsPage(pageFor("open")),
+      voting: emptyQuestionsPage(pageFor("voting")),
+      best: emptyQuestionsPage(pageFor("best")),
+      premium: emptyQuestionsPage(pageFor("premium")),
     };
   }
   const data = (await res.json()) as Partial<Record<HomeQuestionFilter, Partial<HomeQuestionsPage>>>;
   return {
-    open: normalizeQuestionsPage(data.open, activeFilter === "open" ? activePage : 1),
-    voting: normalizeQuestionsPage(data.voting, activeFilter === "voting" ? activePage : 1),
-    best: normalizeQuestionsPage(data.best, activeFilter === "best" ? activePage : 1),
-    premium: normalizeQuestionsPage(data.premium, activeFilter === "premium" ? activePage : 1),
+    open: normalizeQuestionsPage(data.open, pageFor("open")),
+    voting: normalizeQuestionsPage(data.voting, pageFor("voting")),
+    best: normalizeQuestionsPage(data.best, pageFor("best")),
+    premium: normalizeQuestionsPage(data.premium, pageFor("premium")),
   };
 }

@@ -26,7 +26,7 @@ function LoginModalInline() {
       </button>
       <div className="modal__content">
         <div className="login-form__title">
-          Упс вам нужно войти в аккаунт
+          Упс, вам нужно войти в аккаунт
         </div>
         <form
           className="login_block_content login_form"

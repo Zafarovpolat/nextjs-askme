@@ -278,6 +278,17 @@
 }
 
 /* Search bar */
+.faq-page-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1f2a3b;
+  margin: 0 0 16px;
+}
+
+.dark_mode .faq-page-title {
+  color: #fff;
+}
+
 .faq-search-wrap {
   margin-bottom: 20px;
 }

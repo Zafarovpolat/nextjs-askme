@@ -7,7 +7,7 @@ import PopularTopicListItem, {
 } from "@/components/PopularTopicListItem";
 import UserAvatar from "@/components/UserAvatar";
 import { displayPremiumBadge } from "@/lib/ai-user-display";
-import { formatCompactNumWord } from "@/lib/format-compact-count";
+import { BALL_WORDS, formatCompactNumWord } from "@/lib/format-compact-count";
 
 export type ProjectLeaderItem = {
   id: number;
@@ -26,9 +26,6 @@ export type TopsBlockData = {
   most_discussed?: MostDiscussedQuestion[];
   popular_topics?: PopularTopicItem[];
 };
-
-const numWord = (value: number, words: [string, string, string]): string =>
-  formatCompactNumWord(value, words);
 
 export default function TopsBlock({ data }: { data: TopsBlockData }) {
   return (
@@ -66,7 +63,7 @@ export default function TopsBlock({ data }: { data: TopsBlockData }) {
                     {displayName}
                   </div>
                   <span>
-                    {numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}
+                    {formatCompactNumWord(u.balls ?? 0, BALL_WORDS)}
                   </span>
                 </div>
               </div>

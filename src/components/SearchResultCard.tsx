@@ -7,6 +7,7 @@ import SearchResultQuestionVotes from "@/components/SearchResultQuestionVotes";
 import UserAvatar from "@/components/UserAvatar";
 import StretchablePremiumBadge from "@/components/profile/StretchablePremiumBadge";
 import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
+import { profileLinkLabel } from "@/lib/a11y-labels";
 import {
   compactCountTitle,
   formatCompactCount,
@@ -121,6 +122,7 @@ export default function SearchResultCard({
             href={`/profile/${question.author?.id ?? question.author?.username ?? ""}`}
             className="question_list_item_avatar_link"
             style={{ display: "inline-block", position: "relative" }}
+            aria-label={profileLinkLabel(authorName)}
             onClick={(e) => e.stopPropagation()}
           >
             <UserAvatar

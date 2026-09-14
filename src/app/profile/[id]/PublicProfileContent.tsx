@@ -568,6 +568,8 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
             avatarUrl2x={avatarUrl2x}
             ballsDisplay={ballsDisplay}
             ballsTitle={ballsTitle}
+            ballsCount={ballsRaw}
+            ballsInfinite={isAiUser}
             kpdPercentDisplay={`${kpdPercent}%`}
           />
 
@@ -704,10 +706,10 @@ export default function PublicProfileContent({ initialUser, initialWidgets }: Pu
             {showVipGiftBlock ? (
               <div className="vip_status_block">
                 <div className="vip_icon">
-                  <img src="/images/vip.svg" alt="VIP" />
+                  <img src="/images/vip.svg" alt="Премиум" />
                 </div>
                 <p className="vip_gift_text">Подарить</p>
-                <h3 className="vip_title">VIP статус</h3>
+                <h3 className="vip_title">Премиум</h3>
                 <button type="button" className="vip_button" onClick={handleGiftVipClick}>
                   ПОДАРИТЬ
                 </button>

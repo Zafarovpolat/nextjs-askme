@@ -107,16 +107,35 @@
 }
 
 .dark_mode .cookie-banner {
-  background: #fff;
+  background: #322d71;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.28);
+  border-top: 1px solid rgba(124, 131, 250, 0.35);
 }
 
 .dark_mode .cookie-banner__text {
-  color: #4c5b72;
+  color: #ccddf8;
 }
 
-.dark_mode .cookie-banner__decline,
+.dark_mode .cookie-banner__text a {
+  color: #9aa3ff;
+}
+
+.dark_mode .cookie-banner__decline {
+  border-color: #7c83fa;
+  color: #fff;
+}
+
+.dark_mode .cookie-banner__decline:hover {
+  background: rgba(124, 131, 250, 0.18);
+  color: #fff;
+}
+
 .dark_mode .cookie-banner__link-btn {
-  color: #1f2a3b;
+  color: #fff;
+}
+
+.dark_mode .cookie-banner__link-btn:hover {
+  color: #9aa3ff;
 }
 
 /* Settings modal */
@@ -265,16 +284,43 @@
 }
 
 .dark_mode .modal--cookie {
-  background: #fff;
+  background: #322d71;
+  color: #fff;
+}
+
+.dark_mode .modal--cookie .modal__close {
+  color: #9aa3ff;
 }
 
 .dark_mode .cookie-settings__title,
 .dark_mode .cookie-settings__name {
-  color: #1f2a3b;
+  color: #fff;
 }
 
 .dark_mode .cookie-settings__desc {
-  color: #4c5b72;
+  color: #ccddf8;
+}
+
+.dark_mode .cookie-settings__row + .cookie-settings__row {
+  border-top-color: rgba(204, 221, 248, 0.16);
+}
+
+.dark_mode .cookie-switch {
+  background: #1f2354;
+}
+
+.dark_mode .cookie-switch--on {
+  background: #5f69ff;
+}
+
+.dark_mode .cookie-switch--disabled,
+.dark_mode .cookie-switch--disabled.cookie-switch--on {
+  background: #5a63c9;
+}
+
+.dark_mode .cookie-switch__thumb {
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 .visually-hidden {

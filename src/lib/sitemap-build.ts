@@ -1,7 +1,6 @@
 import {
   fetchSitemapCategories,
   fetchSitemapMeta,
-  fetchSitemapProfiles,
   fetchSitemapQuestions,
   fetchSitemapSystemUrls,
   type SitemapUrlRow,
@@ -36,12 +35,6 @@ export async function buildRootIndexXml(): Promise<string> {
     files.push("questions.xml", ...partFiles("questions", meta.questions_pages));
   }
 
-  if (meta.profiles_pages === 1) {
-    files.push("profiles.xml");
-  } else if (meta.profiles_pages > 1) {
-    files.push("profiles.xml", ...partFiles("profiles", meta.profiles_pages));
-  }
-
   return sitemapIndexXml(files);
 }
 
@@ -58,15 +51,10 @@ export async function buildSystemUrlset(): Promise<string> {
 }
 
 export async function buildTypeIndexOrUrlset(
-  kind: "categories" | "questions" | "profiles",
+  kind: "categories" | "questions",
 ): Promise<string> {
   const meta = await fetchSitemapMeta();
-  const pages =
-    kind === "categories"
-      ? meta.categories_pages
-      : kind === "questions"
-        ? meta.questions_pages
-        : meta.profiles_pages;
+  const pages = kind === "categories" ? meta.categories_pages : meta.questions_pages;
 
   if (pages > 1) {
     return sitemapIndexXml(partFiles(kind, pages));
@@ -76,15 +64,13 @@ export async function buildTypeIndexOrUrlset(
 }
 
 export async function buildTypePage(
-  kind: "categories" | "questions" | "profiles",
+  kind: "categories" | "questions",
   page: number,
 ): Promise<string> {
   const data =
     kind === "categories"
       ? await fetchSitemapCategories(page)
-      : kind === "questions"
-        ? await fetchSitemapQuestions(page)
-        : await fetchSitemapProfiles(page);
+      : await fetchSitemapQuestions(page);
 
   return urlsetXml(data.urls);
 }

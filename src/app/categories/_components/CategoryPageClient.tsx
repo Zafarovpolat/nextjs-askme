@@ -24,7 +24,7 @@ type PopularCategory = { id: number; name: string; slug: string; icon_key?: stri
 type SharedBlocks = {
   popular_categories: PopularCategory[]
   project_leaders: { id: number; first_name: string; last_name: string; avatar_url?: string | null; balls: number }[]
-  most_discussed: { id: number; title: string; likes_count: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
+  most_discussed: { id: number; title: string; answers_count: number; likes_count?: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
   popular_topics: { id: number; name: string; slug: string | null; parent_slug: string | null; parent_icon_key?: string | null; total_likes: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
 }
 
@@ -40,6 +40,8 @@ export default function CategoryPageClient({
   shared,
   initialByFilter,
   initialFilter,
+  explicitFilter,
+  initialPage,
   listPath,
 }: {
   category: CategoryInfo
@@ -47,6 +49,8 @@ export default function CategoryPageClient({
   shared: SharedBlocks
   initialByFilter: CategoryQuestionsByFilter
   initialFilter: CategoryQuestionFilter
+  explicitFilter: CategoryQuestionFilter | null
+  initialPage: number
   listPath: string
 }) {
   const router = useRouter()
@@ -299,15 +303,21 @@ export default function CategoryPageClient({
                   </button>
                 </div>
               ) : null}
-              <QuestionsTabPagination
-                basePath={listPath}
-                filter={tab.id}
-                current={initialByFilter[tab.id].current_page ?? 1}
-                last={initialByFilter[tab.id].last_page ?? 1}
-              />
             </div>
           )
         })}
+        <QuestionsTabPagination
+          basePath={listPath}
+          filter={explicitFilter}
+          current={initialPage}
+          last={
+            explicitFilter
+              ? (initialByFilter[explicitFilter].last_page ?? 1)
+              : Math.max(
+                  ...tabs.map((tab) => initialByFilter[tab.id].last_page ?? 1),
+                )
+          }
+        />
       </div>
 
       <div className="line"></div>

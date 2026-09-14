@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import { cache } from "react";
+import { notFound } from "next/navigation";
 import { getApiFullUrl } from "@/config/api";
-import { withPageUrl } from "@/lib/page-seo";
+import {
+  ROBOTS_INDEX_FOLLOW,
+  ROBOTS_NOINDEX_FOLLOW,
+  withListPageUrl,
+  withPageUrl,
+} from "@/lib/page-seo";
+
+type ListQuery = { filter: string | null; page: number };
 
 const REVALIDATE_SEC = 60;
 
@@ -53,26 +61,30 @@ export function metadataForCategoriesIndex(): Metadata {
   return withPageUrl("/categories", {
     title,
     description,
+    robots: ROBOTS_INDEX_FOLLOW,
     openGraph: { title, description },
   });
 }
 
-export async function metadataForCategorySlug(slug: string): Promise<Metadata> {
+export async function metadataForCategorySlug(
+  slug: string,
+  listQuery: ListQuery = { filter: null, page: 1 },
+): Promise<Metadata> {
   const path = `/categories/${slug}`;
   const data = await fetchCategoryBySlug(slug);
   const name = data?.category?.name?.trim();
-  if (!name) {
-    return withPageUrl(path, { title: "Категория" });
+  if (!name || data?.category?.slug !== slug) {
+    notFound();
   }
 
   const title = name;
   const description = `Вопросы и ответы по теме «${name}». Задайте вопрос или найдите решение в сообществе otvetai.`;
   const empty = data?.category?.has_questions === false;
 
-  return withPageUrl(path, {
+  return withListPageUrl(path, listQuery.filter, listQuery.page, {
     title,
     description,
-    robots: empty ? { index: false, follow: true } : undefined,
+    robots: empty ? ROBOTS_NOINDEX_FOLLOW : ROBOTS_INDEX_FOLLOW,
     openGraph: { title, description },
   });
 }
@@ -80,19 +92,19 @@ export async function metadataForCategorySlug(slug: string): Promise<Metadata> {
 export async function metadataForSubcategorySlug(
   slug: string,
   sub: string,
+  listQuery: ListQuery = { filter: null, page: 1 },
 ): Promise<Metadata> {
   const path = `/categories/${slug}/${sub}`;
   const data = await fetchSubcategoryBySlugs(slug, sub);
   const categoryName = data?.category?.name?.trim();
   const subName = data?.subcategory?.name?.trim();
 
-  if (!subName) {
-    const fallback = await metadataForCategorySlug(slug);
-    return withPageUrl(path, {
-      title: fallback.title,
-      description: fallback.description,
-      openGraph: fallback.openGraph,
-    });
+  if (
+    !subName ||
+    data?.category?.slug !== slug ||
+    data?.subcategory?.slug !== sub
+  ) {
+    notFound();
   }
 
   const title = categoryName ? `${subName} — ${categoryName}` : subName;
@@ -101,10 +113,10 @@ export async function metadataForSubcategorySlug(
     : `Вопросы и ответы по теме «${subName}» на otvetai.`;
   const empty = data?.subcategory?.has_questions === false;
 
-  return withPageUrl(path, {
+  return withListPageUrl(path, listQuery.filter, listQuery.page, {
     title,
     description,
-    robots: empty ? { index: false, follow: true } : undefined,
+    robots: empty ? ROBOTS_NOINDEX_FOLLOW : ROBOTS_INDEX_FOLLOW,
     openGraph: { title, description },
   });
 }

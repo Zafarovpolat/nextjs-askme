@@ -4,10 +4,7 @@ import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
 import { displayPremiumBadge } from "@/lib/ai-user-display";
 import type { ProfileWidgetsPayload, ProfileWidgetUser } from "@/lib/server-profile-widgets";
-import { formatCompactNumWord } from "@/lib/format-compact-count";
-
-const numWord = (value: number, words: [string, string, string]): string =>
-  formatCompactNumWord(value, words);
+import { BALL_WORDS, formatCompactNumWord } from "@/lib/format-compact-count";
 
 type Props = {
   /** Данные с сервера (SSR); без клиентского запроса к v1/profile/widgets. */
@@ -50,7 +47,7 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
                   />
                   <div className="question_list_item_left__user_meta">
                     <p className="main_text" title={u.full_name}>{u.full_name}</p>
-                    <span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span>
+                    <span>{formatCompactNumWord(u.balls ?? 0, BALL_WORDS)}</span>
                   </div>
                 </div>
               </div>
@@ -86,7 +83,7 @@ export default function ProfileWeeklyLeadersSidebar({ initialWidgets }: Props) {
                   />
                   <div className="question_list_item_left__user_meta">
                     <p className="main_text" title={u.full_name}>{u.full_name}</p>
-                    <span>{numWord(u.balls ?? 0, ["балл", "балла", "баллов"])}</span>
+                    <span>{formatCompactNumWord(u.balls ?? 0, BALL_WORDS)}</span>
                   </div>
                 </div>
               </div>

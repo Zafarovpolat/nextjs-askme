@@ -15,8 +15,10 @@ import { isNotificationSoundEnabled, playNotificationSound } from "@/lib/notific
 import { subscribeIncomingNotifications } from "@/lib/notification-realtime-bridge";
 import { useAuthStore, type AuthNotification } from "@/store/authStore";
 import { HydrationSafeInput } from "@/components/HydrationSafeInput";
-import { avatarImgProps } from "@/lib/avatar-srcset";
+import UserAvatar from "@/components/UserAvatar";
 import { toPlainNotificationText } from "@/lib/plain-notification-text";
+import { presentNotification, type NotificationKind } from "@/lib/notification-presentation";
+import NotificationKindIcon from "@/components/NotificationKindIcon";
 
 type NotificationActor = {
   id: number;
@@ -48,8 +50,54 @@ type NotificationsPageResponse = {
 };
 
 const PAGE_SIZE = 10;
-const POPUP_VISIBLE_MS = 4500;
+/** Сколько висит всплывающее уведомление; наведение курсора ставит таймер на паузу. */
+const POPUP_VISIBLE_MS = 6000;
 const POPUP_LIMIT = 3;
+
+const kindClass = (kind: NotificationKind): string =>
+  styles[`kind${kind.charAt(0).toUpperCase()}${kind.slice(1)}` as keyof typeof styles] ?? "";
+
+function CloseIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
+function NotificationLeading({
+  notification,
+  useActorAvatar,
+  kind,
+  className,
+  avatarClassName,
+  iconSize,
+}: {
+  notification: NotificationItem;
+  useActorAvatar: boolean;
+  kind: NotificationKind;
+  className: string;
+  avatarClassName: string;
+  iconSize: number;
+}) {
+  if (useActorAvatar) {
+    return (
+      <UserAvatar
+        src={notification.actor?.avatar_url}
+        src2x={notification.actor?.avatar_url_2x}
+        alt=""
+        size={iconSize === 20 ? 36 : 32}
+        className={className}
+        imgClassName={avatarClassName}
+      />
+    );
+  }
+  return (
+    <span className={`${className} ${kindClass(kind)}`}>
+      <NotificationKindIcon kind={kind} size={iconSize} />
+    </span>
+  );
+}
 
 const toTimestamp = (value: string): number => {
   const ts = new Date(value).getTime();
@@ -90,26 +138,29 @@ function NotificationCard({
 }) {
   const createdAtText = formatTimeAgo(notification.created_at);
   const hasLink = Boolean(notification.url);
-  const secondaryText = notification.hint ? notification.hint : createdAtText;
+  const p = presentNotification(notification);
 
   const content = (
-    <>
-      <div className={styles.notificationHeader}>
-        <img
-          {...avatarImgProps(notification.actor?.avatar_url, notification.actor?.avatar_url_2x)}
-          alt=""
-          className={styles.notificationAvatar}
-        />
-        <div className={styles.notificationInfo}>
-          {notification.title ? (
-            <div className={styles.notificationTitleLine}>{notification.title}</div>
-          ) : null}
-          <div className={styles.notificationTime}>{secondaryText}</div>
-        </div>
-      </div>
-
-      <div className={styles.notificationText}>{notification.text}</div>
-    </>
+    <span className={styles.ncRow}>
+      <NotificationLeading
+        notification={notification}
+        useActorAvatar={p.useActorAvatar}
+        kind={p.kind}
+        className={styles.ncIcon}
+        avatarClassName={styles.ncAvatar}
+        iconSize={18}
+      />
+      <span className={styles.ncBody}>
+        <span className={`${styles.ncTitle} ${p.useActorAvatar ? styles.ncTitleClamp : ""}`}>
+          {p.title}
+          {p.pointsLabel ? <span className={`${styles.ncPts} ${kindClass(p.kind)}`}>{p.pointsLabel}</span> : null}
+        </span>
+        {p.hint ? <span className={styles.notificationHint}>{p.hint}</span> : null}
+        {p.text && p.text !== p.title ? <span className={styles.ncText}>{p.text}</span> : null}
+        <span className={styles.notificationTime}>{createdAtText}</span>
+      </span>
+      <span className={notification.is_read ? styles.ncDotOff : styles.ncDot} aria-hidden />
+    </span>
   );
 
   const className = `${styles.notificationCard} ${notification.is_read ? styles.notificationCardRead : styles.notificationCardUnread}`;
@@ -137,6 +188,86 @@ function NotificationCard({
   );
 }
 
+function NotificationPopupItem({
+  notification,
+  onOpen,
+  onDismiss,
+}: {
+  notification: NotificationItem;
+  onOpen: (notification: NotificationItem) => void;
+  onDismiss: (id: number) => void;
+}) {
+  const p = presentNotification(notification);
+  const [paused, setPaused] = useState(false);
+  const remainingRef = useRef(POPUP_VISIBLE_MS);
+  const startedAtRef = useRef(0);
+
+  useEffect(() => {
+    if (paused) {
+      return;
+    }
+    startedAtRef.current = Date.now();
+    const timer = window.setTimeout(() => onDismiss(notification.id), remainingRef.current);
+    return () => {
+      window.clearTimeout(timer);
+      remainingRef.current = Math.max(0, remainingRef.current - (Date.now() - startedAtRef.current));
+    };
+  }, [paused, notification.id, onDismiss]);
+
+  return (
+    <div
+      className={`${styles.notificationPopup} ${kindClass(p.kind)}`}
+      role="status"
+      tabIndex={0}
+      onClick={() => onOpen(notification)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen(notification);
+        }
+      }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <NotificationLeading
+        notification={notification}
+        useActorAvatar={p.useActorAvatar}
+        kind={p.kind}
+        className={styles.popupIcon}
+        avatarClassName={styles.popupAvatar}
+        iconSize={20}
+      />
+      <div className={styles.popupBody}>
+        <div className={`${styles.popupTitle} ${p.useActorAvatar ? styles.popupTitleClamp : ""}`}>
+          {p.title}
+          {p.pointsLabel ? <span className={`${styles.popupPts} ${kindClass(p.kind)}`}>{p.pointsLabel}</span> : null}
+        </div>
+        {p.hint ? <div className={styles.notificationHint}>{p.hint}</div> : null}
+        {p.text && p.text !== p.title ? <div className={styles.notificationPopupText}>{p.text}</div> : null}
+        <div className={styles.popupMeta}>только что</div>
+      </div>
+      <button
+        type="button"
+        className={styles.popupClose}
+        aria-label="Закрыть"
+        onClick={(event) => {
+          event.stopPropagation();
+          onDismiss(notification.id);
+        }}
+      >
+        <CloseIcon />
+      </button>
+      <span
+        className={styles.popupProgress}
+        style={{ animationDuration: `${POPUP_VISIBLE_MS}ms`, animationPlayState: paused ? "paused" : "running" }}
+        aria-hidden
+      />
+    </div>
+  );
+}
+
 export default function NotificationBtnRealtime() {
   const router = useRouter();
   const userId = useAuthStore((s) => s.user?.id ?? null);
@@ -161,15 +292,9 @@ export default function NotificationBtnRealtime() {
   const loadingRef = useRef(false);
   const pageRef = useRef(1);
   const lastPageRef = useRef(Number.POSITIVE_INFINITY);
-  const popupTimersRef = useRef<Map<number, number>>(new Map());
   const notificationsEnabledRef = useRef(notificationsEnabled);
   const soundEnabledRef = useRef(isNotificationSoundEnabled(userSettings));
   const seededFromMeRef = useRef(false);
-
-  const clearPopupTimers = useCallback(() => {
-    popupTimersRef.current.forEach((timer) => window.clearTimeout(timer));
-    popupTimersRef.current.clear();
-  }, []);
 
   const resetState = useCallback(() => {
     setNotifications([]);
@@ -179,8 +304,7 @@ export default function NotificationBtnRealtime() {
     pageRef.current = 1;
     lastPageRef.current = Number.POSITIVE_INFINITY;
     loadingRef.current = false;
-    clearPopupTimers();
-  }, [clearPopupTimers]);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -238,18 +362,10 @@ export default function NotificationBtnRealtime() {
       const next = [notification, ...prev.filter((item) => item.id !== notification.id)];
       return next.slice(0, POPUP_LIMIT);
     });
+  }, []);
 
-    const existingTimer = popupTimersRef.current.get(notification.id);
-    if (existingTimer) {
-      window.clearTimeout(existingTimer);
-    }
-
-    const timer = window.setTimeout(() => {
-      setPopups((prev) => prev.filter((item) => item.id !== notification.id));
-      popupTimersRef.current.delete(notification.id);
-    }, POPUP_VISIBLE_MS);
-
-    popupTimersRef.current.set(notification.id, timer);
+  const dismissPopup = useCallback((notificationId: number) => {
+    setPopups((prev) => prev.filter((item) => item.id !== notificationId));
   }, []);
 
   const markAsReadLocal = useCallback((notificationId: number) => {
@@ -306,7 +422,6 @@ export default function NotificationBtnRealtime() {
     try {
       await api.post("v1/notifications/mark-all-read");
       useAuthStore.getState().markAllNotificationsRead();
-      clearPopupTimers();
       setPopups([]);
       await reloadNotificationsFirstPage();
     } catch {
@@ -314,7 +429,7 @@ export default function NotificationBtnRealtime() {
     } finally {
       setMarkingAllRead(false);
     }
-  }, [clearPopupTimers, markingAllRead, notifications, reloadNotificationsFirstPage]);
+  }, [markingAllRead, notifications, reloadNotificationsFirstPage]);
 
   const openNotification = useCallback(
     (notification: NotificationItem) => {
@@ -323,11 +438,6 @@ export default function NotificationBtnRealtime() {
         void markAsReadRemote(notification.id);
       }
 
-      const popupTimer = popupTimersRef.current.get(notification.id);
-      if (popupTimer) {
-        window.clearTimeout(popupTimer);
-        popupTimersRef.current.delete(notification.id);
-      }
       setPopups((prev) => prev.filter((item) => item.id !== notification.id));
 
       if (notification.url) {
@@ -485,29 +595,12 @@ export default function NotificationBtnRealtime() {
         ? createPortal(
             <div className={styles.notificationPopupStack} aria-live="polite">
               {popups.map((notification) => (
-                <button
+                <NotificationPopupItem
                   key={notification.id}
-                  type="button"
-                  className={styles.notificationPopup}
-                  onClick={() => openNotification(notification)}
-                >
-                  <div className={styles.notificationPopupHeader}>
-                    <img
-                      {...avatarImgProps(notification.actor?.avatar_url, notification.actor?.avatar_url_2x)}
-                      alt=""
-                      className={styles.notificationPopupAvatar}
-                    />
-                    <div className={styles.notificationPopupInfo}>
-                      {notification.title ? (
-                        <div className={styles.notificationTitleLine}>{notification.title}</div>
-                      ) : null}
-                      {notification.hint ? (
-                        <div className={styles.notificationHint}>{notification.hint}</div>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className={styles.notificationPopupText}>{notification.text}</div>
-                </button>
+                  notification={notification}
+                  onOpen={openNotification}
+                  onDismiss={dismissPopup}
+                />
               ))}
             </div>,
             document.body,

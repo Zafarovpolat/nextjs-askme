@@ -1,5 +1,6 @@
 'use client'
 
+import SiteImage from '@/components/SiteImage'
 import {
   getVimeoVideoId,
   getYouTubeVideoId,
@@ -16,7 +17,14 @@ export function ImageTile({ href }: { href: string }) {
         aria-label="Открыть изображение в новой вкладке"
         {...ugcExternalAnchorProps(href)}
       >
-        <img src={href} alt="" loading="lazy" decoding="async" />
+        <SiteImage
+          src={href}
+          alt=""
+          width={640}
+          height={400}
+          sizes="(max-width: 900px) 100vw, 640px"
+          style={{ width: "100%", height: "auto" }}
+        />
       </a>
     </div>
   )

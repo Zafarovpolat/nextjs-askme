@@ -1,15 +1,29 @@
 import Footer from "@/components/layout/Footer";
 import HomeContent from "@/components/HomeContent";
 import { getApiFullUrl } from "@/config/api";
-import { withPageUrl } from "@/lib/page-seo";
+import { withListPageUrl } from "@/lib/page-seo";
 import {
   fetchHomeQuestionsTabs,
+  parseExplicitHomeFilter,
   parseHomeQuestionFilter,
   parseHomeQuestionPage,
 } from "@/lib/home-questions-tabs";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = withPageUrl("/");
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string; page?: string }>;
+}): Promise<Metadata> {
+  const query = await searchParams;
+  return withListPageUrl(
+    "/",
+    parseExplicitHomeFilter(query.filter),
+    parseHomeQuestionPage(query.page),
+  );
+}
 
 async function fetchMainData() {
   const res = await fetch(getApiFullUrl("v1/main"), {
@@ -33,21 +47,24 @@ export default async function Home({
   searchParams: Promise<{ filter?: string; page?: string }>;
 }) {
   const query = await searchParams;
+  const explicitFilter = parseExplicitHomeFilter(query.filter);
   const initialFilter = parseHomeQuestionFilter(query.filter);
   const initialPage = parseHomeQuestionPage(query.page);
 
   const [mainData, initialByFilter] = await Promise.all([
     fetchMainData(),
-    fetchHomeQuestionsTabs(initialFilter, initialPage),
+    fetchHomeQuestionsTabs(explicitFilter, initialPage),
   ]);
 
   return (
     <>
       <HomeContent
-        key={`${initialFilter}-${initialPage}`}
+        key={`${explicitFilter ?? "all"}-${initialPage}`}
         initialData={mainData}
         initialByFilter={initialByFilter}
         initialFilter={initialFilter}
+        explicitFilter={explicitFilter}
+        initialPage={initialPage}
       />
       <Footer />
     </>

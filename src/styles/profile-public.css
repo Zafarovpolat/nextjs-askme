@@ -84,7 +84,13 @@
 
 .main_question_block.main_question_block_item.profile_question_block.premium-profile
   .user_profile_block_content_profile_desc
+  h1,
+.main_question_block.main_question_block_item.profile_question_block.premium-profile
+  .user_profile_block_content_profile_desc
   h4,
+.main_question_block.main_question_block_item.profile_question_block.premium-profile
+  .user_profile_block_content_profile_desc
+  .profile-display-name,
 .main_question_block.main_question_block_item.profile_question_block.premium-profile
   .user_profile_block_content_profile_desc
   p,
@@ -264,7 +270,7 @@
 .profile-display-name {
   font-size: 24px;
   font-weight: 700;
-  color: #1f2a3b;
+  color: #5e68ff;
   margin: 0 0 4px 0;
   display: block;
   min-width: 0;
@@ -274,8 +280,20 @@
   text-overflow: ellipsis;
 }
 
-.dark_mode .user_profile_block_content_profile_desc h4 {
-  color: #fff;
+.dark_mode .user_profile_block_content_profile_desc h1,
+.dark_mode .user_profile_block_content_profile_desc h4,
+.dark_mode .profile-display-name {
+  color: #5e68ff;
+}
+
+.dark_mode
+  .main_question_block.main_question_block_item.profile_question_block.premium-profile
+  .profile-display-name,
+.dark_mode
+  .main_question_block.main_question_block_item.profile_question_block.premium-profile
+  .user_profile_block_content_profile_desc
+  h1 {
+  color: #ffffff;
 }
 
 /* Role Badge */

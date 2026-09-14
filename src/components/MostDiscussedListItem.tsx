@@ -1,15 +1,16 @@
 import Link from "next/link";
 import QuestionLikerAvatars, { type LikerUser } from "@/components/QuestionLikerAvatars";
+import UserAvatar from "@/components/UserAvatar";
 import { compactCountTitle, formatCompactCountPlus } from "@/lib/format-compact-count";
+import { profileLinkLabel } from "@/lib/a11y-labels";
 
 export type MostDiscussedQuestion = {
   id: number;
   title: string;
-  likes_count: number;
+  answers_count: number;
+  likes_count?: number;
   latest_likers?: LikerUser[];
 };
-
-const DEFAULT_AVATAR = "/images/icons/avatar.svg";
 
 export default function MostDiscussedListItem({
   question,
@@ -26,20 +27,23 @@ export default function MostDiscussedListItem({
           <Link
             href={`/profile/${firstLiker.id}`}
             className="question_list_item_avatar_link"
-            title="Профиль пользователя"
+            title={profileLinkLabel(firstLiker.full_name)}
+            aria-label={profileLinkLabel(firstLiker.full_name)}
           >
-            <img
-              src={firstLiker.avatar_url || DEFAULT_AVATAR}
-              srcSet={
-                firstLiker.avatar_url_2x
-                  ? `${firstLiker.avatar_url || DEFAULT_AVATAR} 1x, ${firstLiker.avatar_url_2x} 2x`
-                  : undefined
-              }
+            <UserAvatar
+              src={firstLiker.avatar_url}
+              src2x={firstLiker.avatar_url_2x}
               alt=""
+              size={40}
             />
           </Link>
         ) : (
-          <img src={firstLiker?.avatar_url || DEFAULT_AVATAR} alt="" />
+          <UserAvatar
+            src={firstLiker?.avatar_url}
+            src2x={firstLiker?.avatar_url_2x}
+            alt=""
+            size={40}
+          />
         )}
         <Link
           href={`/question/${question.id}`}
@@ -51,9 +55,8 @@ export default function MostDiscussedListItem({
       </div>
       <QuestionLikerAvatars
         likers={likers}
-        countLabel={formatCompactCountPlus(question.likes_count)}
-        countTitle={compactCountTitle(question.likes_count)}
-        usePlainImg
+        countLabel={formatCompactCountPlus(question.answers_count)}
+        countTitle={compactCountTitle(question.answers_count)}
       />
     </div>
   );

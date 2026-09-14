@@ -11,10 +11,35 @@ function formatCompactUnit(num: number): string {
   return rounded.toFixed(1).replace(/\.0$/, "");
 }
 
-function pluralIndex(value: number): 0 | 1 | 2 {
+export type RuPluralForms = [string, string, string];
+
+export const BALL_WORDS: RuPluralForms = ["балл", "балла", "баллов"];
+
+/** Индекс формы: 1 → one, 2–4 → few, 5/11–14 → many. */
+export function ruPluralIndex(value: number): 0 | 1 | 2 {
   const abs = Math.abs(Math.trunc(value));
   const cases = [2, 0, 1, 1, 1, 2] as const;
   return abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)];
+}
+
+export function ruPluralWord(value: number, words: RuPluralForms): string {
+  return words[ruPluralIndex(value)];
+}
+
+/** «1 балл», «3 балла», «5 баллов»; знак числа сохраняется. */
+export function ruPluralPhrase(value: number, words: RuPluralForms): string {
+  const n = Math.trunc(value);
+  if (!Number.isFinite(n)) {
+    return `0 ${words[2]}`;
+  }
+  return `${n} ${ruPluralWord(n, words)}`;
+}
+
+export function capitalizeRuWord(word: string): string {
+  if (!word) {
+    return word;
+  }
+  return word.charAt(0).toLocaleUpperCase("ru-RU") + word.slice(1);
 }
 
 /** 900 → «900», 9000 → «9тыс», 9_000_000 → «9млн» */
@@ -60,7 +85,7 @@ export function formatCompactNumWord(
   }
 
   if (n < 1000) {
-    return `${n} ${words[pluralIndex(n)]}`;
+    return `${n} ${ruPluralWord(n, words)}`;
   }
 
   return `${formatCompactCount(n)} ${words[2]}`;

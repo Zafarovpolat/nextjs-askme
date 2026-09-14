@@ -22,12 +22,13 @@
 }
 
 :global(.dark_mode) .notificationPopup {
-  background: #6069FF;
-  border-color: #6069FF;
+  background: #232842;
+  border-color: #2f3556;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
 }
 
 :global(.dark_mode) .notificationPopupText {
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 :global(.dark_mode) .notificationPopup .notificationTitleLine {
@@ -252,12 +253,45 @@
 .notificationScrollArea {
   max-height: 420px;
   overflow-y: auto;
-  padding-right: 4px;
-  margin-right: -4px;
-  scrollbar-gutter: stable;
+  padding-right: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(97, 106, 255, 0.45) transparent;
 }
 
-/* WebKit — в notifications.css через .notif-scroll-area */
+.notificationScrollArea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notificationScrollArea::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.notificationScrollArea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notificationScrollArea::-webkit-scrollbar-thumb {
+  background: rgba(97, 106, 255, 0.4);
+  border-radius: 8px;
+}
+
+.notificationScrollArea::-webkit-scrollbar-thumb:hover {
+  background: rgba(97, 106, 255, 0.7);
+}
+
+:global(.dark_mode) .notificationScrollArea {
+  scrollbar-color: rgba(145, 152, 255, 0.55) transparent;
+}
+
+:global(.dark_mode) .notificationScrollArea::-webkit-scrollbar-thumb {
+  background: rgba(145, 152, 255, 0.5);
+}
+
+:global(.dark_mode) .notificationScrollArea::-webkit-scrollbar-thumb:hover {
+  background: rgba(145, 152, 255, 0.8);
+}
 
 
 
@@ -371,46 +405,316 @@
   width: min(360px, calc(100vw - 40px));
 }
 
+/* ---------- Всплывающее уведомление: [иконка] [заголовок + чип / текст / время] [×] ---------- */
+
+.notificationPopup,
+.ncRow {
+  --nk-accent: #6069ff;
+  --nk-soft: #eef0ff;
+}
+
+.kindWarning {
+  --nk-accent: #d93f4c;
+  --nk-soft: #fde2e4;
+}
+
 .notificationPopup {
+  position: relative;
   width: 100%;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 10px 13px 14px;
   border: 1px solid #e6e7f2;
   border-radius: 16px;
   background: #ffffff;
   box-shadow: 0 16px 40px rgba(21, 25, 40, 0.14);
-  padding: 12px;
   text-align: left;
   cursor: pointer;
   color: inherit;
   font: inherit;
+  overflow: hidden;
+  outline: none;
+  animation: popupIn 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.notificationPopupHeader {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  margin-bottom: 8px;
+.notificationPopup:focus-visible {
+  border-color: var(--nk-accent);
 }
 
-.notificationPopupAvatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
+@keyframes popupIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notificationPopup { animation: none; }
+  .popupProgress { animation: none; }
+}
+
+.popupIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--nk-soft);
+  color: var(--nk-accent);
   flex-shrink: 0;
 }
 
-.notificationPopupInfo {
-  flex: 1;
+.popupAvatar {
+  border-radius: 50%;
+  object-fit: cover;
+  background: #eff0f6;
+}
+
+.popupBody {
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.popupTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 18px;
+  color: #1f2a3b;
+}
+
+.popupTitleClamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.popupPts,
+.ncPts {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--nk-soft);
+  color: var(--nk-accent);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.notificationPopup .notificationHint {
+  margin-top: 1px;
+  margin-bottom: 0;
+  font-weight: 600;
 }
 
 .notificationPopupText {
+  margin-top: 2px;
   font-size: 13px;
   color: #5c6676;
   line-height: 18px;
-  line-clamp: 3;
+  line-clamp: 2;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.popupMeta {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #8b94a1;
+}
+
+.popupClose {
+  width: 28px;
+  height: 28px;
+  margin: -4px -2px 0 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #8b94a1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.popupClose:hover,
+.popupClose:focus-visible {
+  background: #eff0f6;
+  color: #1f2a3b;
+  outline: none;
+}
+
+.popupProgress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--nk-accent);
+  transform-origin: left center;
+  animation-name: popupShrink;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes popupShrink {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+.ncRow {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.ncIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--nk-soft);
+  color: var(--nk-accent);
+  flex-shrink: 0;
+}
+
+.ncAvatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ncBody {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ncTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 17px;
+  color: #1f2a3b;
+}
+
+.ncTitleClamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ncPts {
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.ncText {
+  font-size: 12.5px;
+  line-height: 17px;
+  color: #5c6676;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ncRow .notificationHint {
+  margin: 0;
+  font-weight: 600;
+}
+
+.ncRow .notificationTime {
+  margin-top: 2px;
+  font-size: 11.5px;
+}
+
+.ncDot,
+.ncDotOff {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #6069ff;
+}
+
+.ncDotOff {
+  background: transparent;
+}
+
+:global(.dark_mode) .popupTitle {
+  color: #ffffff;
+}
+
+:global(.dark_mode) .popupMeta {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+:global(.dark_mode) .popupIcon,
+:global(.dark_mode) .popupPts {
+  background: rgba(255, 255, 255, 0.12);
+  color: #b3b8ff;
+}
+
+:global(.dark_mode) .kindWarning {
+  --nk-accent: #ff7a84;
+  --nk-soft: rgba(217, 63, 76, 0.22);
+}
+
+:global(.dark_mode) .kindWarning .popupIcon,
+:global(.dark_mode) .kindWarning .popupPts,
+:global(.dark_mode) .kindWarning .ncIcon,
+:global(.dark_mode) .kindWarning .ncPts {
+  background: var(--nk-soft);
+  color: var(--nk-accent);
+}
+
+:global(.dark_mode) .popupClose {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+:global(.dark_mode) .popupClose:hover,
+:global(.dark_mode) .popupClose:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+:global(.dark_mode) .popupProgress {
+  background: var(--nk-accent);
+}
+
+:global(.dark_mode) .ncTitle {
+  color: #ffffff;
+}
+
+:global(.dark_mode) .ncText {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+:global(.dark_mode) .ncIcon,
+:global(.dark_mode) .ncPts {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+:global(.dark_mode) .ncDot {
+  background: #ffffff;
 }
 
 /* Old notifications */

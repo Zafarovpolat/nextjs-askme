@@ -1,12 +1,4 @@
-/**
- * Склонение: 1 минута, 2 минуты, 5 минут.
- */
-function numWord(value: number, words: [string, string, string]): string {
-  const abs = Math.abs(value)
-  const cases = [2, 0, 1, 1, 1, 2]
-  const index = abs % 100 > 4 && abs % 100 < 20 ? 2 : cases[Math.min(abs % 10, 5)]
-  return `${value} ${words[index]}`
-}
+import { ruPluralPhrase } from "@/lib/format-compact-count"
 
 /**
  * Формат "X минут/часов/дней/недель/лет назад".
@@ -27,10 +19,10 @@ export function formatTimeAgo(dateIso: string): string {
   const diffYear = Math.floor(diffDay / 365)
 
   if (diffMin < 1) return 'только что'
-  if (diffMin < 60) return numWord(diffMin, ['минуту', 'минуты', 'минут']) + ' назад'
-  if (diffHour < 24) return numWord(diffHour, ['час', 'часа', 'часов']) + ' назад'
-  if (diffDay < 7) return numWord(diffDay, ['день', 'дня', 'дней']) + ' назад'
-  if (diffWeek < 4) return numWord(diffWeek, ['неделю', 'недели', 'недель']) + ' назад'
-  if (diffMonth < 12) return numWord(diffMonth, ['месяц', 'месяца', 'месяцев']) + ' назад'
-  return numWord(diffYear, ['год', 'года', 'лет']) + ' назад'
+  if (diffMin < 60) return ruPluralPhrase(diffMin, ['минуту', 'минуты', 'минут']) + ' назад'
+  if (diffHour < 24) return ruPluralPhrase(diffHour, ['час', 'часа', 'часов']) + ' назад'
+  if (diffDay < 7) return ruPluralPhrase(diffDay, ['день', 'дня', 'дней']) + ' назад'
+  if (diffWeek < 4) return ruPluralPhrase(diffWeek, ['неделю', 'недели', 'недель']) + ' назад'
+  if (diffMonth < 12) return ruPluralPhrase(diffMonth, ['месяц', 'месяца', 'месяцев']) + ' назад'
+  return ruPluralPhrase(diffYear, ['год', 'года', 'лет']) + ' назад'
 }

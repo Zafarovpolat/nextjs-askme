@@ -35,7 +35,18 @@ export function getTheme(): Theme | undefined {
 
 export function applyResolvedTheme(resolved: ResolvedTheme): void {
   if (typeof document === 'undefined') return
-  document.body.classList.toggle('dark_mode', resolved === 'dark')
+  const body = document.body
+  const wantDark = resolved === 'dark'
+  if (body.classList.contains('dark_mode') === wantDark) return
+
+  body.classList.add('no-transition')
+  body.classList.toggle('dark_mode', wantDark)
+  void body.offsetWidth
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      body.classList.remove('no-transition')
+    })
+  })
 }
 
 export function persistThemePreference(

@@ -27,6 +27,8 @@ import type { MeApiResponse } from '@/lib/server-me'
 import type { ProfileWidgetsPayload } from '@/lib/server-profile-widgets'
 import { usePageStickySidebars } from '@/hooks/usePageStickySidebars'
 import { avatarImgProps } from '@/lib/avatar-srcset'
+import { presentNotification } from '@/lib/notification-presentation'
+import NotificationKindIcon from '@/components/NotificationKindIcon'
 
 type NotificationsPageResponse = {
   notifications: NotificationApiItem[]
@@ -310,6 +312,8 @@ export default function NotificationsPageClient({
               avatarUrl2x={avatarUrl2x}
               ballsDisplay={ballsDisplay}
               ballsTitle={ballsTitle}
+              ballsCount={ballsRaw}
+              ballsInfinite={Boolean(meUser.is_ai)}
               kpdPercentDisplay={`${kpdPercent}%`}
               cabinetFooter={
                 <ProfileMenuListMob>
@@ -388,15 +392,37 @@ export default function NotificationsPageClient({
                         : n.isPointsRelated
                           ? 'notifications-card--read notifications-card--read-points'
                           : 'notifications-card--read'
+                      const p = presentNotification(n)
+                      const isSystem = !p.useActorAvatar
                       return (
                       <article
                         key={n.id}
-                        className={`notifications-card ${cardMod}`}
+                        className={`notifications-card ${cardMod}${isSystem ? ' notifications-card--system' : ''}`}
                         onClick={() => {
                           if (!n.is_read) void markRead(n.id)
                         }}
                       >
                         <div className="notifications-card__top">
+                          {isSystem ? (
+                          <div className="notifications-card__actor">
+                            <span className={`notifications-card__kind notifications-card__kind--${p.kind}`} aria-hidden>
+                              <NotificationKindIcon kind={p.kind} size={22} />
+                            </span>
+                            <div className="notifications-card__actor-meta">
+                              <div className="notifications-card__name-row">
+                                <span className="notifications-card__name">{p.title}</span>
+                                {p.pointsLabel && (
+                                  <span className={`notifications-card__pts notifications-card__pts--${p.kind}`}>{p.pointsLabel}</span>
+                                )}
+                              </div>
+                              <span className="notifications-card__time">
+                                {formatTimeAgo(n.created_at)}
+                                <span className="notifications-card__time-sep" aria-hidden>·</span>
+                                {n.typeLabel}
+                              </span>
+                            </div>
+                          </div>
+                          ) : (
                           <div className="notifications-card__actor">
                             {n.actorProfileHref ? (
                               <Link
@@ -446,10 +472,11 @@ export default function NotificationsPageClient({
                               <span className="notifications-card__time">{formatTimeAgo(n.created_at)}</span>
                             </div>
                           </div>
+                          )}
                           <span
                             className={`notifications-card__status${n.is_read ? ' notifications-card__status--read' : ' notifications-card__status--unread'}`}
                           >
-                            {n.is_read ? 'Прочитано' : 'Не прочитано'}
+                            {n.is_read ? 'Прочитано' : 'Новое'}
                           </span>
                         </div>
 
@@ -462,16 +489,16 @@ export default function NotificationsPageClient({
                                 if (!n.is_read) void markRead(n.id)
                               }}
                             >
-                              {n.text}
+                              {isSystem ? p.text : n.text}
                             </Link>
                           ) : (
-                            <p className="notifications-card__text">{n.text}</p>
+                            <p className="notifications-card__text">{isSystem ? p.text : n.text}</p>
                           )}
                         </div>
 
                         <div className="notifications-card__footer">
                           <div className="notifications-card__footer-left">
-                            {n.canReply && n.replyHref && (
+                            {n.canReply && n.replyHref && !isSystem && (
                               <Link
                                 href={n.replyHref}
                                 className="m_btn category_btn notifications-card__reply"
@@ -484,7 +511,7 @@ export default function NotificationsPageClient({
                             )}
                           </div>
                           <div className="notifications-card__footer-right">
-                            {n.complaint && (
+                            {n.complaint && !isSystem && (
                               <button
                                 type="button"
                                 className="notifications-card__report"

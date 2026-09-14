@@ -7,6 +7,7 @@ import type { PublicProfileUser } from "@/types";
 import { fetchProfileWidgetsCached } from "@/lib/server-profile-widgets";
 import PublicProfileContent from "./PublicProfileContent";
 import { withPageUrl } from "@/lib/page-seo";
+import { publicProfileDescription } from "@/lib/profile-page-metadata";
 
 const PROFILE_REVALIDATE_SEC = 60;
 
@@ -60,6 +61,12 @@ async function resolveId(
   return p?.id;
 }
 
+const PROFILE_ROBOTS = {
+  index: false,
+  follow: true,
+  googleBot: { index: false, follow: true },
+} as const;
+
 export async function generateMetadata({
   params,
 }: {
@@ -68,17 +75,27 @@ export async function generateMetadata({
   try {
     const id = await resolveId(params);
     if (!id || !/^\d+$/.test(id)) {
-      return withPageUrl(id ? `/profile/${id}` : "/profile", { title: "Профиль" });
+      return withPageUrl(id ? `/profile/${id}` : "/profile", {
+        title: "Профиль",
+        robots: PROFILE_ROBOTS,
+      });
     }
     const data = await getPublicProfileCached(id);
     if (!data) {
-      return withPageUrl(`/profile/${id}`, { title: "Профиль" });
+      return withPageUrl(`/profile/${id}`, { title: "Профиль", robots: PROFILE_ROBOTS });
     }
     const u = data.user;
     const name = u.full_name || u.first_name || id;
-    return withPageUrl(`/profile/${id}`, { title: `${name} — профиль` });
+    const description = await publicProfileDescription(u);
+    return withPageUrl(`/profile/${id}`, {
+      title: `${name} — профиль`,
+      description,
+      robots: PROFILE_ROBOTS,
+      openGraph: { title: `${name} — профиль`, description },
+      twitter: { title: `${name} — профиль`, description },
+    });
   } catch {
-    return { title: "Профиль" };
+    return { title: "Профиль", robots: PROFILE_ROBOTS };
   }
 }
 

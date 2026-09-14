@@ -53,6 +53,25 @@ export function findAnswerInTree(
   return null;
 }
 
+/** Карточка «Лучший ответ» с веткой из общего списка, если API отдал brief без children. */
+export function hydrateBestAnswerTree(
+  best: QuestionPageAnswer | null | undefined,
+  list: QuestionPageAnswer[]
+): QuestionPageAnswer | null {
+  if (!best) return null;
+  const fromList = list.find((a) => a.id === best.id);
+  if (!fromList) return best;
+  const bestMeta = best as QuestionPageAnswer & { best_answer_set_at?: string };
+  return {
+    ...fromList,
+    answers: fromList.answers ?? best.answers ?? [],
+    answers_count: fromList.answers_count ?? best.answers_count ?? 0,
+    ...(bestMeta.best_answer_set_at
+      ? { best_answer_set_at: bestMeta.best_answer_set_at }
+      : {}),
+  };
+}
+
 export function ensureRootInAnswersList(
   answers: QuestionPageAnswer[],
   rootId: number,
@@ -123,6 +142,40 @@ export async function loadCommentPagesForStep(
   return merged;
 }
 
+export function getAnswerElement(answerId: number): HTMLElement | null {
+  return (
+    document.getElementById(`answer-${answerId}`) ??
+    document.getElementById(`best-answer-${answerId}`)
+  );
+}
+
+export function waitForAnswerElement(
+  answerId: number,
+  timeoutMs = 2000
+): Promise<HTMLElement | null> {
+  const existing = getAnswerElement(answerId);
+  if (existing) {
+    return Promise.resolve(existing);
+  }
+
+  return new Promise((resolve) => {
+    const started = Date.now();
+    const tick = () => {
+      const el = getAnswerElement(answerId);
+      if (el) {
+        resolve(el);
+        return;
+      }
+      if (Date.now() - started >= timeoutMs) {
+        resolve(getAnswerElement(answerId));
+        return;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}
+
 function waitForScrollEnd(timeoutMs = 2500): Promise<void> {
   if ("onscrollend" in window) {
     return new Promise((resolve) => {
@@ -170,9 +223,9 @@ function waitForScrollEnd(timeoutMs = 2500): Promise<void> {
 
 export async function highlightAnswerElement(
   answerId: number,
-  durationMs = 500
+  durationMs = 2200
 ): Promise<boolean> {
-  const el = document.getElementById(`answer-${answerId}`);
+  const el = await waitForAnswerElement(answerId, 80);
   if (!el) return false;
 
   el.scrollIntoView({ behavior: "smooth", block: "center" });

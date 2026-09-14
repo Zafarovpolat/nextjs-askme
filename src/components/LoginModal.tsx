@@ -58,7 +58,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </button>
         <div className="modal__content">
           <div className="login-form__title">
-            Упс вам нужно войти в аккаунт
+            Упс, вам нужно войти в аккаунт
           </div>
 
           <form

@@ -18,6 +18,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import Link from "next/link";
 import UserAvatar from "@/components/UserAvatar";
+import SiteImage from "@/components/SiteImage";
 import { formatTimeAgo } from "@/lib/time-ago";
 import {
   compactCountTitle,
@@ -30,7 +31,7 @@ import { useVoteQuestion } from "@/hooks/useVoteQuestion";
 import ComplaintModal from "@/components/ComplaintModal";
 import { HydrationSafeInput, HydrationSafeTextarea } from "@/components/HydrationSafeInput";
 import SharePopup from "@/components/SharePopup";
-import AnswerBlock, { AnswerWithReplies } from "./AnswerBlock";
+import { AnswerWithReplies } from "./AnswerBlock";
 import SimilarQuestionsBlock from "./SimilarQuestionsBlock";
 import PremiumQuestionsSidebar from "./PremiumQuestionsSidebar";
 import ProfileWeeklyLeadersSidebar from "@/components/ProfileWeeklyLeadersSidebar";
@@ -59,11 +60,13 @@ import {
   anchorRefKey,
   buildAnswerAnchorHash,
   ensureRootInAnswersList,
+  hydrateBestAnswerTree,
   findAnswerInTree,
   highlightAnswerElement,
   loadCommentPagesForStep,
   mergeChildrenIntoTree,
   parseAnswerAnchorHash,
+  waitForAnswerElement,
   type AnswerAnchorRef,
 } from "@/lib/question-answer-tree";
 import {
@@ -71,6 +74,7 @@ import {
   validateVideoAttachment,
 } from "@/lib/attachment-validation";
 import { getFormApiErrorMessage } from "@/lib/form-api-error-message";
+import { favoriteActionLabel, profileLinkLabel } from "@/lib/a11y-labels";
 import { showSystemToast } from "@/store/systemToastStore";
 
 /** Сайдбар, если API категорий недоступен */
@@ -307,8 +311,10 @@ export default function QuestionPageContent({
   const [bestAnswerId, setBestAnswerId] = useState<number | null>(
     bestAnswerIdFromApi
   );
-  /** Карточка в блоке «Лучший ответ»; ветка комментариев остаётся в общем списке. */
-  const [bestAnswer, setBestAnswer] = useState(bestAnswerFromApi);
+  /** Карточка и ветка только в блоке «Лучший ответ», не в общем списке. */
+  const [bestAnswer, setBestAnswer] = useState(() =>
+    hydrateBestAnswerTree(bestAnswerFromApi, apiAnswers)
+  );
   const [replyTarget, setReplyTarget] = useState<{
     parentAnswerId: number;
     replyToName: string;
@@ -317,6 +323,7 @@ export default function QuestionPageContent({
     null
   );
   const [answerSubmitPending, setAnswerSubmitPending] = useState(false);
+  const [highlightPostedId, setHighlightPostedId] = useState<number | null>(null);
   const [answersPage, setAnswersPage] = useState(
     initialQuestion.answers_loaded_page ?? 1
   );
@@ -441,22 +448,30 @@ export default function QuestionPageContent({
 
   const onSetBestAnswer = useCallback(
     async (answerId: number) => {
+      const fromList = answersDataRef.current.find((a) => a.id === answerId);
+      if (fromList && fromList.user?.id === initialQuestion.author?.id) {
+        showSystemToast("Нельзя выбрать лучшим собственный ответ.", "error");
+        return;
+      }
       setPendingBestAnswer(true);
       try {
         await api.post(`v1/questions/${initialQuestion.id}/best-answer`, {
           answer_id: answerId,
         });
         setBestAnswerId(answerId);
-        const fromList = answersDataRef.current.find((a) => a.id === answerId);
         if (fromList) {
-          const { answers: _comments, ...card } = fromList;
-          setBestAnswer({ ...card, answers_count: 0 });
+          setBestAnswer({ ...fromList });
         }
+      } catch (err: unknown) {
+        const msg =
+          (err as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message ?? "Не удалось выбрать лучший ответ.";
+        showSystemToast(msg, "error");
       } finally {
         setPendingBestAnswer(false);
       }
     },
-    [initialQuestion.id]
+    [initialQuestion.id, initialQuestion.author?.id]
   );
 
   const scrollToAnswer = useCallback(() => {
@@ -665,6 +680,9 @@ export default function QuestionPageContent({
           );
           throw new Error(detail);
         }
+        const createdId = Number(
+          (data.answer as { id?: unknown } | undefined)?.id
+        );
         setReplyTarget(null);
         setAnswerText("");
         setFileAttachment(null);
@@ -682,10 +700,25 @@ export default function QuestionPageContent({
             const freshData = (await freshRes.json()) as { answers?: typeof apiAnswers };
             if (freshData.answers) {
               setAnswersData(freshData.answers);
+              const bid = bestAnswerRef.current?.id;
+              if (bid != null) {
+                const found = freshData.answers.find((a) => a.id === bid);
+                if (found) {
+                  setBestAnswer((prev) =>
+                    hydrateBestAnswerTree(
+                      prev ?? found,
+                      freshData.answers ?? []
+                    )
+                  );
+                }
+              }
             }
           }
         } catch {
           /* fallback — хотя бы refresh */
+        }
+        if (Number.isFinite(createdId) && createdId > 0) {
+          setHighlightPostedId(createdId);
         }
         router.refresh();
       } catch (err) {
@@ -718,7 +751,13 @@ export default function QuestionPageContent({
     ]
   );
 
-  const regularAnswers = answersData;
+  const regularAnswers = useMemo(
+    () =>
+      bestAnswerId != null
+        ? answersData.filter((a) => a.id !== bestAnswerId)
+        : answersData,
+    [answersData, bestAnswerId]
+  );
   const answersSortQuery = `sort_by=${sortBy}&sort_dir=${sortDir}`;
   const sortInitialRef = useRef(true);
   const initialAnswersLen = (initialQuestion.answers ?? []).length;
@@ -740,9 +779,11 @@ export default function QuestionPageContent({
       )
       .then((data) => {
         if (cancelled) return;
-        setAnswersData(data.answers ?? []);
+        const list = data.answers ?? [];
+        setAnswersData(list);
         setAnswersPage(data.current_page ?? 1);
         setAnswersLastPage(data.last_page ?? 1);
+        setBestAnswer((prev) => hydrateBestAnswerTree(prev, list) ?? prev);
       })
       .catch(() => {})
       .finally(() => {
@@ -811,7 +852,11 @@ export default function QuestionPageContent({
     async (parentAnswerId: number) => {
       if (commentsLoadingMore[parentAnswerId]) return;
 
-      const parent = findAnswerInTree(answersDataRef.current, parentAnswerId);
+      const parentInBest = bestAnswerRef.current
+        ? findAnswerInTree([bestAnswerRef.current], parentAnswerId)
+        : null;
+      const parentInList = findAnswerInTree(answersDataRef.current, parentAnswerId);
+      const parent = parentInBest ?? parentInList;
       const loadedCount = parent?.answers?.length ?? 0;
       const nextPage = Math.floor(loadedCount / perPage) + 1;
 
@@ -824,9 +869,19 @@ export default function QuestionPageContent({
         }>(
           `v1/questions/${initialQuestion.id}/answers?answer_id=${parentAnswerId}&page=${nextPage}&per_page=${perPage}`
         );
-        setAnswersData((prev) =>
-          mergeChildrenIntoTree(prev, parentAnswerId, data.answers ?? [])
-        );
+        const children = data.answers ?? [];
+        if (parentInBest) {
+          setBestAnswer((prev) =>
+            prev
+              ? mergeChildrenIntoTree([prev], parentAnswerId, children)[0] ?? prev
+              : prev
+          );
+        }
+        if (parentInList && !parentInBest) {
+          setAnswersData((prev) =>
+            mergeChildrenIntoTree(prev, parentAnswerId, children)
+          );
+        }
       } finally {
         setCommentsLoadingMore((prev) => {
           const next = { ...prev };
@@ -885,6 +940,12 @@ export default function QuestionPageContent({
       const best = bestAnswerRef.current;
 
       try {
+        if (best && findAnswerInTree([best], targetId)) {
+          if (await highlightAnswerElement(targetId)) {
+            anchorHandledRef.current = key;
+            return;
+          }
+        }
         if (findAnswerInTree(answersDataRef.current, targetId)) {
           if (await highlightAnswerElement(targetId)) {
             anchorHandledRef.current = key;
@@ -907,10 +968,49 @@ export default function QuestionPageContent({
 
         const rootId = ref.rootAnswerId ?? meta.root_answer_id;
 
+        const fetchCommentPage = async (parentId: number, commentPage: number) => {
+          const data = await api.get<{
+            answers: NonNullable<QuestionPageData["answers"]>;
+          }>(
+            `v1/questions/${initialQuestion.id}/answers?answer_id=${parentId}&page=${commentPage}&per_page=${perPage}`
+          );
+          return data.answers ?? [];
+        };
+
+        if (best && rootId === best.id) {
+          let bestTree = [best];
+          if (targetId !== rootId) {
+            for (const step of meta.comment_steps ?? []) {
+              bestTree = await loadCommentPagesForStep(
+                bestTree,
+                step,
+                perPage,
+                fetchCommentPage
+              );
+            }
+            setBestAnswer(bestTree[0] ?? best);
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+            });
+          }
+          let attempts = 0;
+          const tryHighlightBest = async () => {
+            if (await highlightAnswerElement(targetId)) {
+              anchorHandledRef.current = key;
+              return;
+            }
+            if (attempts >= 20) return;
+            attempts += 1;
+            window.setTimeout(() => void tryHighlightBest(), 80);
+          };
+          await tryHighlightBest();
+          return;
+        }
+
         let merged = ensureRootInAnswersList(
           [...answersDataRef.current],
           rootId,
-          best
+          null
         );
         let page = answersPageRef.current;
         let lastPage = answersLastPageRef.current;
@@ -945,7 +1045,7 @@ export default function QuestionPageContent({
           }
         }
 
-        merged = ensureRootInAnswersList(merged, rootId, best);
+        merged = ensureRootInAnswersList(merged, rootId, null);
 
         setAnswersData(merged);
         setAnswersPage(page);
@@ -957,7 +1057,7 @@ export default function QuestionPageContent({
 
         // Этап 2: комментарии (цель — не корневой ответ)
         if (targetId !== rootId) {
-          merged = ensureRootInAnswersList(merged, rootId, best);
+          merged = ensureRootInAnswersList(merged, rootId, null);
 
           const commentSteps = meta.comment_steps ?? [];
           const fetchCommentPage = async (parentId: number, commentPage: number) => {
@@ -1000,6 +1100,32 @@ export default function QuestionPageContent({
     },
     [initialQuestion.anchor_meta, initialQuestion.id, perPage]
   );
+
+  useEffect(() => {
+    if (highlightPostedId == null) return;
+
+    const postedId = highlightPostedId;
+    let cancelled = false;
+
+    const revealPostedAnswer = async () => {
+      const el = await waitForAnswerElement(postedId, 2000);
+      if (cancelled) return;
+      if (el && (await highlightAnswerElement(postedId))) {
+        setHighlightPostedId(null);
+        return;
+      }
+      if (cancelled) return;
+      await navigateToAnswerAnchor({ targetId: postedId });
+      if (!cancelled) {
+        setHighlightPostedId(null);
+      }
+    };
+
+    void revealPostedAnswer();
+    return () => {
+      cancelled = true;
+    };
+  }, [highlightPostedId, navigateToAnswerAnchor]);
 
   useLayoutEffect(() => {
     const resolveAnchor = (): AnswerAnchorRef | null =>
@@ -1112,10 +1238,12 @@ export default function QuestionPageContent({
                       return (
                         <Link href={href} key={key} title={label}>
                           <span className="subject_item_list_item">
-                            <img
+                            <SiteImage
                               src="/images/icons/category-list-item.svg"
                               alt=""
                               title={label}
+                              width={6}
+                              height={6}
                             />
                             <span title={label}>{label}</span>
                           </span>
@@ -1151,7 +1279,7 @@ export default function QuestionPageContent({
             ) : null}
             <div className="main_question_bg_wrapper">
               <div className="main_question_block_top_bg">
-                <img
+                <SiteImage
                   src={
                     isPremiumQuestion
                       ? "/images/blues-rect-dark.svg"
@@ -1159,17 +1287,26 @@ export default function QuestionPageContent({
                   }
                   className="top_bg_rect top_bg_rect_light"
                   alt=""
+                  width={114}
+                  height={42}
+                  eager
                 />
-                <img
+                <SiteImage
                   src="/images/blues-rect-dark.svg"
                   className="top_bg_rect top_bg_rect_dark"
                   alt=""
+                  width={114}
+                  height={42}
+                  eager
                 />
               </div>
             </div>
             <div className="question_list_item-info">
               <div className="question_list_item_left">
-                <Link href={`/profile/${initialQuestion.author.id}`}>
+                <Link
+                  href={`/profile/${initialQuestion.author.id}`}
+                  aria-label={profileLinkLabel(displayUserName(initialQuestion.author))}
+                >
                   <div
                     style={{ position: "relative", display: "inline-block" }}
                   >
@@ -1180,6 +1317,7 @@ export default function QuestionPageContent({
                       size={40}
                       premium={isPremiumAuthor}
                       premiumText={premiumAuthorText}
+                      eager
                     />
                   </div>
                 </Link>
@@ -1235,7 +1373,8 @@ export default function QuestionPageContent({
                 <div className="question_vote_container">
                   <button
                     className={`vote_btn like_btn ${user_vote === 1 ? "vote_btn--active" : ""}`}
-                    title="Мне нравится"
+                    title="Нравится"
+                    aria-label="Нравится"
                     onClick={() => vote(1)}
                     disabled={votePending}
                   >
@@ -1273,7 +1412,8 @@ export default function QuestionPageContent({
                 </button>
                 <button
                   className={`s_btn s_btn_icon btn_action_outline btn-like ${isFavorited(initialQuestion.id) ? "btn-like--active" : ""}`}
-                  title="Мне нравится"
+                  title={favoriteActionLabel(isFavorited(initialQuestion.id))}
+                  aria-label={favoriteActionLabel(isFavorited(initialQuestion.id))}
                   onClick={() => toggleFavorite(initialQuestion.id)}
                   disabled={isPending(initialQuestion.id)}
                 >
@@ -1285,6 +1425,7 @@ export default function QuestionPageContent({
                   type="button"
                   className="s_btn s_btn_icon btn_action_outline"
                   title="Поделиться"
+                  aria-label="Поделиться"
                   onClick={handleShareQuestion}
                 >
                   <svg width="14" height="14">
@@ -1295,23 +1436,25 @@ export default function QuestionPageContent({
             </div>
           </div>
 
-          {/* Лучший ответ: только выбранная карточка, без комментариев и «Загрузить еще» */}
+          {/* Лучший ответ закреплён сверху; ветка комментариев только здесь */}
           {bestAnswer && (
             <div className="best-comments" style={{ display: "block" }}>
               <div className="blocks_title mt_25px">
                 <h2>Лучший ответ</h2>
               </div>
-              <AnswerBlock
+              <AnswerWithReplies
                 answer={bestAnswer}
                 questionId={initialQuestion.id}
                 questionTitle={initialQuestion.title}
-                isBest
+                isBestRoot
                 onComplaint={(id) => setComplaintModal({ answerId: id })}
                 onScrollToAnswer={scrollToAnswer}
                 onStartReplyToAnswer={beginReplyToAnswer}
                 allowAnswerComments={allowAnswerComments}
                 answerVotes={answerVotes}
                 onShareClick={handleShareAnswer}
+                onLoadMoreComments={loadMoreComments}
+                commentsLoadingMore={commentsLoadingMore}
               />
             </div>
           )}
@@ -1349,6 +1492,7 @@ export default function QuestionPageContent({
                 questionId={initialQuestion.id}
                 questionTitle={initialQuestion.title}
                 canSelectBestAnswer={canSelectBestAnswer}
+                questionAuthorId={initialQuestion.author?.id}
                 onSetBestAnswer={onSetBestAnswer}
                 pendingBestAnswer={pendingBestAnswer}
                 onComplaint={(id) => setComplaintModal({ answerId: id })}
@@ -1488,7 +1632,7 @@ export default function QuestionPageContent({
                     <div className="answer_media" style={{ marginTop: 0 }}>
                       {fileAttachment ? (
                         <div className="answer_media_item answer_media_item--image">
-                          <img src={fileAttachment.previewUrl} alt="" loading="lazy" decoding="async" />
+                          <SiteImage src={fileAttachment.previewUrl} alt="" width={640} height={400} style={{ width: "100%", height: "auto" }} />
                           <button
                             type="button"
                             className="form_attachment_remove_overlay"

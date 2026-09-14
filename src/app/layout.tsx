@@ -16,7 +16,7 @@ import {
   isColorThemePreference,
   resolveColorTheme,
 } from '@/lib/color-theme'
-import { SITE_NAME, SITE_URL } from '@/lib/page-seo'
+import { ROBOTS_INDEX_FOLLOW, SITE_NAME, SITE_URL } from '@/lib/page-seo'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -35,20 +35,10 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: 'Задавай вопросы и получай ответы от других пользователей. Сотни тысяч вопросов по школьным предметам, математике, физике, химии и другим темам.',
-  keywords: ['вопросы и ответы', 'помощь с уроками', 'домашнее задание', 'школа', 'математика', 'физика', 'химия'],
   authors: [{ name: SITE_NAME, url: SITE_URL }],
   creator: SITE_NAME,
   publisher: SITE_NAME,
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
+  robots: ROBOTS_INDEX_FOLLOW,
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
@@ -71,16 +61,15 @@ export const metadata: Metadata = {
     images: ['/images/og-image.png'],
   },
   icons: {
-    icon: [
-      { url: '/images/favicon/favicon.svg', type: 'image/svg+xml' },
-      { url: '/images/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/images/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/images/favicon/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/images/favicon/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    shortcut: '/favicon.ico',
-    apple: { url: '/images/favicon/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    icon: [{ url: "/images/favicon/favicon.svg", type: "image/svg+xml" }],
+    shortcut: "/images/favicon/favicon.svg",
+    apple: {
+      url: "/images/favicon/apple-touch-icon.png",
+      sizes: "180x180",
+      type: "image/png",
+    },
   },
+  manifest: "/site.webmanifest",
 }
 
 const jsonLd = {

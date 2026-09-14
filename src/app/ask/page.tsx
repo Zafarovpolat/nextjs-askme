@@ -1,5 +1,5 @@
 import { getApiFullUrl } from "@/config/api"
-import { withPageUrl } from "@/lib/page-seo"
+import { ROBOTS_INDEX_FOLLOW, withPageUrl } from "@/lib/page-seo"
 import AskPageClient, { type AskPageInitialData } from "./AskPageClient"
 import type { Metadata } from "next"
 
@@ -7,7 +7,7 @@ export const metadata: Metadata = withPageUrl("/ask", {
   title: "Задать вопрос",
   description:
     "Задайте вопрос на otvetai и получите ответы от сообщества. Форма создания вопроса: тема, категория и текст.",
-  robots: { index: true, follow: true },
+  robots: ROBOTS_INDEX_FOLLOW,
 })
 
 async function fetchAskPageData(): Promise<AskPageInitialData> {

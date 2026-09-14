@@ -18,6 +18,7 @@ import {
 import type { AnswerAnchorRef } from "@/lib/question-answer-tree";
 import { buildAnswerAnchorHash } from "@/lib/question-answer-tree";
 import { showSystemToast } from "@/store/systemToastStore";
+import { favoriteActionLabel, profileLinkLabel } from "@/lib/a11y-labels";
 
 /** Затемнение карточки ответа — только при таком числе дизлайков, лайки не учитываются. */
 const ANSWER_DIM_MIN_DISLIKES = 10;
@@ -29,6 +30,7 @@ export interface AnswerBlockProps {
   isBest?: boolean;
   isNested?: boolean;
   canSelectBestAnswer?: boolean;
+  questionAuthorId?: number;
   onSetBestAnswer?: (id: number) => void;
   pendingBestAnswer?: boolean;
   onComplaint: (answerId: number) => void;
@@ -51,6 +53,7 @@ export default function AnswerBlock({
   isBest = false,
   isNested = false,
   canSelectBestAnswer = false,
+  questionAuthorId,
   onSetBestAnswer,
   pendingBestAnswer = false,
   onComplaint,
@@ -74,6 +77,15 @@ export default function AnswerBlock({
     votes_score: answer.votes_score ?? 0,
     user_vote: answerVote,
   });
+
+  const isOwnAnswer =
+    questionAuthorId != null && answer.user?.id === questionAuthorId;
+  const showSelectBest =
+    !isBest &&
+    !isNested &&
+    canSelectBestAnswer &&
+    onSetBestAnswer &&
+    !isOwnAnswer;
 
   const { toggleFavorite, isFavorited, isPending } = useFavoriteAnswer();
 
@@ -109,6 +121,7 @@ export default function AnswerBlock({
             <Link
               href={`/profile/${answer.user.id}`}
               style={{ display: "inline-block" }}
+              aria-label={profileLinkLabel(displayUserName(answer.user))}
             >
               <UserAvatar
                 src={answer.user.avatar_url}
@@ -155,7 +168,7 @@ export default function AnswerBlock({
             <p>{rankLabel}</p>
           </div>
         </div>
-        {!isBest && !isNested && canSelectBestAnswer && onSetBestAnswer ? (
+        {showSelectBest ? (
           <div className="question_list_item_right">
             <button
               type="button"
@@ -229,7 +242,8 @@ export default function AnswerBlock({
           <div className="question_vote_container">
             <button
               className={`vote_btn like_btn ${user_vote === 1 ? "vote_btn--active" : ""}`}
-              title="Мне нравится"
+              title="Нравится"
+              aria-label="Нравится"
               onClick={() => vote(1)}
               disabled={votePending}
             >
@@ -265,7 +279,8 @@ export default function AnswerBlock({
           </button>
           <button
             className={`s_btn s_btn_icon btn_action_outline btn-like ${isFavorited(answer.id) ? "btn-like--active" : ""}`}
-            title="Мне нравится"
+            title={favoriteActionLabel(isFavorited(answer.id))}
+            aria-label={favoriteActionLabel(isFavorited(answer.id))}
             onClick={() => toggleFavorite(answer.id)}
             disabled={isPending(answer.id)}
           >
@@ -339,7 +354,6 @@ export function AnswerWithReplies({
   const loadedComments = answer.answers?.length ?? 0;
   const totalComments = answer.answers_count ?? 0;
   const hasMoreComments =
-    !isBestRoot &&
     allowAnswerComments &&
     totalComments > loadedComments &&
     onLoadMoreComments != null;

@@ -7,10 +7,12 @@ import QuestionLikerAvatars from "@/components/QuestionLikerAvatars";
 import { formatTimeAgo } from "@/lib/time-ago";
 import { displayPremiumBadge, displayUserName } from "@/lib/ai-user-display";
 import {
+  BALL_WORDS,
   compactCountTitle,
   formatCompactCountPlus,
   formatCompactNumWord,
 } from "@/lib/format-compact-count";
+import { favoriteActionLabel, profileLinkLabel } from "@/lib/a11y-labels";
 
 export type QuestionListAuthor = {
   id: number;
@@ -47,9 +49,6 @@ type QuestionListCardProps = {
   onShare: (e: React.MouseEvent<HTMLButtonElement>, title: string, id: number) => void;
 };
 
-const numWord = (value: number, words: [string, string, string]): string =>
-  formatCompactNumWord(value, words);
-
 export default function QuestionListCard({
   question,
   isFavorited,
@@ -84,7 +83,8 @@ export default function QuestionListCard({
           <Link
             href={`/profile/${question.author.id}`}
             className="question_list_item_avatar_link"
-            title="Профиль пользователя"
+            title={profileLinkLabel(authorName)}
+            aria-label={profileLinkLabel(authorName)}
             onClick={(event) => event.stopPropagation()}
           >
             <UserAvatar
@@ -106,12 +106,13 @@ export default function QuestionListCard({
             >
               {authorName}
             </Link>
-            <span>{numWord(question.author.balls ?? 0, ["балл", "балла", "баллов"])}</span>
+            <span>{formatCompactNumWord(question.author.balls ?? 0, BALL_WORDS)}</span>
           </div>
         </div>
         <div className="question_item_top_data_right">
           <button
-            title="Мне нравится"
+            title={favoriteActionLabel(isFavorited(question.id))}
+            aria-label={favoriteActionLabel(isFavorited(question.id))}
             className={`s_btn s_btn_icon btn-like ${isFavorited(question.id) ? "btn-like--active" : ""}`}
             onClick={() => onToggleFavorite(question.id)}
             disabled={isPending(question.id)}
@@ -124,6 +125,7 @@ export default function QuestionListCard({
           <button
             className="s_btn s_btn_icon share-this"
             title="Поделиться"
+            aria-label="Поделиться"
             onClick={(e) => onShare(e, question.title, question.id)}
             type="button"
           >
@@ -138,7 +140,8 @@ export default function QuestionListCard({
         <Link
           href={`/profile/${question.author.id}`}
           className="question_list_item_avatar_link"
-          title="Профиль пользователя"
+          title={profileLinkLabel(authorName)}
+          aria-label={profileLinkLabel(authorName)}
           onClick={(event) => event.stopPropagation()}
         >
           <UserAvatar
@@ -169,7 +172,8 @@ export default function QuestionListCard({
         />
         <div className="question_list_item_right_actions">
           <button
-            title="Мне нравится"
+            title={favoriteActionLabel(isFavorited(question.id))}
+            aria-label={favoriteActionLabel(isFavorited(question.id))}
             className={`s_btn s_btn_icon btn-like ${isFavorited(question.id) ? "btn-like--active" : ""}`}
             onClick={() => onToggleFavorite(question.id)}
             disabled={isPending(question.id)}
@@ -182,6 +186,7 @@ export default function QuestionListCard({
           <button
             className="s_btn s_btn_icon share-this"
             title="Поделиться"
+            aria-label="Поделиться"
             onClick={(e) => onShare(e, question.title, question.id)}
             type="button"
           >

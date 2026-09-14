@@ -1,3 +1,5 @@
+import { isStoredUrlSlug } from "@/lib/site-path-canonical";
+
 /**
  * Slug в БД (custom_pages) = сегмент URL на фронте `/{slug}`
  * и параметр GET v1/custom-pages/{slug}.
@@ -22,15 +24,15 @@ export const LEGAL_FOOTER_LINKS = [
   },
   {
     slug: LEGAL_FOOTER_SLUGS.privacyPolicy,
-    label: "Политика конфиденциальности",
+    label: "Политика обработки персональных данных",
   },
   {
     slug: LEGAL_FOOTER_SLUGS.consentAdvertising,
-    label: "Согласие на рекламу",
+    label: "Согласие на обработку персональных данных",
   },
   {
     slug: LEGAL_FOOTER_SLUGS.cookies,
-    label: "Файлы Cookie",
+    label: "Уведомление о файлах Cookie",
   },
   {
     slug: LEGAL_FOOTER_SLUGS.support,
@@ -48,7 +50,7 @@ export function legalFooterHref(slug: string, version?: number | null): string {
 
 /** Ссылка на кастомную страницу (тот же паттерн URL, что и у legal footer). */
 export function customPageHref(slug: string, version?: number | null): string {
-  const normalized = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
-  if (!normalized) return "/";
-  return legalFooterHref(normalized, version);
+  const exact = slug.trim();
+  if (!isStoredUrlSlug(exact)) return "/";
+  return legalFooterHref(exact, version);
 }

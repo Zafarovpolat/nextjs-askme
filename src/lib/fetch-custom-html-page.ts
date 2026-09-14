@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { getApiFullUrl } from "@/config/api";
+import { isStoredUrlSlug } from "@/lib/site-path-canonical";
 import type { CustomHtmlPageApi } from "@/types/custom-html-page";
 
 const REVALIDATE_SEC = 120;
@@ -8,8 +9,8 @@ async function fetchCustomHtmlPageUncached(
   slug: string,
   version?: number | null,
 ): Promise<CustomHtmlPageApi | null> {
-  const normalized = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "");
-  if (!normalized) {
+  const exact = slug.trim();
+  if (!isStoredUrlSlug(exact)) {
     return null;
   }
   const qs =
@@ -17,7 +18,7 @@ async function fetchCustomHtmlPageUncached(
       ? `?v=${Math.trunc(version)}`
       : "";
   const url = getApiFullUrl(
-    `v1/custom-pages/${encodeURIComponent(normalized)}${qs}`,
+    `v1/custom-pages/${encodeURIComponent(exact)}${qs}`,
   );
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
     console.error(
@@ -42,6 +43,9 @@ async function fetchCustomHtmlPageUncached(
       message?: string;
     };
     if (data.content_format !== "html" || typeof data.content !== "string") {
+      return null;
+    }
+    if (data.slug !== exact) {
       return null;
     }
     return data as CustomHtmlPageApi;

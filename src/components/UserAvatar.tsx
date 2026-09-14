@@ -1,6 +1,7 @@
 "use client";
 
 import StretchablePremiumBadge from "@/components/profile/StretchablePremiumBadge";
+import SiteImage from "@/components/SiteImage";
 import { avatarImgProps } from "@/lib/avatar-srcset";
 
 type UserAvatarProps = {
@@ -13,6 +14,8 @@ type UserAvatarProps = {
   size?: number;
   className?: string;
   imgClassName?: string;
+  /** Шапка / автор вопроса: сразу, без preload в head. */
+  eager?: boolean;
 };
 
 export default function UserAvatar({
@@ -24,20 +27,25 @@ export default function UserAvatar({
   size = 51,
   className = "",
   imgClassName = "",
+  eager = false,
 }: UserAvatarProps) {
   const badgeText = premiumText?.trim() || "Премиум";
-  const { src: imgSrc, srcSet } = avatarImgProps(src, src2x);
+  const { src: imgSrc } = avatarImgProps(src, src2x);
+  const displaySrc = src2x?.trim() && !src2x.includes("avatar.svg") ? src2x.trim() : imgSrc;
 
   return (
     <div
       className={`site-user-avatar${premium ? " site-user-avatar--premium" : ""}${className ? ` ${className}` : ""}`.trim()}
       style={{ display: "inline-block", lineHeight: 0 }}
     >
-      <img
-        src={imgSrc}
-        srcSet={srcSet}
+      <SiteImage
+        src={displaySrc}
         alt={alt}
+        width={size}
+        height={size}
         className={imgClassName}
+        eager={eager}
+        sizes={`${size}px`}
         style={{
           width: `${size}px`,
           height: `${size}px`,

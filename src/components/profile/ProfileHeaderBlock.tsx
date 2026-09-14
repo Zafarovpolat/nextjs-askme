@@ -4,6 +4,11 @@ import type { ChangeEvent, MutableRefObject, ReactNode } from "react";
 import StretchablePremiumBadge from "@/components/profile/StretchablePremiumBadge";
 import { HydrationSafeInput } from "@/components/HydrationSafeInput";
 import { avatarImgProps } from "@/lib/avatar-srcset";
+import {
+  BALL_WORDS,
+  capitalizeRuWord,
+  ruPluralWord,
+} from "@/lib/format-compact-count";
 
 export type ProfileHeaderVariant = "cabinet" | "public";
 
@@ -20,6 +25,9 @@ type ProfileHeaderBlockProps = {
   avatarUrl2x?: string | null;
   ballsDisplay: string;
   ballsTitle?: string;
+  /** Фактическое число баллов для подписи; для ∞ не используется. */
+  ballsCount?: number;
+  ballsInfinite?: boolean;
   kpdPercentDisplay: string;
   editableAvatar?: boolean;
   avatarInputRef?: MutableRefObject<HTMLInputElement | null>;
@@ -33,12 +41,19 @@ type ProfileHeaderBlockProps = {
 function ProfileHeaderStats({
   ballsDisplay,
   ballsTitle,
+  ballsCount = 0,
+  ballsInfinite = false,
   kpdPercentDisplay,
 }: {
   ballsDisplay: string;
   ballsTitle?: string;
+  ballsCount?: number;
+  ballsInfinite?: boolean;
   kpdPercentDisplay: string;
 }) {
+  const ballsLabel = ballsInfinite
+    ? "Баллов"
+    : capitalizeRuWord(ruPluralWord(ballsCount, BALL_WORDS));
   return (
     <div className="user_public_stats">
       <div className="stat_item">
@@ -55,7 +70,7 @@ function ProfileHeaderStats({
           </svg>
           <div className="stat_info">
             <div className="stat_value" title={ballsTitle}>{ballsDisplay}</div>
-            <div className="stat_label">Балл</div>
+            <div className="stat_label">{ballsLabel}</div>
           </div>
         </div>
       </div>
@@ -109,6 +124,8 @@ export default function ProfileHeaderBlock({
   avatarUrl2x,
   ballsDisplay,
   ballsTitle,
+  ballsCount,
+  ballsInfinite,
   kpdPercentDisplay,
   editableAvatar = false,
   avatarInputRef,
@@ -172,9 +189,9 @@ export default function ProfileHeaderBlock({
         ) : null}
       </div>
       <div className="user_profile_block_content_profile_desc">
-        <h4 className="profile-display-name" title={displayName}>
+        <h1 className="profile-display-name" title={displayName}>
           {displayName}
-        </h4>
+        </h1>
         {rankLabel ? (
           <div className="quest_user_title" style={{ display: "inline-block" }}>
             <p style={{ margin: 0 }}>{rankLabel}</p>
@@ -189,6 +206,8 @@ export default function ProfileHeaderBlock({
     <ProfileHeaderStats
       ballsDisplay={ballsDisplay}
       ballsTitle={ballsTitle}
+      ballsCount={ballsCount}
+      ballsInfinite={ballsInfinite}
       kpdPercentDisplay={kpdPercentDisplay}
     />
   );

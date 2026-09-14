@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import LegalFooterLayout from "@/components/legal/LegalFooterLayout";
 import { fetchCustomHtmlPage } from "@/lib/fetch-custom-html-page";
 import { metadataForLegalFooterSlug } from "@/lib/legal-footer-page-metadata";
+import { isStoredUrlSlug } from "@/lib/site-path-canonical";
 
 export const revalidate = 120;
 
@@ -12,7 +13,7 @@ type PageProps = {
 };
 
 function isValidCustomPageSlug(slug: string): boolean {
-  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug.trim().toLowerCase());
+  return isStoredUrlSlug(slug.trim());
 }
 
 function parseVersion(raw: string | undefined): number | null {
@@ -25,7 +26,7 @@ export async function generateMetadata({
   params,
   searchParams,
 }: PageProps): Promise<Metadata> {
-  const slug = params.slug?.trim().toLowerCase() ?? "";
+  const slug = params.slug?.trim() ?? "";
   if (!isValidCustomPageSlug(slug)) {
     notFound();
   }
@@ -38,13 +39,13 @@ export async function generateMetadata({
  * имеют приоритет над этим динамическим сегментом.
  */
 export default async function CustomPageBySlug({ params, searchParams }: PageProps) {
-  const slug = params.slug?.trim().toLowerCase() ?? "";
+  const slug = params.slug?.trim() ?? "";
   if (!isValidCustomPageSlug(slug)) {
     notFound();
   }
 
   const page = await fetchCustomHtmlPage(slug, parseVersion(searchParams?.v));
-  if (!page) {
+  if (!page || page.slug !== slug) {
     notFound();
   }
 

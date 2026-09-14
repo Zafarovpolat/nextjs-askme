@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Footer from "@/components/layout/Footer";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import JsonLd from "@/components/JsonLd";
 import FaqPageClient from "./FaqPageClient";
 import { fetchFaqPage } from "@/lib/fetch-faq-page";
+import { buildFaqPageJsonLd } from "@/lib/faq-page-jsonld";
 import { withPageUrl } from "@/lib/page-seo";
 import "@/styles/faq.css";
 
@@ -16,15 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
   }
   const title = data.title?.trim() || "Часто задаваемые вопросы — otvetai";
   const description = data.description?.trim() || undefined;
-  const keywordsRaw = data.keywords?.trim();
-  const keywords = keywordsRaw
-    ? keywordsRaw.split(/[,;]\s*/).filter(Boolean)
-    : undefined;
 
   return withPageUrl("/faq", {
     title,
     description,
-    keywords,
     openGraph: {
       title,
       description,
@@ -42,6 +39,7 @@ export default async function FaqPage() {
 
   return (
     <>
+      <JsonLd data={buildFaqPageJsonLd(data.categories)} />
       <div className="container">
         <Breadcrumbs
           items={[

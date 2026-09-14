@@ -146,7 +146,7 @@ export default function SignupPageClient() {
           </svg>
 
           <div className="login_block_title">
-            <h2>Регистрация</h2>
+            <h1>Регистрация</h1>
           </div>
 
           <form method="POST" className="login_block_content signup_form" onSubmit={handleSubmit}>

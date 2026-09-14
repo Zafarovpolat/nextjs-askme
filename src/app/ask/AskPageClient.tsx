@@ -41,7 +41,7 @@ import { displayUserName } from "@/lib/ai-user-display"
 type Subcategory = { id: number; name: string; slug: string; icon_key: string | null }
 type CategoryItem = { id: number; name: string; slug: string; icon_key: string | null; subcategories: Subcategory[] }
 type ProjectLeader = { id: number; first_name: string; last_name: string; avatar_url: string; balls: number }
-type MostDiscussedItem = { id: number; title: string; likes_count: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }
+type MostDiscussedItem = { id: number; title: string; answers_count: number; likes_count?: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }
 type PopularTopic = { id: number; name: string; slug: string; parent_slug: string | null; parent_icon_key?: string | null; total_likes: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }
 
 export type AskPageInitialData = {
@@ -90,6 +90,31 @@ function isPremiumQuestionCheckboxDisabled(user: ApiUser | null | undefined): bo
     return used >= total
   }
   return false
+}
+
+function formatAskQuestionQuota(user: ApiUser | null | undefined): string | null {
+  if (!user) return null
+  const total = user.daily_action_limits?.ask_question
+  const remaining = user.daily_action_remaining?.ask_question
+  if (total == null || total <= 0 || remaining == null) return null
+  return `${Math.max(0, remaining)} из ${total}`
+}
+
+function formatAskIncompleteHint(parts: {
+  title: boolean
+  message: boolean
+  category: boolean
+  subcategory: boolean
+}): string | null {
+  const missing: string[] = []
+  if (!parts.title) missing.push("тему")
+  if (!parts.message) missing.push("текст вопроса")
+  if (!parts.category) missing.push("категорию")
+  if (!parts.subcategory) missing.push("подкатегорию")
+  if (missing.length === 0) return null
+  if (missing.length === 1) return `Укажите ${missing[0]}`
+  if (missing.length === 2) return `Укажите ${missing[0]} и ${missing[1]}`
+  return `Укажите ${missing.slice(0, -1).join(", ")} и ${missing[missing.length - 1]}`
 }
 
 function formatPremiumAskButtonLabel(user: {
@@ -197,6 +222,8 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
           per_page: String(SIMILAR_PER_PAGE),
           filter,
         })
+        if (selectedCategoryId) params.set("category_id", selectedCategoryId)
+        if (selectedSubcategoryId) params.set("subcategory_id", selectedSubcategoryId)
         const data = await api.get<{
           questions: QuestionListItem[]
           current_page: number
@@ -219,7 +246,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
         fetchSimilarAbortRef.current = null
       }
     },
-    []
+    [selectedCategoryId, selectedSubcategoryId],
   )
 
   useEffect(() => {
@@ -238,7 +265,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
       fetchSimilar(trimmed, 1, false, similarFilterRef.current)
     }, delay)
     return () => clearTimeout(timer)
-  }, [titleInput, messageInput, fetchSimilar])
+  }, [titleInput, messageInput, selectedCategoryId, selectedSubcategoryId, fetchSimilar])
 
   useEffect(() => {
     if (isAuthorized === 1) {
@@ -280,6 +307,26 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
           selectedSubcategoryId,
       ),
     [titleInput, messageInput, selectedCategoryId, selectedSubcategoryId],
+  )
+
+  const askQuestionQuota = useMemo(
+    () => (isAuthorized === 1 ? formatAskQuestionQuota(user) : null),
+    [isAuthorized, user],
+  )
+
+  const askFieldFilled = useMemo(
+    () => ({
+      title: Boolean(titleInput.trim()),
+      message: Boolean(messageInput.trim()),
+      category: Boolean(selectedCategoryId),
+      subcategory: Boolean(selectedSubcategoryId),
+    }),
+    [titleInput, messageInput, selectedCategoryId, selectedSubcategoryId],
+  )
+
+  const askIncompleteHint = useMemo(
+    () => formatAskIncompleteHint(askFieldFilled),
+    [askFieldFilled],
   )
 
   useEffect(() => {
@@ -506,16 +553,24 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                 type="text"
                 placeholder="Тема вопроса"
                 required
+                className={!askFieldFilled.title ? "ask_field_missing" : undefined}
+                aria-invalid={!askFieldFilled.title}
                 value={titleInput}
                 onChange={(e) => setTitleInput(sanitizePlainTextInput(e.target.value))}
               />
             </div>
-            <div className="ask_form_item ask_form_item_block_actions">
+            <div
+              className={
+                "ask_form_item ask_form_item_block_actions" +
+                (!askFieldFilled.message ? " ask_field_missing" : "")
+              }
+            >
               <HydrationSafeTextarea
                 ref={messageRef}
                 name="message"
                 placeholder="Как можно подробнее опишите свой вопрос"
                 required
+                aria-invalid={!askFieldFilled.message}
                 value={messageInput}
                 onChange={(e) => {
                   setMessageInput(sanitizePlainTextInput(e.target.value))
@@ -644,6 +699,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                   onChange={handleCategoryChange}
                   placeholder="Выберите категорию вопроса"
                   options={categories.map((c) => ({ value: String(c.id), label: c.name }))}
+                  className={!askFieldFilled.category ? "custom-select--missing" : undefined}
                   icon={<svg width="18" height="18"><use xlinkHref="/sprites.svg#grid-icon"></use></svg>}
                 />
               </div>
@@ -654,6 +710,7 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
                   placeholder="Выберите подкатегорию вопроса"
                   options={subcategoryOptions.map((s) => ({ value: String(s.id), label: s.name }))}
                   disabled={!selectedCategoryId}
+                  className={!askFieldFilled.subcategory ? "custom-select--missing" : undefined}
                   icon={<svg width="18" height="18"><use xlinkHref="/sprites.svg#list-icon"></use></svg>}
                 />
               </div>
@@ -665,18 +722,30 @@ export default function AskPageClient({ initialData }: { initialData: AskPageIni
             )}
             <div className="asf_form_actions">
               <div className="asf_form_actions__primary">
-                <button
-                  type="submit"
-                  className="m_btn category_btn ask_publish_btn"
-                  disabled={submitting || (isAuthorized === 1 && !canPublishQuestion)}
-                  title={
-                    isAuthorized === 1 && !canPublishQuestion
-                      ? "Укажите тему, текст вопроса, категорию и подкатегорию"
-                      : undefined
-                  }
-                >
-                  {submitting ? "Отправка…" : "Опубликовать вопрос"}
-                </button>
+                <div className="ask_publish_cluster">
+                  <div className="ask_publish_cluster__row">
+                    <button
+                      type="submit"
+                      className="m_btn category_btn ask_publish_btn"
+                      disabled={submitting || (isAuthorized === 1 && !canPublishQuestion)}
+                    >
+                      {submitting ? "Отправка…" : "Опубликовать вопрос"}
+                    </button>
+                    {askQuestionQuota ? (
+                      <span
+                        className="ask_publish_quota"
+                        aria-label={`Осталось вопросов: ${askQuestionQuota}`}
+                      >
+                        {askQuestionQuota}
+                      </span>
+                    ) : null}
+                  </div>
+                  {askIncompleteHint ? (
+                    <p className="ask_publish_hint" role="status" aria-live="polite">
+                      {askIncompleteHint}
+                    </p>
+                  ) : null}
+                </div>
                 <div className="ask_policy_notice">
                   <p className="ask_policy_notice__lead">
                     Нажимая на кнопку, вы принимаете условия

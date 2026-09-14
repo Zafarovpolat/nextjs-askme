@@ -119,7 +119,7 @@ export default function GiftVipModal({
 
         <div className="gift-vip-modal__header">
           <h3 id="gift-vip-modal-title" className="vip-purchase-modal-title gift-vip-modal__title">
-            Подарить VIP
+            Подарить премиум
           </h3>
           <p className="vip-purchase-modal-text gift-vip-modal__subtitle">
             Выберите пакет для пользователя <strong>{recipientName}</strong>

@@ -25,7 +25,7 @@ type CategoryTop = { id: number; name: string; slug: string; icon_key: string | 
 type HomeInitialData = {
   categories: CategoryTop[]
   project_leaders: { id: number; first_name: string; last_name: string; avatar_url?: string | null; balls: number }[]
-  most_discussed: { id: number; title: string; likes_count: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
+  most_discussed: { id: number; title: string; answers_count: number; likes_count?: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
   popular_topics: { id: number; name: string; slug: string | null; parent_slug: string | null; parent_icon_key?: string | null; total_likes: number; latest_likers: { id?: number; avatar_url?: string | null; avatar_url_2x?: string | null }[] }[]
 }
 
@@ -57,10 +57,14 @@ export default function HomeContent({
   initialData,
   initialByFilter,
   initialFilter,
+  explicitFilter,
+  initialPage,
 }: {
   initialData: HomeInitialData
   initialByFilter: HomeQuestionsByFilter
   initialFilter: HomeQuestionFilter
+  explicitFilter: HomeQuestionFilter | null
+  initialPage: number
 }) {
   const router = useRouter()
   const { toggleFavorite, isFavorited, isPending } = useFavoriteQuestion()
@@ -356,15 +360,21 @@ export default function HomeContent({
                   </button>
                 </div>
               ) : null}
-              <QuestionsTabPagination
-                basePath="/"
-                filter={tab.id}
-                current={initialByFilter[tab.id].current_page ?? 1}
-                last={initialByFilter[tab.id].last_page ?? 1}
-              />
             </div>
           )
         })}
+        <QuestionsTabPagination
+          basePath="/"
+          filter={explicitFilter}
+          current={initialPage}
+          last={
+            explicitFilter
+              ? (initialByFilter[explicitFilter].last_page ?? 1)
+              : Math.max(
+                  ...tabs.map((tab) => initialByFilter[tab.id].last_page ?? 1),
+                )
+          }
+        />
       </div>
 
       <div className="line"></div>

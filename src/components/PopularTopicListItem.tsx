@@ -34,7 +34,6 @@ export default function PopularTopicListItem({ topic }: { topic: PopularTopicIte
         likers={topic.latest_likers ?? []}
         countLabel={formatCompactCountPlus(topic.total_likes)}
         countTitle={compactCountTitle(topic.total_likes)}
-        usePlainImg
       />
     </div>
   );
